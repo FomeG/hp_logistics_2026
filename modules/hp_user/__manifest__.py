@@ -10,13 +10,18 @@
 HP User App
 ===================================================
 """,
-    'depends': ['base'],
+    'depends': ['base', 'mail'],
     'data': [
         'security/hp_user_security.xml',
         'security/ir.model.access.csv',
         'views/hp_user_menus.xml',
         'data/hp_user_data.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'hp_user/static/src/xml/hide_chatter_actions.xml',
+        ],
+    },
     'installable': True,
     'application': False,
 }
