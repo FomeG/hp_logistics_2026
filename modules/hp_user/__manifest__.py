@@ -10,11 +10,14 @@
 HP User App
 ===================================================
 """,
-    'depends': ['base', 'mail'],
+    'depends': ['base', 'mail', 'account'],
     'data': [
         'security/hp_user_security.xml',
         'security/ir.model.access.csv',
+        'security/position_security.xml',
+        'security/res_partner_rules.xml',
         'views/hp_user_menus.xml',
+        'views/res_users_view.xml',
         'data/hp_user_data.xml',
     ],
     'assets': {

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_sale_rule" model="ir.rule">
+        <field name="name">Customer Of User</field>
+        <field name="model_id" ref="base.model_res_partner" />
+        <field name="domain_force">[('customer_rank', '>', 0), ('create_uid', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('hp_user.position_group_sale'))]" />
+        <field name="perm_read" eval="True" />
+        <field name="perm_write" eval="False" />
+        <field name="perm_create" eval="False" />
+        <field name="perm_unlink" eval="False" />
+    </record>
+    <record id="res_partner_sale_rule_user" model="ir.rule">
+        <field name="name">Partner Of User</field>
+        <field name="model_id" ref="base.model_res_partner" />
+        <field name="domain_force">[('id', '=', user.partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('hp_user.position_group_sale'))]" />
+    </record>
+</odoo>
