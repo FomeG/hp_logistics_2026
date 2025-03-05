@@ -13,7 +13,7 @@
     ],
     'data': [
         # data
-        'data/product_data.xml',
+        'data/product_category.xml',
         'data/product_data.xml',
         'data/price_category_cron.xml',
 
@@ -31,4 +31,6 @@
     ],
     'demo': [],
     'installable': True,
+    'auto_install': False,
+    'application': True,
 }

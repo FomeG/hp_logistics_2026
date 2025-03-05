@@ -1,83 +1,259 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="0">
-        <!-- Pricing Products -->
-        <record id="product_pricing_basic_plan" model="product.template">
-            <field name="name">Basic Pricing Plan</field>
-            <field name="type">pricing</field>
-            <field name="categ_id" ref="product_category_pricing_basic"/>
-            <field name="list_price">100.00</field>
-            <field name="standard_price">80.00</field>
-            <field name="complete_time">2.0</field>
-            <field name="default_code">PRICE-BASIC-001</field>
-            <field name="description">Basic pricing service with standard features</field>
-
+        <!-- Custom Products -->
+        <!-- HÀNG NHẬP KHẨU HP - CONT 20'/40' -->
+        <record id="product_custom_im_1" model="product.template">
+            <field name="name">Luồng Xanh</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_1"/>
+            <field name="complete_time">2</field>
         </record>
 
-        <record id="product_pricing_premium_plan" model="product.template">
-            <field name="name">Premium Pricing Plan</field>
-            <field name="type">pricing</field>
-            <field name="categ_id" ref="product_category_premium_services"/>
-            <field name="list_price">250.00</field>
-            <field name="standard_price">200.00</field>
-            <field name="complete_time">1.5</field>
-            <field name="default_code">PRICE-PREM-001</field>
-            <field name="description">Premium pricing service with advanced features</field>
-
+        <record id="product_custom_im_2" model="product.template">
+            <field name="name">Luồng Vàng</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_1"/>
+            <field name="complete_time">4</field>
         </record>
 
-        <!-- Trucking Products -->
-        <record id="product_trucking_local_delivery" model="product.template">
-            <field name="name">Local Delivery Service</field>
-            <field name="type">trucking</field>
-            <field name="categ_id" ref="product_category_trucking_local"/>
-            <field name="list_price">50.00</field>
-            <field name="standard_price">40.00</field>
-            <field name="complete_time">1.0</field>
-            <field name="default_code">TRUCK-LOC-001</field>
-            <field name="description">Local delivery service within city limits</field>
-            <!-- Common product fields -->
-            <field name="uom_id" ref="uom.product_uom_unit"/>
-            <field name="uom_po_id" ref="uom.product_uom_unit"/>
-            <field name="invoice_policy">order</field>
-            <field name="sale_ok">true</field>
-            <field name="purchase_ok">true</field>
+        <record id="product_custom_im_3" model="product.template">
+            <field name="name">Kiểm Thủ công</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_1"/>
+            <field name="complete_time">7</field>
         </record>
 
-        <record id="product_trucking_longhaul_delivery" model="product.template">
-            <field name="name">Long-haul Transportation</field>
-            <field name="type">trucking</field>
-            <field name="categ_id" ref="product_category_trucking_longhaul"/>
-            <field name="list_price">500.00</field>
-            <field name="standard_price">400.00</field>
-            <field name="complete_time">24.0</field>
-            <field name="default_code">TRUCK-LONG-001</field>
-            <field name="description">Long-distance transportation service between cities</field>
+        <record id="product_custom_im_4" model="product.template">
+            <field name="name">Hải quan NK Hàng gỗ</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_1"/>
+        </record>
 
+        <!-- HÀNG NHẬP KHẨU HP - HÀNG LCL -->
+        <record id="product_custom_im_5" model="product.template">
+            <field name="name">Luồng Xanh</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_2"/>
+            <field name="complete_time">2</field>
+        </record>
+
+        <record id="product_custom_im_6" model="product.template">
+            <field name="name">Luồng Vàng</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_2"/>
+            <field name="complete_time">4</field>
+        </record>
+
+        <record id="product_custom_im_7" model="product.template">
+            <field name="name">Kiểm hóa</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_2"/>
+            <field name="complete_time">6</field>
+        </record>
+
+        <record id="product_custom_im_8" model="product.template">
+            <field name="name">Chi Kiểm dịch hàng bông</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_2"/>
+        </record>
+
+        <record id="product_custom_im_9" model="product.template">
+            <field name="name">TK Chuyển cửa Khẩu</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_2"/>
+            <field name="complete_time">2</field>
+        </record>
+
+        <!-- HÀNG XUẤT KHẨU HP - CONT 20'/40' -->
+        <record id="product_custom_ex_1" model="product.template">
+            <field name="name">Miễn kiểm</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_3"/>
+            <field name="complete_time">2</field>
+        </record>
+
+        <record id="product_custom_ex_2" model="product.template">
+            <field name="name">Kiểm hóa</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_3"/>
+            <field name="complete_time">5</field>
+        </record>
+
+        <record id="product_custom_ex_3" model="product.template">
+            <field name="name">Chi thêm hàng Plywood luồng vàng</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_3"/>
+        </record>
+
+        <!-- HÀNG XUẤT KHẨU HP - HÀNG LCL -->
+        <record id="product_custom_ex_4" model="product.template">
+            <field name="name">Miễn kiểm</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_4"/>
+            <field name="complete_time">2</field>
+        </record>
+
+        <record id="product_custom_ex_5" model="product.template">
+            <field name="name">Kiểm hóa</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_4"/>
+            <field name="complete_time">5</field>
+        </record>
+
+        <record id="product_custom_ex_6" model="product.template">
+            <field name="name">TK Chuyển cửa Khẩu</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_4"/>
+            <field name="complete_time">2</field>
+        </record>
+
+        <record id="product_custom_ex_7" model="product.template">
+            <field name="name">Nộp Tờ khai vàng, xanh</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_4"/>
+            <field name="complete_time">1</field>
+        </record>
+
+        <record id="product_custom_ex_8" model="product.template">
+            <field name="name">Nộp Tờ khai đỏ</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_4"/>
+            <field name="complete_time">1</field>
+        </record>
+
+        <record id="product_custom_ex_9" model="product.template">
+            <field name="name">Nộp Tờ khai đỏ có chì định vị</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_4"/>
+            <field name="complete_time">1</field>
+        </record>
+
+        <!-- HÀNG XUẤT/NHẬP CCHQĐTGC, CHI CỤC HQ BẮC HÀ NỘI, CC HQ GIA LÂM -->
+        <record id="product_custom_imex_1" model="product.template">
+            <field name="name">Thông thường</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_imex"/>
+        </record>
+
+        <record id="product_custom_imex_2" model="product.template">
+            <field name="name">Luồng Đỏ</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_imex"/>
+        </record>
+
+        <record id="product_custom_imex_3" model="product.template">
+            <field name="name">Thông thường hàng Gỗ</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_imex"/>
+        </record>
+
+        <record id="product_custom_imex_4" model="product.template">
+            <field name="name">Luồng Đỏ Hàng Gỗ</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_custom_imex"/>
         </record>
 
         <!-- Common Products -->
-        <record id="product_common_consultation" model="product.template">
-            <field name="name">Logistics Consultation</field>
+        <!-- PHÍ CHỨNG TỪ - Phyto-->
+        <record id="product_common_phyto_1" model="product.template">
+            <field name="name">Chi phí làm Phyto</field>
             <field name="type">common</field>
-            <field name="categ_id" ref="product_category_common_services"/>
-            <field name="list_price">150.00</field>
-            <field name="standard_price">100.00</field>
-            <field name="complete_time">3.0</field>
-            <field name="default_code">COMMON-CONSULT-001</field>
-            <field name="description">Standard logistics consultation service</field>
+            <field name="categ_id" ref="hp_sale.product_category_common_phyto"/>
+            <field name="complete_time">3</field>
         </record>
 
-        <!-- Custom Products -->
-        <record id="product_custom_solution" model="product.template">
-            <field name="name">Custom Logistics Solution</field>
-            <field name="type">custom</field>
-            <field name="categ_id" ref="product_category_custom_solutions"/>
-            <field name="list_price">1000.00</field>
-            <field name="standard_price">800.00</field>
-            <field name="complete_time">5.0</field>
-            <field name="default_code">CUSTOM-SOL-001</field>
-            <field name="description">Fully customized logistics solution tailored to client needs</field>
+        <record id="product_common_phyto_2" model="product.template">
+            <field name="name">Chi phí làm Phyto Show Hun trùng</field>
+            <field name="type">common</field>
+            <field name="categ_id" ref="hp_sale.product_category_common_phyto"/>
+            <field name="complete_time">3</field>
         </record>
+
+        <record id="product_common_phyto_2" model="product.template">
+            <field name="name">Lệ phí Phyto</field>
+            <field name="type">common</field>
+            <field name="categ_id" ref="hp_sale.product_category_common_phyto"/>
+            <field name="complete_time">3</field>
+        </record>
+
+        <!-- PHÍ CHỨNG TỪ - C/O-->
+        <record id="product_common_co_1" model="product.template">
+            <field name="name">Chi phí làm CO</field>
+            <field name="type">common</field>
+            <field name="categ_id" ref="hp_sale.product_category_common_co"/>
+            <field name="complete_time">1</field>
+        </record>
+
+        <record id="product_common_co_2" model="product.template">
+            <field name="name">Lệ phí CO</field>
+            <field name="type">common</field>
+            <field name="categ_id" ref="hp_sale.product_category_common_co"/>
+            <field name="complete_time">1</field>
+        </record>
+
+        <!-- PHÍ CHỨNG TỪ - Đóng hàng tại bãi-->
+        <record id="product_common_package_1" model="product.template">
+            <field name="name">Cont 20'</field>
+            <field name="type">common</field>
+            <field name="categ_id" ref="hp_sale.product_category_common_package"/>
+        </record>
+
+        <record id="product_common_package_2" model="product.template">
+            <field name="name">Cont 40'</field>
+            <field name="type">common</field>
+            <field name="categ_id" ref="hp_sale.product_category_common_package"/>
+        </record>
+
+        <!-- PHÍ CHỨNG TỪ - Phí Hun Trùng-->
+        <record id="product_common_fumigation_1" model="product.template">
+            <field name="name">48-50 g/m3</field>
+            <field name="type">common</field>
+            <field name="categ_id" ref="hp_sale.product_category_common_fumigation"/>
+        </record>
+
+        <record id="product_common_fumigation_2" model="product.template">
+            <field name="name">80 g/m3</field>
+            <field name="type">common</field>
+            <field name="categ_id" ref="hp_sale.product_category_common_fumigation"/>
+        </record>
+
+        <record id="product_common_fumigation_3" model="product.template">
+            <field name="name">Australia /ISPMl 5</field>
+            <field name="type">common</field>
+            <field name="categ_id" ref="hp_sale.product_category_common_fumigation"/>
+        </record>
+
+        <record id="product_common_fumigation_4" model="product.template">
+            <field name="name">Australia I AFAS</field>
+            <field name="type">common</field>
+            <field name="categ_id" ref="hp_sale.product_category_common_fumigation"/>
+        </record>
+
+        <!-- PHÍ CHỨNG TỪ - Chi phí nâng hạ tại Cảng-->
+        <record id="product_common_lifton/liftoff_1" model="product.template">
+            <field name="name">Cont 20' Rỗng</field>
+            <field name="type">common</field>
+            <field name="categ_id" ref="hp_sale.product_category_common_lifton/liftoff"/>
+        </record>
+
+        <record id="product_common_lifton/liftoff_2" model="product.template">
+            <field name="name">Cont 40' Rỗng</field>
+            <field name="type">common</field>
+            <field name="categ_id" ref="hp_sale.product_category_common_lifton/liftoff"/>
+        </record>
+
+        <record id="product_common_lifton/liftoff_3" model="product.template">
+            <field name="name">Cont 20' Hàng</field>
+            <field name="type">common</field>
+            <field name="categ_id" ref="hp_sale.product_category_common_lifton/liftoff"/>
+        </record>
+
+        <record id="product_common_lifton/liftoff_4" model="product.template">
+            <field name="name">Cont 40' Hàng</field>
+            <field name="type">common</field>
+            <field name="categ_id" ref="hp_sale.product_category_common_lifton/liftoff"/>
+        </record>
+
     </data>
 </odoo>
