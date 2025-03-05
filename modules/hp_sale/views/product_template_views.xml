@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Product Template Form View: Inherit to add type-specific fields -->
+    <record id="product_template_form_view_inherit" model="ir.ui.view">
+        <field name="name">product.template.form.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <!-- Modify the product type field -->
+            <xpath expr="//field[@name='type']" position="replace">
+                <field name="type" widget="radio" options="{'horizontal': true}"/>
+                <field name="can_have_price_category" invisible="1"/>
+            </xpath>
+
+            <!-- Make category field invisible for pricing and trucking types -->
+            <xpath expr="//field[@name='categ_id']" position="attributes">
+                <attribute name="attrs">{'invisible': [('type', 'in', ['pricing', 'trucking'])], 'required': [('type', 'in', ['common', 'custom'])]}</attribute>
+            </xpath>
+
+            <!-- Add type-specific fields and sections -->
+            <xpath expr="//page[@name='general_information']/group" position="after">
+                <!-- Fields for pricing type products -->
+                <group string="Pricing Information" attrs="{'invisible': [('type', '!=', 'pricing')]}">
+                    <group>
+                        <field name="pod_id" attrs="{'required': [('type', '=', 'pricing')]}"/>
+                        <field name="pol_id" attrs="{'required': [('type', '=', 'pricing')]}"/>
+                    </group>
+                    <group>
+                        <field name="etd" attrs="{'required': [('type', '=', 'pricing')]}"/>
+                        <field name="complete_time" widget="float_time"/>
+                    </group>
+                </group>
+
+                <!-- Fields for trucking type products -->
+                <group string="Trucking Information" attrs="{'invisible': [('type', '!=', 'trucking')]}">
+                    <group>
+                        <field name="start_id" attrs="{'required': [('type', '=', 'trucking')]}"/>
+                        <field name="destination_id" attrs="{'required': [('type', '=', 'trucking')]}"/>
+                    </group>
+                    <group>
+                        <field name="etd" attrs="{'required': [('type', '=', 'trucking')]}"/>
+                        <field name="complete_time" widget="float_time"/>
+                    </group>
+                </group>
+
+                <!-- Service information for common/custom type products -->
+                <group string="Service Information" attrs="{'invisible': [('type', 'not in', ['common', 'custom'])]}">
+                    <field name="complete_time" widget="float_time"/>
+                </group>
+            </xpath>
+
+            <!-- Add price configuration tab for Common and Custom types -->
+            <xpath expr="//page[@name='general_information']" position="after">
+                <page string="Price Configuration" name="price_configuration" attrs="{'invisible': [('can_have_price_category', '=', False)]}">
+                    <group>
+                        <group>
+                            <field name="price_type" widget="radio"/>
+                            <field name="active_price_category_id" readonly="1" attrs="{'invisible': [('active_price_category_id', '=', False)]}"/>
+                        </group>
+                        <group>
+                            <field name="tiered_price" attrs="{'invisible': [('price_type', '!=', 'tiered')], 'readonly': [('active_price_category_id', '!=', False)]}"/>
+                        </group>
+                    </group>
+
+                    <div class="alert alert-info" role="alert" attrs="{'invisible': [('active_price_category_id', '!=', False)]}">
+                        <p>
+                            <strong>Note:</strong> Create a Price Category to manage prices with validity periods.</p>
+                    </div>
+
+                    <field name="price_category_ids" context="{'default_product_id': active_id}">
+                        <tree decoration-muted="is_superseded" decoration-success="not is_superseded">
+                            <field name="name"/>
+                            <field name="price_type"/>
+                            <field name="common_price"/>
+                            <field name="tiered_price" attrs="{'invisible': [('price_type', '!=', 'tiered')]}"/>
+                            <field name="valid_from"/>
+                            <field name="valid_until"/>
+                            <field name="is_superseded"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Product Template Tree View: Inherit to add type-specific columns -->
+    <record id="product_template_tree_view_inherit" model="ir.ui.view">
+        <field name="name">product.template.tree.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="default_code" position="after">
+                <field name="type"/>
+            </field>
+
+            <field name="list_price" position="after">
+                <field name="tiered_price" optional="show" invisible="context.get('default_type') not in ('common', 'custom', False)"/>
+                <field name="pod_id" optional="show" invisible="context.get('default_type') not in ('pricing', False)"/>
+                <field name="pol_id" optional="show" invisible="context.get('default_type') not in ('pricing', False)"/>
+                <field name="start_id" optional="show" invisible="context.get('default_type') not in ('trucking', False)"/>
+                <field name="destination_id" optional="show" invisible="context.get('default_type') not in ('trucking', False)"/>
+                <field name="etd" optional="show"/>
+                <field name="complete_time" optional="hide" widget="float_time"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Product Template Search View: Add filters by type -->
+    <record id="product_template_search_view_inherit" model="ir.ui.view">
+        <field name="name">product.template.search.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <filter name="consumable" position="after">
+                <separator/>
+                <filter string="Pricing" name="type_pricing" domain="[('type', '=', 'pricing')]"/>
+                <filter string="Trucking" name="type_trucking" domain="[('type', '=', 'trucking')]"/>
+                <filter string="Common" name="type_common" domain="[('type', '=', 'common')]"/>
+                <filter string="Custom" name="type_custom" domain="[('type', '=', 'custom')]"/>
+                <separator/>
+            </filter>
+
+            <filter name="categ_id" position="after">
+                <filter string="Product Type" name="groupby_type" context="{'group_by': 'type'}"/>
+            </filter>
+        </field>
+    </record>
+</odoo>

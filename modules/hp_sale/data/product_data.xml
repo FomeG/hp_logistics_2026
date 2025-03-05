@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Pricing Products -->
+        <record id="product_pricing_basic_plan" model="product.template">
+            <field name="name">Basic Pricing Plan</field>
+            <field name="type">pricing</field>
+            <field name="categ_id" ref="product_category_pricing_basic"/>
+            <field name="list_price">100.00</field>
+            <field name="standard_price">80.00</field>
+            <field name="complete_time">2.0</field>
+            <field name="default_code">PRICE-BASIC-001</field>
+            <field name="description">Basic pricing service with standard features</field>
+
+        </record>
+
+        <record id="product_pricing_premium_plan" model="product.template">
+            <field name="name">Premium Pricing Plan</field>
+            <field name="type">pricing</field>
+            <field name="categ_id" ref="product_category_premium_services"/>
+            <field name="list_price">250.00</field>
+            <field name="standard_price">200.00</field>
+            <field name="complete_time">1.5</field>
+            <field name="default_code">PRICE-PREM-001</field>
+            <field name="description">Premium pricing service with advanced features</field>
+
+        </record>
+
+        <!-- Trucking Products -->
+        <record id="product_trucking_local_delivery" model="product.template">
+            <field name="name">Local Delivery Service</field>
+            <field name="type">trucking</field>
+            <field name="categ_id" ref="product_category_trucking_local"/>
+            <field name="list_price">50.00</field>
+            <field name="standard_price">40.00</field>
+            <field name="complete_time">1.0</field>
+            <field name="default_code">TRUCK-LOC-001</field>
+            <field name="description">Local delivery service within city limits</field>
+            <!-- Common product fields -->
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="invoice_policy">order</field>
+            <field name="sale_ok">true</field>
+            <field name="purchase_ok">true</field>
+        </record>
+
+        <record id="product_trucking_longhaul_delivery" model="product.template">
+            <field name="name">Long-haul Transportation</field>
+            <field name="type">trucking</field>
+            <field name="categ_id" ref="product_category_trucking_longhaul"/>
+            <field name="list_price">500.00</field>
+            <field name="standard_price">400.00</field>
+            <field name="complete_time">24.0</field>
+            <field name="default_code">TRUCK-LONG-001</field>
+            <field name="description">Long-distance transportation service between cities</field>
+
+        </record>
+
+        <!-- Common Products -->
+        <record id="product_common_consultation" model="product.template">
+            <field name="name">Logistics Consultation</field>
+            <field name="type">common</field>
+            <field name="categ_id" ref="product_category_common_services"/>
+            <field name="list_price">150.00</field>
+            <field name="standard_price">100.00</field>
+            <field name="complete_time">3.0</field>
+            <field name="default_code">COMMON-CONSULT-001</field>
+            <field name="description">Standard logistics consultation service</field>
+        </record>
+
+        <!-- Custom Products -->
+        <record id="product_custom_solution" model="product.template">
+            <field name="name">Custom Logistics Solution</field>
+            <field name="type">custom</field>
+            <field name="categ_id" ref="product_category_custom_solutions"/>
+            <field name="list_price">1000.00</field>
+            <field name="standard_price">800.00</field>
+            <field name="complete_time">5.0</field>
+            <field name="default_code">CUSTOM-SOL-001</field>
+            <field name="description">Fully customized logistics solution tailored to client needs</field>
+        </record>
+    </data>
+</odoo>

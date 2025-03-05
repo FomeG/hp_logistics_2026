@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Product Category Form View -->
+    <record id="product_category_form_view_inherit" model="ir.ui.view">
+        <field name="name">product.category.form.inherit</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='first']" position="inside">
+                <field name="allowed_type_id" options="{'no_create': True}"/>
+            </xpath>
+            <field name="parent_id" position="after">
+                <div class="alert alert-info" role="alert">
+                    <p>
+                        <strong>Note:</strong> The "Allowed Product Type" restricts which product type can use this category. If left empty, the category can be used by any product type (Common and Custom).</p>
+                </div>
+            </field>
+        </field>
+    </record>
+
+    <!-- Product Category Tree/List View -->
+    <record id="product_category_list_view_inherit" model="ir.ui.view">
+        <field name="name">product.category.list.inherit</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_list_view"/>
+        <field name="arch" type="xml">
+            <field name="display_name" position="after">
+                <field name="allowed_type_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Product Category Search View -->
+    <record id="product_category_search_view_inherit" model="ir.ui.view">
+        <field name="name">product.category.search.inherit</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_search_view"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="allowed_type_id"/>
+                <filter string="Has Type Restriction" name="has_restriction" domain="[('allowed_type_id', '!=', False)]"/>
+                <separator/>
+                <filter string="For Common Products" name="for_common" domain="[('allowed_type_id.value', '=', 'common')]"/>
+                <filter string="For Custom Products" name="for_custom" domain="[('allowed_type_id.value', '=', 'custom')]"/>
+            </field>
+            <group position="inside">
+                <filter string="Allowed Product Type" name="group_by_allowed_type" context="{'group_by': 'allowed_type_id'}"/>
+            </group>
+        </field>
+    </record>
+</odoo>

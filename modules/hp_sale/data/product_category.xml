@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- First, define the selection field values that will be referenced -->
+        <record id="product_type_pricing" model="ir.model.fields.selection">
+            <field name="field_id" search="[('model', '=', 'product.template'), ('name', '=', 'type')]"/>
+            <field name="value">pricing</field>
+            <field name="name">Pricing</field>
+        </record>
+
+        <record id="product_type_trucking" model="ir.model.fields.selection">
+            <field name="field_id" search="[('model', '=', 'product.template'), ('name', '=', 'type')]"/>
+            <field name="value">trucking</field>
+            <field name="name">Trucking</field>
+        </record>
+
+        <record id="product_type_common" model="ir.model.fields.selection">
+            <field name="field_id" search="[('model', '=', 'product.template'), ('name', '=', 'type')]"/>
+            <field name="value">common</field>
+            <field name="name">Common</field>
+        </record>
+
+        <record id="product_type_custom" model="ir.model.fields.selection">
+            <field name="field_id" search="[('model', '=', 'product.template'), ('name', '=', 'type')]"/>
+            <field name="value">custom</field>
+            <field name="name">Custom</field>
+        </record>
+
+        <!-- Define categories with allowed product types -->
+        <!-- Pricing categories -->
+        <record id="product_category_pricing_basic" model="product.category">
+            <field name="name">Basic Pricing Services</field>
+            <field name="allowed_types" eval="[(6, 0, [ref('product_type_pricing')])]"/>
+        </record>
+
+        <record id="product_category_pricing_premium" model="product.category">
+            <field name="name">Premium Pricing Services</field>
+            <field name="allowed_type_ids" eval="[(6, 0, [ref('product_type_pricing')])]"/>
+        </record>
+
+        <!-- Trucking categories -->
+        <record id="product_category_trucking_local" model="product.category">
+            <field name="name">Local Trucking</field>
+            <field name="allowed_type_ids" eval="[(6, 0, [ref('product_type_trucking')])]"/>
+        </record>
+
+        <record id="product_category_trucking_longhaul" model="product.category">
+            <field name="name">Long-haul Trucking</field>
+            <field name="allowed_type_ids" eval="[(6, 0, [ref('product_type_trucking')])]"/>
+        </record>
+
+        <!-- Common categories (can be used by multiple types) -->
+        <record id="product_category_common_services" model="product.category">
+            <field name="name">Common Services</field>
+            <field name="allowed_type_ids" eval="[(6, 0, [ref('product_type_common')])]"/>
+        </record>
+
+        <!-- Custom categories -->
+        <record id="product_category_custom_solutions" model="product.category">
+            <field name="name">Custom Solutions</field>
+            <field name="allowed_type_ids" eval="[(6, 0, [ref('product_type_custom')])]"/>
+        </record>
+
+        <!-- Multi-type category example -->
+        <record id="product_category_premium_services" model="product.category">
+            <field name="name">Premium Services</field>
+            <field name="allowed_type_ids" eval="[(6, 0, [ref('product_type_pricing'), ref('product_type_custom')])]"/>
+        </record>
+    </data>
+</odoo>
