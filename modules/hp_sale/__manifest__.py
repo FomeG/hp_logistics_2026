@@ -26,7 +26,7 @@
         'views/price_category_views.xml',
         'views/product_category_views.xml'
 
-        'views/menus.xml',
+        # 'views/menus.xml',
 
     ],
     'demo': [],

@@ -16,9 +16,9 @@
     <record id="product_category_tree_view_inherit" model="ir.ui.view">
         <field name="name">product.category.tree.inherit</field>
         <field name="model">product.category</field>
-        <field name="inherit_id" ref="product.product_category_tree_view"/>
+        <field name="inherit_id" ref="product.product_category_list_view"/>
         <field name="arch" type="xml">
-            <field name="name" position="after">
+            <field name="display_name" position="after">
                 <field name="allowed_type_id"/>
             </field>
         </field>
@@ -30,17 +30,11 @@
         <field name="model">product.category</field>
         <field name="inherit_id" ref="product.product_category_search_view"/>
         <field name="arch" type="xml">
-            <filter name="parent_id" position="after">
+            <field name="parent_id" position="after">
                 <filter string="Allowed Type: Common" name="allowed_type_common" domain="[('allowed_type_id', '=', 'common')]"/>
                 <filter string="Allowed Type: Custom" name="allowed_type_custom" domain="[('allowed_type_id', '=', 'custom')]"/>
-            </filter>
+            </field>
         </field>
     </record>
 
-    <!-- Hide Predefined Odoo Categories in Selection -->
-    <record id="hide_predefined_categories" model="ir.model.fields">
-        <field name="model">product.category</field>
-        <field name="name">parent_id</field>
-        <field name="domain">[('id', 'not in', [ref('product_category_all'), ref('product_category_1'), ref('cat_expense')])]</field>
-    </record>
 </odoo>

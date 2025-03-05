@@ -15,13 +15,13 @@
                     <!-- Pricing Fields (Dynamic Based on Price Type) -->
                     <group string="Price Information">
                         <!-- Fields for Common Price -->
-                        <group attrs="{'invisible': [('price_type', '!=', 'common'), ('price_type', '=', False)]}">
+                        <group invisible="price_type != 'common'">
                             <field name="common_price" required="1"/>
                             <field name="future_common_price" required="1"/>
                         </group>
 
                         <!-- Fields for Tiered Price -->
-                        <group attrs="{'invisible': [('price_type', '!=', 'tiered'), ('price_type', '=', False)]}">
+                        <group invisible="price_type != 'tiered'">
                             <field name="common_price" required="1"/>
                             <field name="tiered_price" required="1"/>
                             <field name="future_common_price" required="1"/>
@@ -48,16 +48,16 @@
         <field name="name">product.price.category.tree</field>
         <field name="model">product.price.category</field>
         <field name="arch" type="xml">
-            <tree string="Price Categories" decoration-muted="is_superseded" decoration-success="not is_superseded">
+            <list string="Price Categories" decoration-muted="is_superseded" decoration-success="not is_superseded">
                 <field name="product_id"/>
                 <field name="price_type"/>
                 <field name="common_price"/>
-                <field name="tiered_price" attrs="{'invisible': [('price_type', '!=', 'tiered')]}"/>
+                <field name="tiered_price"/>
                 <field name="future_common_price"/>
-                <field name="future_tiered_price" attrs="{'invisible': [('price_type', '!=', 'tiered')]}"/>
+                <field name="future_tiered_price"/>
                 <field name="valid_until"/>
                 <field name="is_superseded"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -90,7 +90,7 @@
     <record id="action_product_price_category" model="ir.actions.act_window">
         <field name="name">Price Categories</field>
         <field name="res_model">product.price.category</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="view_id" ref="view_product_price_category_tree"/>
         <field name="search_view_id" ref="view_product_price_category_search"/>
         <field name="domain">[('product_id.type', 'in', ['common', 'custom'])]</field>
@@ -110,7 +110,7 @@
 
     <!-- Menu Item for Price Categories -->
     <menuitem id="menu_product_price_category"
-        name="Price Categories"
+        name="Product Price Categories"
         action="action_product_price_category"
         parent="sale.menu_sales_config"
         sequence="2"/>

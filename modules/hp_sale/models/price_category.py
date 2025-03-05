@@ -6,6 +6,7 @@ _logger = logging.getLogger(__name__)
 
 class PriceCategory(models.Model):
     _name = 'product.price.category'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Product Price Category'
     _order = 'valid_until desc, id desc'
 

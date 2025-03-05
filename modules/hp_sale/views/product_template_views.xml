@@ -14,46 +14,45 @@
             <!-- Restrict category selection based on product type -->
             <field name="categ_id" position="attributes">
                 <attribute name="domain">[('allowed_type_id', '=', type)]</attribute>
-                <attribute name="invisible">[('type', 'not in', ['common', 'custom'])]</attribute>
+                <attribute name="invisible">type not in ['common', 'custom']</attribute>
             </field>
 
             <!-- Pricing Fields -->
             <xpath expr="//page[@name='general_information']/group" position="after">
-                <group string="Pricing Information" attrs="{'invisible': [('type', '!=', 'pricing')]}">
+                <group string="Pricing Information" invisible="type != 'pricing'">
                     <group>
-                        <field name="pod_id" attrs="{'required': [('type', '=', 'pricing')]}"/>
-                        <field name="pol_id" attrs="{'required': [('type', '=', 'pricing')]}"/>
+                        <field name="pod_id" required="type == 'pricing'"/>
+                        <field name="pol_id" required="type == 'pricing'"/>
                     </group>
                     <group>
-                        <field name="etd" attrs="{'required': [('type', '=', 'pricing')]}"/>
-                        <field name="standard_price" attrs="{'required': [('type', '=', 'pricing')]}"/>
-                        <field name="list_price" attrs="{'required': [('type', '=', 'pricing')]}"/>
+                        <field name="etd" required="type == 'pricing'"/>
+                        <field name="standard_price" required="type == 'pricing'"/>
+                        <field name="list_price" required="type == 'pricing'"/>
                     </group>
                 </group>
 
                 <!-- Trucking Fields -->
-                <group string="Trucking Information" attrs="{'invisible': [('type', '!=', 'trucking')]}">
+                <group string="Trucking Information" invisible="type != 'trucking'">
                     <group>
-                        <field name="start_id" attrs="{'required': [('type', '=', 'trucking')]}"/>
-                        <field name="destination_id" attrs="{'required': [('type', '=', 'trucking')]}"/>
+                        <field name="start_id" required="type == 'trucking'"/>
+                        <field name="destination_id" required="type == 'trucking'"/>
                     </group>
                     <group>
-                        <field name="etd" attrs="{'required': [('type', '=', 'trucking')]}"/>
-                        <field name="standard_price" attrs="{'required': [('type', '=', 'trucking')]}"/>
-                        <field name="list_price" attrs="{'required': [('type', '=', 'trucking')]}"/>
+                        <field name="etd" required="type == 'trucking'"/>
+                        <field name="standard_price" required="type == 'trucking'"/>
+                        <field name="list_price" required="type == 'trucking'"/>
                     </group>
                 </group>
 
                 <!-- Service Fields for Common & Custom -->
-                <group string="Service Information" attrs="{'invisible': [('type', 'not in', ['common', 'custom'])]}">
+                <group string="Service Information" invisible="type not in ['common', 'custom']">
                     <field name="complete_time" widget="float_time"/>
                 </group>
             </xpath>
 
             <!-- Add Price Configuration for Common & Custom -->
-            <xpath expr="//page[@name='general_information']" position="after">
-                <page string="Price Configuration" name="price_configuration" attrs="{'invisible': [('type', 'not in', ['common', 'custom'])]}">
-                    <group>
+            <xpath expr="//page[@name='general_information']/group" position="after">
+                <group string="Price Configuration" name="price_configuration" invisible="type not in ['common', 'custom']">
                         <group>
                             <field name="price_type" widget="radio"/>
                         </group>
@@ -61,10 +60,9 @@
                             <!-- List Price: Always visible -->
                             <field name="list_price"/>
                             <!-- Tiered Price: Only visible if price_type is tiered -->
-                            <field name="tiered_price" attrs="{'invisible': [('price_type', '!=', 'tiered')]}"/>
+                            <field name="tiered_price" invisible="price_type != 'tiered'"/>
                         </group>
-                    </group>
-                </page>
+                </group>
             </xpath>
         </field>
     </record>
@@ -80,11 +78,11 @@
             </field>
 
             <field name="list_price" position="after">
-                <field name="tiered_price" optional="show" invisible="context.get('default_type') not in ('common', 'custom', False)"/>
-                <field name="pod_id" optional="show" invisible="context.get('default_type') not in ('pricing', False)"/>
-                <field name="pol_id" optional="show" invisible="context.get('default_type') not in ('pricing', False)"/>
-                <field name="start_id" optional="show" invisible="context.get('default_type') not in ('trucking', False)"/>
-                <field name="destination_id" optional="show" invisible="context.get('default_type') not in ('trucking', False)"/>
+                <field name="tiered_price" optional="show"/>
+                <field name="pod_id" optional="show"/>
+                <field name="pol_id" optional="show"/>
+                <field name="start_id" optional="show"/>
+                <field name="destination_id" optional="show"/>
                 <field name="etd" optional="show"/>
                 <field name="standard_price" optional="show"/>
                 <field name="complete_time" optional="hide" widget="float_time"/>
@@ -98,18 +96,19 @@
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_search_view"/>
         <field name="arch" type="xml">
-            <filter name="consumable" position="after">
+            <!-- Instead of looking for a specific filter, add to the filter section -->
+            <xpath expr="//search/*[last()]" position="after">
                 <separator/>
                 <filter string="Pricing" name="type_pricing" domain="[('type', '=', 'pricing')]"/>
                 <filter string="Trucking" name="type_trucking" domain="[('type', '=', 'trucking')]"/>
                 <filter string="Common" name="type_common" domain="[('type', '=', 'common')]"/>
                 <filter string="Custom" name="type_custom" domain="[('type', '=', 'custom')]"/>
-                <separator/>
-            </filter>
+            </xpath>
 
-            <filter name="categ_id" position="after">
+            <!-- For group by, find the existing group element -->
+            <xpath expr="//group" position="inside">
                 <filter string="Product Type" name="groupby_type" context="{'group_by': 'type'}"/>
-            </filter>
+            </xpath>
         </field>
     </record>
 </odoo>

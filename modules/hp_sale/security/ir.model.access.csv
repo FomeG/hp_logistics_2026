@@ -1,2 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-hp_price_category_all,fx_price_category_all,model_fx_price_category,,1,1,1,1
+hp_product_price_category_all,hp_product_price_category_all,model_product_price_category,,1,1,1,1
