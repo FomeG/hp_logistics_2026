@@ -21,21 +21,20 @@ class PriceCategory(models.Model):
     ], string='Price Type', required=True, readonly=True)
 
     # Price fields
-    common_price = fields.Float(string='Common Price', digits='Product Price', required=True)
-    tiered_price = fields.Float(string='Tiered Price', digits='Product Price')
+    common_price = fields.Float(string='Giá chung', digits='Product Price', required=True)
+    tiered_price = fields.Float(string='Giá lũy tiến', digits='Product Price')
 
     # Future prices
-    future_common_price = fields.Float(string='Future Common Price', digits='Product Price', required=True)
-    future_tiered_price = fields.Float(string='Future Tiered Price', digits='Product Price')
+    future_common_price = fields.Float(string='Giá chung Tương lai', digits='Product Price', required=True)
+    future_tiered_price = fields.Float(string='Giá lũy tiến Tương lai', digits='Product Price')
 
     # Validity period
-    valid_until = fields.Date(string='Valid Until', required=True)
+    valid_until = fields.Date(string='Hiệu lực đến', required=True)
 
     # Status tracking
     is_superseded = fields.Boolean(
-        string='Superseded',
-        default=False,
-        help="Indicates if this price category has been superseded by a newer one"
+        string='Đã hết hiệu lực',
+        default=False
     )
 
     @api.onchange('product_id')
@@ -136,6 +135,6 @@ class PriceCategory(models.Model):
                 product.list_price = category.future_common_price
                 product.tiered_price = category.future_tiered_price
 
-            _logger.info(f"Applied future prices for product {product.name} on {today}")
+            _logger.info(f"Áp dụng giá tương lai cho sản phẩm {product.name} on {today}")
 
         return True

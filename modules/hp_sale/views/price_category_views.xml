@@ -110,7 +110,7 @@
 
     <!-- Menu Item for Price Categories -->
     <menuitem id="menu_product_price_category"
-        name="Product Price Categories"
+        name="Bảng giá HP"
         action="action_product_price_category"
         parent="sale.menu_sales_config"
         sequence="2"/>

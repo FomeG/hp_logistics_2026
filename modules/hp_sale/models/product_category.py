@@ -9,6 +9,5 @@ class ProductCategory(models.Model):
             ('custom', "Custom"),
         ],
         string="Allowed Product Type",
-        required=True,
-        help="Only products of this type can belong to this category."
+        required=True
     )
