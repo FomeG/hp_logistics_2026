@@ -4592,7 +4592,7 @@ class TestMrpOrder(TestMrpCommon):
     def test_update_qty_producing_done_MO_with_lot(self):
         """
         Test that increasing the qty producing of a done MO for a product tracked by lot
-        will create an additional sml for the final product with the same producing lot.
+        will create an additional xml for the final product with the same producing lot.
         And test that removing products from stock, then increasing the qty producing of the MO
         results in the correct qty of tracked products in stock.
         """

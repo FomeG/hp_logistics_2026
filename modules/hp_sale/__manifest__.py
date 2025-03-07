@@ -30,6 +30,11 @@
 
     ],
     'demo': [],
+    'assets': {
+        'web.assets_backend': [
+            'hp_sale/static/src/js/hide_add_properties.js',
+        ],
+    },
     'installable': True,
     'auto_install': False,
     'application': True,

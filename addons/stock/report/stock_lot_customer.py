@@ -21,13 +21,13 @@ class StockLotReport(models.Model):
 
     def _select(self):
         return """
-            MIN(sml.id) AS id,
+            MIN(xml.id) AS id,
             lot.id lot_id,
             lot.product_id,
             picking.partner_id,
             picking.id picking_id,
-            sml.quantity,
-            sml.product_uom_id uom_id,
+            xml.quantity,
+            xml.product_uom_id uom_id,
             CONCAT_WS(', ', partner.street, partner.street2, partner.city,  partner.zip, state.name, country.code) address,
             MIN(sml_return.id) IS NOT NULL AS has_return,
             picking.date_done delivery_date
@@ -36,10 +36,10 @@ class StockLotReport(models.Model):
     def _from(self):
         return """
             stock_lot lot
-            JOIN stock_move_line AS sml
-            ON lot.id = sml.lot_id
+            JOIN stock_move_line AS xml
+            ON lot.id = xml.lot_id
             JOIN stock_picking AS picking
-            ON picking.id = sml.picking_id
+            ON picking.id = xml.picking_id
             JOIN stock_picking_type AS type
             ON picking.picking_type_id = type.id and type.code = 'outgoing'
             JOIN res_partner AS partner
@@ -49,7 +49,7 @@ class StockLotReport(models.Model):
             LEFT JOIN res_country AS country
             ON country.id = partner.country_id
             LEFT JOIN stock_picking AS picking_return
-            ON picking_return.return_id = sml.picking_id
+            ON picking_return.return_id = xml.picking_id
             LEFT JOIN stock_move_line AS sml_return
             ON sml_return.picking_id = picking_return.id 
                 AND sml_return.lot_id = lot.id 
@@ -68,8 +68,8 @@ class StockLotReport(models.Model):
             partner.city,
             partner.street,
             partner.street2,
-            sml.quantity,
-            sml.product_uom_id,
+            xml.quantity,
+            xml.product_uom_id,
             picking.date_done,
             sml_return.id
         """
