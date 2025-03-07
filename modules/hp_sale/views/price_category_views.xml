@@ -112,6 +112,6 @@
     <menuitem id="menu_product_price_category"
         name="Bảng giá HP"
         action="action_product_price_category"
-        parent="sale.menu_sales_config"
-        sequence="2"/>
+        parent="sale.product_menu_catalog"
+        sequence="30"/>
 </odoo>

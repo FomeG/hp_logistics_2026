@@ -24,15 +24,16 @@
         #views
         'views/product_template_views.xml',
         'views/price_category_views.xml',
-        'views/product_category_views.xml'
+        'views/product_category_views.xml',
 
-        # 'views/menus.xml',
+        'views/sale_menus.xml',
 
     ],
     'demo': [],
     'assets': {
         'web.assets_backend': [
             'hp_sale/static/src/js/hide_add_properties.js',
+            'hp_sale/static/src/js/hide_action_delete.js',
         ],
     },
     'installable': True,

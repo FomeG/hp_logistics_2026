@@ -1,0 +1,9 @@
+<odoo>
+    <data>
+        <!-- Inherit and Move the "Product Categories" Menu to "Products" -->
+        <record id="sale.menu_product_categories" model="ir.ui.menu">
+            <field name="parent_id" ref="sale.product_menu_catalog"/>  <!-- Move to "Products" -->
+            <field name="sequence">25</field>  <!-- Adjust position -->
+        </record>
+    </data>
+</odoo>
