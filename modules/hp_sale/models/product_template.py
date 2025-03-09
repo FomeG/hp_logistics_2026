@@ -23,18 +23,19 @@ class ProductTemplate(models.Model):
     )
     
     # Fields for pricing type
-    pod_id = fields.Char(
-        string="Cảng đi",
-        help="Cảng xuất phát"
+    pod_id = fields.Many2one(
+        'pricing.pod',string="Cảng dỡ hàng",
+        tracking=True
     )
-    pol_id = fields.Char(
-        string="Cảng đến",
-        help="Cảng đích"
+    pol_id = fields.Many2one(
+        'pricing.pol',string="Cảng xếp hàng",
+        tracking=True
     )
     etd = fields.Date(
         string="Ngày khởi hành",
         help="Ngày khởi hành"
     )
+    vol = fields.Char(string='Khối lượng vận chuyển', tracking=True)
     
     # Fields for trucking type
     start_id = fields.Char(

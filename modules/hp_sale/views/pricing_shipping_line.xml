@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="pricing_shipping_line_form_view" model="ir.ui.view">
+        <field name="name">pricing.shipping.line.form</field>
+        <field name="model">pricing.shipping.line</field>
+        <field name="arch" type="xml">
+            <form class="oe_form_configuration">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="line_name" string="Tên hãng tàu"/>
+                        <h1><field name="line_name" placeholder="e.g. HCM"/></h1>
+                    </div>
+                    <field name="line_email" placeholder="e.g. hp@gmail.com"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="pricing_shipping_line_list_view" model="ir.ui.view">
+        <field name="name">pricing.shipping.line.list</field>
+        <field name="model">pricing.shipping.line</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list string="DS Khu vực vận chuyển">
+                <field name="line_name" string="Tên hãng tàu"/>
+                <field name="line_email" string="Email hãng tàu"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="pricing_shipping_line_search_view" model="ir.ui.view">
+        <field name="name">pricing.shipping.line.search</field>
+        <field name="model">pricing.shipping.line</field>
+        <field name="arch" type="xml">
+            <search string="DS Khu vực vận chuyển">
+                <field name="line_name" string="Tên hãng tàu"/>
+                <field name="line_email" string="Email hãng tàu"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="pricing_shipping_line_action_form" model="ir.actions.act_window">
+        <field name="name">DS Khu vực vận chuyển</field>
+        <field name="res_model">pricing.region</field>
+        <field name="search_view_id" ref="pricing_shipping_line_search_view"/>
+        <field name="view_id" ref="pricing_shipping_line_list_view"/>
+    </record>
+
+</odoo>

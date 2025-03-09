@@ -25,6 +25,12 @@
         'views/product_template_views.xml',
         'views/price_category_views.xml',
         'views/product_category_views.xml',
+        'views/pricing_pol_views.xml',
+        'views/pricing_pod_views.xml',
+        'views/pricing_region_views.xml',
+        'views/pricing_shipping_line.xml',
+        'views/pricing_shipping_vessel.xml',
+
 
         'views/sale_menus.xml',
 
