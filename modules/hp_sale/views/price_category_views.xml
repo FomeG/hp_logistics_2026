@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Price Category Form View -->
+    <record id="view_product_price_category_form" model="ir.ui.view">
+        <field name="name">product.price.category.form</field>
+        <field name="model">product.price.category</field>
+        <field name="arch" type="xml">
+            <form string="Product Price Category">
+                <sheet>
+                    <group>
+                        <field name="product_id" options="{'no_create': True}"/>
+                        <field name="price_type" readonly="1"/>
+                    </group>
+
+                    <!-- Pricing Fields (Dynamic Based on Price Type) -->
+                    <group string="Price Information">
+                        <!-- Fields for Common Price -->
+                        <group invisible="price_type != 'common'">
+                            <field name="common_price" required="1"/>
+                            <field name="future_common_price" required="1"/>
+                        </group>
+
+                        <!-- Fields for Tiered Price -->
+                        <group invisible="price_type != 'tiered'">
+                            <field name="common_price" required="1"/>
+                            <field name="tiered_price" required="1"/>
+                            <field name="future_common_price" required="1"/>
+                            <field name="future_tiered_price" required="1"/>
+                        </group>
+                    </group>
+
+                    <!-- Validity & Status -->
+                    <group>
+                        <field name="valid_until" required="1"/>
+                        <field name="is_superseded" readonly="1"/>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <!-- Price Category Tree View -->
+    <record id="view_product_price_category_tree" model="ir.ui.view">
+        <field name="name">product.price.category.tree</field>
+        <field name="model">product.price.category</field>
+        <field name="arch" type="xml">
+            <list string="Price Categories" decoration-muted="is_superseded" decoration-success="not is_superseded">
+                <field name="product_id"/>
+                <field name="price_type"/>
+                <field name="common_price"/>
+                <field name="tiered_price"/>
+                <field name="future_common_price"/>
+                <field name="future_tiered_price"/>
+                <field name="valid_until"/>
+                <field name="is_superseded"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Price Category Search View -->
+    <record id="view_product_price_category_search" model="ir.ui.view">
+        <field name="name">product.price.category.search</field>
+        <field name="model">product.price.category</field>
+        <field name="arch" type="xml">
+            <search string="Search Price Categories">
+                <field name="product_id"/>
+                <field name="price_type"/>
+                <field name="valid_until"/>
+                <filter string="Current (Not Superseded)" name="not_superseded" domain="[('is_superseded', '=', False)]"/>
+                <filter string="Superseded" name="superseded" domain="[('is_superseded', '=', True)]"/>
+                <separator/>
+                <filter string="Common Price" name="common_price" domain="[('price_type', '=', 'common')]"/>
+                <filter string="Tiered Pricing" name="tiered_price" domain="[('price_type', '=', 'tiered')]"/>
+                <separator/>
+                <filter string="Valid Today" name="valid_today" domain="[('valid_until', '&gt;=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter string="Expired" name="expired" domain="[('valid_until', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Product" name="group_by_product" context="{'group_by': 'product_id'}"/>
+                    <filter string="Price Type" name="group_by_price_type" context="{'group_by': 'price_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action for Price Categories -->
+    <record id="action_product_price_category" model="ir.actions.act_window">
+        <field name="name">Price Categories</field>
+        <field name="res_model">product.price.category</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_product_price_category_tree"/>
+        <field name="search_view_id" ref="view_product_price_category_search"/>
+        <field name="domain">[('product_id.type', 'in', ['common', 'custom'])]</field>
+        <field name="context">{'search_default_not_superseded': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new price category
+            </p>
+            <p>
+                Define price categories with validity periods to automatically update product prices on specific dates.
+            </p>
+            <p>
+                <strong>Note:</strong> Price categories can only be created for products of type "Common" or "Custom".
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item for Price Categories -->
+    <menuitem id="menu_product_price_category"
+        name="Bảng giá HP"
+        action="action_product_price_category"
+        parent="sale.product_menu_catalog"
+        sequence="30"/>
+</odoo>

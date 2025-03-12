@@ -1,0 +1,40 @@
+<odoo>
+    <!-- Inherit Product Category Form View -->
+    <record id="product_category_form_view_inherit" model="ir.ui.view">
+        <field name="name">product.category.form.inherit</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_form_view"/>
+        <field name="arch" type="xml">
+            <!-- Add the allowed_type_id field after the name -->
+            <xpath expr="//field[@name='parent_id']" position="before">
+                <field name="allowed_type_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Product Category Tree View -->
+    <record id="product_category_tree_view_inherit" model="ir.ui.view">
+        <field name="name">product.category.tree.inherit</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_list_view"/>
+        <field name="arch" type="xml">
+            <field name="display_name" position="after">
+                <field name="allowed_type_id" class="oe_inline"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Inherit Product Category Search View -->
+    <record id="product_category_search_view_inherit" model="ir.ui.view">
+        <field name="name">product.category.search.inherit</field>
+        <field name="model">product.category</field>
+        <field name="inherit_id" ref="product.product_category_search_view"/>
+        <field name="arch" type="xml">
+            <field name="parent_id" position="after">
+                <filter string="Allowed Type: Common" name="allowed_type_common" domain="[('allowed_type_id', '=', 'common')]"/>
+                <filter string="Allowed Type: Custom" name="allowed_type_custom" domain="[('allowed_type_id', '=', 'custom')]"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

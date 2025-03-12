@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Define categories with allowed product types -->
+        <!-- Custom categories -->
+        <record id="product_category_custom_im" model="product.category">
+            <field name="name">HÀNG NHẬP KHẨU HP</field>
+            <field name="allowed_type_id">custom</field>
+        </record>
+
+        <record id="product_category_custom_ex" model="product.category">
+            <field name="name">HÀNG XUẤT KHẨU HP</field>
+            <field name="allowed_type_id">custom</field>
+        </record>
+
+        <record id="product_category_custom_imex" model="product.category">
+            <field name="name">HÀNG XUẤT/NHẬP CCHQĐTGC, CHI CỤC HQ BẮC HÀ NỘI, CC HQ GIA LÂM</field>
+            <field name="allowed_type_id">custom</field>
+        </record>
+
+        <record id="product_category_custom_1" model="product.category">
+            <field name="parent_id" ref="product_category_custom_im"/>
+            <field name="name">CONT 20'/40'</field>
+            <field name="allowed_type_id">custom</field>
+        </record>
+
+        <record id="product_category_custom_2" model="product.category">
+            <field name="parent_id" ref="product_category_custom_im"/>
+            <field name="name">HÀNG LCL</field>
+            <field name="allowed_type_id">custom</field>
+        </record>
+
+        <record id="product_category_custom_3" model="product.category">
+            <field name="parent_id" ref="product_category_custom_ex"/>
+            <field name="name">CONT 20'/40'</field>
+            <field name="allowed_type_id">custom</field>
+        </record>
+
+        <record id="product_category_custom_4" model="product.category">
+            <field name="parent_id" ref="product_category_custom_ex"/>
+            <field name="name">HÀNG LCL</field>
+            <field name="allowed_type_id">custom</field>
+        </record>
+
+        <!-- Common categories -->
+        <record id="product_category_common_doc" model="product.category">
+            <field name="name">PHÍ CHỨNG TỪ</field>
+            <field name="allowed_type_id">common</field>
+        </record>
+
+        <record id="product_category_common_phyto" model="product.category">
+            <field name="parent_id" ref="product_category_common_doc"/>
+            <field name="name">Phyto</field>
+            <field name="allowed_type_id">common</field>
+        </record>
+
+        <record id="product_category_common_co" model="product.category">
+            <field name="parent_id" ref="product_category_common_doc"/>
+            <field name="name">C/O</field>
+            <field name="allowed_type_id">common</field>
+        </record>
+
+         <record id="product_category_common_package" model="product.category">
+            <field name="parent_id" ref="product_category_common_doc"/>
+            <field name="name">Đóng hàng tại bãi</field>
+            <field name="allowed_type_id">common</field>
+        </record>
+
+        <record id="product_category_common_fumigation" model="product.category">
+            <field name="parent_id" ref="product_category_common_doc"/>
+            <field name="name">Phí Hun Trùng</field>
+            <field name="allowed_type_id">common</field>
+        </record>
+
+        <record id="product_category_common_lifton/liftoff" model="product.category">
+            <field name="parent_id" ref="product_category_common_doc"/>
+            <field name="name">Chi phí nâng hạ tại Cảng </field>
+            <field name="allowed_type_id">common</field>
+        </record>
+
+    </data>
+</odoo>

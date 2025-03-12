@@ -1,0 +1,62 @@
+<odoo>
+
+    <!-- Inherit and Move the "Product Categories" Menu to "Products" -->
+    <record id="sale.menu_product_categories" model="ir.ui.menu">
+        <field name="parent_id" ref="sale.product_menu_catalog"/>
+        <field name="sequence">25</field>
+    </record>
+
+    <!--            groups="sales_team.group_sale_salesman"-->
+    <!-- Parent Menu -->
+    <menuitem id="menu_sale_pricing"
+              name="Pricing"
+              parent="sale.sale_menu_root"
+              sequence="35"/>
+
+    <!-- Submenu: Data Management -->
+    <menuitem id="menu_pricing_data"
+              name="Danh sách Quản lý"
+              parent="menu_sale_pricing"
+              sequence="30"/>
+
+    <!-- Pricing Data Entries -->
+    <menuitem id="menu_sale_pricing_pol"
+              action="pricing_pol_action_form"
+              parent="menu_pricing_data"
+              sequence="10"/>
+
+    <menuitem id="menu_sale_pricing_pod"
+              action="pricing_pod_action_form"
+              parent="menu_pricing_data"
+              sequence="20"/>
+
+    <menuitem id="menu_sale_pricing_region"
+              action="pricing_region_action_form"
+              parent="menu_pricing_data"
+              sequence="30"/>
+
+    <menuitem id="menu_sale_pricing_shipping_line"
+              action="pricing_shipping_line_action_form"
+              parent="menu_pricing_data"
+              sequence="40"/>
+
+    <menuitem id="menu_sale_pricing_shipping_vessel"
+              action="pricing_shipping_vessel_action_form"
+              parent="menu_pricing_data"
+              sequence="50"/>
+
+    <!-- Pricing Teams -->
+    <menuitem id="menu_sale_pricing_team"
+              action="action_pricing_team"
+              parent="menu_sale_pricing"
+              sequence="10"/>
+
+    <!-- Pricing Team Members -->
+    <menuitem id="menu_sale_pricing_team_member"
+              action="action_pricing_team_member"
+              parent="menu_sale_pricing"
+              sequence="20"/>
+    <!-- Child menus with explicit parent references -->
+
+
+</odoo>
