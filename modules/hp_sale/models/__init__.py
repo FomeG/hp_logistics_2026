@@ -6,3 +6,6 @@ from . import pricing_pod
 from . import pricing_region
 from . import pricing_shipping_line
 from . import pricing_shipping_vessel
+from . import pricing_team
+from . import pricing_team_member
+from . import res_users

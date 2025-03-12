@@ -9,7 +9,7 @@
                 <sheet>
                     <div class="oe_title">
                         <label for="line_name" string="Tên hãng tàu"/>
-                        <h1><field name="line_name" placeholder="e.g. HCM"/></h1>
+                        <h1><field name="line_name" placeholder="e.g. YML"/></h1>
                     </div>
                     <field name="line_email" placeholder="e.g. hp@gmail.com"/>
                 </sheet>
@@ -23,7 +23,7 @@
         <field name="model">pricing.shipping.line</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-            <list string="DS Khu vực vận chuyển">
+            <list string="DS Hãng tàu">
                 <field name="line_name" string="Tên hãng tàu"/>
                 <field name="line_email" string="Email hãng tàu"/>
             </list>
@@ -34,7 +34,7 @@
         <field name="name">pricing.shipping.line.search</field>
         <field name="model">pricing.shipping.line</field>
         <field name="arch" type="xml">
-            <search string="DS Khu vực vận chuyển">
+            <search string="DS Hãng tàu">
                 <field name="line_name" string="Tên hãng tàu"/>
                 <field name="line_email" string="Email hãng tàu"/>
             </search>
@@ -42,8 +42,8 @@
     </record>
 
     <record id="pricing_shipping_line_action_form" model="ir.actions.act_window">
-        <field name="name">DS Khu vực vận chuyển</field>
-        <field name="res_model">pricing.region</field>
+        <field name="name">DS Hãng tàu</field>
+        <field name="res_model">pricing.shipping.line</field>
         <field name="search_view_id" ref="pricing_shipping_line_search_view"/>
         <field name="view_id" ref="pricing_shipping_line_list_view"/>
     </record>

@@ -30,7 +30,8 @@
         'views/pricing_region_views.xml',
         'views/pricing_shipping_line.xml',
         'views/pricing_shipping_vessel.xml',
-
+        'views/pricing_team_views.xml',
+        'views/pricing_team_member_views.xml',
 
         'views/sale_menus.xml',
 
