@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_hr_employee_action_create_user_full" model="ir.ui.view">
+        <field name="name">hr.employee.action.create.user.full</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[@name='hr_settings']/group/group[@name='active_group']/div/button[@name='action_create_user']" position="replace">
+                <button string="Create User"
+                    class="btn btn-link"
+                    type="object"
+                    name="action_create_user_full"
+                    invisible="user_id" />
+            </xpath>
+        </field>
+    </record>
+</odoo>
