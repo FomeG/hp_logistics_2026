@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<templates>
-    <t t-name="important.Chatter" t-inherit="mail.Chatter" t-inherit-mode="extension">
-        <xpath expr="//div[contains(@class, 'o-mail-Chatter-topbar')]" position="replace" />
-    </t>
-</templates>

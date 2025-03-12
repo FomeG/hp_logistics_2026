@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_hp_user_admin,res.users,base.model_res_users,hp_user.group_hp_user_admin,1,1,1,1
-access_hp_user_normal,res.users,base.model_res_users,hp_user.group_hp_user_normal,0,0,0,0

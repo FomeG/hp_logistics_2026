@@ -1,6 +1,0 @@
-<odoo>
-    <record id="position_group_sale" model="res.groups">
-        <field name="name">Rule position sale</field>
-        <field name="category_id" ref="base.module_category_hidden" />
-    </record>
-</odoo>

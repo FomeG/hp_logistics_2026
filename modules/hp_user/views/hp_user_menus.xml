@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<odoo>
-    <menuitem id="hp_user_menu_root" name="Users" groups="hp_user.group_hp_user_admin">
-        <menuitem id="hp_user_list_menu"
-            name="Users"
-            action="base.action_res_users"
-            groups="hp_user.group_hp_user_admin" />
-    </menuitem>
-</odoo>
