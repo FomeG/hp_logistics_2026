@@ -7,11 +7,17 @@
     </record>
 
     <!--            groups="sales_team.group_sale_salesman"-->
-    <!-- Parent Menu -->
+    <!-- Parent Menu Pricing-->
     <menuitem id="menu_sale_pricing"
               name="Pricing"
               parent="sale.sale_menu_root"
               sequence="35"/>
+
+    <!-- Parent Menu Trucking-->
+    <menuitem id="menu_sale_trucking"
+              name="Trucking"
+              parent="sale.sale_menu_root"
+              sequence="36"/>
 
     <!-- Submenu: Data Management -->
     <menuitem id="menu_pricing_data"
@@ -45,16 +51,26 @@
               parent="menu_pricing_data"
               sequence="50"/>
 
-    <!-- Pricing Teams -->
+    <!-- Pricing Teams and Members-->
     <menuitem id="menu_sale_pricing_team"
               action="action_pricing_team"
               parent="menu_sale_pricing"
               sequence="10"/>
 
-    <!-- Pricing Team Members -->
     <menuitem id="menu_sale_pricing_team_member"
               action="action_pricing_team_member"
               parent="menu_sale_pricing"
+              sequence="20"/>
+
+    <!-- Trucking Teams and Members-->
+    <menuitem id="menu_sale_trucking_team"
+              action="action_trucking_team"
+              parent="menu_sale_trucking"
+              sequence="10"/>
+
+    <menuitem id="menu_sale_trucking_team_member"
+              action="action_trucking_team_member"
+              parent="menu_sale_trucking"
               sequence="20"/>
     <!-- Child menus with explicit parent references -->
 

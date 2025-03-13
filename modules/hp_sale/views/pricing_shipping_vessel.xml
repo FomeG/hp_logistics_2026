@@ -40,7 +40,7 @@
 
     <record id="pricing_shipping_vessel_action_form" model="ir.actions.act_window">
         <field name="name">DS Tàu hàng</field>
-        <field name="res_model">pricing.region</field>
+        <field name="res_model">pricing.shipping.vessel</field>
         <field name="search_view_id" ref="pricing_shipping_vessel_search_view"/>
         <field name="view_id" ref="pricing_shipping_vessel_list_view"/>
     </record>

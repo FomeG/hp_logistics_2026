@@ -9,3 +9,6 @@ hp_pricing_shipping_vessel_all,hp_pricing_shipping_vessel_all,model_pricing_ship
 
 hp_pricing_team_all,hp_pricing_team_all,model_pricing_team,,1,1,1,1
 hp_pricing_team_member_all,hp_pricing_team_member_all,model_pricing_team_member,,1,1,1,1
+
+hp_trucking_team_all,hp_trucking_team_all,model_trucking_team,,1,1,1,1
+hp_trucking_team_member_all,hp_trucking_team_member_all,model_trucking_team_member,,1,1,1,1

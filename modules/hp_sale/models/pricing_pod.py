@@ -14,4 +14,4 @@ class PortOfDischarge(models.Model):
 
     pod_name = fields.Char(string='Cảng dỡ hàng', tracking=True)
     region_id = fields.Many2one(
-        'product.region', string='Khu vực vận chuyển', tracking=True)
+        'pricing.region', string='Khu vực vận chuyển', tracking=True)

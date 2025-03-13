@@ -8,4 +8,6 @@ from . import pricing_shipping_line
 from . import pricing_shipping_vessel
 from . import pricing_team
 from . import pricing_team_member
+from . import trucking_tem
+from . import trucking_team_member
 from . import res_users

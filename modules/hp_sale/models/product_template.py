@@ -53,7 +53,8 @@ class ProductTemplate(models.Model):
 
         # For pricing and trucking types, no categories should be available
         if self.type in ['pricing', 'trucking']:
-            self.categ_id = False  # Clear category if present
+            default_category = self.env.ref('product.product_category_all', raise_if_not_found=False)
+            self.categ_id = default_category  # Clear category if present
 
             # Reset fields based on new type to ensure consistency
             if self.type == 'pricing':
