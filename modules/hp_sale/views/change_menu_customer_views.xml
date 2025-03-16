@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="sale.res_partner_menu" model="ir.ui.menu">
+            <field name="parent_id" ref="sale.sale_menu_root" />
+            <field name="sequence" eval="35" />
+        </record>
+    </data>
+</odoo>
