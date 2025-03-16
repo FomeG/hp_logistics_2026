@@ -39,12 +39,13 @@
             <xpath expr="//page[@name='general_information']/group" position="after">
                 <group string="Pricing Information" invisible="type != 'pricing'">
                     <group>
+                        <field name="booking_id" required="1" />
                         <field name="pol_id" required="type == 'pricing'"/>
                         <field name="pod_id" required="type == 'pricing'"/>
-                        <field name="vol" required="type == 'pricing'"/>
+                        <field name="etd" required="type == 'pricing'"/>
                     </group>
                     <group>
-                        <field name="etd" required="type == 'pricing'"/>
+                        <field name="vol" required="type == 'pricing'"/>
                         <field name="standard_price" required="type == 'pricing'"/>
                         <field name="list_price" required="type == 'pricing'"/>
                     </group>
@@ -124,6 +125,7 @@
 
             <field name="list_price" position="after">
                 <field name="tiered_price" optional="show"/>
+                <field name="booking_id" optional="show"/>
                 <field name="pod_id" optional="show"/>
                 <field name="pol_id" optional="show"/>
                 <field name="start_id" optional="show"/>

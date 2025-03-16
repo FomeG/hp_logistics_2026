@@ -25,16 +25,21 @@
         'views/product_template_views.xml',
         'views/price_category_views.xml',
         'views/product_category_views.xml',
-        'views/pricing_pol_views.xml',
-        'views/pricing_pod_views.xml',
-        'views/pricing_region_views.xml',
-        'views/pricing_shipping_line.xml',
-        'views/pricing_shipping_vessel.xml',
 
-        'views/pricing_team_views.xml',
-        'views/pricing_team_member_views.xml',
-        'views/trucking_team_views.xml',
-        'views/trucking_team_member_views.xml',
+        'views/pricing/pricing_pol_views.xml',
+        'views/pricing/pricing_pod_views.xml',
+        'views/pricing/pricing_region_views.xml',
+        'views/pricing/pricing_shipping_line.xml',
+        'views/pricing/pricing_shipping_vessel.xml',
+
+        'views/pricing/pricing_voyage_views.xml',
+        'views/pricing/pricing_booking_views.xml',
+
+        'views/pricing/pricing_team_views.xml',
+        'views/pricing/pricing_team_member_views.xml',
+
+        'views/trucking/trucking_team_views.xml',
+        'views/trucking/trucking_team_member_views.xml',
 
         'views/sale_menus.xml',
 

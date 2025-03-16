@@ -6,6 +6,8 @@ hp_pricing_pod_all,hp_pricing_pod_all,model_pricing_pod,,1,1,1,1
 hp_pricing_region_all,hp_pricing_region_all,model_pricing_region,,1,1,1,1
 hp_pricing_shipping_line_all,hp_pricing_shipping_line_all,model_pricing_shipping_line,,1,1,1,1
 hp_pricing_shipping_vessel_all,hp_pricing_shipping_vessel_all,model_pricing_shipping_vessel,,1,1,1,1
+hp_pricing_voyage_all,hp_pricing_voyage_all,model_pricing_voyage,,1,1,1,1
+hp_pricing_booking_all,hp_pricing_booking_all,model_pricing_booking,,1,1,1,1
 
 hp_pricing_team_all,hp_pricing_team_all,model_pricing_team,,1,1,1,1
 hp_pricing_team_member_all,hp_pricing_team_member_all,model_pricing_team_member,,1,1,1,1

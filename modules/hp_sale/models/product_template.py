@@ -36,6 +36,11 @@ class ProductTemplate(models.Model):
         help="Ngày khởi hành"
     )
     vol = fields.Char(string='Khối lượng vận chuyển', tracking=True)
+
+    booking_id = fields.Many2one(
+        'pricing.booking', string="Booking",
+        tracking=True
+    )
     
     # Fields for trucking type
     start_id = fields.Char(
@@ -73,6 +78,15 @@ class ProductTemplate(models.Model):
             self.start_id = False
             self.destination_id = False
             self.etd = False
+
+    @api.onchange('booking_id')
+    def _onchange_booking_id(self):
+        if self.booking_id:
+            self.pod_id = self.booking_id.voyage_id.pod_id
+            self.pol_id = self.booking_id.voyage_id.pol_id
+            self.etd = self.booking_id.voyage_id.etd
+            self.vol = self.booking_id.volume
+            self.standard_price = self.booking_id.booking_price
     
     # Add field for tiered pricing
     tiered_price = fields.Float(

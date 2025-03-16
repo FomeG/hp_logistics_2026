@@ -13,19 +13,47 @@
               parent="sale.sale_menu_root"
               sequence="35"/>
 
+    <!-- Pricing Teams and Members-->
+    <menuitem id="menu_sale_pricing_team"
+              action="action_pricing_team"
+              parent="menu_sale_pricing"
+              sequence="10"/>
+
+    <menuitem id="menu_sale_pricing_team_member"
+              action="action_pricing_team_member"
+              parent="menu_sale_pricing"
+              sequence="20"/>
+
     <!-- Parent Menu Trucking-->
     <menuitem id="menu_sale_trucking"
               name="Trucking"
               parent="sale.sale_menu_root"
               sequence="36"/>
 
-    <!-- Submenu: Data Management -->
+    <!-- Submenu: Voyage Management -->
+    <menuitem id="menu_pricing_voyage"
+              name="Quản lý Tàu hàng"
+              parent="menu_sale_pricing"
+              sequence="20"/>
+
+    <!-- Pricing Voyage Entries -->
+    <menuitem id="menu_sale_pricing_voyage"
+              action="pricing_voyage_action_form"
+              parent="menu_pricing_voyage"
+              sequence="10"/>
+
+    <menuitem id="menu_sale_pricing_booking"
+              action="pricing_booking_action_form"
+              parent="menu_pricing_voyage"
+              sequence="20"/>
+
+    <!-- Submenu: Information Management -->
     <menuitem id="menu_pricing_data"
-              name="Danh sách Quản lý"
+              name="Danh sách Thông tin"
               parent="menu_sale_pricing"
               sequence="30"/>
 
-    <!-- Pricing Data Entries -->
+    <!-- Pricing Information Entries -->
     <menuitem id="menu_sale_pricing_pol"
               action="pricing_pol_action_form"
               parent="menu_pricing_data"
@@ -51,16 +79,9 @@
               parent="menu_pricing_data"
               sequence="50"/>
 
-    <!-- Pricing Teams and Members-->
-    <menuitem id="menu_sale_pricing_team"
-              action="action_pricing_team"
-              parent="menu_sale_pricing"
-              sequence="10"/>
 
-    <menuitem id="menu_sale_pricing_team_member"
-              action="action_pricing_team_member"
-              parent="menu_sale_pricing"
-              sequence="20"/>
+
+
 
     <!-- Trucking Teams and Members-->
     <menuitem id="menu_sale_trucking_team"
