@@ -3,7 +3,7 @@ from odoo import api, fields, models
 class InheritResUsers(models.Model):
     _inherit = "res.users"
 
-    is_hide_delete = fields.Boolean(string="Hide All")
+    is_hide_delete = fields.Boolean(string="Hide All", default=True)
     applied_delete_models_ids = fields.Many2many(
         comodel_name="ir.model", string="Applied Models"
     )

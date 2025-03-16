@@ -9,7 +9,7 @@
     'category': 'HP/HP Logistic',
     'images': [],
     'depends': [
-        'mail', 'base', 'sale', 'product', 'sale_management',
+        'mail', 'base', 'sale', 'product', 'sale_management', 'account'
     ],
     'data': [
         # data
@@ -32,6 +32,8 @@
         'views/pricing_shipping_vessel.xml',
         'views/pricing_team_views.xml',
         'views/pricing_team_member_views.xml',
+        'views/change_menu_customer_views.xml',
+        'views/inherit_form_create_customer_views.xml',
 
         'views/sale_menus.xml',
 
@@ -41,6 +43,7 @@
         'web.assets_backend': [
             'hp_sale/static/src/js/hide_add_properties.js',
             'hp_sale/static/src/js/hide_action_delete.js',
+            'hp_sale/static/src/xml/hide_chatter_actions.xml',
         ],
     },
     'installable': True,
