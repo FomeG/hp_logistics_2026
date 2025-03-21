@@ -25,6 +25,8 @@
         'views/product_template_views.xml',
         'views/price_category_views.xml',
         'views/product_category_views.xml',
+        'views/change_menu_customer_views.xml',
+        'views/inherit_form_create_customer_views.xml',
 
         'views/sale_menus.xml',
 
