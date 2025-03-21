@@ -1,7 +1,5 @@
-from . import pricing
-from . import trucking
-from . import price_category
 from . import product_category
+from . import price_category
 from . import product_template
-from . import res_users
 from . import res_partner_inherit
+

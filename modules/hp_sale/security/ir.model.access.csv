@@ -1,16 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 hp_product_price_category_all,hp_product_price_category_all,model_product_price_category,,1,1,1,1
-
-hp_pricing_pol_all,hp_pricing_pol_all,model_pricing_pol,,1,1,1,1
-hp_pricing_pod_all,hp_pricing_pod_all,model_pricing_pod,,1,1,1,1
-hp_pricing_region_all,hp_pricing_region_all,model_pricing_region,,1,1,1,1
-hp_pricing_shipping_line_all,hp_pricing_shipping_line_all,model_pricing_shipping_line,,1,1,1,1
-hp_pricing_shipping_vessel_all,hp_pricing_shipping_vessel_all,model_pricing_shipping_vessel,,1,1,1,1
-hp_pricing_voyage_all,hp_pricing_voyage_all,model_pricing_voyage,,1,1,1,1
-hp_pricing_booking_all,hp_pricing_booking_all,model_pricing_booking,,1,1,1,1
-
-hp_pricing_team_all,hp_pricing_team_all,model_pricing_team,,1,1,1,1
-hp_pricing_team_member_all,hp_pricing_team_member_all,model_pricing_team_member,,1,1,1,1
-
-hp_trucking_team_all,hp_trucking_team_all,model_trucking_team,,1,1,1,1
-hp_trucking_team_member_all,hp_trucking_team_member_all,model_trucking_team_member,,1,1,1,1

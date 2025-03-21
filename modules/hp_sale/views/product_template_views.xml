@@ -35,35 +35,7 @@
                     invisible="type not in ('custom', 'common')"/>
             </xpath>
 
-            <!-- Pricing Fields -->
             <xpath expr="//page[@name='general_information']/group" position="after">
-                <group string="Pricing Information" invisible="type != 'pricing'">
-                    <group>
-                        <field name="booking_id" required="1" />
-                        <field name="pol_id" required="type == 'pricing'"/>
-                        <field name="pod_id" required="type == 'pricing'"/>
-                        <field name="etd" required="type == 'pricing'"/>
-                    </group>
-                    <group>
-                        <field name="vol" required="type == 'pricing'"/>
-                        <field name="standard_price" required="type == 'pricing'"/>
-                        <field name="list_price" required="type == 'pricing'"/>
-                    </group>
-                </group>
-
-                <!-- Trucking Fields -->
-                <group string="Trucking Information" invisible="type != 'trucking'">
-                    <group>
-                        <field name="start_id" required="type == 'trucking'"/>
-                        <field name="destination_id" required="type == 'trucking'"/>
-                    </group>
-                    <group>
-                        <field name="etd" required="type == 'trucking'"/>
-                        <field name="standard_price" required="type == 'trucking'"/>
-                        <field name="list_price" required="type == 'trucking'"/>
-                    </group>
-                </group>
-
                 <!-- Service Fields for Common & Custom -->
                 <group string="Service Information" invisible="type not in ['common', 'custom']">
                     <field name="complete_time" widget="float_time"/>
@@ -125,12 +97,6 @@
 
             <field name="list_price" position="after">
                 <field name="tiered_price" optional="show"/>
-                <field name="booking_id" optional="show"/>
-                <field name="pod_id" optional="show"/>
-                <field name="pol_id" optional="show"/>
-                <field name="start_id" optional="show"/>
-                <field name="destination_id" optional="show"/>
-                <field name="etd" optional="show"/>
                 <field name="complete_time" optional="hide" widget="float_time"/>
             </field>
         </field>
