@@ -62,34 +62,41 @@ class PriceCategory(models.Model):
                 if record.common_price <= 0 or record.tiered_price <= 0 or record.future_common_price <= 0 or record.future_tiered_price <= 0:
                     raise ValidationError(_("All price fields must be positive for Tiered Pricing."))
 
-    @api.model
-    def create(self, vals):
-        """Create a new price category, supersede old ones, and update product price"""
-        product = self.env['product.template'].browse(vals['product_id'])
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Create new price categories, supersede old ones, and update product prices."""
+        products = self.env['product.template'].browse([vals['product_id'] for vals in vals_list])
+        product_map = {product.id: product for product in products}
 
-        # Ensure price_type follows product_id
-        if product and product.price_type:
-            vals['price_type'] = product.price_type
-        else:
-            vals['price_type'] = "tiered"
+        # Prepare records to create
+        for vals in vals_list:
+            product = product_map.get(vals['product_id'])
 
-        if product.type not in ['common', 'custom']:
-            raise ValidationError(_("Price categories can only be created for products of type 'Common' or 'Custom'."))
+            if product:
+                # Ensure price_type follows product_id
+                vals['price_type'] = product.price_type if product.price_type else "tiered"
 
-        record = super(PriceCategory, self).create(vals)
+                if product.type not in ['common', 'custom']:
+                    raise ValidationError(
+                        _("Price categories can only be created for products of type 'Common' or 'Custom'."))
 
-        existing_categories = self.search([
-            ('product_id', '=', vals['product_id']),
-            ('id', '!=', record.id),
-            ('is_superseded', '=', False)
-        ])
-        if existing_categories:
-            existing_categories.write({'is_superseded': True})
+        # Create the records
+        records = super(PriceCategory, self).create(vals_list)
 
-        # Immediately update product price
-        record._update_product_price()
+        # Supersede old categories and update product prices
+        for record in records:
+            existing_categories = self.search([
+                ('product_id', '=', record.product_id.id),
+                ('id', '!=', record.id),
+                ('is_superseded', '=', False)
+            ])
+            if existing_categories:
+                existing_categories.write({'is_superseded': True})
 
-        return record
+            # Update product price for each record
+            record._update_product_price()
+
+        return records
 
     def write(self, vals):
         """Update product price when any price-related fields change"""
