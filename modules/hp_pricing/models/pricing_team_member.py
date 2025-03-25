@@ -14,12 +14,37 @@ class PricingTeamMember(models.Model):
     )
     user_id = fields.Many2one(
         'res.users', string='Pricing User',
-        required=True, ondelete='cascade'
+        required=True, ondelete='cascade',
+        domain="[('id', 'not in', members_user_ids), ('groups_id', 'in', pricing_group_ids)]"
     )
     region_id = fields.Many2one(
         'pricing.region', string='Managed Regions'
     )
     active = fields.Boolean(default=True)
+
+    members_user_ids = fields.Many2many(
+        'res.users', compute='_compute_members_user_ids', store=False
+    )
+    pricing_group_ids = fields.Many2many(
+        'res.groups', compute='_compute_pricing_groups', store=False
+    )
+
+    @api.depends('pricing_team_id')
+    def _compute_members_user_ids(self):
+        for team in self:
+            team.members_user_ids = team.env['pricing.team.member'].search([]).mapped('user_id')
+
+    @api.depends()
+    def _compute_pricing_groups(self):
+        pricing_group_refs = [
+            'hp_pricing.group_hp_pricing_member',
+            'hp_pricing.group_hp_pricing_lead',
+            'hp_pricing.group_hp_pricing_director',
+            'hp_pricing.group_hp_pricing_administrator'
+        ]
+        self.pricing_group_ids = self.env['res.groups'].browse([
+            self.env.ref(ref).id for ref in pricing_group_refs if self.env.ref(ref, raise_if_not_found=False)
+        ])
 
     @api.constrains('pricing_team_id', 'user_id', 'active')
     def _check_duplicate_membership(self):
