@@ -14,7 +14,7 @@ class ProductTemplate(models.Model):
             ('custom', "Custom"),
         ]
 
-    type = fields.Selection(selection=_selection_type, required=True, default='pricing')
+    type = fields.Selection(selection=_selection_type, required=True, default='common')
     
     complete_time = fields.Float(
         string="Thời gian hoàn thành (s)",

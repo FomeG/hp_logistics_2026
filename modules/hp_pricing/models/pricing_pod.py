@@ -52,7 +52,7 @@ class PortOfDischarge(models.Model):
                 })
 
                 # Create the product.template
-                Product.create({
+                Product.with_context(create_from_pol_pod=True).create({
                     'type': 'pricing',
                     'sealine_id': sealine.id,
                     'name': sealine.sealine_name,

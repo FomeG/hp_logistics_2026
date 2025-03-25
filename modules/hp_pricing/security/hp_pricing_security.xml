@@ -66,17 +66,5 @@
             <field name="perm_unlink" eval="1"/>
         </record>
 
-        <!-- Rules for other users than pricing -->
-        <record id="rule_product_general_access" model="ir.rule">
-            <field name="name">Product General Access</field>
-            <field name="model_id" ref="product.model_product_template"/>
-            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
-            <field name="domain_force">[('type', '!=', 'pricing')]</field>
-            <field name="perm_read" eval="1"/>
-            <field name="perm_write" eval="1"/>
-            <field name="perm_create" eval="1"/>
-            <field name="perm_unlink" eval="1"/>
-        </record>
-
     </data>
 </odoo>
