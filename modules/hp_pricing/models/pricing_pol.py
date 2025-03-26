@@ -85,4 +85,4 @@ class PortOfLoading(models.Model):
 
             products = Product.search([('sealine_id', '=', sealine.id)])
             products.write({'name': new_sealine_name})
->>>>>>> task/customize_product
+
