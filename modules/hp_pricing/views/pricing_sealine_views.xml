@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
+    <record id="pricing_sealine_form_view" model="ir.ui.view">
+        <field name="name">pricing.sealine.form</field>
+        <field name="model">pricing.sealine</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <form string="Sealine">
+                <group>
+                    <field name="pol_id" string="Port of Loading"/>
+                    <field name="pod_id" string="Port of Discharge"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
     <record id="pricing_sealine_list_view" model="ir.ui.view">
         <field name="name">pricing.sealine.list</field>
         <field name="model">pricing.sealine</field>

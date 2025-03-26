@@ -15,5 +15,5 @@ class PricingRegion(models.Model):
     region_name = fields.Char(string='Region', tracking=True)
     member_ids = fields.One2many(
         'res.users', 'region_id', string='Pricing Member',
-        domain="[('share', '=', False)]",
+        domain="[('share', '=', False), ('region_id', '=', False)]",
         tracking=True)

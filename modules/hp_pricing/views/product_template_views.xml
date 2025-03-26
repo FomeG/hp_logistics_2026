@@ -7,13 +7,6 @@
         <field name="inherit_id" ref="product.product_template_form_view"/>
         <field name="arch" type="xml">
 
-            <!-- Modify the type field -->
-            <xpath expr="//field[@name='type']" position="replace">
-                <field name="type" widget="radio" options="{'horizontal': true}"
-                       readonly="[('type', '=', 'pricing')]"
-                       title="'The pricing product should be created automatically from POL, POD only'"/>
-            </xpath>
-
             <!-- Pricing Fields -->
             <xpath expr="//page[@name='general_information']/group" position="after">
                 <group string="Pricing Information" invisible="type != 'pricing'">
@@ -38,6 +31,7 @@
         <field name="model">product.template</field>
         <field name="inherit_id" ref="product.product_template_tree_view"/>
         <field name="arch" type="xml">
+
             <field name="default_code" position="after">
                 <field name="type"/>
             </field>

@@ -8,7 +8,7 @@ _logger = logging.getLogger(__name__)
 class PricingBooking(models.Model):
     _name = 'pricing.booking'
     _inherit = ['mail.thread', 'mail.activity.mixin']
-    _description = 'Pricing Region'
+    _description = 'Pricing Booking'
     _rec_name = 'booking_no'
     _order = 'write_date desc'
 

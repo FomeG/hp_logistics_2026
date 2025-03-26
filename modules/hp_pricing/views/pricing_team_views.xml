@@ -38,12 +38,12 @@
                                 <field name="sequence" invisible="1"/>
                                 <field name="team_manager_id" widget="many2one_avatar_user"/>
                                 <field name="company_id" groups="base.group_multi_company"/>
-                                <field name="member_company_ids" invisible="1"/>
+<!--                                <field name="member_company_ids" invisible="1"/>-->
                             </group>
                         </group>
                         <notebook>
                             <page string="Members">
-                                <field name="member_ids" mode="kanban" class="w-100"/>
+                                <field name="member_ids" domain="[('id', 'not in', assigned_user_ids), ('groups_id', 'in', pricing_group_ids)]" mode="kanban" class="w-100"/>
                             </page>
                             <page string="Detailed Members">
                                 <field name="pricing_team_member_ids" mode="list,form"
