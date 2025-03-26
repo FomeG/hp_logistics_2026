@@ -24,15 +24,19 @@ class PricingTeam(models.Model):
 
     member_ids = fields.Many2many(
         'res.users', string='Pricing Team Users',
-        domain="['&', ('share', '=', False), ('company_ids', 'in', member_company_ids)]",
+        domain="[('id', 'not in', assigned_user_ids), ('groups_id', 'in', pricing_group_ids)]",
         compute='_compute_member_ids', inverse='_inverse_member_ids', search='_search_member_ids',
         help="Users assigned to this Pricing Team."
     )
 
-    member_company_ids = fields.Many2many(
-        'res.company', compute='_compute_member_company_ids',
-        help='Available companies for user assignment.'
+    assigned_user_ids = fields.Many2many(
+        'res.users', compute='_compute_assigned_users', store=False
     )
+
+    pricing_group_ids = fields.Many2many(
+        'res.groups', compute='_compute_pricing_groups', store=False
+    )
+
 
     @api.depends('pricing_team_member_ids.active')
     def _compute_member_ids(self):
@@ -54,21 +58,29 @@ class PricingTeam(models.Model):
             if users_new:
                 user_team_ids = [{'user_id': user.id, 'pricing_team_id': team.id} for user in users_new]
                 self.env['pricing.team.member'].create(user_team_ids)
-
+    
     def _search_member_ids(self, operator, value):
         return [('pricing_team_member_ids.user_id', operator, value)]
 
-    @api.depends('company_id')
-    def _compute_member_company_ids(self):
-        all_companies = self.env['res.company'].search([])
+    @api.depends('pricing_team_member_ids.user_id')
+    def _compute_assigned_users(self):
+        """ Compute users who are already assigned to a pricing team. """
+        all_users = self.env['pricing.team.member'].search([]).mapped('user_id')
         for team in self:
-            team.member_company_ids = team.company_id or all_companies
+            team.assigned_user_ids = all_users
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        teams = super(PricingTeam, self).create(vals_list)
-        return teams
+    @api.depends()
+    def _compute_pricing_groups(self):
+        """ Compute Pricing Groups """
+        pricing_group_refs = [
+            'hp_pricing.group_hp_pricing_member',
+            'hp_pricing.group_hp_pricing_lead',
+            'hp_pricing.group_hp_pricing_director',
+            'hp_pricing.group_hp_pricing_administrator'
+        ]
+        self.pricing_group_ids = self.env['res.groups'].browse([
+            self.env.ref(ref).id for ref in pricing_group_refs if self.env.ref(ref, raise_if_not_found=False)
+        ])
 
-    def write(self, values):
-        res = super(PricingTeam, self).write(values)
-        return res
+
+

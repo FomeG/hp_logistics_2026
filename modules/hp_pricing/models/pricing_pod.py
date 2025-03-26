@@ -1,5 +1,5 @@
 from odoo import api, fields, models, tools, _, SUPERUSER_ID
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 import logging
 
@@ -24,8 +24,20 @@ class PortOfDischarge(models.Model):
         # Check if the user has a region assigned
         if 'region_id' in fields_list and user.region_id:
             res['region_id'] = user.region_id.id
-
+        elif not user.region_id and user.has_group('hp_pricing.group_hp_pricing_member'):
+            raise UserError(_("The current user is not assigned to a region yet."))
         return res
+
+    @api.constrains('pod_name')
+    def _check_unique_pod_name(self):
+        """ Ensure unique pod_name """
+        for record in self:
+            existing_pod = self.env['pricing.pod'].search([
+                ('pod_name', '=', record.pod_name),
+                ('id', '!=', record.id)  # Exclude self when updating
+            ])
+            if existing_pod:
+                raise ValidationError(_("The Port of Discharge name '%s' already exists.") % record.pod_name)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -60,3 +72,27 @@ class PortOfDischarge(models.Model):
                     'uom_id': self.env.ref('uom.product_uom_unit').id,  # ✅ Default Unit of Measure (Units)
                     'uom_po_id': self.env.ref('uom.product_uom_unit').id,
                 })
+
+    def write(self, vals):
+        """ Update sealine and product when POD name is changed """
+        result = super(PortOfDischarge, self).write(vals)
+
+        if 'pod_name' in vals:
+            for record in self:
+                record._update_sealine_product()
+
+        return result
+
+    def _update_sealine_product(self):
+        """ Update sealine and related products when POD name changes """
+        Sealine = self.env['pricing.sealine']
+        Product = self.env['product.template']
+
+        sealines = Sealine.search([('pod_id', '=', self.id)])
+
+        for sealine in sealines:
+            new_sealine_name = f"{sealine.pol_id.pol_name} - {self.pod_name}"
+            sealine.write({'sealine_name': new_sealine_name})
+
+            products = Product.search([('sealine_id', '=', sealine.id)])
+            products.write({'name': new_sealine_name})
