@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_task_form_inherit_hide_sale_line" model="ir.ui.view">
+        <field name="name">project.task.form.inherit.hide.sale.line</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="sale_project.view_sale_project_inherit_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='sale_line_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//div[@name='sale_line_div']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//label[@for='sale_line_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+    <record id="hp_project_task_form_view_inherit" model="ir.ui.view">
+        <field name="name">project.task.view.task.form.inherit</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2" />
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[@name='task_dependencies']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//notebook/page[@name='extra_info']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group/field[@name='tag_ids']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group/field[@name='milestone_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//group/field[@name='active']" position="after">
+                <field name="date_assign" />
+            </xpath>
+            <xpath expr="//field[@name='task_properties']" position="after">
+                <group string='Confirm Quotation' name="confirm_quotation_group" invisible="project_type != 'approve_quotation'">
+                    <label for="sale_order_id" />
+                    <div class="o_row">
+                        <field name="sale_order_id" string="Quotation"
+                            domain="[('state', '=', 'draft')]" readonly="1"/>
+                        <button name="action_show_sale_order_detail"
+                            string="Show Detail"
+                            type="object"
+                            class="btn btn-link"
+                            invisible="not sale_order_id" />
+                    </div>
+                    <button name="action_confirm_quotation"
+                        type="object"
+                        string="Confirm Quotation"
+                        class="btn btn-success"
+                        invisible="is_quotation == False" />
+                    <h3 class="text-success" invisible="is_quotation != False"><i
+                            class="fa fa-check" />
+                            Confirmed Quotation
+                    </h3>
+                </group>
+
+                <group string='POD/POL Request' name="pod_pol_request_group" invisible="project_type != 'request_product'">
+                    <field name="sale_order_id" string="Quotation"
+                        domain="[('state', '=', 'draft')]" readonly="pod_id and pol_id" />
+                    <field name="etd" string="ETD" readonly="pod_id and pol_id" />
+                    <field name="pod_name_request" string="POD name" readonly="pod_id and pol_id" />
+                    <field name="pol_name_request" string="POL name" readonly="pod_id and pol_id" />
+                    <button name="action_approve_pod_pol"
+                        type="object"
+                        string="Approve POD/POL"
+                        class="btn btn-success"
+                        invisible="not sale_order_id or not pod_name_request or not pol_name_request or pod_id or pol_id" />
+                    <h3 class="text-success" invisible="not pod_id or not pol_id">
+                        <i class="fa fa-check" />Approved POD/POL
+                    </h3>
+                </group>
+
+                <group string='Price' name="price_request_group" invisible="project_type != 'request_price'">
+                    <group>
+                        <field name="sale_order_id" string="Quotation"
+                            domain="[('state', '=', 'draft')]" readonly="1" />
+                        <field name="product_template_id" string="Product" readonly="1" />
+                        <field name="booking_id" readonly="is_product_has_price" />
+                        <field name="booking_info" invisible="not booking_id" />
+                    </group>
+                    <group>
+                        <field name="etd" string="ETD" readonly="is_product_has_price" />
+                        <field name="sale_price"
+                            class="oe_inline"
+                            readonly="is_product_has_price"
+                            widget="monetary"
+                            options="{'currency_field': 'currency_id', 'field_digits': True}" />
+                        <field name="cost"
+                            class="oe_inline"
+                            readonly="is_product_has_price"
+                            widget="monetary"
+                            options="{'currency_field': 'currency_id', 'field_digits': True}" />
+                    </group>
+                    <group>
+                        <button name="action_approve_price"
+                            type="object"
+                            string="Approve Price"
+                            class="btn btn-success"
+                            invisible="not currency_id or not sale_price or not cost or not booking_id or not product_template_id or is_product_has_price" />
+
+                        <h3 class="text-success" invisible="not is_product_has_price">
+                            <i class="fa fa-check" /> Approved Price </h3>
+                    </group>
+
+                </group>
+
+                <group string='Assign Booking' name="assign_booking_group" invisible="project_type != 'assign_booking'">
+                    <field name="sale_order_id" string="Quotation"
+                        domain="[('state', '!=', 'draft')]" readonly="is_order_has_booking" />
+                    <field name="booking_ids" readonly="is_order_has_booking" />
+
+                    <button name="action_approve_booking"
+                        type="object"
+                        string="Approve Booking"
+                        class="btn btn-success"
+                        invisible="not sale_order_id or not booking_ids or is_order_has_booking" />
+
+                    <h3 class="text-success" invisible="not is_order_has_booking">
+                        <i class="fa fa-check" /> Approved Price </h3>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

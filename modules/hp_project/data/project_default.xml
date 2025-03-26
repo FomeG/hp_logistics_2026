@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Tạo các Stage mặc định -->
+    <record id="stage_open" model="project.task.type">
+        <field name="name">Open</field>
+    </record>
+
+    <record id="stage_inprogress" model="project.task.type">
+        <field name="name">In Progress</field>
+    </record>
+
+    <record id="stage_review" model="project.task.type">
+        <field name="name">Review</field>
+    </record>
+
+    <record id="stage_done" model="project.task.type">
+        <field name="name">Done</field>
+    </record>
+
+    <record id="stage_pending" model="project.task.type">
+        <field name="name">Pending</field>
+    </record>
+
+    <!-- Gán các stage này vào từng Project mặc định -->
+    <record id="project_request_price" model="project.project">
+        <field name="name">Project Request Price</field>
+        <field name="type">request_price</field>
+        <field name="type_ids"
+            eval="[
+                (4, ref('stage_open')),
+                (4, ref('stage_inprogress')), 
+                (4, ref('stage_review')),
+                (4, ref('stage_done')), 
+                (4, ref('stage_pending'))
+            ]"
+        />
+    </record>
+
+    <record id="project_request_product" model="project.project">
+        <field name="name">Project Request Product</field>
+        <field name="type">request_product</field>
+        <field name="type_ids"
+            eval="[
+                (4, ref('stage_open')),
+                (4, ref('stage_inprogress')), 
+                (4, ref('stage_review')),
+                (4, ref('stage_done')), 
+                (4, ref('stage_pending'))
+            ]"
+        />
+    </record>
+
+    <record id="project_assign_booking" model="project.project">
+        <field name="name">Project Assign Booking</field>
+        <field name="type">assign_booking</field>
+        <field name="type_ids"
+            eval="[
+                (4, ref('stage_open')),
+                (4, ref('stage_inprogress')), 
+                (4, ref('stage_review')),
+                (4, ref('stage_done')), 
+                (4, ref('stage_pending'))
+            ]"
+        />
+    </record>
+
+    <record id="project_approve_quotation" model="project.project">
+        <field name="name">Project Approve Quotation</field>
+        <field name="type">approve_quotation</field>
+        <field name="type_ids"
+            eval="[
+                (4, ref('stage_open')),
+                (4, ref('stage_inprogress')), 
+                (4, ref('stage_review')),
+                (4, ref('stage_done')), 
+                (4, ref('stage_pending'))
+            ]"
+        />
+    </record>
+</odoo>

@@ -1,4 +1,4 @@
-from odoo import models, api
+from odoo import models, api, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.osv import expression
 
@@ -24,7 +24,7 @@ class ResPartner(models.Model):
             self.env.cr.commit()
 
         if duplicate_vats:
-            message = "Tax ID is exist: %s" % ", ".join(duplicate_vats)
+            message = _("Tax ID is exist: %s") % ", ".join(duplicate_vats)
             raise UserError(message)
 
         return created_records
@@ -43,15 +43,15 @@ class ResPartner(models.Model):
             for record in self:
                 if record.customer_rank > 0:
                     if not record.vat:
-                        raise ValidationError("Tax ID is required!")
+                        raise ValidationError(_("Tax ID is required!"))
                     if not record.phone:
-                        raise ValidationError("Phone is required!")
+                        raise ValidationError(_("Phone is required!"))
 
     @api.onchange('user_id')
     def _onchange_user_id(self):
         if self.is_only_group_sale_salesman():
             self.user_id = self._origin.user_id
-            raise UserError('Can not change saleperson')
+            raise UserError(_("Can not change saleperson"))
     
     def _get_sale_domain(self):
         current_user_id = self.env.uid
