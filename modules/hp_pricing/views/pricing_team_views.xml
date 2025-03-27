@@ -67,7 +67,7 @@
                 <list string="Pricing Teams" multi_edit="1">
                     <field name="name"/>
                     <field name="team_manager_id"/>
-                    <field name="active"/>
+                    <field name="active" invisible="1"/>
                     <field name="company_id"/>
                 </list>
             </field>

@@ -1,5 +1,5 @@
 from odoo import api, fields, models, tools, _, SUPERUSER_ID
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 import logging
 
@@ -42,7 +42,7 @@ class PricingVoyage(models.Model):
     )
     pod_id = fields.Many2one(
         'pricing.pod', string="Port of Discharge",
-        domain="[('region_id', '=', uid.region_id.id)]",
+        domain=lambda self: self._get_pod_domain(),
         tracking=True
     )
 
@@ -53,3 +53,26 @@ class PricingVoyage(models.Model):
             vessel = record.shipping_vessel_id.vessel_name if record.shipping_vessel_id else "Unknown Vessel"
             voyage = record.voyage_no if record.voyage_no else "Unknown Voyage"
             record.display_name = f"{vessel} {voyage}"
+
+    @api.model
+    def _get_pod_domain(self):
+        """Return the domain for POD selection based on user region"""
+        user = self.env.user
+        if user.region_id:
+            return [('region_id', '=', user.region_id.id)]
+        else:
+            return []  # Empty domain if no region assigned
+
+    @api.model
+    def create(self, vals):
+        """Prevent voyage creation if the user has no assigned region or is not in any pricing team"""
+        user = self.env.user
+        pricing_member = self.env['pricing.team.member'].search([('user_id', '=', user.id)], limit=1)
+
+        if not user.region_id:
+            raise UserError(_("You have no region assigned. Please contact the administrator."))
+
+        if not pricing_member:
+            raise UserError(_("You are not assigned to any Pricing Team. Please contact the administrator."))
+
+        return super(PricingVoyage, self).create(vals)

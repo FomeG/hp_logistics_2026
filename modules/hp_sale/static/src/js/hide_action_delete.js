@@ -16,7 +16,7 @@ patch(ListController.prototype, {
 
         // If we're in a product model, remove the delete action
         if (PRODUCT_MODELS.includes(this.props.resModel)) {
-            delete actions.delete;  // You used "menuItems" but it should be "actions"
+            delete actions.delete;
         }
 
         return actions;

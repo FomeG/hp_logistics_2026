@@ -21,6 +21,7 @@
                             <field name="booking_price"/>
                             <field name="company_booking_price"/>
                             <field name="booking_status"/>
+                            <field name="active" invisible="1"/>
                         </group>
                     </group>
                     <chatter/>
@@ -41,6 +42,7 @@
                 <field name="booking_price"/>
                 <field name="company_booking_price"/>
                 <field name="booking_status"/>
+                <field name="active" invisible="1"/>
             </list>
         </field>
     </record>

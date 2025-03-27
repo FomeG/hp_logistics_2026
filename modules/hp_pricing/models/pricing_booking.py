@@ -53,6 +53,8 @@ class PricingBooking(models.Model):
         ('available', 'Available'),
     ], string='Booking Status', default='available', tracking=True)
 
+    active = fields.Boolean(default=True)
+
     @api.depends('volume_quantity_1', 'volume_cont_1', 'volume_quantity_2', 'volume_cont_2')
     def _compute_volume_total(self):
         for record in self:

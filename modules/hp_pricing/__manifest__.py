@@ -34,6 +34,11 @@
         'views/pricing_menus.xml',
     ],
     'demo': [],
+    'assets': {
+        'web.assets_backend': [
+            'hp_pricing/static/src/js/hide_action_delete_export_duplicate.js',
+        ],
+    },
     'installable': True,
     'auto_install': False,
     'application': True,
