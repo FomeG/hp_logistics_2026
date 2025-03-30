@@ -30,6 +30,7 @@
         'views/pricing_team_views.xml',
         'views/pricing_team_member_views.xml',
         'views/product_template_views.xml',
+        'views/inherit_sale_order_views.xml',
 
         'views/pricing_menus.xml',
     ],

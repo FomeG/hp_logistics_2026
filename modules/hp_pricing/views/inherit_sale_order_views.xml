@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Hide Send by Email button -->
+    <record id="hide_send_by_email_button" model="ir.ui.view">
+        <field name="name">sale.order.form.hide.email</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_quotation_send']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Add the filter as a column in the list view -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='sequence']" position="after">
+                 <field name="product_type_filter" widget="selection" class="o_field_selector"/>
+            </xpath>
+
+            <xpath expr="//field[@name='product_type_filter']" position="attributes">
+                <attribute name="style">padding-left: 10px !important;</attribute>
+            </xpath>
+
+            <!-- Modify domain on product_template_id in list view -->
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="attributes">
+                <attribute name="domain">[('sale_ok', '=', True), ('type', '=', product_type_filter)]</attribute>
+            </xpath>
+
+            <!-- Modify domain on product_id in list view -->
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_id']" position="attributes">
+                <attribute name="domain">[('sale_ok', '=', True), ('product_tmpl_id.type', '=', product_type_filter)]</attribute>
+            </xpath>
+
+            <!-- Add filter to the form view in a better position -->
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_updatable']" position="after">
+                <field name="product_type_filter" widget="selection" class="o_field_selector"/>
+            </xpath>
+
+            <!-- Modify domain on product_id in form view -->
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="attributes">
+                <attribute name="domain">[('sale_ok', '=', True), ('product_tmpl_id.type', '=', product_type_filter)]</attribute>
+            </xpath>
+        </field>
+    </record>
+
+
+
+
+</odoo>
