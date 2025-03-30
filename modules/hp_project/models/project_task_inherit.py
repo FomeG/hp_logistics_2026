@@ -1,5 +1,6 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
+from datetime import datetime
 
 class ProjectTaskInherit(models.Model):
     _inherit = 'project.task'
@@ -15,6 +16,9 @@ class ProjectTaskInherit(models.Model):
     currency_id = fields.Many2one('res.currency', string="Currency", default=lambda self: self.env.company.currency_id)
     sale_price = fields.Monetary(string="Sale Price", currency_field='currency_id')
     cost = fields.Monetary(string="Cost", currency_field='currency_id')
+
+    start_time = fields.Datetime(string="Start Time", readonly=True)
+    end_time = fields.Datetime(string="End Time", readonly=True)
     
     project_type = fields.Char(string="Project Type", compute="_compute_project_type", store=False)
     is_quotation = fields.Boolean(compute='_compute_state_sale_order', store=False)
@@ -28,6 +32,23 @@ class ProjectTaskInherit(models.Model):
         'booking_id',
         string="Bookings"
     )
+
+    def write(self, vals):
+        stage_obj = self.env['project.task.type']
+        new_stage_id = vals.get('stage_id', False)
+        for task in self:
+            current_stage = task.stage_id
+            if current_stage and current_stage.name.lower() == "done":
+                raise UserError(_("Cannot update a completed Task!"))
+
+            if new_stage_id:
+                new_stage = stage_obj.browse(new_stage_id)
+                if new_stage and new_stage.name.lower() == "in progress" and not task.start_time:
+                    vals['start_time'] = datetime.now()
+                elif new_stage and new_stage.name.lower() == "done" and not task.end_time:
+                    vals['end_time'] = datetime.now()
+
+        return super().write(vals)
 
     @api.depends('booking_id')
     def _compute_booking_info(self):

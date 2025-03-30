@@ -27,6 +27,9 @@
             <xpath expr="//notebook/page[@name='extra_info']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
+            <xpath expr="//group/field[@name='tag_ids']" position="after">
+                <field name="start_time" />
+            </xpath>
             <xpath expr="//group/field[@name='tag_ids']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>
@@ -35,6 +38,9 @@
             </xpath>
             <xpath expr="//group/field[@name='active']" position="after">
                 <field name="date_assign" />
+            </xpath>
+            <xpath expr="//group/field[@name='allocated_hours']" position="after">
+                <field name="end_time" />
             </xpath>
             <xpath expr="//field[@name='task_properties']" position="after">
                 <group string='Confirm Quotation' name="confirm_quotation_group" invisible="project_type != 'approve_quotation'">
