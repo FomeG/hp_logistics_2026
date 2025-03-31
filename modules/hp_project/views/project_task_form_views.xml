@@ -43,6 +43,7 @@
                 <field name="end_time" />
             </xpath>
             <xpath expr="//field[@name='task_properties']" position="after">
+                <!-- Group Confirm Quotation -->
                 <group string='Confirm Quotation' name="confirm_quotation_group" invisible="project_type != 'approve_quotation'">
                     <label for="sale_order_id" />
                     <div class="o_row">
@@ -65,9 +66,18 @@
                     </h3>
                 </group>
 
+                <!-- Group request create product with POD/POL -->
                 <group string='POD/POL Request' name="pod_pol_request_group" invisible="project_type != 'request_product'">
-                    <field name="sale_order_id" string="Quotation"
-                        domain="[('state', '=', 'draft')]" readonly="pod_id and pol_id" />
+                    <label for="sale_order_id" />
+                    <div class="o_row">
+                        <field name="sale_order_id" string="Quotation"
+                            domain="[('state', '=', 'draft')]" readonly="1" />
+                        <button name="action_show_sale_order_detail"
+                            string="Show Detail"
+                            type="object"
+                            class="btn btn-link"
+                            invisible="not sale_order_id" />
+                    </div>
                     <field name="etd" string="ETD" readonly="pod_id and pol_id" />
                     <field name="pod_name_request" string="POD name" readonly="pod_id and pol_id" />
                     <field name="pol_name_request" string="POL name" readonly="pod_id and pol_id" />
@@ -81,13 +91,28 @@
                     </h3>
                 </group>
 
+                <!-- Group request price for product -->
                 <group string='Price' name="price_request_group" invisible="project_type != 'request_price'">
                     <group>
-                        <field name="sale_order_id" string="Quotation"
-                            domain="[('state', '=', 'draft')]" readonly="1" />
-                        <field name="product_template_id" string="Product" readonly="1" />
-                        <field name="booking_id" readonly="is_product_has_price" />
-                        <field name="booking_info" invisible="not booking_id" />
+                        <label for="sale_order_id" />
+                        <div class="o_row">
+                            <field name="sale_order_id" string="Quotation"
+                                domain="[('state', '=', 'draft')]" readonly="1" />
+                            <button name="action_show_sale_order_detail"
+                                string="Show Detail"
+                                type="object"
+                                class="btn btn-link"
+                                invisible="not sale_order_id" />
+                        </div>
+                        <label for="product_template_id" />
+                        <div class="o_row">
+                            <field name="product_template_id" string="Product" readonly="1" />
+                            <button name="action_show_product_detail"
+                                string="Show Detail"
+                                type="object"
+                                class="btn btn-link"
+                                invisible="not product_template_id" />
+                        </div>
                     </group>
                     <group>
                         <field name="etd" string="ETD" readonly="is_product_has_price" />
@@ -107,7 +132,7 @@
                             type="object"
                             string="Approve Price"
                             class="btn btn-success"
-                            invisible="not currency_id or not sale_price or not cost or not booking_id or not product_template_id or is_product_has_price" />
+                            invisible="not currency_id or not sale_price or not cost or not product_template_id or is_product_has_price" />
 
                         <h3 class="text-success" invisible="not is_product_has_price">
                             <i class="fa fa-check" /> Approved Price </h3>
@@ -115,19 +140,38 @@
 
                 </group>
 
+                <!-- Group assign booking -->
                 <group string='Assign Booking' name="assign_booking_group" invisible="project_type != 'assign_booking'">
-                    <field name="sale_order_id" string="Quotation"
-                        domain="[('state', '!=', 'draft')]" readonly="is_order_has_booking" />
-                    <field name="booking_ids" readonly="is_order_has_booking" />
+                    <label for="sale_order_id" />
+                    <div class="o_row">
+                        <field name="sale_order_id" string="Quotation"
+                            domain="[('state', '!=', 'draft')]" readonly="1" />
+                        <button name="action_show_sale_order_detail"
+                            string="Show Detail"
+                            type="object"
+                            class="btn btn-link"
+                            invisible="not sale_order_id" />
+                    </div>
+                    <label for="sale_line_id" />
+                    <div class="o_row">
+                        <field name="sale_line_id" readonly="1" />
+                        <button name="action_show_sale_order_line_detail"
+                            string="Show Detail"
+                            type="object"
+                            class="btn btn-link"
+                            invisible="not sale_line_id" />
+                    </div>
+                    <field name="booking_id" readonly="is_order_has_booking" />
+                    <field name="booking_info" invisible="not booking_id" />
 
                     <button name="action_approve_booking"
                         type="object"
                         string="Approve Booking"
                         class="btn btn-success"
-                        invisible="not sale_order_id or not booking_ids or is_order_has_booking" />
+                        invisible="not sale_order_id or not sale_line_id or not booking_id or is_order_has_booking" />
 
                     <h3 class="text-success" invisible="not is_order_has_booking">
-                        <i class="fa fa-check" /> Approved Price </h3>
+                        <i class="fa fa-check" /> Approved Booking </h3>
                 </group>
             </xpath>
         </field>

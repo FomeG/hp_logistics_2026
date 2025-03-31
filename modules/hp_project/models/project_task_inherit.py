@@ -25,13 +25,6 @@ class ProjectTaskInherit(models.Model):
     is_product_has_price = fields.Boolean(compute='_compute_product_has_price', store=False)
     is_order_has_booking = fields.Boolean(compute='_compute_order_has_booking', store=False)
     booking_info = fields.Text(string="Booking Info", compute="_compute_booking_info", store=False)
-    booking_ids = fields.Many2many(
-        'pricing.booking',
-        'project_task_booking_rel',
-        'sale_order_id',
-        'booking_id',
-        string="Bookings"
-    )
 
     def write(self, vals):
         stage_obj = self.env['project.task.type']
@@ -75,17 +68,17 @@ class ProjectTaskInherit(models.Model):
         for task in self:
             task.is_quotation = True if task.sale_order_id.state == 'draft' else False
     
-    @api.depends('booking_id', 'product_template_id', 'sale_order_id')
+    @api.depends('product_template_id', 'sale_order_id')
     def _compute_product_has_price(self):
         for task in self:
             product = task.product_template_id
             sale_order_line = task.sale_order_id.order_line.filtered(lambda line: line.product_id.id == product.product_variant_id.id)
-            task.is_product_has_price = True if product.booking_id.id == task.booking_id.id and sale_order_line else False
+            task.is_product_has_price = True if product.list_price and product.standard_price and sale_order_line else False
 
-    @api.depends('sale_order_id')
+    @api.depends('sale_line_id', 'booking_id')
     def _compute_order_has_booking(self):
         for task in self:
-            task.is_order_has_booking = True if task.sale_order_id.booking_ids and task.booking_ids else False
+            task.is_order_has_booking = True if task.sale_line_id.booking_id.id == task.booking_id.id else False
 
     def update_done_task(self, pod_id = None, pol_id = None):
         done_stage = self.env['project.task.type'].search([('name', '=', 'Done')], limit=1)
@@ -108,9 +101,34 @@ class ProjectTaskInherit(models.Model):
             'context': {'create': False, 'update': False, 'delete': False},
             'flags': {'mode': 'readonly'},
         }
+
+    def action_show_sale_order_line_detail(self):
+        self.ensure_one()
+        return {
+            'name': 'Sale Order Line Detail',
+            'type': 'ir.actions.act_window',
+            'res_model': 'sale.order.line',
+            'view_mode': 'form',
+            'res_id': self.sale_line_id.id,
+            'target': 'new',
+            'context': {'create': False, 'update': False, 'delete': False},
+            'flags': {'mode': 'readonly'},
+        }
+    
+    def action_show_product_detail(self):
+        self.ensure_one()
+        return {
+            'name': 'Product Detail',
+            'type': 'ir.actions.act_window',
+            'res_model': 'product.template',
+            'view_mode': 'form',
+            'res_id': self.product_template_id.id,
+            'target': 'new',
+            'context': {'create': False, 'update': False, 'delete': False},
+            'flags': {'mode': 'readonly'},
+        }
     
     def action_confirm_quotation(self):
-        self.n
         self.ensure_one()
         self.validate_action_submit('action_confirm_quotation')
 
@@ -165,7 +183,6 @@ class ProjectTaskInherit(models.Model):
 
         product = self.product_template_id
         product.write({
-            'booking_id': self.booking_id.id,
             'list_price': self.sale_price,
             'standard_price': self.cost
         })
@@ -184,14 +201,12 @@ class ProjectTaskInherit(models.Model):
         self.ensure_one()
         self.validate_action_submit('action_approve_booking')
 
-        bookings = self.booking_ids
-        self.sale_order_id.write({
-            'booking_ids': [(6, 0, bookings.ids)]
+        self.sale_line_id.write({
+            'booking_id': self.booking_id.id,
         })
         self.update_done_task()
 
-        booking_nos = ", ".join(str(bn) for bn in bookings.mapped('booking_no') if bn)
-        self.message_post(body=_("Approve booking success with booking no: %s") % booking_nos)
+        self.message_post(body=_("Approve booking success with booking no: %s") % self.booking_id.booking_no)
         return True
     
     def validate_action_submit(self, action):
@@ -199,7 +214,9 @@ class ProjectTaskInherit(models.Model):
             case 'action_approve_booking':
                 if not self.sale_order_id:
                     raise ValidationError(_("Quotation is required."))
-                if not self.booking_ids:
+                if not self.sale_line_id:
+                    raise ValidationError(_("Sale order line is required."))
+                if not self.booking_id:
                     raise ValidationError(_("Booking is required."))
                 
             case 'action_approve_pod_pol':
@@ -213,8 +230,6 @@ class ProjectTaskInherit(models.Model):
                     raise ValidationError(_("Product is required."))
                 if not self.sale_price or not self.cost:
                     raise ValidationError(_("Sale price or Cost is not exist."))
-                if not self.booking_id:
-                    raise ValidationError(_("Booking is required."))
 
             case 'action_confirm_quotation':
                 if not self.sale_order_id:
