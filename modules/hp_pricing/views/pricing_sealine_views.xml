@@ -6,7 +6,7 @@
         <field name="model">pricing.sealine</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-            <form string="Sealine">
+            <form string="Sealine" create="False">
                 <group>
                     <field name="pol_id" string="Port of Loading"/>
                     <field name="pod_id" string="Port of Discharge"/>
@@ -20,7 +20,7 @@
         <field name="model">pricing.sealine</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-            <list string="Sealine List">
+            <list string="Sealine List" create="False">
                 <field name="sealine_name" string="Sealine"/>
                 <field name="pol_id" string="Port of Loading"/>
                 <field name="pod_id" string="Port of Discharge"/>

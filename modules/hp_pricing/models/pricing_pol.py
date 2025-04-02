@@ -19,7 +19,7 @@ class PortOfLoading(models.Model):
         """ Ensure unique pol_name """
         for record in self:
             existing_pol = self.env['pricing.pol'].search([
-                ('pol_name', '=', record.pol_name),
+                ('pol_name', 'ilike', record.pol_name),
                 ('id', '!=', record.id)  # Exclude self when updating
             ])
             if existing_pol:

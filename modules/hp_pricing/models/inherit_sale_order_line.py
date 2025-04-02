@@ -24,3 +24,5 @@ class SaleOrderLine(models.Model):
         if self.product_id and self.product_id.product_tmpl_id.type != self.product_type_filter:
             self.product_id = False
             self.product_template_id = False
+
+    

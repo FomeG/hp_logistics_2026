@@ -33,7 +33,7 @@ class PortOfDischarge(models.Model):
         """ Ensure unique pod_name """
         for record in self:
             existing_pod = self.env['pricing.pod'].search([
-                ('pod_name', '=', record.pod_name),
+                ('pod_name', 'ilike', record.pod_name),
                 ('id', '!=', record.id)  # Exclude self when updating
             ])
             if existing_pod:

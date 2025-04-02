@@ -39,6 +39,20 @@
             <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="attributes">
                 <attribute name="domain">[('sale_ok', '=', True), ('product_tmpl_id.type', '=', product_type_filter)]</attribute>
             </xpath>
+
+            <!-- Make the Customer Signature page always invisible -->
+            <xpath expr="//page[@name='customer_signature']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Add button before the existing create control -->
+<!--            <xpath expr="//field[@name='order_line']/list/control/create[@name='add_product_control']" position="before">-->
+<!--                <button name="action_create_pricing_sealine"-->
+<!--                        string="Create pricing sealine"-->
+<!--                        type="object"-->
+<!--                        class="btn-primary btn-sm me-1"/>-->
+<!--            </xpath>-->
+
         </field>
     </record>
 
