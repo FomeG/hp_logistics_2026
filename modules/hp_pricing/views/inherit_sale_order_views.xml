@@ -45,18 +45,29 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
 
-            <!-- Add button before the existing create control -->
-<!--            <xpath expr="//field[@name='order_line']/list/control/create[@name='add_product_control']" position="before">-->
-<!--                <button name="action_create_pricing_sealine"-->
-<!--                        string="Create pricing sealine"-->
-<!--                        type="object"-->
-<!--                        class="btn-primary btn-sm me-1"/>-->
-<!--            </xpath>-->
+             <!-- Add button before the existing create control -->
+            <xpath expr="//field[@name='order_line']/list/control/create[@name='add_product_control']" position="before">
+                <button name="action_create_pricing_sealine"
+                        string="Create pricing sealine"
+                        type="object"
+                        context="{'default_sale_order_id': parent.id}"
+                        class="o_list_button_add px-4 btn-link"/>
+            </xpath>
 
+            <!-- Show these fields only if product_type_filter is 'pricing' -->
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="after">
+                 <field name="etd_sale" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
+                <field name="booking_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
+                <field name="volume_cont" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="after">
+                <field name="etd_sale" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
+                <field name="booking_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
+                <field name="volume_cont" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
+            </xpath>
         </field>
     </record>
-
-
 
 
 </odoo>

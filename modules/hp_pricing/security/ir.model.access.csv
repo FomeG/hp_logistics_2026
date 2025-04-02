@@ -52,3 +52,6 @@ hp_pricing_team_member_lead,hp_pricing_team_member_lead,model_pricing_team_membe
 hp_pricing_team_member_director,hp_pricing_team_member_director,model_pricing_team_member,group_hp_pricing_director,1,1,1,1
 hp_pricing_team_member_administrator,hp_pricing_team_member_administrator,model_pricing_team_member,group_hp_pricing_administrator,1,1,1,1
 
+access_pod_pol_request_wizard_sale_user,pod.pol.request.wizard.sale.user,model_pod_pol_request_wizard,sales_team.group_sale_salesman,1,1,1,0
+access_pod_pol_request_wizard_sale_manager,pod.pol.request.wizard.sale.manager,model_pod_pol_request_wizard,sales_team.group_sale_manager,1,1,1,1
+

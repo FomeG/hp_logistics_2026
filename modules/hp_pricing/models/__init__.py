@@ -11,3 +11,5 @@ from . import pricing_sealine
 from . import inherit_product_template
 from . import inherit_res_users
 from . import inherit_sale_order_line
+from . import wizards
+

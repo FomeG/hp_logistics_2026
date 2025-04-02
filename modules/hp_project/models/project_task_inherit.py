@@ -143,13 +143,17 @@ class ProjectTaskInherit(models.Model):
         self.ensure_one()
         self.validate_action_submit('action_approve_pod_pol')
 
-        pod = self.env['pricing.pod'].create({
-            'pod_name': self.pod_name_request,
-            'region_id': self.env.user.region_id.id,
-        })
-        pol = self.env['pricing.pol'].create({
-            'pol_name': self.pol_name_request
-        })
+        pol = self.env['pricing.pol'].search([('pol_name', 'ilike', self.pol_name_request)], limit=1)
+        pod = self.env['pricing.pod'].search([('pod_name', 'ilike', self.pod_name_request)], limit=1)
+        if not pod:
+            pod = self.env['pricing.pod'].create({
+                'pod_name': self.pod_name_request,
+                'region_id': self.env.user.region_id.id,
+            })
+        if not pol:
+            pol = self.env['pricing.pol'].create({
+                'pol_name': self.pol_name_request
+            })
 
         new_sealine = self.env['pricing.sealine'].search([('pod_id', '=', pod.id), ('pol_id', '=', pol.id)], limit=1)
         if new_sealine:

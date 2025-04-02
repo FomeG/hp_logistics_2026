@@ -15,6 +15,9 @@
         # security
         'security/hp_pricing_security.xml',
         'security/ir.model.access.csv',
+
+        #wizards
+        'views/wizards/pol_pod_request.xml',
         
         #views
         'views/pricing_pol_views.xml',
