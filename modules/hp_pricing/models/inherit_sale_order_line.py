@@ -36,6 +36,11 @@ class SaleOrderLine(models.Model):
         ('40OT', '40OT'),
     ], string="Container Type")
 
+    commission = fields.Float(
+        string="Commission (%)",
+        default=0.0,
+    )
+
     @api.onchange('product_type_filter')
     def _onchange_product_type_filter(self):
         # Clear product when type filter changes
