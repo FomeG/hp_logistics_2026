@@ -14,6 +14,9 @@ HP Project App
         #data
         'data/project_default.xml',
 
+        #security
+        'security/ir.model.access.csv',
+
         #view
         'views/project_task_form_views.xml',
 
