@@ -25,6 +25,7 @@ class ProjectTaskInherit(models.Model):
     is_product_has_price = fields.Boolean(compute='_compute_product_has_price', store=False)
     is_order_has_booking = fields.Boolean(compute='_compute_order_has_booking', store=False)
     booking_info = fields.Text(string="Booking Info", compute="_compute_booking_info", store=False)
+    is_project_pricing = fields.Boolean(compute="_check_project_pricing", store=False)
 
     def write(self, vals):
         stage_obj = self.env['project.task.type']
@@ -32,7 +33,7 @@ class ProjectTaskInherit(models.Model):
         for task in self:
             current_stage = task.stage_id
             if current_stage and current_stage.name.lower() == "done":
-                raise UserError(_("Cannot update a completed Task!"))
+                raise UserError(_("Cannot update a done Task"))
 
             if new_stage_id:
                 new_stage = stage_obj.browse(new_stage_id)
@@ -42,6 +43,11 @@ class ProjectTaskInherit(models.Model):
                     vals['end_time'] = datetime.now()
 
         return super().write(vals)
+    
+    @api.depends('project_id')
+    def _check_project_pricing(self):
+        for task in self:
+            task.is_project_pricing = True if task.project_id.type in task.project_id.PROTECTED_TYPE else False
 
     @api.depends('booking_id')
     def _compute_booking_info(self):
@@ -78,7 +84,7 @@ class ProjectTaskInherit(models.Model):
     @api.depends('sale_line_id', 'booking_id')
     def _compute_order_has_booking(self):
         for task in self:
-            task.is_order_has_booking = True if task.sale_line_id.booking_id.id == task.booking_id.id else False
+            task.is_order_has_booking = True if task.booking_id and task.sale_line_id.booking_id.id == task.booking_id.id else False
 
     def update_done_task(self, pod_id = None, pol_id = None):
         done_stage = self.env['project.task.type'].search([('name', '=', 'Done')], limit=1)
@@ -133,7 +139,7 @@ class ProjectTaskInherit(models.Model):
         self.validate_action_submit('action_confirm_quotation')
 
         quotation = self.sale_order_id
-        if quotation.state == 'draft' and quotation.action_confirm():
+        if quotation.state == 'draft' and quotation.sudo().action_confirm():
             self.update_done_task()
             self.message_post(body=_("Confirm quotation successfully."))
             return True
@@ -162,7 +168,7 @@ class ProjectTaskInherit(models.Model):
                 self.update_done_task(pod.id, pol.id)
                 # add sale order item
                 sale_order = self.sale_order_id
-                self.env['sale.order.line'].create({
+                self.env['sale.order.line'].sudo().create({
                     'order_id': sale_order.id,
                     'product_id': new_product.product_variant_id.id,
                     'product_uom_qty': 1.0,
@@ -171,11 +177,13 @@ class ProjectTaskInherit(models.Model):
                 # create task request price
                 project_request_price = self.env['project.project'].search([('type', '=', 'request_price')], limit=1)
                 if project_request_price:
-                    self.env['project.task'].create({
+                    self.env['project.task'].sudo().create({
                         'name': new_product.name,
                         'project_id': project_request_price.id,
                         'sale_order_id': sale_order.id,
-                        'product_template_id': new_product.id
+                        'product_template_id': new_product.id,
+                        'etd': self.etd,
+                        'date_assign': datetime.now(),
                     })
                 self.message_post(body=_("Create POD/POL successfully: %s, %s") % (self.pod_name_request, self.pol_name_request))
                 return True
@@ -186,14 +194,14 @@ class ProjectTaskInherit(models.Model):
         self.validate_action_submit('action_approve_price')
 
         product = self.product_template_id
-        product.write({
+        product.sudo().write({
             'list_price': self.sale_price,
             'standard_price': self.cost
         })
         # update price sale order line
         sale_order_line = self.sale_order_id.order_line.filtered(lambda line: line.product_id.id == product.product_variant_id.id)
         if sale_order_line:
-            sale_order_line.write({
+            sale_order_line.sudo().write({
                 'price_unit': self.sale_price
             })
 
@@ -205,7 +213,7 @@ class ProjectTaskInherit(models.Model):
         self.ensure_one()
         self.validate_action_submit('action_approve_booking')
 
-        self.sale_line_id.write({
+        self.sale_line_id.sudo().write({
             'booking_id': self.booking_id.id,
         })
         self.update_done_task()
