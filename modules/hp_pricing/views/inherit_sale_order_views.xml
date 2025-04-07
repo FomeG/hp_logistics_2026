@@ -7,9 +7,9 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//button[@name='action_quotation_send']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
+<!--            <xpath expr="//button[@name='action_quotation_send']" position="attributes">-->
+<!--                <attribute name="invisible">1</attribute>-->
+<!--            </xpath>-->
 
             <!-- Add the filter as a column in the list view -->
             <xpath expr="//field[@name='order_line']/list/field[@name='sequence']" position="after">
@@ -51,7 +51,7 @@
                         string="Create pricing sealine"
                         type="object"
                         context="{'default_sale_order_id': parent.id}"
-                        class="o_list_button_add px-4 btn-link"/>
+                        class="o_list_button_add btn-link"/>
             </xpath>
 
             <!-- Show these fields only if product_type_filter is 'pricing' -->
@@ -73,7 +73,7 @@
             </xpath>
 
             <xpath expr="//field[@name='order_line']/list//field[@name='tax_id']" position="after">
-                 <field name="commission" class="oe_inline" width="160px"/>
+                 <field name="commission" width="120px"/>
             </xpath>
         </field>
     </record>

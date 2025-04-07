@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit form view to modify header buttons and statusbar -->
+    <record id="view_order_form_inherit_extended_states" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.extended.states</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Modify the statusbar -->
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="statusbar_visible">draft,customer_confirm,sale_leader_confirm,pricing_leader_confirm,sale</attribute>
+            </xpath>
+
+            <!-- Replace the "Send by Email" primary button with first stage transition button -->
+            <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email_primary']" position="replace">
+                <button name="action_customer_confirm" id="action_customer_confirm"
+                        string="Submit to Customer" type="object" data-hotkey="g"
+                        invisible="state != 'draft'" class="btn-primary"
+                        context="{'validate_analytic': True}"/>
+            </xpath>
+
+            <!-- Add buttons for each state transition -->
+            <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email']" position="after">
+                <button name="action_customer_approved" id="action_customer_approved"
+                        string="Submit to Sales Leader" type="object" class="btn-primary"
+                        data-hotkey="c" invisible="state != 'customer_confirm'"/>
+
+                <button name="action_sale_leader_approved" id="action_sale_leader_approved"
+                        string="Submit to Pricing Leader" type="object" class="btn-primary"
+                        data-hotkey="s" invisible="state != 'sale_leader_confirm'"
+                        groups="sales_team.group_sale_manager"/>
+
+                <button name="action_pricing_leader_approved" id="action_pricing_leader_approved"
+                        string="Confirm" type="object" class="btn-primary"
+                        data-hotkey="p" invisible="state != 'pricing_leader_confirm'"
+                        groups="sales_team.group_sale_manager"/>
+            </xpath>
+
+            <!-- Hide the Confirm button for sent state completely -->
+            <xpath expr="//button[@name='action_confirm'][@id='action_confirm']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Hide the Confirm button for draft state completely -->
+            <xpath expr="//button[@name='action_confirm'][not(@id)]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Update visibility of Cancel button -->
+            <xpath expr="//button[@name='action_cancel']" position="attributes">
+                <attribute name="invisible">state in ['cancel', 'sale'] or not id or locked</attribute>
+            </xpath>
+
+            <!-- Hide the original "Send by Email" button -->
+            <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Hide the proforma email buttons if needed (optional) -->
+            <xpath expr="//button[@name='action_quotation_send'][@id='send_proforma_primary']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='action_quotation_send'][@id='send_proforma']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>
