@@ -75,6 +75,10 @@
             <xpath expr="//field[@name='order_line']/list//field[@name='tax_id']" position="after">
                  <field name="commission" width="120px"/>
             </xpath>
+
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="before">
+                 <field name="base_price" width="120px"/>
+            </xpath>
         </field>
     </record>
 

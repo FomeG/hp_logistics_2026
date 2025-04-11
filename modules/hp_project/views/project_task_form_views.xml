@@ -122,11 +122,12 @@
                     </group>
                     <group>
                         <field name="etd" string="ETD" readonly="is_product_has_price" />
-                        <field name="sale_price"
-                            class="oe_inline"
-                            readonly="is_product_has_price"
-                            widget="monetary"
-                            options="{'currency_field': 'currency_id', 'field_digits': True}" />
+                        <field name="booking_id"/>
+<!--                        <field name="sale_price"-->
+<!--                            class="oe_inline"-->
+<!--                            readonly="is_product_has_price"-->
+<!--                            widget="monetary"-->
+<!--                            options="{'currency_field': 'currency_id', 'field_digits': True}" />-->
                         <field name="cost"
                             class="oe_inline"
                             readonly="is_product_has_price"

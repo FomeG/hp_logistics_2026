@@ -17,6 +17,11 @@ class SaleOrderLine(models.Model):
         help="Estimated Time of Departure for this Sale Order Line"
     )
 
+    base_price = fields.Float(
+        string="Base Price",
+        default=0.0
+    )
+
     booking_id = fields.Many2one(
         'pricing.booking', string="Booking",
         domain="[('voyage_id.etd', '>=', etd_sale)]",
@@ -48,6 +53,28 @@ class SaleOrderLine(models.Model):
             self.product_id = False
             self.product_template_id = False
 
+        # Clear booking-related fields if not pricing
+        if self.product_type_filter != 'pricing':
+            self.etd_sale = False
+            self.booking_id = False
+            self.volume_cont = False
+            self.base_price = 0.0
+
+    @api.onchange('booking_id')
+    def _onchange_booking_id(self):
+        """Update base_price and etd_sale when booking changes"""
+        for record in self:
+            if record.booking_id:
+                # Update base_price from booking's company_booking_price
+                record.base_price = record.booking_id.company_booking_price
+
+                # Update etd_sale from booking's voyage ETD
+                if record.booking_id.voyage_id and record.booking_id.voyage_id.etd:
+                    record.etd_sale = record.booking_id.voyage_id.etd
+            else:
+                # Clear base_price if no booking
+                record.base_price = 0.0
+
     def action_create_pricing_sealine(self):
         """Open wizard to collect POD/POL information"""
         return {
@@ -57,10 +84,3 @@ class SaleOrderLine(models.Model):
             'view_mode': 'form',
             'target': 'new',
         }
-
-    @api.onchange('product_type_filter')
-    def _onchange_product_type_filter(self):
-        if self.product_type_filter != 'pricing':
-            self.etd_sale = False
-            self.booking_id = False
-            self.volume_cont = False

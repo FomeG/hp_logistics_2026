@@ -27,6 +27,25 @@ class ProjectTaskInherit(models.Model):
     booking_info = fields.Text(string="Booking Info", compute="_compute_booking_info", store=False)
     is_project_pricing = fields.Boolean(compute="_check_project_pricing", store=False)
 
+    sale_line_id = fields.Many2one(
+        'sale.order.line',
+        string='Sales Order Line',
+        compute='_compute_sale_line_id',
+        store=True,
+        help="Related sale order line for this task"
+    )
+
+    @api.depends('sale_order_id', 'product_template_id')
+    def _compute_sale_line_id(self):
+        for task in self:
+            if task.sale_order_id and task.product_template_id:
+                matching_line = task.sale_order_id.order_line.filtered(
+                    lambda line: line.product_id.product_tmpl_id.id == task.product_template_id.id
+                )
+                task.sale_line_id = matching_line[0].id if matching_line else False
+            else:
+                task.sale_line_id = False
+
     def write(self, vals):
         stage_obj = self.env['project.task.type']
         new_stage_id = vals.get('stage_id', False)
@@ -90,8 +109,8 @@ class ProjectTaskInherit(models.Model):
         done_stage = self.env['project.task.type'].search([('name', '=', 'Done')], limit=1)
         self.write({
             'stage_id': done_stage.id if done_stage else self.stage_id.id,
-            'pod_id': pod_id,
-            'pol_id': pol_id,
+            # 'pod_id': pod_id,
+            # 'pol_id': pol_id,
         })
         return True
     
@@ -188,22 +207,45 @@ class ProjectTaskInherit(models.Model):
                 self.message_post(body=_("Create POD/POL successfully: %s, %s") % (self.pod_name_request, self.pol_name_request))
                 return True
         raise UserError('Create POD/POL failed.')
-    
+
+    @api.onchange('etd')
+    def _onchange_etd_set_booking_domain(self):
+        if self.etd:
+            return {
+                'domain': {
+                    'booking_id': [('voyage_id.etd', '>=', self.etd)]
+                }
+            }
+
+    # Update booking => base price for sale order line
     def action_approve_price(self):
         self.ensure_one()
         self.validate_action_submit('action_approve_price')
 
         product = self.product_template_id
-        product.sudo().write({
-            'list_price': self.sale_price,
-            'standard_price': self.cost
-        })
-        # update price sale order line
-        sale_order_line = self.sale_order_id.order_line.filtered(lambda line: line.product_id.id == product.product_variant_id.id)
-        if sale_order_line:
-            sale_order_line.sudo().write({
-                'price_unit': self.sale_price
-            })
+        # product.sudo().write({
+        #     'list_price': self.sale_price,
+        #     'standard_price': self.cost
+        # })
+        # # update price sale order line
+        # sale_order_line = self.sale_order_id.order_line.filtered(lambda line: line.product_id.id == product.product_variant_id.id)
+        # if sale_order_line:
+        #     sale_order_line.sudo().write({
+        #         'price_unit': self.sale_price
+        #     })
+
+        # Find and update the matching sale order line
+        if self.sale_order_id and product:
+            matching_order_line = self.sale_order_id.order_line.filtered(
+                lambda line: line.product_id.product_tmpl_id.id == product.id
+            )
+
+            if matching_order_line:
+                matching_order_line.sudo().write({
+                    'booking_id': self.booking_id.id,
+                    'base_price': self.booking_id.company_booking_price,
+                    'etd_sale': self.booking_id.voyage_id.etd,
+                })
 
         self.update_done_task()
         self.message_post(body=_("Approve price successfully with product: %s") % product.name)
@@ -226,8 +268,8 @@ class ProjectTaskInherit(models.Model):
             case 'action_approve_booking':
                 if not self.sale_order_id:
                     raise ValidationError(_("Quotation is required."))
-                if not self.sale_line_id:
-                    raise ValidationError(_("Sale order line is required."))
+                # if not self.sale_line_id:
+                #     raise ValidationError(_("Sale order line is required."))
                 if not self.booking_id:
                     raise ValidationError(_("Booking is required."))
                 
