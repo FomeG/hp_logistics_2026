@@ -1,5 +1,8 @@
 from odoo import models, fields, _
 from odoo.exceptions import UserError, ValidationError
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class SaleOrderInherrit(models.Model):
     _inherit = 'sale.order'
@@ -72,7 +75,7 @@ class SaleOrderInherrit(models.Model):
                         'name': f"Request Price for {line.product_id.name}",
                         'project_id': project_request_price.id,
                         'sale_order_id': order.id,
-                        'product_template_id': line.product_id.product_tmpl_id.id,
+                        'sale_line_id': line.id,
                         'etd': line.etd_sale,
                         'date_assign': fields.Datetime.now(),
                     }
@@ -101,13 +104,13 @@ class SaleOrderInherrit(models.Model):
         self.write({'state': 'customer_confirm'})
 
         # Create approval task for team leader
-        self._create_approval_tasks()
+        self._create_approval_tasks_sale_leader()
 
         return True
 
 
     # Ceate task for sale leader to confirm
-    def _create_approval_tasks(self):
+    def _create_approval_tasks_sale_leader(self):
         """Create tasks for quotation approval by team leader."""
         project_approve_quotation = self.env['project.project'].search([('type', '=', 'approve_quotation')], limit=1)
 
@@ -142,20 +145,19 @@ class SaleOrderInherrit(models.Model):
                                 assignee_ids.append(team.user_id.id)
                                 break
 
-                # Create a new task for approval - setting project field but not sale_line_id
+                # Create a new task for approval
                 task_vals = {
                     'name': f"Approve Quotation: {order.name}",
                     'project_id': project_approve_quotation.id,
                     'sale_order_id': order.id,
                     'date_assign': fields.Datetime.now(),
-                    'allow_billable': False,  # Explicitly set as non-billable
                 }
 
                 # Add assignees if found
                 if assignee_ids:
                     task_vals['user_ids'] = [(6, 0, assignee_ids)]
 
-                self.env['project.task'].with_context(default_allow_billable=False).sudo().create(task_vals)
+                self.env['project.task'].sudo().create(task_vals)
 
     def action_customer_approved(self):
         """Move to sales leader confirmation after customer approves."""

@@ -35,6 +35,26 @@ class ProjectTaskInherit(models.Model):
         help="Related sale order line for this task"
     )
 
+    @api.depends('stage_id')
+    def _compute_is_done(self):
+        for task in self:
+            task.is_done = task.stage_id.name.lower() == 'done'
+
+    is_done = fields.Boolean(string="Is Done", compute="_compute_is_done", store=True)
+
+    @api.constrains('sale_line_id')
+    def _check_sale_line_type(self):
+        for task in self.sudo():
+            if task.sale_line_id:
+                # Allow your custom product types
+                if task.sale_line_id.product_id.type not in ['pricing', 'trucking', 'common',
+                                                             'custom'] or task.sale_line_id.is_expense:
+                    raise ValidationError(_(
+                        'You cannot link the order item %(order_id)s - %(product_id)s to this task because it is a re-invoiced expense.',
+                        order_id=task.sale_line_id.order_id.name,
+                        product_id=task.sale_line_id.product_id.display_name,
+                    ))
+
     @api.depends('sale_order_id', 'product_template_id')
     def _compute_sale_line_id(self):
         for task in self:
@@ -113,6 +133,7 @@ class ProjectTaskInherit(models.Model):
             # 'pol_id': pol_id,
         })
         return True
+
     
     def action_show_sale_order_detail(self):
         self.ensure_one()
@@ -187,11 +208,12 @@ class ProjectTaskInherit(models.Model):
                 self.update_done_task(pod.id, pol.id)
                 # add sale order item
                 sale_order = self.sale_order_id
-                self.env['sale.order.line'].sudo().create({
+                new_sale_line = self.env['sale.order.line'].sudo().create({
                     'order_id': sale_order.id,
                     'product_id': new_product.product_variant_id.id,
                     'product_uom_qty': 1.0,
                     'name': new_product.name,
+                    'product_type_filter': 'pricing'
                 })
                 # create task request price
                 project_request_price = self.env['project.project'].search([('type', '=', 'request_price')], limit=1)
@@ -200,7 +222,7 @@ class ProjectTaskInherit(models.Model):
                         'name': new_product.name,
                         'project_id': project_request_price.id,
                         'sale_order_id': sale_order.id,
-                        'product_template_id': new_product.id,
+                        'sale_line_id': new_sale_line.id,
                         'etd': self.etd,
                         'date_assign': datetime.now(),
                     })
@@ -217,12 +239,16 @@ class ProjectTaskInherit(models.Model):
                 }
             }
 
+    @api.onchange('booking_id')
+    def _onchange_booking_id(self):
+       self.etd = self.booking_id.voyage_id.etd
+
     # Update booking => base price for sale order line
     def action_approve_price(self):
         self.ensure_one()
         self.validate_action_submit('action_approve_price')
 
-        product = self.product_template_id
+        # product = self.product_template_id
         # product.sudo().write({
         #     'list_price': self.sale_price,
         #     'standard_price': self.cost
@@ -235,20 +261,15 @@ class ProjectTaskInherit(models.Model):
         #     })
 
         # Find and update the matching sale order line
-        if self.sale_order_id and product:
-            matching_order_line = self.sale_order_id.order_line.filtered(
-                lambda line: line.product_id.product_tmpl_id.id == product.id
-            )
-
-            if matching_order_line:
-                matching_order_line.sudo().write({
-                    'booking_id': self.booking_id.id,
-                    'base_price': self.booking_id.company_booking_price,
-                    'etd_sale': self.booking_id.voyage_id.etd,
-                })
+        if self.sale_line_id:
+            self.sale_line_id.sudo().write({
+                'booking_id': self.booking_id.id,
+                'base_price': self.booking_id.company_booking_price,
+                'etd_sale': self.booking_id.voyage_id.etd,
+            })
 
         self.update_done_task()
-        self.message_post(body=_("Approve price successfully with product: %s") % product.name)
+        self.message_post(body=_("Approve price successfully with sale line: %s") % self.sale_line_id.name)
         return True
     
     def action_approve_booking(self):
@@ -280,10 +301,12 @@ class ProjectTaskInherit(models.Model):
                     raise ValidationError(_("POL name is required."))
                 
             case 'action_approve_price':
-                if not self.product_template_id:
-                    raise ValidationError(_("Product is required."))
-                if not self.sale_price or not self.cost:
-                    raise ValidationError(_("Sale price or Cost is not exist."))
+                # if not self.product_template_id:
+                #     raise ValidationError(_("Product is required."))
+                if not self.booking_id:
+                    raise ValidationError(_("Booking is required."))
+                # if not self.sale_price or not self.cost:
+                #     raise ValidationError(_("Sale price or Cost is not exist."))
 
             case 'action_confirm_quotation':
                 if not self.sale_order_id:

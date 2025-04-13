@@ -91,7 +91,7 @@
                         type="object"
                         string="Approve POD/POL"
                         class="btn btn-success"
-                        invisible="not sale_order_id or not pod_name_request or not pol_name_request or pod_id or pol_id" />
+                        invisible="not sale_order_id or not pod_name_request or not pol_name_request or pod_id or pol_id or is_done" />
                     <h3 class="text-success" invisible="not pod_id or not pol_id">
                         <i class="fa fa-check" />Approved POD/POL
                     </h3>
@@ -139,7 +139,7 @@
                             type="object"
                             string="Approve Price"
                             class="btn btn-success"
-                            invisible="not currency_id or not sale_price or not cost or not product_template_id or is_product_has_price" />
+                            invisible="not currency_id or not booking_id or is_done"  />
 
                         <h3 class="text-success" invisible="not is_product_has_price">
                             <i class="fa fa-check" /> Approved Price </h3>
