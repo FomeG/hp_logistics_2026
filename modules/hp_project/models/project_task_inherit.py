@@ -316,6 +316,8 @@ class ProjectTaskInherit(models.Model):
                         'etd': self.etd,
                         'date_assign': datetime.now(),
                     })
+                self.update_done_task()
+                self.send_done_notification()
                 self.message_post(body=_("Create POD/POL successfully: %s, %s") % (self.pod_name_request, self.pol_name_request))
                 return True
         raise UserError('Create POD/POL failed.')
@@ -359,6 +361,7 @@ class ProjectTaskInherit(models.Model):
             })
 
         self.update_done_task()
+        self.send_done_notification()
         self.message_post(body=_("Approve price successfully with sale line: %s") % self.sale_line_id.name)
         return True
     
@@ -370,7 +373,7 @@ class ProjectTaskInherit(models.Model):
             'booking_id': self.booking_id.id,
         })
         self.update_done_task()
-
+        self.send_done_notification()
         self.message_post(body=_("Approve booking success with booking no: %s") % self.booking_id.booking_no)
         return True
     
@@ -401,5 +404,19 @@ class ProjectTaskInherit(models.Model):
             # case 'action_confirm_quotation':
             #     if not self.sale_order_id:
             #         raise ValidationError(_("Quotation is not exist."))
+
             case _:
                 return
+
+    def send_done_notification(self):
+        creator = self.create_uid
+        if creator:
+            activity_type = self.env.ref('mail.mail_activity_data_todo')
+            self.env['mail.activity'].create({
+                'activity_type_id': activity_type.id,
+                'note': f'<p>Task "{self.name}" has been completed.</p>',
+                'res_id': self.id,
+                'res_model_id': self.env['ir.model']._get('project.task').id,
+                'user_id': creator.id,
+                'summary': f'Task "{self.name}" has been completed.'
+            })            
