@@ -50,25 +50,71 @@
             </xpath>
             <xpath expr="//field[@name='task_properties']" position="after">
                 <!-- Group Confirm Quotation -->
-                <group string='Confirm Quotation' name="confirm_quotation_group" invisible="project_type != 'approve_quotation'">
-                    <label for="sale_order_id" />
-                    <div class="o_row">
-                        <field name="sale_order_id" string="Quotation"
-                            domain="[('state', '=', 'draft')]" readonly="1"/>
+<!--                <group string='Confirm Quotation' name="confirm_quotation_group" invisible="project_type != 'approve_quotation'">-->
+<!--                    <label for="sale_order_id" />-->
+<!--                    <div class="o_row">-->
+<!--                        <field name="sale_order_id" string="Quotation"-->
+<!--                            domain="[('state', '=', 'draft')]" readonly="1"/>-->
+<!--                        <button name="action_show_sale_order_detail"-->
+<!--                            string="Show Detail"-->
+<!--                            type="object"-->
+<!--                            class="btn btn-link"-->
+<!--                            invisible="not sale_order_id" />-->
+<!--                    </div>-->
+<!--                    <button name="action_confirm_quotation"-->
+<!--                        type="object"-->
+<!--                        string="Confirm Quotation"-->
+<!--                        class="btn btn-success"-->
+<!--                        invisible="not is_quotation or not sale_order_id" />-->
+<!--                    <h3 class="text-success" invisible="not sale_order_id or is_quotation"><i-->
+<!--                            class="fa fa-check" />-->
+<!--                            Confirmed Quotation-->
+<!--                    </h3>-->
+<!--                </group>-->
+                <!-- Group for Approval Tasks (for both Sale Leader and Pricing Leader) -->
+                <group string='Quotation Approval' name="quotation_approval_group" invisible="project_type != 'approve_quotation'">
+                    <field name="approval_type" invisible="1"/>
+<!--                    <label for="sale_order_id" />-->
+                    <group col="4">
+                        <field name="sale_order_id" string="Quotation" readonly="1"/>
                         <button name="action_show_sale_order_detail"
-                            string="Show Detail"
+                                string="Show Detail"
+                                type="object"
+                                class="btn btn-link"
+                                invisible="not sale_order_id"/>
+                    </group>
+                    <field name="rejection_reason" placeholder="Enter reason if not approving..." required="0"/>
+
+                    <!-- Sales Leader Buttons -->
+                    <group invisible="approval_type != 'sale_leader'">
+                        <button name="action_sale_leader_approve"
                             type="object"
-                            class="btn btn-link"
-                            invisible="not sale_order_id" />
-                    </div>
-                    <button name="action_confirm_quotation"
-                        type="object"
-                        string="Confirm Quotation"
-                        class="btn btn-success"
-                        invisible="not is_quotation or not sale_order_id" />
-                    <h3 class="text-success" invisible="not sale_order_id or is_quotation"><i
-                            class="fa fa-check" />
-                            Confirmed Quotation
+                            string="Approve"
+                            class="btn btn-success"
+                            invisible="is_done"/>
+                        <button name="action_sale_leader_reject"
+                            type="object"
+                            string="Reject"
+                            class="btn btn-danger"
+                            invisible="is_done"/>
+                    </group>
+
+                    <!-- Pricing Leader Buttons -->
+                    <group invisible="approval_type != 'pricing_leader'">
+                        <button name="action_pricing_leader_approve"
+                            type="object"
+                            string="Approve"
+                            class="btn btn-success"
+                            invisible="is_done"/>
+                        <button name="action_pricing_leader_reject"
+                            type="object"
+                            string="Reject"
+                            class="btn btn-danger"
+                            invisible="is_done"/>
+                    </group>
+
+                    <h3 class="text-success" invisible="not is_done">
+                        <i class="fa fa-check" /> Decision Completed
                     </h3>
                 </group>
 

@@ -28,7 +28,7 @@ class SaleOrderInherrit(models.Model):
     ], string="Status", readonly=True, copy=False, index=True, tracking=3, default='draft')
 
     # When activate Quotation => check if some product is missing booking/price => make task and assgin to all users relating to the pod
-    def action_create_quotation(self):
+    def action_activate_quotation(self):
         """Submit quotation for customer review."""
         self.write({'state': 'activated'})
         self._create_request_price_tasks()
@@ -121,7 +121,8 @@ class SaleOrderInherrit(models.Model):
             # Check if a task already exists for this order
             existing_task = self.env['project.task'].search([
                 ('sale_order_id', '=', order.id),
-                ('project_id', '=', project_approve_quotation.id)
+                ('project_id', '=', project_approve_quotation.id),
+                ('approval_type', '=', 'sale_leader')
             ], limit=1)
 
             if not existing_task:
@@ -137,7 +138,7 @@ class SaleOrderInherrit(models.Model):
                     user = self.env.user
 
                     # First check if this user belongs to a sales team
-                    sales_teams = self.env['crm.team'].search([('member_ids', 'in', user.id)])
+                    sales_teams = self.env['crm.team'].search([('member_ids', 'in', [user.id])])
                     if sales_teams:
                         # Use the team leader of the user's sales team
                         for team in sales_teams:
@@ -151,6 +152,7 @@ class SaleOrderInherrit(models.Model):
                     'project_id': project_approve_quotation.id,
                     'sale_order_id': order.id,
                     'date_assign': fields.Datetime.now(),
+                    'approval_type': 'sale_leader',
                 }
 
                 # Add assignees if found
@@ -159,15 +161,83 @@ class SaleOrderInherrit(models.Model):
 
                 self.env['project.task'].sudo().create(task_vals)
 
-    def action_customer_approved(self):
-        """Move to sales leader confirmation after customer approves."""
-        return self.write({'state': 'sale_leader_confirm'})
-
+    # def action_customer_approved(self):
+    #     """Move to sales leader confirmation after customer approves."""
+    #     return self.write({'state': 'sale_leader_confirm'})
+    #
     def action_sale_leader_approved(self):
         """Move to pricing leader confirmation after sales manager approves."""
-        return self.write({'state': 'pricing_leader_confirm'})
+        self.write({'state': 'sale_leader_confirm'})
+
+        # Create approval task for pricing team leader
+        self._create_approval_tasks_pricing_leader()
+
+        return True
 
     def action_pricing_leader_approved(self):
+        """Move to pricing leader confirmation after sales manager approves."""
+        self.write({'state': 'pricing_leader_confirm'})
+
+        return True
+
+    # Ceate task for pricing leader to confirm
+    def _create_approval_tasks_pricing_leader(self):
+        """Create tasks for quotation approval by pricing leaders."""
+        project_approve_quotation = self.env['project.project'].search([('type', '=', 'approve_quotation')], limit=1)
+
+        if not project_approve_quotation:
+            return
+
+        for order in self:
+            # Check if a task already exists for this order
+            existing_task = self.env['project.task'].search([
+                ('sale_order_id', '=', order.id),
+                ('project_id', '=', project_approve_quotation.id),
+                ('approval_type', '=', 'pricing_leader')
+            ], limit=1)
+
+            if not existing_task:
+                # Find pricing leaders to assign
+                assignee_ids = []
+
+                # Collect regions from order line products
+                product_regions = set()
+                for line in order.order_line.filtered(lambda l: l.product_type_filter == 'pricing'):
+                    product_tmpl = line.product_id.product_tmpl_id
+                    if product_tmpl.sealine_id and product_tmpl.sealine_id.pod_id and product_tmpl.sealine_id.pod_id.region_id:
+                        product_regions.add(product_tmpl.sealine_id.pod_id.region_id.id)
+
+                # Find teams that manage these regions
+                pricing_teams = self.env['pricing.team'].search([])
+                for team in pricing_teams:
+                    # Check if any team members manage regions in product_regions
+                    team_regions = team.pricing_team_member_ids.mapped('region_id.id')
+                    if team.team_manager_id and set(team_regions) & product_regions:
+                        assignee_ids.append(team.team_manager_id.id)
+
+                # If no region-specific pricing leaders found, get any pricing team managers
+                if not assignee_ids:
+                    for team in pricing_teams:
+                        if team.team_manager_id:
+                            assignee_ids.append(team.team_manager_id.id)
+                            break
+
+                # Create a new task for approval
+                task_vals = {
+                    'name': f"Pricing Leader Approval: {order.name}",
+                    'project_id': project_approve_quotation.id,
+                    'sale_order_id': order.id,
+                    'date_assign': fields.Datetime.now(),
+                    'approval_type': 'pricing_leader',
+                }
+
+                # Add assignees if found
+                if assignee_ids:
+                    task_vals['user_ids'] = [(6, 0, assignee_ids)]
+
+                self.env['project.task'].sudo().create(task_vals)
+
+    def action_final_confirm(self):
         """Confirm the order after pricing manager approves."""
         # First change to a state that the original action_confirm accepts
         self.write({'state': 'sent'})

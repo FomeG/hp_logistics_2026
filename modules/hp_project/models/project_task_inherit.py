@@ -35,6 +35,11 @@ class ProjectTaskInherit(models.Model):
         help="Related sale order line for this task"
     )
 
+    approval_type = fields.Selection([
+        ('sale_leader', 'Sales Leader Approval'),
+        ('pricing_leader', 'Pricing Leader Approval')
+    ], string="Approval Type")
+
     @api.depends('stage_id')
     def _compute_is_done(self):
         for task in self:
@@ -174,16 +179,101 @@ class ProjectTaskInherit(models.Model):
             'flags': {'mode': 'readonly'},
         }
     
-    def action_confirm_quotation(self):
-        self.ensure_one()
-        self.validate_action_submit('action_confirm_quotation')
+    # def action_confirm_quotation(self):
+    #     self.ensure_one()
+    #     self.validate_action_submit('action_confirm_quotation')
+    #
+    #     quotation = self.sale_order_id
+    #     if quotation.state == 'draft' and quotation.sudo().action_confirm():
+    #         self.update_done_task()
+    #         self.message_post(body=_("Confirm quotation successfully."))
+    #         return True
+    #     raise UserError('Confirm quotation failed.')
 
-        quotation = self.sale_order_id
-        if quotation.state == 'draft' and quotation.sudo().action_confirm():
-            self.update_done_task()
-            self.message_post(body=_("Confirm quotation successfully."))
-            return True
-        raise UserError('Confirm quotation failed.')
+    # Add rejection reason field to handle the rejection cases
+    rejection_reason = fields.Text(string='Rejection Reason')
+
+    def action_sale_leader_approve(self):
+        """Approve quotation by sales leader and create task for pricing leader"""
+        self.ensure_one()
+
+        # Validate the action
+        if not self.sale_order_id or self.sale_order_id.state != 'customer_confirm':
+            raise ValidationError(_("This quotation cannot be approved in its current state."))
+
+        # Update quotation state to sale_leader_confirm
+        self.sale_order_id.sudo().action_sale_leader_approved()
+
+        # Mark the task as done
+        self.update_done_task()
+
+        # Post a message in the chatter
+        self.message_post(body=_("Quotation approved by sales leader."))
+        return True
+
+    def action_sale_leader_reject(self):
+        """Reject quotation by sales leader"""
+        self.ensure_one()
+
+        # Validate the action
+        if not self.sale_order_id or self.sale_order_id.state != 'customer_confirm':
+            raise ValidationError(_("This quotation cannot be rejected in its current state."))
+
+        # Check if rejection reason is provided
+        if not self.rejection_reason:
+            raise ValidationError(_("Please provide a reason for rejection."))
+
+        # Handle rejection logic here
+        # You might want to set the quotation back to draft or another state
+        self.sale_order_id.sudo().write({'state': 'activated'})
+
+        # Mark the task as done
+        self.update_done_task()
+
+        # Post a message in the chatter
+        self.message_post(body=_("Quotation rejected by sales leader and set back to Activated state. Reason: %s") % self.rejection_reason)
+        return True
+
+    def action_pricing_leader_approve(self):
+        """Approve quotation by pricing leader and confirm order"""
+        self.ensure_one()
+
+        # Validate the action
+        if not self.sale_order_id or self.sale_order_id.state != 'sale_leader_confirm':
+            raise ValidationError(_("This quotation cannot be approved in its current state."))
+
+        # Update quotation state to pricing_leader_confirm
+        self.sale_order_id.sudo().action_pricing_leader_approved()
+
+        # Mark the task as done
+        self.update_done_task()
+
+        # Post a message in the chatter
+        self.message_post(body=_("Quotation approved by pricing leader."))
+        return True
+
+    def action_pricing_leader_reject(self):
+        """Reject quotation by pricing leader"""
+        self.ensure_one()
+
+        # Validate the action
+        if not self.sale_order_id or self.sale_order_id.state != 'sale_leader_confirm':
+            raise ValidationError(_("This quotation cannot be rejected in its current state."))
+
+        # Check if rejection reason is provided
+        if not self.rejection_reason:
+            raise ValidationError(_("Please provide a reason for rejection."))
+
+        # Handle rejection logic here
+        # You might want to set the quotation back to customer_confirm
+        self.sale_order_id.sudo().write({'state': 'customer_confirm'})
+
+        # Mark the task as done
+        self.update_done_task()
+
+        # Post a message in the chatter
+        self.message_post(body=_("Quotation rejected by pricing leader. Reason: %s") % self.rejection_reason)
+        return True
 
     def action_approve_pod_pol(self):
         self.ensure_one()
@@ -308,8 +398,8 @@ class ProjectTaskInherit(models.Model):
                 # if not self.sale_price or not self.cost:
                 #     raise ValidationError(_("Sale price or Cost is not exist."))
 
-            case 'action_confirm_quotation':
-                if not self.sale_order_id:
-                    raise ValidationError(_("Quotation is not exist."))
+            # case 'action_confirm_quotation':
+            #     if not self.sale_order_id:
+            #         raise ValidationError(_("Quotation is not exist."))
             case _:
                 return
