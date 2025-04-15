@@ -26,6 +26,7 @@ class ProjectTaskInherit(models.Model):
     is_order_has_booking = fields.Boolean(compute='_compute_order_has_booking', store=False)
     booking_info = fields.Text(string="Booking Info", compute="_compute_booking_info", store=False)
     is_project_pricing = fields.Boolean(compute="_check_project_pricing", store=False)
+    is_done = fields.Boolean(string="Is Done", compute="_compute_is_done", store=False)
 
     sale_line_id = fields.Many2one(
         'sale.order.line',
@@ -43,9 +44,8 @@ class ProjectTaskInherit(models.Model):
     @api.depends('stage_id')
     def _compute_is_done(self):
         for task in self:
-            task.is_done = task.stage_id.name.lower() == 'done'
-
-    is_done = fields.Boolean(string="Is Done", compute="_compute_is_done", store=True)
+            name = task.stage_id.name
+            task.is_done = name and name.lower() == 'done'
 
     @api.constrains('sale_line_id')
     def _check_sale_line_type(self):
