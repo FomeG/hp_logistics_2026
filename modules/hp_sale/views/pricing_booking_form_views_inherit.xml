@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="pricing_booking_form_view_inherit" model="ir.ui.view">
+        <field name="name">pricing.booking.form.inherit</field>
+        <field name="model">pricing.booking</field>
+        <field name="inherit_id" ref="hp_pricing.pricing_booking_form_view"/>
+        <field name="arch" type="xml">
+            <!-- Add notebook after the existing groups -->
+            <xpath expr="//sheet/group" position="after">
+                <notebook>
+                    <page string="Used in Sales Order Lines" name="sale_lines">
+                        <field name="sale_line_ids" readonly="1">
+                            <list>
+                                <field name="order_id"/>
+                                <field name="name"/>
+                                <field name="product_id"/>
+                                <field name="product_uom_qty"/>
+                                <field name="price_unit"/>
+                                <field name="price_subtotal" sum="Subtotal"/>
+                                <field name="etd_sale"/>
+                                <field name="volume_cont"/>
+                            </list>
+                        </field>
+                    </page>
+                </notebook>
+            </xpath>
+
+            <!-- Move chatter into the sheet to be below the notebook -->
+<!--            <xpath expr="//chatter" position="replace"/>-->
+<!--            <xpath expr="//sheet" position="inside">-->
+<!--                <div class="oe_chatter">-->
+<!--                    <field name="message_follower_ids" widget="mail_followers"/>-->
+<!--                    <field name="activity_ids" widget="mail_activity"/>-->
+<!--                    <field name="message_ids" widget="mail_thread"/>-->
+<!--                </div>-->
+<!--            </xpath>-->
+        </field>
+    </record>
+</odoo>

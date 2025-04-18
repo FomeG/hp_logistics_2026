@@ -28,6 +28,7 @@
         'views/change_menu_customer_views.xml',
         'views/inherit_form_create_customer_views.xml',
         'views/sale_order.xml',
+        'views/pricing_booking_form_views_inherit.xml',
 
         'views/sale_menus.xml',
 

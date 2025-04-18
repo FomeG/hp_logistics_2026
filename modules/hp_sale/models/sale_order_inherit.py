@@ -239,8 +239,63 @@ class SaleOrderInherrit(models.Model):
 
     def action_final_confirm(self):
         """Confirm the order after pricing manager approves."""
-        # First change to a state that the original action_confirm accepts
-        self.write({'state': 'sent'})
-        # Now we can call the original confirm method
-        return self.action_confirm()
+        for order in self:
+            # Create booking approval tasks for each pricing line with booking
+            order._create_booking_approval_tasks()
+
+            # First change to a state that the original action_confirm accepts
+            order.write({'state': 'sent'})
+
+            # Now we can call the original confirm method
+            order.action_confirm()
+
+        return True
+
+    def _create_booking_approval_tasks(self):
+        """Create tasks for approving bookings when a sales order is confirmed."""
+        project_approve_booking = self.env['project.project'].search([('type', '=', 'assign_booking')], limit=1)
+
+        if not project_approve_booking:
+            return
+
+        for order in self:
+            # Find lines with product_type_filter = 'pricing' and having booking_id
+            pricing_lines_with_booking = order.order_line.filtered(
+                lambda line: line.product_type_filter == 'pricing' and line.booking_id
+            )
+
+            for line in pricing_lines_with_booking:
+                # Check if a task already exists for this sale line's booking
+                existing_task = self.env['project.task'].search([
+                    ('sale_order_id', '=', order.id),
+                    ('sale_line_id', '=', line.id),
+                    ('booking_id', '=', line.booking_id.id),
+                    ('project_id', '=', project_approve_booking.id)
+                ], limit=1)
+
+                if not existing_task:
+                    # Find the booking creator or responsible person to assign
+                    assignee_ids = []
+                    booking = line.booking_id
+
+                    # First try the creator of the booking
+                    if booking.create_uid:
+                        assignee_ids.append(booking.create_uid.id)
+
+                    # Create a new task for booking approval
+                    task_vals = {
+                        'name': f"Approve Booking: {line.product_id.name} in {order.name}",
+                        'project_id': project_approve_booking.id,
+                        'sale_order_id': order.id,
+                        'sale_line_id': line.id,
+                        'booking_id': line.booking_id.id,
+                        'date_assign': fields.Datetime.now(),
+                    }
+
+                    # Add assignees if found
+                    if assignee_ids:
+                        task_vals['user_ids'] = [(6, 0, assignee_ids)]
+
+                    # Create the task
+                    self.env['project.task'].with_context(default_allow_billable=False).sudo().create(task_vals)
 

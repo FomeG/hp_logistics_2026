@@ -369,12 +369,27 @@ class ProjectTaskInherit(models.Model):
         self.ensure_one()
         self.validate_action_submit('action_approve_booking')
 
-        self.sale_line_id.sudo().write({
-            'booking_id': self.booking_id.id,
-        })
+        if not self.sale_order_id or not self.sale_line_id or not self.booking_id:
+            raise ValidationError(_("Sales Order, Sales Order Line, and Booking are required."))
+
+            # Add this sale order to the booking's sale_order_ids if not already there
+        if self.sale_line_id.id not in self.booking_id.sale_line_ids.ids:
+            self.booking_id.sudo().write({
+                'sale_line_ids': [(4, self.sale_line_id.id)],
+                'booking_status': 'booked',  # Update booking status to booked
+            })
+
+        # self.sale_line_id.sudo().write({
+        #     'booking_id': self.booking_id.id,
+        # })
         self.update_done_task()
         self.send_done_notification()
-        self.message_post(body=_("Approve booking success with booking no: %s") % self.booking_id.booking_no)
+        # self.message_post(body=_("Approve booking success with booking no: %s") % self.booking_id.booking_no)
+        # Post a message in the chatter
+        self.message_post(body=_(
+            "Booking approved successfully. The booking %s has been assigned to %s and linked to the sales order %s."
+        ) % (self.booking_id.booking_no, self.sale_line_id.name, self.sale_order_id.name))
+
         return True
     
     def validate_action_submit(self, action):
