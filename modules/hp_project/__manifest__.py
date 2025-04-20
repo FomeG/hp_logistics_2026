@@ -19,6 +19,7 @@ HP Project App
 
         #view
         'views/project_task_form_views.xml',
+        'views/project_task_list_views.xml',
 
     ],
     'assets': {

@@ -295,7 +295,6 @@ class ProjectTaskInherit(models.Model):
         if new_sealine:
             new_product = self.env['product.template'].search([('sealine_id', '=', new_sealine.id)], limit=1)
             if new_product:
-                self.update_done_task(pod.id, pol.id)
                 # add sale order item
                 sale_order = self.sale_order_id
                 new_sale_line = self.env['sale.order.line'].sudo().create({
@@ -317,7 +316,7 @@ class ProjectTaskInherit(models.Model):
                         'date_assign': datetime.now(),
                     })
                 self.update_done_task()
-                self.send_done_notification()
+                self.send_notification_by_stage('done')
                 self.message_post(body=_("Create POD/POL successfully: %s, %s") % (self.pod_name_request, self.pol_name_request))
                 return True
         raise UserError('Create POD/POL failed.')
@@ -361,7 +360,7 @@ class ProjectTaskInherit(models.Model):
             })
 
         self.update_done_task()
-        self.send_done_notification()
+        self.send_notification_by_stage('done')
         self.message_post(body=_("Approve price successfully with sale line: %s") % self.sale_line_id.name)
         return True
     
@@ -383,7 +382,7 @@ class ProjectTaskInherit(models.Model):
         #     'booking_id': self.booking_id.id,
         # })
         self.update_done_task()
-        self.send_done_notification()
+        self.send_notification_by_stage('done')
         # self.message_post(body=_("Approve booking success with booking no: %s") % self.booking_id.booking_no)
         # Post a message in the chatter
         self.message_post(body=_(
@@ -403,6 +402,8 @@ class ProjectTaskInherit(models.Model):
                     raise ValidationError(_("Booking is required."))
                 
             case 'action_approve_pod_pol':
+                if not self.sale_order_id:
+                    raise ValidationError(_("Quotation is required."))
                 if not self.pod_name_request:
                     raise ValidationError(_("POD name is required."))
                 if not self.pol_name_request:
@@ -422,16 +423,37 @@ class ProjectTaskInherit(models.Model):
 
             case _:
                 return
+    
+    def send_notification_by_stage(self, stage):
+        self.ensure_one()
+        activity_type_id = self.env.ref('mail.mail_activity_data_todo').id
+        model_id = self.env['ir.model']._get_id('project.task')
 
-    def send_done_notification(self):
-        creator = self.create_uid
-        if creator:
-            activity_type = self.env.ref('mail.mail_activity_data_todo')
-            self.env['mail.activity'].create({
-                'activity_type_id': activity_type.id,
-                'note': f'<p>Task "{self.name}" has been completed.</p>',
-                'res_id': self.id,
-                'res_model_id': self.env['ir.model']._get('project.task').id,
-                'user_id': creator.id,
-                'summary': f'Task "{self.name}" has been completed.'
-            })            
+        match stage:
+            case 'done':
+                creator = self.create_uid
+                if creator:
+                    self.env['mail.activity'].create({
+                        'activity_type_id': activity_type_id,
+                        'note': f'<p>Task "{self.name}" has been completed.</p>',
+                        'res_id': self.id,
+                        'res_model_id': model_id,
+                        'user_id': creator.id,
+                        'summary': f'Task "{self.name}" has been completed.'
+                    })
+        
+            case 'open':
+                assignees = self.user_ids
+                if assignees:
+                    for assignee in assignees:
+                        self.env['mail.activity'].create({
+                            'activity_type_id': activity_type_id,
+                            'note': f'<p>Task "{self.name}" has been assigned to you.</p>',
+                            'res_id': self.id,
+                            'res_model_id': model_id,
+                            'user_id': assignee.id,
+                            'summary': f'You have been assigned task "{self.name}".'
+                        })
+
+            case _:
+                return

@@ -34,6 +34,19 @@ class HrEmployeeInherit(models.Model):
             raise UserError("\n".join(message_parts))
 
         return created_records
+    
+    def write(self, vals):
+        for field in ['work_email', 'work_phone']:
+            value = vals.get(field)
+            if value:
+                conflict = self.search([
+                    ('id', 'not in', self.ids),
+                    (field, '=', value)
+                ], limit=1)
+                if conflict:
+                    raise UserError(_("%s '%s' is already used by another employee.") % (field.replace('_', ' ').title(), value))
+
+        return super().write(vals)
 
     @api.depends('address_id')
     def _compute_phones(self):

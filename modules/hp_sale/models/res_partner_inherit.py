@@ -28,6 +28,21 @@ class ResPartner(models.Model):
             raise UserError(message)
 
         return created_records
+
+    def write(self, vals):
+        if 'vat' in vals:
+            new_vat = vals.get('vat')
+            if new_vat:
+                for partner in self:
+                    if partner.vat != new_vat:
+                        existing = self.env['res.partner'].search([
+                            ('vat', '=', new_vat),
+                            ('id', '!=', partner.id)
+                        ], limit=1)
+                        if existing:
+                            raise UserError(_("Tax ID already exists: %s") % new_vat)
+
+        return super().write(vals)
     
     @api.model
     def default_get(self, fields):
@@ -49,6 +64,8 @@ class ResPartner(models.Model):
 
     @api.onchange('user_id')
     def _onchange_user_id(self):
+        if not self._origin.id:
+            return
         if self.is_only_group_sale_salesman():
             self.user_id = self._origin.user_id
             raise UserError(_("Can not change saleperson"))
