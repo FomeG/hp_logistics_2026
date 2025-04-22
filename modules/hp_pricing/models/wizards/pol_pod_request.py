@@ -12,7 +12,7 @@ class PodPolRequestWizard(models.TransientModel):
     pod_name_request = fields.Char('POD name request', required=True)
     pol_name_request = fields.Char('POL name request', required=True)
 
-    def action_create_task(self):
+    def action_task_create_new_sealine(self):
         self.ensure_one()
         project = self.env['project.project'].search([('type', '=', 'request_product')], limit=1)
 
@@ -20,14 +20,29 @@ class PodPolRequestWizard(models.TransientModel):
             raise UserError(_("No project found with type 'request_product'. Please create it first."))
 
         # Create task with the collected information
-        task = self.env['project.task'].create({
+        task_vals = {
             'name': f'POD/POL Request for {self.sale_order_id.name}',
             'project_id': project.id,
             'sale_order_id': self.sale_order_id.id,
             'etd': self.etd,
             'pod_name_request': self.pod_name_request,
             'pol_name_request': self.pol_name_request,
-        })
+        }
+
+        assignee_ids = []
+        pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
+        pricing_director = self.env['res.users'].search([
+            ('groups_id', 'in', pricing_director_group.id)
+        ], limit=1)
+
+        if pricing_director:
+            assignee_ids.append(pricing_director.id)
+
+        # Add assignees if found
+        if assignee_ids:
+            task_vals['user_ids'] = [(6, 0, assignee_ids)]
+
+        self.env['project.task'].sudo().create(task_vals)
 
         # Show success message
         return {

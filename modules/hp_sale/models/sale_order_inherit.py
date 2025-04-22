@@ -61,14 +61,26 @@ class SaleOrderInherrit(models.Model):
 
                 if not existing_task:
                     # Find pricing members to assign based on the sealine's POD region
-                    product_tmpl = line.product_id.product_tmpl_id
-                    assignee_ids = []
+                    # product_tmpl = line.product_id.product_tmpl_id
 
-                    if product_tmpl.sealine_id and product_tmpl.sealine_id.pod_id and product_tmpl.sealine_id.pod_id.region_id:
-                        region = product_tmpl.sealine_id.pod_id.region_id
-                        # Get users from this region
-                        if region.member_ids:
-                            assignee_ids = region.member_ids.ids
+                    # if product_tmpl.sealine_id and product_tmpl.sealine_id.pod_id and product_tmpl.sealine_id.pod_id.region_id:
+                    #     region = product_tmpl.sealine_id.pod_id.region_id
+                    #     # Get users from this region
+                    #     if region.member_ids:
+                    #         assignee_ids = region.member_ids.ids
+
+                    assignee_ids = []
+                    pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
+                    pricing_director = self.env['res.users'].search([
+                        ('groups_id', 'in', pricing_director_group.id)
+                    ], limit=1)
+
+                    if pricing_director:
+                        assignee_ids.append(pricing_director.id)
+
+                    # Add assignees if found
+                    if assignee_ids:
+                        task_vals['user_ids'] = [(6, 0, assignee_ids)]
 
                     # Create a new task for request_price with assignees
                     task_vals = {
@@ -129,22 +141,31 @@ class SaleOrderInherrit(models.Model):
                 # Find sales team leader to assign
                 assignee_ids = []
 
-                # First try to get from sales team
-                if order.team_id and order.team_id.user_id:
-                    assignee_ids.append(order.team_id.user_id.id)
-                # If no team leader found, try to find from pricing team
-                else:
-                    # Try to get the sales user creating this order
-                    user = self.env.user
+                # # First try to get from sales team
+                # if order.team_id and order.team_id.user_id:
+                #     assignee_ids.append(order.team_id.user_id.id)
+                # # If no team leader found, try to find from pricing team
+                # else:
+                #     # Try to get the sales user creating this order
+                #     user = self.env.user
+                #
+                #     # First check if this user belongs to a sales team
+                #     sales_teams = self.env['crm.team'].search([('member_ids', 'in', [user.id])])
+                #     if sales_teams:
+                #         # Use the team leader of the user's sales team
+                #         for team in sales_teams:
+                #             if team.user_id:  # team.user_id is the team leader
+                #                 assignee_ids.append(team.user_id.id)
+                #                 break
 
-                    # First check if this user belongs to a sales team
-                    sales_teams = self.env['crm.team'].search([('member_ids', 'in', [user.id])])
-                    if sales_teams:
-                        # Use the team leader of the user's sales team
-                        for team in sales_teams:
-                            if team.user_id:  # team.user_id is the team leader
-                                assignee_ids.append(team.user_id.id)
-                                break
+                assignee_ids = []
+                sale_director_group = self.env.ref('sales_team.group_sale_salesman_all_leads')
+                sale_director = self.env['res.users'].search([
+                    ('groups_id', 'in', sale_director_group.id)
+                ], limit=1)
+
+                if sale_director:
+                    assignee_ids.append(sale_director.id)
 
                 # Create a new task for approval
                 task_vals = {
@@ -200,27 +221,14 @@ class SaleOrderInherrit(models.Model):
                 # Find pricing leaders to assign
                 assignee_ids = []
 
-                # Collect regions from order line products
-                product_regions = set()
-                for line in order.order_line.filtered(lambda l: l.product_type_filter == 'pricing'):
-                    product_tmpl = line.product_id.product_tmpl_id
-                    if product_tmpl.sealine_id and product_tmpl.sealine_id.pod_id and product_tmpl.sealine_id.pod_id.region_id:
-                        product_regions.add(product_tmpl.sealine_id.pod_id.region_id.id)
+                assignee_ids = []
+                pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
+                pricing_director = self.env['res.users'].search([
+                    ('groups_id', 'in', pricing_director_group.id)
+                ], limit=1)
 
-                # Find teams that manage these regions
-                pricing_teams = self.env['pricing.team'].search([])
-                for team in pricing_teams:
-                    # Check if any team members manage regions in product_regions
-                    team_regions = team.pricing_team_member_ids.mapped('region_id.id')
-                    if team.team_manager_id and set(team_regions) & product_regions:
-                        assignee_ids.append(team.team_manager_id.id)
-
-                # If no region-specific pricing leaders found, get any pricing team managers
-                if not assignee_ids:
-                    for team in pricing_teams:
-                        if team.team_manager_id:
-                            assignee_ids.append(team.team_manager_id.id)
-                            break
+                if pricing_director:
+                    assignee_ids.append(pricing_director.id)
 
                 # Create a new task for approval
                 task_vals = {

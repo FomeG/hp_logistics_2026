@@ -24,7 +24,7 @@ class PortOfDischarge(models.Model):
         # Check if the user has a region assigned
         if 'region_id' in fields_list and user.region_id:
             res['region_id'] = user.region_id.id
-        elif not user.region_id and user.has_group('hp_pricing.group_hp_pricing_member'):
+        elif not user.region_id and not user.has_group('hp_pricing.group_hp_pricing_director'):
             raise UserError(_("The current user is not assigned to a region yet."))
         return res
 

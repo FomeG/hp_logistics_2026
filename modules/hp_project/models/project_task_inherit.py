@@ -1,6 +1,9 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import datetime
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class ProjectTaskInherit(models.Model):
     _inherit = 'project.task'
@@ -8,6 +11,7 @@ class ProjectTaskInherit(models.Model):
     sale_order_id = fields.Many2one('sale.order', string='Sales Order', compute=False)
     product_template_id = fields.Many2one('product.template', string='Product', compute=False)
     booking_id = fields.Many2one('pricing.booking', string='Booking')
+    region_id = fields.Many2one('pricing.region', string='Region')
     pod_name_request = fields.Char('POD name request')
     pod_id = fields.Many2one('pricing.pod', string="Port Of Discharge")
     pol_name_request = fields.Char('POL name request')
@@ -275,6 +279,12 @@ class ProjectTaskInherit(models.Model):
         self.message_post(body=_("Quotation rejected by pricing leader. Reason: %s") % self.rejection_reason)
         return True
 
+    # Avoiding order to be confirmed from project/task
+    def _ensure_sale_order_linked(self, sol_ids):
+        if self.env.context.get('skip_so_confirmation'):
+            return
+        return super()._ensure_sale_order_linked(sol_ids)
+
     def action_approve_pod_pol(self):
         self.ensure_one()
         self.validate_action_submit('action_approve_pod_pol')
@@ -284,7 +294,7 @@ class ProjectTaskInherit(models.Model):
         if not pod:
             pod = self.env['pricing.pod'].create({
                 'pod_name': self.pod_name_request,
-                'region_id': self.env.user.region_id.id,
+                'region_id': self.region_id.id,
             })
         if not pol:
             pol = self.env['pricing.pol'].create({
@@ -297,6 +307,8 @@ class ProjectTaskInherit(models.Model):
             if new_product:
                 # add sale order item
                 sale_order = self.sale_order_id
+                _logger.info("BEFORE: Sale order %s state: %s", sale_order.id, sale_order.state)
+
                 new_sale_line = self.env['sale.order.line'].sudo().create({
                     'order_id': sale_order.id,
                     'product_id': new_product.product_variant_id.id,
@@ -304,10 +316,12 @@ class ProjectTaskInherit(models.Model):
                     'name': new_product.name,
                     'product_type_filter': 'pricing'
                 })
+
+                _logger.info("AFTER LINE: Sale order %s state: %s", sale_order.id, sale_order.state)
                 # create task request price
                 project_request_price = self.env['project.project'].search([('type', '=', 'request_price')], limit=1)
                 if project_request_price:
-                    self.env['project.task'].sudo().create({
+                    self.env['project.task'].sudo().with_context(skip_so_confirmation=True).create({
                         'name': new_product.name,
                         'project_id': project_request_price.id,
                         'sale_order_id': sale_order.id,
@@ -315,9 +329,18 @@ class ProjectTaskInherit(models.Model):
                         'etd': self.etd,
                         'date_assign': datetime.now(),
                     })
+
+                _logger.info("AFTER TASK: Sale order %s state: %s", sale_order.id, sale_order.state)
+
                 self.update_done_task()
+
+                _logger.info("AFTER DONE TASK: Sale order %s state: %s", sale_order.id, sale_order.state)
                 self.send_notification_by_stage('done')
+                _logger.info("AFTER NOTIFICATION: Sale order %s state: %s", sale_order.id, sale_order.state)
+
                 self.message_post(body=_("Create POD/POL successfully: %s, %s") % (self.pod_name_request, self.pol_name_request))
+                _logger.info("AFTER MESSAGE POST: Sale order %s state: %s", sale_order.id, sale_order.state)
+
                 return True
         raise UserError('Create POD/POL failed.')
 
@@ -408,6 +431,8 @@ class ProjectTaskInherit(models.Model):
                     raise ValidationError(_("POD name is required."))
                 if not self.pol_name_request:
                     raise ValidationError(_("POL name is required."))
+                if not self.region_id:
+                    raise ValidationError(_("Region name is required."))
                 
             case 'action_approve_price':
                 # if not self.product_template_id:

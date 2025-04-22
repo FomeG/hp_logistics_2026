@@ -16,21 +16,22 @@
         <record id="group_hp_pricing_lead" model="res.groups">
             <field name="name">Pricing Lead</field>
             <field name="category_id" ref="module_category_hp_pricing"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="implied_ids" eval="[(4, ref('group_hp_pricing_member'))]"/>
         </record>
 
         <!-- Director -->
         <record id="group_hp_pricing_director" model="res.groups">
-            <field name="name">Director </field>
+            <field name="name">Pricing Director</field>
             <field name="category_id" ref="module_category_hp_pricing"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="implied_ids" eval="[(4, ref('group_hp_pricing_lead'))]"/>
         </record>
 
         <!-- Administrator -->
-        <record id="group_hp_pricing_administrator" model="res.groups">
+       <record id="group_hp_pricing_administrator" model="res.groups">
             <field name="name">Administrator</field>
-            <field name="category_id" ref="module_category_hp_pricing"/>
-            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="category_id" ref="module_category_hp_pricing" />
+            <field name="implied_ids" eval="[(4, ref('group_hp_pricing_director'))]" />
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]" />
         </record>
 
         <!-- Rules for pricing member -->
