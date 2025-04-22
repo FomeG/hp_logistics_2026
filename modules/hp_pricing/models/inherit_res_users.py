@@ -1,5 +1,23 @@
 from odoo import api, fields, models
 
+def get_excluded_user_ids(env):
+    excluded_user_ids = set()
+
+    high_level_users = env['res.users'].search([
+        ('groups_id', 'in', [env.ref('hr_recruitment.group_hr_recruitment_manager').id])
+    ])
+    excluded_user_ids.update(high_level_users.ids)
+
+    ceo_pattern_users = env['res.users'].search([
+        '|', '|',
+        ('login', 'ilike', 'ceo'),
+        ('login', 'ilike', 'admin'),
+        ('email', 'ilike', 'ceo')
+    ])
+    excluded_user_ids.update(ceo_pattern_users.ids)
+
+    return list(excluded_user_ids)
+
 class ResUsers(models.Model):
     _inherit = 'res.users'
 
@@ -35,3 +53,4 @@ class ResUsers(models.Model):
             else:
                 active_memberships = user.pricing_team_member_ids.filtered(lambda m: m.active)
                 user.pricing_team_id = active_memberships.sorted('create_date', reverse=True)[:1].pricing_team_id if active_memberships else False
+

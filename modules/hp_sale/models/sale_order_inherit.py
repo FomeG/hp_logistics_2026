@@ -1,6 +1,7 @@
 from odoo import models, fields, _
 from odoo.exceptions import UserError, ValidationError
 import logging
+from odoo.addons.hp_pricing.models.inherit_res_users import get_excluded_user_ids
 
 _logger = logging.getLogger(__name__)
 
@@ -60,27 +61,20 @@ class SaleOrderInherrit(models.Model):
                 ], limit=1)
 
                 if not existing_task:
-                    # Find pricing members to assign based on the sealine's POD region
-                    # product_tmpl = line.product_id.product_tmpl_id
+                    # Get list of users to exclude
+                    excluded_ids = get_excluded_user_ids(self.env)
 
-                    # if product_tmpl.sealine_id and product_tmpl.sealine_id.pod_id and product_tmpl.sealine_id.pod_id.region_id:
-                    #     region = product_tmpl.sealine_id.pod_id.region_id
-                    #     # Get users from this region
-                    #     if region.member_ids:
-                    #         assignee_ids = region.member_ids.ids
-
-                    assignee_ids = []
                     pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
                     pricing_director = self.env['res.users'].search([
-                        ('groups_id', 'in', pricing_director_group.id)
+                        ('groups_id', 'in', pricing_director_group.id),
+                        ('id', 'not in', excluded_ids),
+                        ('active', '=', True)
                     ], limit=1)
+
+                    assignee_ids = []
 
                     if pricing_director:
                         assignee_ids.append(pricing_director.id)
-
-                    # Add assignees if found
-                    if assignee_ids:
-                        task_vals['user_ids'] = [(6, 0, assignee_ids)]
 
                     # Create a new task for request_price with assignees
                     task_vals = {
@@ -138,32 +132,18 @@ class SaleOrderInherrit(models.Model):
             ], limit=1)
 
             if not existing_task:
-                # Find sales team leader to assign
-                assignee_ids = []
+                # Get list of users to exclude
+                excluded_ids = get_excluded_user_ids(self.env)
 
-                # # First try to get from sales team
-                # if order.team_id and order.team_id.user_id:
-                #     assignee_ids.append(order.team_id.user_id.id)
-                # # If no team leader found, try to find from pricing team
-                # else:
-                #     # Try to get the sales user creating this order
-                #     user = self.env.user
-                #
-                #     # First check if this user belongs to a sales team
-                #     sales_teams = self.env['crm.team'].search([('member_ids', 'in', [user.id])])
-                #     if sales_teams:
-                #         # Use the team leader of the user's sales team
-                #         for team in sales_teams:
-                #             if team.user_id:  # team.user_id is the team leader
-                #                 assignee_ids.append(team.user_id.id)
-                #                 break
-
-                assignee_ids = []
+                # Find sales leader excluding admins/CEOs
                 sale_director_group = self.env.ref('sales_team.group_sale_salesman_all_leads')
                 sale_director = self.env['res.users'].search([
-                    ('groups_id', 'in', sale_director_group.id)
+                    ('groups_id', 'in', sale_director_group.id),
+                    ('id', 'not in', excluded_ids),
+                    ('active', '=', True)
                 ], limit=1)
 
+                assignee_ids = []
                 if sale_director:
                     assignee_ids.append(sale_director.id)
 
@@ -182,10 +162,6 @@ class SaleOrderInherrit(models.Model):
 
                 self.env['project.task'].sudo().create(task_vals)
 
-    # def action_customer_approved(self):
-    #     """Move to sales leader confirmation after customer approves."""
-    #     return self.write({'state': 'sale_leader_confirm'})
-    #
     def action_sale_leader_approved(self):
         """Move to pricing leader confirmation after sales manager approves."""
         self.write({'state': 'sale_leader_confirm'})
@@ -218,14 +194,17 @@ class SaleOrderInherrit(models.Model):
             ], limit=1)
 
             if not existing_task:
-                # Find pricing leaders to assign
-                assignee_ids = []
+                # Get list of users to exclude
+                excluded_ids = get_excluded_user_ids(self.env)
 
-                assignee_ids = []
                 pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
                 pricing_director = self.env['res.users'].search([
-                    ('groups_id', 'in', pricing_director_group.id)
+                    ('groups_id', 'in', pricing_director_group.id),
+                    ('id', 'not in', excluded_ids),
+                    ('active', '=', True)
                 ], limit=1)
+
+                assignee_ids = []
 
                 if pricing_director:
                     assignee_ids.append(pricing_director.id)

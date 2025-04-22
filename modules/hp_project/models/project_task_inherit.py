@@ -2,6 +2,7 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import datetime
 import logging
+from odoo.addons.hp_pricing.models.inherit_res_users import get_excluded_user_ids
 
 _logger = logging.getLogger(__name__)
 
@@ -182,17 +183,6 @@ class ProjectTaskInherit(models.Model):
             'context': {'create': False, 'update': False, 'delete': False},
             'flags': {'mode': 'readonly'},
         }
-    
-    # def action_confirm_quotation(self):
-    #     self.ensure_one()
-    #     self.validate_action_submit('action_confirm_quotation')
-    #
-    #     quotation = self.sale_order_id
-    #     if quotation.state == 'draft' and quotation.sudo().action_confirm():
-    #         self.update_done_task()
-    #         self.message_post(body=_("Confirm quotation successfully."))
-    #         return True
-    #     raise UserError('Confirm quotation failed.')
 
     # Add rejection reason field to handle the rejection cases
     rejection_reason = fields.Text(string='Rejection Reason')
@@ -307,8 +297,7 @@ class ProjectTaskInherit(models.Model):
             if new_product:
                 # add sale order item
                 sale_order = self.sale_order_id
-                _logger.info("BEFORE: Sale order %s state: %s", sale_order.id, sale_order.state)
-
+                # Create new sealine
                 new_sale_line = self.env['sale.order.line'].sudo().create({
                     'order_id': sale_order.id,
                     'product_id': new_product.product_variant_id.id,
@@ -317,29 +306,42 @@ class ProjectTaskInherit(models.Model):
                     'product_type_filter': 'pricing'
                 })
 
-                _logger.info("AFTER LINE: Sale order %s state: %s", sale_order.id, sale_order.state)
                 # create task request price
                 project_request_price = self.env['project.project'].search([('type', '=', 'request_price')], limit=1)
                 if project_request_price:
-                    self.env['project.task'].sudo().with_context(skip_so_confirmation=True).create({
+                    # Get list of users to exclude
+                    excluded_ids = get_excluded_user_ids(self.env)
+
+                    pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
+                    pricing_director = self.env['res.users'].search([
+                        ('groups_id', 'in', pricing_director_group.id),
+                        ('id', 'not in', excluded_ids),
+                        ('active', '=', True)
+                    ], limit=1)
+
+                    assignee_ids = []
+                    if pricing_director:
+                        assignee_ids.append(pricing_director.id)
+
+                    # Create a new task for request_price with assignees
+                    task_vals = {
                         'name': new_product.name,
                         'project_id': project_request_price.id,
                         'sale_order_id': sale_order.id,
                         'sale_line_id': new_sale_line.id,
                         'etd': self.etd,
                         'date_assign': datetime.now(),
-                    })
+                    }
 
-                _logger.info("AFTER TASK: Sale order %s state: %s", sale_order.id, sale_order.state)
+                    # Add assignees if found
+                    if assignee_ids:
+                        task_vals['user_ids'] = [(6, 0, assignee_ids)]
+
+                    self.env['project.task'].sudo().with_context(skip_so_confirmation=True).create(task_vals)
 
                 self.update_done_task()
-
-                _logger.info("AFTER DONE TASK: Sale order %s state: %s", sale_order.id, sale_order.state)
                 self.send_notification_by_stage('done')
-                _logger.info("AFTER NOTIFICATION: Sale order %s state: %s", sale_order.id, sale_order.state)
-
                 self.message_post(body=_("Create POD/POL successfully: %s, %s") % (self.pod_name_request, self.pol_name_request))
-                _logger.info("AFTER MESSAGE POST: Sale order %s state: %s", sale_order.id, sale_order.state)
 
                 return True
         raise UserError('Create POD/POL failed.')

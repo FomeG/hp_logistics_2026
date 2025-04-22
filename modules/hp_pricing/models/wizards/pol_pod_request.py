@@ -1,5 +1,6 @@
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError
+from odoo.addons.hp_pricing.models.inherit_res_users import get_excluded_user_ids
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -29,11 +30,17 @@ class PodPolRequestWizard(models.TransientModel):
             'pol_name_request': self.pol_name_request,
         }
 
-        assignee_ids = []
+        # Get list of users to exclude
+        excluded_ids = get_excluded_user_ids(self.env)
+
         pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
         pricing_director = self.env['res.users'].search([
-            ('groups_id', 'in', pricing_director_group.id)
+            ('groups_id', 'in', pricing_director_group.id),
+            ('id', 'not in', excluded_ids),
+            ('active', '=', True)
         ], limit=1)
+
+        assignee_ids = []
 
         if pricing_director:
             assignee_ids.append(pricing_director.id)
