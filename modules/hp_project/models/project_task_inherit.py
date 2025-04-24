@@ -338,6 +338,7 @@ class ProjectTaskInherit(models.Model):
                         task_vals['user_ids'] = [(6, 0, assignee_ids)]
 
                     self.env['project.task'].sudo().with_context(skip_so_confirmation=True).create(task_vals)
+                    sale_order.write({'state': 'activate'})
 
                 self.update_done_task()
                 self.send_notification_by_stage('done')
@@ -451,7 +452,7 @@ class ProjectTaskInherit(models.Model):
             case _:
                 return
     
-    def send_notification_by_stage(self, stage):
+    def send_notification_by_stage(self, stage, assignees_ids=None):
         self.ensure_one()
         activity_type_id = self.env.ref('mail.mail_activity_data_todo').id
         model_id = self.env['ir.model']._get_id('project.task')
@@ -470,15 +471,15 @@ class ProjectTaskInherit(models.Model):
                     })
         
             case 'open':
-                assignees = self.user_ids
-                if assignees:
-                    for assignee in assignees:
+                # assignees = self.user_ids
+                if assignees_ids:
+                    for assignee_id in assignees_ids:
                         self.env['mail.activity'].create({
                             'activity_type_id': activity_type_id,
                             'note': f'<p>Task "{self.name}" has been assigned to you.</p>',
                             'res_id': self.id,
                             'res_model_id': model_id,
-                            'user_id': assignee.id,
+                            'user_id': assignee_id,
                             'summary': f'You have been assigned task "{self.name}".'
                         })
 

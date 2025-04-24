@@ -90,7 +90,7 @@ class SaleOrderInherrit(models.Model):
                     if assignee_ids:
                         task_vals['user_ids'] = [(6, 0, assignee_ids)]
 
-                    self.env['project.task'].sudo().create(task_vals)
+                    self.env['project.task'].sudo().create(task_vals).send_notification_by_stage('open', assignee_ids)
 
     # When customer confirmed => click button to change state and create task for sale leader to confirm
     def action_customer_confirm(self):
@@ -160,7 +160,7 @@ class SaleOrderInherrit(models.Model):
                 if assignee_ids:
                     task_vals['user_ids'] = [(6, 0, assignee_ids)]
 
-                self.env['project.task'].sudo().create(task_vals)
+                self.env['project.task'].sudo().create(task_vals).send_notification_by_stage('open', assignee_ids)
 
     def action_sale_leader_approved(self):
         """Move to pricing leader confirmation after sales manager approves."""
@@ -222,7 +222,7 @@ class SaleOrderInherrit(models.Model):
                 if assignee_ids:
                     task_vals['user_ids'] = [(6, 0, assignee_ids)]
 
-                self.env['project.task'].sudo().create(task_vals)
+                self.env['project.task'].sudo().create(task_vals).send_notification_by_stage('open', assignee_ids)
 
     def action_final_confirm(self):
         """Confirm the order after pricing manager approves."""
@@ -284,5 +284,5 @@ class SaleOrderInherrit(models.Model):
                         task_vals['user_ids'] = [(6, 0, assignee_ids)]
 
                     # Create the task
-                    self.env['project.task'].with_context(default_allow_billable=False).sudo().create(task_vals)
+                    self.env['project.task'].with_context(default_allow_billable=False).sudo().create(task_vals).send_notification_by_stage('open', assignee_ids)
 

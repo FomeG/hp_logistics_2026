@@ -64,8 +64,9 @@
 
                 <button name="action_final_confirm" id="action_final_confirm"
                         string="Confirmed" type="object" class="btn-primary"
-                        data-hotkey="p" invisible="state != 'pricing_leader_confirm'"
-                        groups="sales_team.group_sale_manager"/>
+                        data-hotkey="p"
+                        groups="sales_team.group_sale_manager,sales_team.group_sale_salesman"
+                        invisible="state != 'pricing_leader_confirm' or (uid != create_uid and uid != user_id)"/>
             </xpath>
 
             <!-- Hide the Confirm button for sent state completely -->
