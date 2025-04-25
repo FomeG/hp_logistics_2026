@@ -338,7 +338,7 @@ class ProjectTaskInherit(models.Model):
                         task_vals['user_ids'] = [(6, 0, assignee_ids)]
 
                     self.env['project.task'].sudo().with_context(skip_so_confirmation=True).create(task_vals)
-                    sale_order.write({'state': 'activate'})
+                    sale_order.write({'state': 'activated'})
 
                 self.update_done_task()
                 self.send_notification_by_stage('done')
@@ -364,18 +364,6 @@ class ProjectTaskInherit(models.Model):
     def action_approve_price(self):
         self.ensure_one()
         self.validate_action_submit('action_approve_price')
-
-        # product = self.product_template_id
-        # product.sudo().write({
-        #     'list_price': self.sale_price,
-        #     'standard_price': self.cost
-        # })
-        # # update price sale order line
-        # sale_order_line = self.sale_order_id.order_line.filtered(lambda line: line.product_id.id == product.product_variant_id.id)
-        # if sale_order_line:
-        #     sale_order_line.sudo().write({
-        #         'price_unit': self.sale_price
-        #     })
 
         # Find and update the matching sale order line
         if self.sale_line_id:

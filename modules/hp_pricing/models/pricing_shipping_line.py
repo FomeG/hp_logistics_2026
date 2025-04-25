@@ -14,3 +14,14 @@ class ShippingLine(models.Model):
 
     line_name = fields.Char(string='Tên hãng tàu', tracking=True)
     line_email = fields.Char(string='Email hãng tàu', tracking=True)
+
+    @api.constrains('line_name')
+    def _check_unique_line_name(self):
+        """ Ensure unique line_name """
+        for record in self:
+            existing_shipping_line = self.env['pricing.shipping.line'].search([
+                ('line_name', 'ilike', record.line_name),
+                ('id', '!=', record.id)  # Exclude self when updating
+            ])
+            if existing_shipping_line:
+                raise ValidationError(_("The Shipping line name '%s' already exists.") % record.line_name)

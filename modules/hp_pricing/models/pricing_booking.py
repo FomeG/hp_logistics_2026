@@ -63,6 +63,17 @@ class PricingBooking(models.Model):
         copy=False
     )
 
+    @api.constrains('booking_no')
+    def _check_unique_booking_no(self):
+        """ Ensure unique booking_no """
+        for record in self:
+            existing_booking = self.env['pricing.booking'].search([
+                ('booking_no', 'ilike', record.booking_no),
+                ('id', '!=', record.id)  # Exclude self when updating
+            ])
+            if existing_booking:
+                raise ValidationError(_("The Booking no '%s' already exists.") % record.booking_no)
+
     @api.depends('volume_quantity_1', 'volume_cont_1', 'volume_quantity_2', 'volume_cont_2')
     def _compute_volume_total(self):
         for record in self:

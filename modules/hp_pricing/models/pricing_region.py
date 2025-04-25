@@ -17,3 +17,14 @@ class PricingRegion(models.Model):
         'res.users', 'region_id', string='Pricing Member',
         domain="[('share', '=', False), ('region_id', '=', False)]",
         tracking=True)
+
+    @api.constrains('region_name')
+    def _check_unique_region_name(self):
+        """ Ensure unique region_name """
+        for record in self:
+            existing_region = self.env['pricing.region'].search([
+                ('region_name', 'ilike', record.region_name),
+                ('id', '!=', record.id)  # Exclude self when updating
+            ])
+            if existing_region:
+                raise ValidationError(_("The region name '%s' already exists.") % record.region_name)

@@ -22,14 +22,14 @@ class PricingVoyage(models.Model):
         'pricing.shipping.vessel', string="Tàu hàng",
         tracking=True
     )
-    voyage_no = fields.Char(string='Số hiệu chuyến tàu', tracking=True)
+    voyage_no = fields.Char(string='Voyage No', tracking=True)
     shipping_line_id = fields.Many2one(
-        'pricing.shipping.line', string="Hãng tàu",
+        'pricing.shipping.line', string="Shipping Line",
         tracking=True
     )
     etd = fields.Date(
-        string="Ngày khởi hành",
-        help="Ngày khởi hành"
+        string="Estimate Departure",
+        help="Estimate Departure"
     )
     pricing_member_id = fields.Many2one(
         'pricing.team.member', string="Pricing Member",
@@ -53,6 +53,17 @@ class PricingVoyage(models.Model):
             vessel = record.shipping_vessel_id.vessel_name if record.shipping_vessel_id else "Unknown Vessel"
             voyage = record.voyage_no if record.voyage_no else "Unknown Voyage"
             record.display_name = f"{vessel} {voyage}"
+
+    @api.constrains('display_name')
+    def _check_unique_display_name(self):
+        """ Ensure unique display_name """
+        for record in self:
+            existing_voyage = self.env['pricing.shipping.vessel'].search([
+                ('display_name', 'ilike', record.display_name),
+                ('id', '!=', record.id)  # Exclude self when updating
+            ])
+            if existing_voyage:
+                raise ValidationError(_("The Voyage '%s' already exists.") % record.display_name)
 
     @api.model
     def _get_pod_domain(self):

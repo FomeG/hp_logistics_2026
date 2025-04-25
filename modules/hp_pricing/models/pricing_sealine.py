@@ -28,3 +28,14 @@ class PricingSealine(models.Model):
             pol = record.pol_id.pol_name if record.pol_id else "Unknown Pol"
             pod = record.pod_id.pod_name if record.pol_id else "Unknown Pod"
             record.sealine_name = f"{pol} - {pod}"
+
+    @api.constrains('sealine_name')
+    def _check_unique_sealine_name(self):
+        """ Ensure unique sealine_name """
+        for record in self:
+            existing_sealine = self.env['pricing.sealine'].search([
+                ('sealine_name', 'ilike', record.sealine_name),
+                ('id', '!=', record.id)  # Exclude self when updating
+            ])
+            if existing_sealine:
+                raise ValidationError(_("The sealine name '%s' already exists.") % record.sealine_name)

@@ -56,7 +56,7 @@ class SaleOrderInherrit(models.Model):
                 # Check if a task already exists for this product/order combination
                 existing_task = self.env['project.task'].search([
                     ('sale_order_id', '=', order.id),
-                    ('product_template_id', '=', line.product_id.product_tmpl_id.id),
+                    ('sale_line_id', '=', line.id),
                     ('project_id', '=', project_request_price.id)
                 ], limit=1)
 
@@ -134,6 +134,7 @@ class SaleOrderInherrit(models.Model):
             if not existing_task:
                 # Get list of users to exclude
                 excluded_ids = get_excluded_user_ids(self.env)
+                _logger.info(F"excluded_ids: {excluded_ids}")
 
                 # Find sales leader excluding admins/CEOs
                 sale_director_group = self.env.ref('sales_team.group_sale_salesman_all_leads')
@@ -149,7 +150,7 @@ class SaleOrderInherrit(models.Model):
 
                 # Create a new task for approval
                 task_vals = {
-                    'name': f"Approve Quotation: {order.name}",
+                    'name': f"Sale Leader Approve Quotation: {order.name}",
                     'project_id': project_approve_quotation.id,
                     'sale_order_id': order.id,
                     'date_assign': fields.Datetime.now(),
