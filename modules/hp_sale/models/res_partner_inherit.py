@@ -131,3 +131,17 @@ class ResPartner(models.Model):
             domain = expression.AND([domain, self._get_sale_domain()])
 
         return super().web_search_read(domain, specification=specification, offset=offset, limit=limit, order=order, count_limit=count_limit)
+
+    def action_create_new_quotation(self):
+        self.ensure_one()
+        return {
+            'name': 'New Quotation',
+            'type': 'ir.actions.act_window',
+            'res_model': 'sale.order',
+            'view_mode': 'form',
+            'context': {
+                'default_partner_id': self.id,
+                'default_pricelist_id': self.property_product_pricelist.id,
+            },
+            'target': 'new',  # This makes it a popup
+        }
