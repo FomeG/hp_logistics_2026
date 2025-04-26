@@ -329,6 +329,7 @@ class ProjectTaskInherit(models.Model):
                         'project_id': project_request_price.id,
                         'sale_order_id': sale_order.id,
                         'sale_line_id': new_sale_line.id,
+                        'product_template_id': new_product.id, 
                         'etd': self.etd,
                         'date_assign': datetime.now(),
                     }
