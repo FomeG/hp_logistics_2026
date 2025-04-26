@@ -11,31 +11,6 @@
                 <attribute name="statusbar_visible">activated,customer_confirm,sale_leader_confirm,pricing_leader_confirm,sale</attribute>
             </xpath>
 
-            <!-- Replace the default partner_id field -->
-            <field name="partner_id" position="replace">
-                <!-- Use a simple field with no widgets for selecting the partner -->
-                <field name="partner_id"
-                       widget="selection"
-                       context="{'res_partner_search_mode': 'customer', }"
-                       placeholder="Type to find a customer..."
-                       readonly="state in ['cancel', 'sale']"/>
-
-                <!-- Display the address only if there's a partner selected -->
-                <label for="partner_id" string="Customer Address:" class="mt-3" invisible="partner_id == False"/>
-                <div class="mt-2" invisible="partner_id == False">
-<!--                    <span class="text-muted">Address and VAT:</span>-->
-                    <field name="partner_id"
-                           widget="contact"
-                           options="{
-                               'fields': ['street', 'city', 'country_id', 'zip'],
-                               'no_marker': true,
-                               'no_open': true
-                           }"
-                           readonly="1"
-                           nolabel="1"/>
-                </div>
-            </field>
-
             <!-- Add state-specific alert messages after the state statusbar -->
             <xpath expr="//header" position="after">
                 <!-- Message for draft state -->
