@@ -133,7 +133,7 @@
                     <field name="etd" string="ETD" readonly="pod_id and pol_id" />
                     <field name="pod_name_request" string="POD name" readonly="pod_id and pol_id" />
                     <field name="pol_name_request" string="POL name" readonly="pod_id and pol_id" />
-                    <field name="region_id" string="Region" />
+                    <field name="region_id" string="Region" domain="[('id', 'in', allowed_region_ids)]" />
                     <button name="action_approve_pod_pol"
                         type="object"
                         string="Approve POD/POL"

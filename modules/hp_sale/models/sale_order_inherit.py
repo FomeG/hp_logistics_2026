@@ -82,6 +82,7 @@ class SaleOrderInherrit(models.Model):
                         'project_id': project_request_price.id,
                         'sale_order_id': order.id,
                         'sale_line_id': line.id,
+                        'product_template_id': line.product_template_id.id,
                         'etd': line.etd_sale,
                         'date_assign': fields.Datetime.now(),
                     }

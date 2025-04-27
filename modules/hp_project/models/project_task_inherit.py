@@ -46,6 +46,39 @@ class ProjectTaskInherit(models.Model):
         ('pricing_leader', 'Pricing Leader Approval')
     ], string="Approval Type")
 
+    allowed_region_ids = fields.Many2many('pricing.region', compute='_compute_allowed_region_ids')
+
+    @api.depends('project_type')
+    def _compute_allowed_region_ids(self):
+        for task in self:
+            if task.project_type == 'request_product':
+                # Check if current user is pricing lead or director
+                is_pricing_lead = self.env.user.has_group('hp_pricing.group_hp_pricing_lead')
+                is_pricing_director = self.env.user.has_group('hp_pricing.group_hp_pricing_director')
+
+                if is_pricing_lead or is_pricing_director:
+                    # Allow all regions for lead and director
+                    task.allowed_region_ids = self.env['pricing.region'].search([])
+                else:
+                    # Only allow regions where the current user is a member
+                    task.allowed_region_ids = self.env.user.region_id
+            else:
+                # For other task types, allow all regions
+                task.allowed_region_ids = self.env['pricing.region'].search([])
+
+    @api.constrains('user_ids', 'project_type')
+    def _check_user_region(self):
+        for task in self:
+            # Only validate for request_product tasks
+            if task.project_type == 'request_product':
+                for user in task.user_ids:
+                    if user.has_group('hp_pricing.group_hp_pricing_member') and not user.has_group(
+                            'hp_pricing.group_hp_pricing_lead') and not user.has_group(
+                            'hp_pricing.group_hp_pricing_director'):
+                        if not user.region_id:
+                            raise ValidationError(
+                                _("User '%s' is a pricing member but is not assigned to any region yet, please add him/her to a region before assigning.") % user.name)
+
     @api.depends('stage_id')
     def _compute_is_done(self):
         for task in self:
@@ -329,6 +362,7 @@ class ProjectTaskInherit(models.Model):
                         'project_id': project_request_price.id,
                         'sale_order_id': sale_order.id,
                         'sale_line_id': new_sale_line.id,
+                        'product_template_id': new_product.id,
                         'etd': self.etd,
                         'date_assign': datetime.now(),
                     }
@@ -339,7 +373,6 @@ class ProjectTaskInherit(models.Model):
 
                     self.env['project.task'].sudo().with_context(skip_so_confirmation=True).create(task_vals)
                     sale_order.write({'state': 'activated'})
-
                 self.update_done_task()
                 self.send_notification_by_stage('done')
                 self.message_post(body=_("Create POD/POL successfully: %s, %s") % (self.pod_name_request, self.pol_name_request))
