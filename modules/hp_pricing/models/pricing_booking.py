@@ -63,6 +63,28 @@ class PricingBooking(models.Model):
         copy=False
     )
 
+    def _validate_booking_prices(self, booking_price, company_booking_price, action=""):
+        if booking_price is None or company_booking_price is None:
+            raise ValidationError(f"Both Booking Price and Company Booking Price are required when {action}.")
+
+        if booking_price <= 0 or company_booking_price <= 0:
+            raise ValidationError(f"Both Booking Price and Company Booking Price must be greater than 0 when {action}.")
+    
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            booking_price = vals.get('booking_price')
+            company_booking_price = vals.get('company_booking_price')
+            self._validate_booking_prices(booking_price, company_booking_price, action="creating")
+        return super().create(vals_list)
+
+    def write(self, vals):
+        for record in self:
+            booking_price = vals.get('booking_price', record.booking_price)
+            company_booking_price = vals.get('company_booking_price', record.company_booking_price)
+            self._validate_booking_prices(booking_price, company_booking_price, action="updating")
+        return super().write(vals)
+
     @api.constrains('booking_no')
     def _check_unique_booking_no(self):
         """ Ensure unique booking_no """

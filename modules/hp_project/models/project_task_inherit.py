@@ -161,7 +161,7 @@ class ProjectTaskInherit(models.Model):
         for task in self:
             product = task.product_template_id
             sale_order_line = task.sale_order_id.order_line.filtered(lambda line: line.product_id.id == product.product_variant_id.id)
-            task.is_product_has_price = True if product.list_price and product.standard_price and sale_order_line else False
+            task.is_product_has_price = True if sale_order_line and sale_order_line.booking_id and sale_order_line.base_price else False
 
     @api.depends('sale_line_id', 'booking_id')
     def _compute_order_has_booking(self):
@@ -172,8 +172,8 @@ class ProjectTaskInherit(models.Model):
         done_stage = self.env['project.task.type'].search([('name', '=', 'Done')], limit=1)
         self.write({
             'stage_id': done_stage.id if done_stage else self.stage_id.id,
-            # 'pod_id': pod_id,
-            # 'pol_id': pol_id,
+            'pod_id': pod_id,
+            'pol_id': pol_id,
         })
         return True
 
@@ -373,7 +373,7 @@ class ProjectTaskInherit(models.Model):
 
                     self.env['project.task'].sudo().with_context(skip_so_confirmation=True).create(task_vals)
                     sale_order.write({'state': 'activated'})
-                self.update_done_task()
+                self.update_done_task(pod.id, pol.id)
                 self.send_notification_by_stage('done')
                 self.message_post(body=_("Create POD/POL successfully: %s, %s") % (self.pod_name_request, self.pol_name_request))
 

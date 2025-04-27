@@ -111,11 +111,11 @@
                             string="Reject"
                             class="btn btn-danger"
                             invisible="is_done"/>
-                    </group>
 
-                    <h3 class="text-success" invisible="not is_done">
-                        <i class="fa fa-check" /> Decision Completed
-                    </h3>
+                        <h3 class="text-success" invisible="not is_done">
+                            <i class="fa fa-check" /> Decision Completed 
+                        </h3>
+                    </group>
                 </group>
 
                 <!-- Group request create product with POD/POL -->
@@ -169,7 +169,7 @@
                     </group>
                     <group>
                         <field name="etd" string="ETD" readonly="is_product_has_price" />
-                        <field name="booking_id"/>
+                        <field name="booking_id" readonly="is_product_has_price"/>
 <!--                        <field name="sale_price"-->
 <!--                            class="oe_inline"-->
 <!--                            readonly="is_product_has_price"-->

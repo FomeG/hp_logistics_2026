@@ -18,8 +18,8 @@
                         </group>
                         <group>
                             <field name="volume_total" readonly="1"/>
-                            <field name="booking_price"/>
-                            <field name="company_booking_price"/>
+                            <field name="booking_price" required="True" />
+                            <field name="company_booking_price" required="True" />
                             <field name="booking_status"/>
                             <field name="active" invisible="1"/>
                         </group>
