@@ -172,8 +172,8 @@ class ProjectTaskInherit(models.Model):
         done_stage = self.env['project.task.type'].search([('name', '=', 'Done')], limit=1)
         self.write({
             'stage_id': done_stage.id if done_stage else self.stage_id.id,
-            # 'pod_id': pod_id,
-            # 'pol_id': pol_id,
+            'pod_id': pod_id,
+            'pol_id': pol_id,
         })
         return True
 
