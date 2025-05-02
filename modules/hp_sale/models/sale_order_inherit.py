@@ -138,7 +138,7 @@ class SaleOrderInherrit(models.Model):
                 _logger.info(F"excluded_ids: {excluded_ids}")
 
                 # Find sales leader excluding admins/CEOs
-                sale_director_group = self.env.ref('sales_team.group_sale_salesman_all_leads')
+                sale_director_group = self.env.ref('sales_team.group_sale_manager')
                 sale_director = self.env['res.users'].search([
                     ('groups_id', 'in', sale_director_group.id),
                     ('id', 'not in', excluded_ids),

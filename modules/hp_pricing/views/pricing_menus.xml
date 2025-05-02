@@ -1,27 +1,32 @@
 <odoo>
     <!-- groups="sales_team.group_sale_salesman"-->
     <!-- Parent Menu Pricing-->
-    <menuitem id="menu_sale_pricing"
+    <menuitem id="menu_pricing_root"
               name="Pricing"
-              parent="sale.sale_menu_root"
+              web_icon="hp_pricing,static/description/icon.png"
               groups="hp_pricing.group_hp_pricing_member,hp_pricing.group_hp_pricing_lead,hp_pricing.group_hp_pricing_director,hp_pricing.group_hp_pricing_administrator"
               sequence="35"/>
 
     <!-- Pricing Teams and Members-->
+    <menuitem id="menu_pricing_team"
+              name="Pricing Team"
+              parent="menu_pricing_root"
+              sequence="30"/>
+
     <menuitem id="menu_sale_pricing_team"
               action="action_pricing_team"
-              parent="menu_sale_pricing"
+              parent="menu_pricing_team"
               sequence="10"/>
 
     <menuitem id="menu_sale_pricing_team_member"
               action="action_pricing_team_member"
-              parent="menu_sale_pricing"
+              parent="menu_pricing_team"
               sequence="20"/>
 
     <!-- Submenu: Voyage Management -->
     <menuitem id="menu_pricing_voyage"
-              name="Quản lý Tàu hàng"
-              parent="menu_sale_pricing"
+              name="Voyage and Booking"
+              parent="menu_pricing_root"
               sequence="20"/>
 
     <!-- Pricing Voyage Entries -->
@@ -37,9 +42,9 @@
 
     <!-- Submenu: Information Management -->
     <menuitem id="menu_pricing_data"
-              name="Danh sách Thông tin"
-              parent="menu_sale_pricing"
-              sequence="30"/>
+              name="Main Info"
+              parent="menu_pricing_root"
+              sequence="10"/>
 
     <!-- Pricing Information Entries -->
     <menuitem id="menu_sale_pricing_pol"
