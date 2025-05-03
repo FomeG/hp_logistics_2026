@@ -80,10 +80,10 @@ class PricingVoyage(models.Model):
         user = self.env.user
         pricing_member = self.env['pricing.team.member'].search([('user_id', '=', user.id)], limit=1)
 
-        if not user.region_id:
+        if not user.region_id and not self.env.user.has_group('hp_pricing.group_hp_pricing_director'):
             raise UserError(_("You have no region assigned. Please contact the administrator."))
 
-        if not pricing_member:
+        if not pricing_member and not self.env.user.has_group('hp_pricing.group_hp_pricing_director'):
             raise UserError(_("You are not assigned to any Pricing Team. Please contact the administrator."))
 
         return super(PricingVoyage, self).create(vals)
