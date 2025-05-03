@@ -9,8 +9,8 @@ class HrEmployeeInherit(models.Model):
         emails = {vals.get('work_email') for vals in vals_list if vals.get('work_email')}
         phones = {vals.get('work_phone') for vals in vals_list if vals.get('work_phone')}
 
-        existing_emails = self.env['hr.employee'].search([('work_email', 'in', list(emails))]).mapped('work_email')
-        existing_phones = self.env['hr.employee'].search([('work_phone', 'in', list(phones))]).mapped('work_phone')
+        existing_emails = self.env['hr.employee'].sudo().search([('work_email', 'in', list(emails))]).mapped('work_email')
+        existing_phones = self.env['hr.employee'].sudo().search([('work_phone', 'in', list(phones))]).mapped('work_phone')
 
         duplicate_emails = list(set(existing_emails) & emails)
         duplicate_phones = list(set(existing_phones) & phones)
