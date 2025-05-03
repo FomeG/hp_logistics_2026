@@ -12,7 +12,7 @@
                 <group string="Pricing Information" invisible="type != 'pricing'">
                     <group>
                         <field name="sealine_id" required="type == 'pricing'"/>
-                        <field name="booking_id" required="1" />
+                        <field name="booking_id" rrequired="type == 'pricing'" />
                     </group>
                     <group>
                         <field name="standard_price" required="type == 'pricing'"/>
