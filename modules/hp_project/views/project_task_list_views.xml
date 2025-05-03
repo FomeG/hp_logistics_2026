@@ -8,4 +8,26 @@
             'search_default_my_tasks': 1,
             }</field>
     </record>
+
+    <record id="hp_project_remove_state_from_kanban" model="ir.ui.view">
+        <field name="name">project.task.kanban.remove.state</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_kanban" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state' and @widget='project_task_state_selection']"
+                position="replace">
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hp_project_remove_state_from_tree" model="ir.ui.view">
+        <field name="name">project.task.tree.remove.state</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.project_task_view_tree_main_base" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state' and @widget='project_task_state_selection']"
+                position="replace">
+            </xpath>
+        </field>
+    </record>
 </odoo>

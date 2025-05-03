@@ -12,8 +12,8 @@ class ResPartner(models.Model):
         for vals in vals_list:
             vat = vals.get('vat')
             if vat:
-                existing_partner = self.env['res.partner'].search([('vat', '=', vat)], limit=1)
-                if existing_partner:
+                count_partner = self.env['res.partner'].sudo().search_count([('vat', '=', vat)])
+                if count_partner > 0:
                     duplicate_vats.append(vat)
                     continue
             valid_vals.append(vals)
@@ -35,14 +35,20 @@ class ResPartner(models.Model):
             if new_vat:
                 for partner in self:
                     if partner.vat != new_vat:
-                        existing = self.env['res.partner'].search([
+                        count_exist = self.env['res.partner'].sudo().search_count([
                             ('vat', '=', new_vat),
                             ('id', '!=', partner.id)
-                        ], limit=1)
-                        if existing:
+                        ])
+                        if count_exist > 0:
                             raise UserError(_("Tax ID already exists: %s") % new_vat)
 
         return super().write(vals)
+
+    def copy(self, default=None):
+        default = dict(default or {})
+        default.setdefault('vat', False)
+        default.setdefault('phone', False)
+        return super().copy(default)
     
     @api.model
     def default_get(self, fields):
