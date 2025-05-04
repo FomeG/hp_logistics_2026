@@ -34,39 +34,6 @@
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]" />
         </record>
 
-        <!-- Rules for pricing member -->
-        <record id="rule_pricing_lead_director_admin_access" model="ir.rule">
-            <field name="name">Admin, CEO, leader to access All Pricing Products</field>
-            <field name="model_id" ref="product.model_product_template"/>
-            <field name="groups" eval="[
-                (4, ref('group_hp_pricing_lead')),
-                (4, ref('group_hp_pricing_director')),
-                (4, ref('group_hp_pricing_administrator'))
-            ]"/>
-            <field name="domain_force">[('type', '=', 'pricing')]</field>
-            <field name="perm_read" eval="1"/>
-            <field name="perm_write" eval="1"/>
-            <field name="perm_create" eval="1"/>
-            <field name="perm_unlink" eval="1"/>
-        </record>
-
-
-        <record id="rule_pricing_member_region_access" model="ir.rule">
-            <field name="name">Pricing Member Access By Region</field>
-            <field name="model_id" ref="product.model_product_template"/>
-            <field name="groups" eval="[(4, ref('group_hp_pricing_member'))]"/>
-            <field name="domain_force">
-                [
-                    ('type', '=', 'pricing'),
-                    ('sealine_id.pod_id.region_id', '=', user.region_id.id)
-                ]
-            </field>
-            <field name="perm_read" eval="1"/>
-            <field name="perm_write" eval="1"/>
-            <field name="perm_create" eval="1"/>
-            <field name="perm_unlink" eval="1"/>
-        </record>
-
         <record id="rule_pricing_admin_lead_director_modify_users" model="ir.rule">
             <field name="name">Pricing Admin, Lead, and Director Can Modify Users</field>
             <field name="model_id" ref="base.model_res_users"/>
@@ -102,6 +69,21 @@
             <field name="perm_write" eval="1"/>
             <field name="perm_unlink" eval="0"/>
             <field name="perm_read" eval="1"/>
+        </record>
+
+        <record id="rule_product_variant_access_all_for_pricing" model="ir.rule">
+            <field name="name">All Product Variants - Pricing Access</field>
+            <field name="model_id" ref="product.model_product_product"/>
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="groups" eval="[(4, ref('hp_pricing.group_hp_pricing_member')),
+                                        (4, ref('hp_pricing.group_hp_pricing_lead')),
+                                        (4, ref('hp_pricing.group_hp_pricing_director')),
+                                        (4, ref('hp_pricing.group_hp_pricing_administrator'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+            <field name="global" eval="False"/>
         </record>
 
     </data>
