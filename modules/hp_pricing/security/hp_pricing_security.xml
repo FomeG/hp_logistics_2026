@@ -54,8 +54,8 @@
             <field name="model_id" ref="sale.model_sale_order_line"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="groups" eval="[(4, ref('hp_pricing.group_hp_pricing_director'))]"/>
-            <field name="perm_create" eval="1"/>
-            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_write" eval="0"/>
             <field name="perm_unlink" eval="0"/>
             <field name="perm_read" eval="1"/>
         </record>
@@ -65,8 +65,8 @@
             <field name="model_id" ref="sale.model_sale_order_line"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="groups" eval="[(4, ref('hp_pricing.group_hp_pricing_administrator'))]"/>
-            <field name="perm_create" eval="1"/>
-            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_write" eval="0"/>
             <field name="perm_unlink" eval="0"/>
             <field name="perm_read" eval="1"/>
         </record>

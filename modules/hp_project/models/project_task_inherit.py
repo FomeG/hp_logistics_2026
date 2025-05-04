@@ -228,8 +228,17 @@ class ProjectTaskInherit(models.Model):
         if not self.sale_order_id or self.sale_order_id.state != 'customer_confirm':
             raise ValidationError(_("This quotation cannot be approved in its current state."))
 
-        # Update quotation state to sale_leader_confirm
-        self.sale_order_id.sudo().action_sale_leader_approved()
+        # Find lines with product_type_filter = 'pricing' and missing booking_id
+        pricing_lines_without_booking = self.sale_order_id.order_line.filtered(
+            lambda line: line.product_type_filter == 'pricing'
+        )
+
+        if not pricing_lines_without_booking:
+            # Update quotation state to sale_leader_confirm
+            self.sale_order_id.sudo().write({'state': 'sale'})
+        else:
+            # Update quotation state to sale_leader_confirm
+            self.sale_order_id.sudo().action_sale_leader_approved()
 
         # Mark the task as done
         self.update_done_task()
