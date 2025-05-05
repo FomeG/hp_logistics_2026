@@ -116,7 +116,7 @@ class ResPartner(models.Model):
     @api.readonly
     def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
         if self.is_only_group_sale_salesman():
-            args = expression.AND([args, self._get_sale_domain()])
+            domain = expression.AND([domain, self._get_sale_domain()])
         
         return super().read_group(
             domain, fields, groupby, offset=offset, limit=limit, orderby=orderby, lazy=lazy
