@@ -36,13 +36,8 @@ class PricingVoyage(models.Model):
         default=lambda self: self.env['pricing.team.member'].search([('user_id', '=', self.env.user.id)], limit=1),
         tracking=True
     )
-    pol_id = fields.Many2one(
-        'pricing.pol', string="Port of Loading",
-        tracking=True
-    )
-    pod_id = fields.Many2one(
-        'pricing.pod', string="Port of Discharge",
-        domain=lambda self: self._get_pod_domain(),
+    sealine_id = fields.Many2one(
+        'pricing.sealine', string="Sealine",
         tracking=True
     )
 
