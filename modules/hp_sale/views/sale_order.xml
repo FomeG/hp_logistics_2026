@@ -6,6 +6,22 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+
+            <!-- Hide the control section when not in draft or activated state -->
+            <xpath expr="//field[@name='order_line']/list/control" position="attributes">
+                <attribute name="invisible">state not in ['draft', 'activated']</attribute>
+            </xpath>
+
+            <!-- Also make the entire field readonly when not in draft or activated state -->
+            <xpath expr="//field[@name='order_line']" position="attributes">
+                <attribute name="readonly">state not in ['draft', 'activated']</attribute>
+            </xpath>
+
+            <!-- Update the original readonlycondition to include your custom states -->
+            <xpath expr="//field[@name='order_line']" position="attributes">
+                <attribute name="readonly">state not in ['draft', 'activated'] or locked</attribute>
+            </xpath>
+
             <!-- Modify the statusbar -->
             <xpath expr="//field[@name='state']" position="attributes">
                 <attribute name="statusbar_visible">activated,customer_confirm,sale_leader_confirm,pricing_leader_confirm,sale</attribute>
