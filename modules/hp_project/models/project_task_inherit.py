@@ -381,7 +381,7 @@ class ProjectTaskInherit(models.Model):
                         task_vals['user_ids'] = [(6, 0, assignee_ids)]
 
                     self.env['project.task'].sudo().with_context(skip_so_confirmation=True).create(task_vals).send_notification_by_stage('open', assignee_ids)
-                    sale_order.write({'state': 'activated'})
+                    sale_order.sudo().write({'state': 'activated'})
                 self.update_done_task(pod.id, pol.id)
                 self.send_notification_by_stage('done')
                 self.message_post(body=_("Create POD/POL successfully: %s, %s") % (self.pod_name_request, self.pol_name_request))
