@@ -114,6 +114,13 @@ class ProjectTaskInherit(models.Model):
         new_stage_id = vals.get('stage_id', False)
         for task in self:
             current_stage = task.stage_id
+            old_user_ids = set(task._origin.user_ids.ids if task._origin.user_ids else [])
+            new_user_ids = set(task.user_ids.ids if task.user_ids else [])
+
+            added_user_ids = new_user_ids - old_user_ids
+            if not added_user_ids:
+                task.send_notification_by_stage('open', added_user_ids)
+
             if current_stage and current_stage.name.lower() == "done":
                 raise UserError(_("Cannot update a done Task"))
 
