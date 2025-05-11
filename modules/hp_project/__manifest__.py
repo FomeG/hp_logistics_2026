@@ -9,7 +9,7 @@
 HP Project App
 ===================================================
 """,
-    'depends': ['base', 'web', 'mail', 'bus', 'project', 'sale', 'sale_project', 'hp_pricing', 'hp_sale'],
+    'depends': ['base', 'web', 'mail', 'bus', 'project', 'sale', 'sale_project', 'sales_team', 'hp_pricing', 'hp_sale'],
     'data': [
         #data
         'data/project_default.xml',

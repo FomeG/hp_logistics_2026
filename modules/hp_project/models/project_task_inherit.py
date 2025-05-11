@@ -32,6 +32,7 @@ class ProjectTaskInherit(models.Model):
     booking_info = fields.Text(string="Booking Info", compute="_compute_booking_info", store=False)
     is_project_pricing = fields.Boolean(compute="_check_project_pricing", store=False)
     is_done = fields.Boolean(string="Is Done", compute="_compute_is_done", store=False)
+    allowed_user_ids = fields.Many2many('res.users', compute='_compute_allowed_user_ids', store=False)
 
     sale_line_id = fields.Many2one(
         'sale.order.line',
@@ -47,6 +48,24 @@ class ProjectTaskInherit(models.Model):
     ], string="Approval Type")
 
     allowed_region_ids = fields.Many2many('pricing.region', compute='_compute_allowed_region_ids')
+
+    @api.depends('project_id')
+    def _compute_allowed_user_ids(self):
+        for task in self:
+            if task.project_id:
+                sale_group_id = self.env.ref('sales_team.group_sale_salesman').id
+                pricing_group_id = self.env.ref('hp_pricing.group_hp_pricing_member').id
+
+                type = task.project_id.type
+                if type == 'approve_quotation':
+                    domain = [('groups_id', 'in', [sale_group_id, pricing_group_id])]
+                elif type in ('request_product', 'request_price', 'assign_booking'):
+                    domain = [('groups_id', 'in', [pricing_group_id])]
+                else:
+                    domain = [('active', '=', True), ('share', '=', False)]
+            
+            users = self.env['res.users'].sudo().search(domain)
+            task.allowed_user_ids = users
 
     @api.depends('project_type')
     def _compute_allowed_region_ids(self):
@@ -522,3 +541,5 @@ class ProjectTaskInherit(models.Model):
 
             case _:
                 return
+            
+
