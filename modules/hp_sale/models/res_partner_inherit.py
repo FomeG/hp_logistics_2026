@@ -30,17 +30,20 @@ class ResPartner(models.Model):
         return created_records
 
     def write(self, vals):
-        if 'vat' in vals:
-            new_vat = vals.get('vat')
-            if new_vat:
-                for partner in self:
-                    if partner.vat != new_vat:
-                        count_exist = self.env['res.partner'].sudo().search_count([
-                            ('vat', '=', new_vat),
-                            ('id', '!=', partner.id)
-                        ])
-                        if count_exist > 0:
-                            raise UserError(_("Tax ID already exists: %s") % new_vat)
+        for partner in self:
+            has_parent = vals.get('parent_id') or partner.parent_id
+            if has_parent:
+                vals['vat'] = False
+
+            if 'vat' in vals and vals['vat']:
+                new_vat = vals['vat']
+                if not has_parent and partner.vat != new_vat:
+                    count_exist = self.env['res.partner'].sudo().search_count([
+                        ('vat', '=', new_vat),
+                        ('id', '!=', partner.id)
+                    ])
+                    if count_exist > 0:
+                        raise UserError(_("Tax ID already exists: %s") % new_vat)
 
         return super().write(vals)
 
@@ -80,7 +83,12 @@ class ResPartner(models.Model):
         current_user_id = self.env.uid
         current_partner_id = self.env.user.partner_id.id or 0
 
-        return ['|', ('user_id', '=', current_user_id), ('id', '=', current_partner_id)]
+        return ['&', 
+                ('parent_id', '=', False), 
+                '|', 
+                    ('user_id', '=', current_user_id),
+                    ('id', '=', current_partner_id)
+            ]
     
     def is_only_group_sale_salesman(self):
         group_sale_salesman_id = self.env.ref('sales_team.group_sale_salesman').id

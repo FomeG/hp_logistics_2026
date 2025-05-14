@@ -19,10 +19,6 @@
                     <attribute name="required">1</attribute>
                 </xpath>
 
-                <xpath expr="//form/sheet/group/group/field[@name='email']" position="before">
-                    <field name="vat" placeholder="e.g. BE0477472701" required="1"/>
-                </xpath>
-
                 <xpath expr="//form/sheet/group/group/field[@name='phone']" position="attributes">
                     <attribute name="required">1</attribute>
                 </xpath>
