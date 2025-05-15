@@ -13,6 +13,7 @@ HP Employee App
 """,
     'depends': ['base', 'hr'],
     'data': [
+        'views/hr_department_form_views.xml',
         'views/hr_employee_form_views.xml',
     ],
     "assets": {
