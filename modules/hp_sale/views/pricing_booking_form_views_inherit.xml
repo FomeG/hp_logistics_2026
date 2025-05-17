@@ -8,17 +8,18 @@
             <!-- Add notebook after the existing groups -->
             <xpath expr="//sheet/group" position="after">
                 <notebook>
-                    <page string="Used in Sales Order Lines" name="sale_lines">
+                    <page string="Related Sales Order and Reservations" name="sale_lines">
                         <field name="sale_line_ids" readonly="1">
                             <list>
                                 <field name="order_id"/>
-                                <field name="name"/>
+<!--                                <field name="name"/>-->
                                 <field name="product_id"/>
+                                <field name="volume_cont"/>
                                 <field name="product_uom_qty"/>
                                 <field name="price_unit"/>
-                                <field name="price_subtotal" sum="Subtotal"/>
+                                <field name="price_subtotal"/>
                                 <field name="etd_sale"/>
-                                <field name="volume_cont"/>
+                                <field name="state"/>
                             </list>
                         </field>
                     </page>

@@ -42,12 +42,12 @@ class PricingVoyage(models.Model):
     )
 
     # display_name
-    @api.depends('shipping_vessel_id.vessel_name', 'voyage_no')
+    @api.depends('shipping_vessel_id.vessel_name', 'voyage_no', 'sealine_id')
     def _compute_display_name(self):
         for record in self:
             vessel = record.shipping_vessel_id.vessel_name if record.shipping_vessel_id else "Unknown Vessel"
             voyage = record.voyage_no if record.voyage_no else "Unknown Voyage"
-            record.display_name = f"{vessel} {voyage}"
+            record.display_name = f"{vessel} {voyage} for route: {record.sealine_id.sealine_name}"
 
     @api.constrains('display_name')
     def _check_unique_display_name(self):
@@ -69,16 +69,81 @@ class PricingVoyage(models.Model):
         else:
             return []  # Empty domain if no region assigned
 
+    @api.onchange('pricing_member_id')
+    def _onchange_pricing_member_id(self):
+        if self.env.user.has_group('hp_pricing.group_hp_pricing_director') and not self.sealine_id:
+            self.pricing_member_id = False  # reset
+            return {
+                'warning': {
+                    'title': _("Missing Sealine"),
+                    'message': _("Please select a Sealine before choosing a Pricing Member.")
+                }
+            }
+
     @api.model
     def create(self, vals):
-        """Prevent voyage creation if the user has no assigned region or is not in any pricing team"""
         user = self.env.user
-        pricing_member = self.env['pricing.team.member'].search([('user_id', '=', user.id)], limit=1)
+        is_director = user.has_group('hp_pricing.group_hp_pricing_director')
 
-        if not user.region_id and not self.env.user.has_group('hp_pricing.group_hp_pricing_director'):
-            raise UserError(_("You have no region assigned. Please contact the administrator."))
+        sealine_id = vals.get('sealine_id')
+        pricing_member = None
 
-        if not pricing_member and not self.env.user.has_group('hp_pricing.group_hp_pricing_director'):
-            raise UserError(_("You are not assigned to any Pricing Team. Please contact the administrator."))
+        # Validation: If user is director, sealine is required
+        if is_director and not sealine_id:
+            raise UserError(_("Please select a Sealine before creating a voyage."))
+
+        if is_director and sealine_id:
+            sealine = self.env['pricing.sealine'].browse(sealine_id)
+            region = sealine.pod_id.region_id
+
+            # Try to find active pricing team members assigned to the region
+            pricing_member = self.env['pricing.team.member'].search([
+                ('region_id', '=', region.id),
+                ('active', '=', True)
+            ], limit=1)
+
+            # If region has no member OR sealine is new (no region found), assign director
+            if not pricing_member:
+                # Find a team where the user is already manager
+                pricing_team = self.env['pricing.team'].search([
+                    ('team_manager_id', '=', user.id)
+                ], limit=1)
+
+                if not pricing_team:
+                    # If no such team, create a new one
+                    pricing_team = self.env['pricing.team'].create({
+                        'name': f"{user.name}'s Pricing Team",
+                        'team_manager_id': user.id,
+                        'active': True,
+                    })
+
+                # Now add user as a team member if not already
+                pricing_member = self.env['pricing.team.member'].search([
+                    ('user_id', '=', user.id),
+                    ('pricing_team_id', '=', pricing_team.id)
+                ], limit=1)
+
+                if not pricing_member:
+                    pricing_member = self.env['pricing.team.member'].create({
+                        'user_id': user.id,
+                        'pricing_team_id': pricing_team.id,
+                        'active': True
+                    })
+
+        # Fallback: not a director → default behavior
+        elif not is_director:
+            pricing_member = self.env['pricing.team.member'].search([
+                ('user_id', '=', user.id)
+            ], limit=1)
+
+            if not user.region_id:
+                raise UserError(_("You have no region assigned. Please contact the administrator."))
+
+            if not pricing_member:
+                raise UserError(_("You are not assigned to any Pricing Team. Please contact the administrator."))
+
+        # Set the pricing member
+        vals.setdefault('pricing_member_id', pricing_member.id)
 
         return super(PricingVoyage, self).create(vals)
+

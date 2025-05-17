@@ -6,6 +6,9 @@
         <field name="model">pricing.booking</field>
         <field name="arch" type="xml">
             <form class="oe_form_configuration">
+                <div class="alert alert-danger text-center" role="alert">
+                    <span><i class="fa fa-exclamation-circle"/> Please check to ensure the booking volume is equal or more than total volume required by all linked sale order (and/or reservations).</span>
+                </div>
                 <sheet>
                     <group>
                         <group>

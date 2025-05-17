@@ -13,7 +13,7 @@
                         <field name="voyage_no"/>
                     </group>
                     <group>
-                        <field name="pricing_member_id" readonly="1" required="1" />
+                        <field name="pricing_member_id" required="1" />
                         <field name="sealine_id" required="1" />
                         <field name="etd" required="1" />
                     </group>

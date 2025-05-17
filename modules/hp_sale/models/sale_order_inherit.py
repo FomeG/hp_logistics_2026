@@ -20,11 +20,11 @@ class SaleOrderInherrit(models.Model):
     state = fields.Selection([
         ('draft', "Draft Quotation"),
         ('activated', "Quotation Activated"),
-        ('customer_confirm', "Customer Confirmed"),
-        ('sale_leader_confirm', "Sales Leader Confirmed"),
-        ('pricing_leader_confirm', "Pricing Leader Confirmed"),
-        ('sent', "Quotation Sent"),
-        ('sale', "Confirmed"),
+        ('customer_confirm', "Res-Customer Confirmed"),
+        ('sale_leader_confirm', "Res-Sales Leader Confirmed"),
+        ('pricing_leader_confirm', "Res-Pricing Leader Confirmed"),
+        ('sent', "Res-Quotation Sent"),
+        ('sale', "Order-Confirmed"),
         ('cancel', "Cancelled"),
     ], string="Status", readonly=True, copy=False, index=True, tracking=3, default='draft')
 
