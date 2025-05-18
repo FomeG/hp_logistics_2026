@@ -1,4 +1,5 @@
 from . import pricing_booking
+from . import pricing_quotation
 from . import pricing_voyage
 from . import pricing_pol
 from . import pricing_pod

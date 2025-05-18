@@ -29,6 +29,7 @@
 
         'views/pricing_voyage_views.xml',
         'views/pricing_booking_views.xml',
+        'views/pricing_quotation_views.xml',
 
         'views/pricing_team_views.xml',
         'views/pricing_team_member_views.xml',

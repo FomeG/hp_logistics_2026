@@ -53,21 +53,21 @@ class PricingVoyage(models.Model):
     def _check_unique_display_name(self):
         """ Ensure unique display_name """
         for record in self:
-            existing_voyage = self.env['pricing.shipping.vessel'].search([
+            existing_voyage = self.env['pricing.voyage'].search([
                 ('display_name', 'ilike', record.display_name),
                 ('id', '!=', record.id)  # Exclude self when updating
             ])
             if existing_voyage:
                 raise ValidationError(_("The Voyage '%s' already exists.") % record.display_name)
 
-    @api.model
-    def _get_pod_domain(self):
-        """Return the domain for POD selection based on user region"""
-        user = self.env.user
-        if user.region_id:
-            return [('region_id', '=', user.region_id.id)]
-        else:
-            return []  # Empty domain if no region assigned
+    # @api.model
+    # def _get_pod_domain(self):
+    #     """Return the domain for POD selection based on user region"""
+    #     user = self.env.user
+    #     if user.region_id:
+    #         return [('region_id', '=', user.region_id.id)]
+    #     else:
+    #         return []  # Empty domain if no region assigned
 
     @api.onchange('pricing_member_id')
     def _onchange_pricing_member_id(self):
@@ -79,6 +79,49 @@ class PricingVoyage(models.Model):
                     'message': _("Please select a Sealine before choosing a Pricing Member.")
                 }
             }
+
+    @api.onchange('sealine_id')
+    def _onchange_sealine_id(self):
+        user = self.env.user
+        if not self.sealine_id or not user.has_group('hp_pricing.group_hp_pricing_director'):
+            return
+
+        region = self.sealine_id.pod_id.region_id
+        members = self.env['pricing.team.member'].search([
+            ('region_id', '=', region.id),
+            ('active', '=', True)
+        ])
+
+        if members:
+            return {
+                'domain': {'pricing_member_id': [('id', 'in', members.ids)]}
+            }
+
+        # No members found, create member for director if not exists
+        pricing_team = self.env['pricing.team'].search([
+            ('team_manager_id', '=', user.id)
+        ], limit=1)
+
+        if not pricing_team:
+            pricing_team = self.env['pricing.team'].create({
+                'name': f"{user.name}'s Pricing Team",
+                'team_manager_id': user.id,
+                'active': True,
+            })
+
+        pricing_member = self.env['pricing.team.member'].search([
+            ('user_id', '=', user.id),
+            ('pricing_team_id', '=', pricing_team.id)
+        ], limit=1)
+
+        if not pricing_member:
+            pricing_member = self.env['pricing.team.member'].create({
+                'user_id': user.id,
+                'pricing_team_id': pricing_team.id,
+                'active': True
+            })
+
+        self.pricing_member_id = pricing_member
 
     @api.model
     def create(self, vals):

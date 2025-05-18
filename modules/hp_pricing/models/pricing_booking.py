@@ -17,6 +17,10 @@ class PricingBooking(models.Model):
         'pricing.voyage', string="Tàu và số hiệu chuyến",
         tracking=True
     )
+    etd = fields.Date(
+        string="Estimate Departure",
+        related='voyage_id.etd'
+    )
     volume_quantity_1 = fields.Integer(string='Container Quantity 1', default=1, tracking=True)
     volume_cont_1 = fields.Selection(selection=[
         ('20DC', '20DC'),
@@ -53,6 +57,16 @@ class PricingBooking(models.Model):
         ('available', 'Available'),
     ], string='Booking Status', default='available', tracking=True)
 
+    fee_type = fields.Selection(selection=[
+        ('SBJ', 'SBJ'),
+        ('Allin', 'Allin'),
+    ], string='Booking Fee Type', default='Allin', tracking=True)
+
+    pricing_quotation_id = fields.Many2one(
+        'pricing.quotation',
+        string="Pricing Quotation"
+    )
+
     active = fields.Boolean(default=True)
 
     # One2many field to see all sales order lines using this booking
@@ -69,6 +83,14 @@ class PricingBooking(models.Model):
 
         if booking_price <= 0 or company_booking_price <= 0:
             raise ValidationError(f"Both Booking Price and Company Booking Price must be greater than 0 when {action}.")
+
+    @api.constrains('volume_quantity_1', 'volume_cont_1', 'volume_quantity_2', 'volume_cont_2')
+    def _check_volume_total_not_zero(self):
+        for record in self:
+            if record.volume_total == 0:
+                raise ValidationError(
+                    _("Total volume (TEU) must be greater than 0. Please set valid container types and quantities.")
+                )
     
     @api.model_create_multi
     def create(self, vals_list):
@@ -76,6 +98,11 @@ class PricingBooking(models.Model):
             booking_price = vals.get('booking_price')
             company_booking_price = vals.get('company_booking_price')
             self._validate_booking_prices(booking_price, company_booking_price, action="creating")
+            # Optional direct check if volumes are set in create values
+            if (not vals.get('volume_quantity_1') and not vals.get('volume_quantity_2')) or \
+                    (not vals.get('volume_cont_1') and not vals.get('volume_cont_2')):
+                raise ValidationError(
+                    _("Cannot create a booking with 0 TEU. Please define valid containers and quantities."))
         return super().create(vals_list)
 
     def write(self, vals):
@@ -116,4 +143,5 @@ class PricingBooking(models.Model):
                     total_teu += record.volume_quantity_2 * 2
 
             record.volume_total = total_teu
+
 

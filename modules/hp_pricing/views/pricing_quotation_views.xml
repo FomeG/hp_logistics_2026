@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Form View -->
+    <record id="pricing_quotation_form_view" model="ir.ui.view">
+        <field name="name">pricing.quotation.form</field>
+        <field name="model">pricing.quotation</field>
+        <field name="arch" type="xml">
+            <form class="oe_form_configuration">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="sealine_id"/>
+                            <field name="fee_type"/>
+                            <field name="valid_from"/>
+                            <field name="valid_to"/>
+                        </group>
+                        <group>
+                            <field name="cont_20_price" required="1"/>
+                            <field name="cont_40_price" required="1"/>
+                            <field name="current_volume_total" readonly="1"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Bookings">
+                            <group>
+                                <button name="action_add_bookings"
+                                        type="object"
+                                        string="Add Bookings"
+                                        class="oe_highlight"/>
+                            </group>
+
+                            <field name="booking_ids" readonly="1" create="false" edit="false">
+                                <list>
+                                    <field name="booking_no"/>
+                                    <field name="volume_total"/>
+                                    <field name="booking_price"/>
+                                    <field name="company_booking_price"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Related Sales Orders">
+                            <field name="sale_line_ids" readonly="1">
+                                <list>
+                                    <field name="order_id"/>
+                                    <field name="product_id"/>
+                                    <field name="volume_cont"/>
+                                    <field name="base_price"/>
+                                    <field name="etd_sale"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                    <chatter/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="pricing_quotation_list_view" model="ir.ui.view">
+        <field name="name">pricing.quotation.list</field>
+        <field name="model">pricing.quotation</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list string="Pricing Quotations">
+                <field name="display_name"/>
+                <field name="sealine_id"/>
+                <field name="fee_type"/>
+                <field name="valid_from"/>
+                <field name="valid_to"/>
+                <field name="cont_20_price"/>
+                <field name="cont_40_price"/>
+                <field name="current_volume_total"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="pricing_quotation_search_view" model="ir.ui.view">
+        <field name="name">pricing.quotation.search</field>
+        <field name="model">pricing.quotation</field>
+        <field name="arch" type="xml">
+            <search string="Search Pricing Quotations">
+                <field name="display_name"/>
+                <field name="sealine_id"/>
+                <field name="fee_type"/>
+                <field name="valid_from"/>
+                <field name="valid_to"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="pricing_quotation_action_form" model="ir.actions.act_window">
+        <field name="name">Pricing Quotations</field>
+        <field name="res_model">pricing.quotation</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="pricing_quotation_search_view"/>
+        <field name="view_id" ref="pricing_quotation_list_view"/>
+    </record>
+
+</odoo>

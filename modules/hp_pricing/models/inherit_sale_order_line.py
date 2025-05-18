@@ -1,5 +1,6 @@
 from odoo import api, fields, models, _
 from datetime import date
+from odoo.exceptions import UserError
 
 import logging
 
@@ -29,6 +30,12 @@ class SaleOrderLine(models.Model):
     booking_id = fields.Many2one(
         'pricing.booking', string="Booking",
         domain="[('voyage_id.etd', '>=', etd_sale)]",
+        tracking=True
+    )
+
+    pricing_quotation_id = fields.Many2one(
+        'pricing.quotation', string="Pricing Quotation",
+        domain="[('valid_to', '>=', etd_sale)]",
         tracking=True
     )
 
@@ -64,19 +71,58 @@ class SaleOrderLine(models.Model):
             self.volume_cont = False
             self.base_price = 0.0
 
-    @api.onchange('booking_id')
-    def _onchange_booking_id(self):
-        """Update base_price and etd_sale when booking changes"""
+    @api.onchange('booking_id', 'pricing_quotation_id', 'volume_cont')
+    def _onchange_booking_or_quotation(self):
         for record in self:
-            if record.booking_id:
-                # Update base_price from booking's company_booking_price
-                record.base_price = record.booking_id.company_booking_price
+            # Ensure only one is selected
+            if record.booking_id and record.pricing_quotation_id:
+                record.booking_id = False
+                record.pricing_quotation_id = False
+                raise UserError(_("Please select either a Booking OR a Pricing Quotation, not both."))
 
-                # Update etd_sale from booking's voyage ETD
+            record.base_price = 0.0  # Reset
+
+            # Booking selected
+            if record.booking_id:
+                # Auto-fill ETD
                 if record.booking_id.voyage_id and record.booking_id.voyage_id.etd:
                     record.etd_sale = record.booking_id.voyage_id.etd
+
+                # Check volume_total validity
+                if not record.booking_id.volume_total:
+                    raise UserError(_("Booking has no valid volume total (TEU)."))
+
+                # Determine base price based on container type
+                cont = record.volume_cont
+                if not cont:
+                    raise UserError(_("Container type is required when Booking is selected."))
+
+                if cont in ['40DC', '40HC', '40HQ', '40RF', '40HCRF', '40OT']:
+                    multiplier = 2
+                elif cont in ['20DC', '20RF', '20OT', '20HC']:
+                    multiplier = 1
+                else:
+                    raise UserError(_("Unrecognized container type: %s") % cont)
+
+                record.base_price = (
+                                            record.booking_id.company_booking_price * multiplier
+                                    ) / record.booking_id.volume_total
+
+            # Quotation selected
+            elif record.pricing_quotation_id:
+                cont = record.volume_cont
+                if not cont:
+                    raise UserError(_("Container type is required when Quotation is selected."))
+
+                if cont in ['40DC', '40HC', '40HQ', '40RF', '40HCRF', '40OT']:
+                    record.base_price = record.pricing_quotation_id.cont_40_price
+                elif cont in ['20DC', '20RF', '20OT', '20HC']:
+                    record.base_price = record.pricing_quotation_id.cont_20_price
+                else:
+                    raise UserError(_("Unrecognized container type: %s") % cont)
+
             else:
-                # Clear base_price if no booking
+                # Clear base_price if no booking or pricing quotation
                 record.base_price = 0.0
 
     def action_create_pricing_sealine(self):
