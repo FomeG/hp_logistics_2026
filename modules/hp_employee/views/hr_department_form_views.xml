@@ -8,6 +8,9 @@
             <xpath expr="//group/group/field[@name='name']" position="after">
                 <field name="department_type" />
             </xpath>
+            <xpath expr="//group/group/field[@name='manager_id']" position="attributes">
+                <attribute name="required">1</attribute>
+            </xpath>
         </field>
     </record>
 
