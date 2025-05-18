@@ -108,6 +108,9 @@ class SaleOrderLine(models.Model):
                                             record.booking_id.company_booking_price * multiplier
                                     ) / record.booking_id.volume_total
 
+                # Check remaining TEU before assignment
+                self._check_booking_teu_availability(record.booking_id, cont, record.product_uom_qty)
+
             # Quotation selected
             elif record.pricing_quotation_id:
                 cont = record.volume_cont
@@ -124,6 +127,45 @@ class SaleOrderLine(models.Model):
             else:
                 # Clear base_price if no booking or pricing quotation
                 record.base_price = 0.0
+
+    def _check_booking_teu_availability(self, booking, container_type, quantity):
+        """Check if there's enough TEU available in the booking"""
+        if not booking or not container_type:
+            return
+
+        # Calculate TEU needed for this line
+        if container_type in ['40DC', '40HC', '40HQ', '40RF', '40HCRF', '40OT']:
+            teu_needed = quantity * 2
+        elif container_type in ['20DC', '20RF', '20OT', '20HC']:
+            teu_needed = quantity * 1
+        else:
+            return
+
+        # Calculate current usage (excluding this line if it already exists)
+        current_usage = 0.0
+        for line in booking.sale_line_ids:
+            if line.id != self.id and line.order_id.state == 'sale' and line.volume_cont:
+                if line.volume_cont in ['40DC', '40HC', '40HQ', '40RF', '40HCRF', '40OT']:
+                    current_usage += line.product_uom_qty * 2
+                elif line.volume_cont in ['20DC', '20RF', '20OT', '20HC']:
+                    current_usage += line.product_uom_qty * 1
+
+        remaining_teu = booking.volume_total - current_usage
+
+        if teu_needed > remaining_teu:
+            raise UserError(_(
+                "Not enough TEU available in booking %s.\n"
+                "Requested: %s TEU\n"
+                "Available: %s TEU\n"
+                "Total booking capacity: %s TEU"
+            ) % (booking.booking_no, teu_needed, remaining_teu, booking.volume_total))
+
+    @api.constrains('booking_id', 'volume_cont', 'product_uom_qty', 'order_id')
+    def _check_booking_capacity_constraint(self):
+        """Constraint to ensure booking capacity is not exceeded"""
+        for record in self:
+            if record.booking_id and record.volume_cont and record.order_id.state == 'sale':
+                self._check_booking_teu_availability(record.booking_id, record.volume_cont, record.product_uom_qty)
 
     def action_create_pricing_sealine(self):
         """Open wizard to collect POD/POL information"""

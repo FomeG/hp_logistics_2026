@@ -22,7 +22,13 @@
                                 <field name="state"/>
                             </list>
                         </field>
+                        <div class="row mt16">
+                            <div class="col-12">
+                                <field name="teu_warning_message" widget="html" nolabel="1"/>
+                            </div>
+                        </div>
                     </page>
+
                 </notebook>
             </xpath>
 

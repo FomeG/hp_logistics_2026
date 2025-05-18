@@ -77,6 +77,27 @@ class PricingBooking(models.Model):
         copy=False
     )
 
+    # Computed fields for TEU tracking
+    reserved_teu = fields.Float(
+        string="Reserved TEU",
+        compute="_compute_teu_usage",
+        store=True,
+        help="Total TEU reserved by sale order lines in state 'sale'"
+    )
+
+    remaining_teu = fields.Float(
+        string="Remaining TEU",
+        compute="_compute_teu_usage",
+        store=True,
+        help="Remaining TEU available for booking"
+    )
+
+    teu_warning_message = fields.Html(
+        string="TEU Usage Warning",
+        compute="_compute_teu_warning",
+        store=False
+    )
+
     def _validate_booking_prices(self, booking_price, company_booking_price, action=""):
         if booking_price is None or company_booking_price is None:
             raise ValidationError(f"Both Booking Price and Company Booking Price are required when {action}.")
@@ -91,7 +112,7 @@ class PricingBooking(models.Model):
                 raise ValidationError(
                     _("Total volume (TEU) must be greater than 0. Please set valid container types and quantities.")
                 )
-    
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -103,14 +124,42 @@ class PricingBooking(models.Model):
                     (not vals.get('volume_cont_1') and not vals.get('volume_cont_2')):
                 raise ValidationError(
                     _("Cannot create a booking with 0 TEU. Please define valid containers and quantities."))
-        return super().create(vals_list)
+
+        # Create the booking first
+        bookings = super().create(vals_list)
+
+        # Auto-link to pricing quotation
+        for booking in bookings:
+            booking._auto_link_to_quotation()
+
+        return bookings
 
     def write(self, vals):
         for record in self:
             booking_price = vals.get('booking_price', record.booking_price)
             company_booking_price = vals.get('company_booking_price', record.company_booking_price)
             self._validate_booking_prices(booking_price, company_booking_price, action="updating")
-        return super().write(vals)
+
+        result = super().write(vals)
+
+        # Check if fee_type changed and re-link to appropriate quotation
+        if 'fee_type' in vals:
+            for record in self:
+                record._auto_link_to_quotation()
+
+        return result
+
+    def _auto_link_to_quotation(self):
+        """Automatically link booking to a quotation with the same fee_type"""
+        if not self.pricing_quotation_id:
+            # Find a quotation with same fee_type that doesn't have this booking
+            quotation = self.env['pricing.quotation'].search([
+                ('fee_type', '=', self.fee_type),
+                ('active', '=', True)
+            ], limit=1)
+
+            if quotation:
+                self.sudo().write({'pricing_quotation_id': quotation.id})
 
     @api.constrains('booking_no')
     def _check_unique_booking_no(self):
@@ -143,5 +192,47 @@ class PricingBooking(models.Model):
                     total_teu += record.volume_quantity_2 * 2
 
             record.volume_total = total_teu
+
+    # Calculate remaining TEU
+    @api.depends('sale_line_ids', 'sale_line_ids.order_id.state', 'sale_line_ids.volume_cont', 'volume_total')
+    def _compute_teu_usage(self):
+        for record in self:
+            # Calculate reserved TEU from sale order lines in 'sale' state
+            reserved_teu = 0.0
+            for line in record.sale_line_ids:
+                if line.order_id.state == 'sale' and line.volume_cont:
+                    if line.volume_cont in ['40DC', '40HC', '40HQ', '40RF', '40HCRF', '40OT']:
+                        reserved_teu += line.product_uom_qty * 2  # 40ft = 2 TEU
+                    elif line.volume_cont in ['20DC', '20RF', '20OT', '20HC']:
+                        reserved_teu += line.product_uom_qty * 1  # 20ft = 1 TEU
+
+            record.reserved_teu = reserved_teu
+            record.remaining_teu = record.volume_total - reserved_teu
+
+    # Warning for TEU usage
+    @api.depends('volume_total', 'reserved_teu', 'remaining_teu')
+    def _compute_teu_warning(self):
+        for record in self:
+            if record.volume_total > 0:
+                message = f"""
+                    <div class="alert alert-info" role="alert">
+                        <strong>TEU Usage Summary:</strong><br/>
+                        • Total TEU of booking: <strong>{record.volume_total}</strong><br/>
+                        • Reserved TEU (from confirmed orders): <strong>{record.reserved_teu}</strong><br/>
+                        • Remaining TEU: <strong>{record.remaining_teu}</strong>
+                    </div>
+                    """
+                if record.remaining_teu < 0:
+                    message = f"""
+                        <div class="alert alert-danger" role="alert">
+                            <strong>⚠️ Over-booking Warning!</strong><br/>
+                            • Total TEU of booking: <strong>{record.volume_total}</strong><br/>
+                            • Reserved TEU (from confirmed orders): <strong>{record.reserved_teu}</strong><br/>
+                            • Over-booked by: <strong>{abs(record.remaining_teu)} TEU</strong>
+                        </div>
+                        """
+                record.teu_warning_message = message
+            else:
+                record.teu_warning_message = ""
 
 

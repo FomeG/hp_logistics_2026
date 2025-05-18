@@ -55,6 +55,52 @@ class PricingQuotation(models.Model):
 
     active = fields.Boolean(default=True)
 
+    # Computed fields for TEU tracking from sale orders
+    reserved_teu_from_orders = fields.Float(
+        string="Reserved TEU from Orders",
+        compute="_compute_order_teu_usage",
+        store=True,
+        help="Total TEU reserved by sale order lines in state 'sale'"
+    )
+
+    quotation_teu_warning_message = fields.Html(
+        string="Quotation TEU Usage",
+        compute="_compute_quotation_teu_warning",
+        store=False
+    )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        # Create the quotation first
+        quotations = super().create(vals_list)
+
+        # Auto-link unlinked bookings with same fee_type
+        for quotation in quotations:
+            quotation._auto_link_bookings()
+
+        return quotations
+
+    def write(self, vals):
+        result = super().write(vals)
+
+        # Check if fee_type changed and re-link bookings
+        if 'fee_type' in vals:
+            for record in self:
+                record._auto_link_bookings()
+
+        return result
+
+    def _auto_link_bookings(self):
+        """Automatically link bookings with same fee_type that are not linked to any quotation"""
+        unlinked_bookings = self.env['pricing.booking'].search([
+            ('fee_type', '=', self.fee_type),
+            ('pricing_quotation_id', '=', False),
+            ('active', '=', True)
+        ])
+
+        if unlinked_bookings:
+            unlinked_bookings.sudo().write({'pricing_quotation_id': self.id})
+
     # display_name
     @api.depends('fee_type', 'valid_from', 'valid_to')
     def _compute_display_name(self):
@@ -78,17 +124,36 @@ class PricingQuotation(models.Model):
             total_teu = sum(booking.volume_total for booking in record.booking_ids if booking.volume_total)
             record.current_volume_total = total_teu
 
+    # Calculate TEU usage
+    @api.depends('sale_line_ids', 'sale_line_ids.order_id.state', 'sale_line_ids.volume_cont')
+    def _compute_order_teu_usage(self):
+        for record in self:
+            # Calculate reserved TEU from sale order lines in 'sale' state
+            reserved_teu = 0.0
+            for line in record.sale_line_ids:
+                if line.order_id.state == 'sale' and line.volume_cont:
+                    if line.volume_cont in ['40DC', '40HC', '40HQ', '40RF', '40HCRF', '40OT']:
+                        reserved_teu += line.product_uom_qty * 2  # 40ft = 2 TEU
+                    elif line.volume_cont in ['20DC', '20RF', '20OT', '20HC']:
+                        reserved_teu += line.product_uom_qty * 1  # 20ft = 1 TEU
 
-    def action_add_bookings(self):
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('Select Bookings'),
-            'res_model': 'pricing.booking',
-            'view_mode': 'tree',
-            'target': 'new',
-            'domain': [('pricing_quotation_id', '=', False)],  # only unlinked
-            'context': {
-                'default_pricing_quotation_id': self.id,
-            }
-        }
+            record.reserved_teu_from_orders = reserved_teu
+
+    # Warning for TEU usage
+    @api.depends('current_volume_total', 'reserved_teu_from_orders')
+    def _compute_quotation_teu_warning(self):
+        for record in self:
+            if record.current_volume_total > 0:
+                message = f"""
+                    <div class="alert alert-info" role="alert">
+                        <strong>Quotation TEU Summary:</strong><br/>
+                        • Total Current Volume (TEU): <strong>{record.current_volume_total}</strong><br/>
+                        • Reserved TEU from confirmed orders: <strong>{record.reserved_teu_from_orders}</strong>
+                    </div>
+                    """
+                record.quotation_teu_warning_message = message
+            else:
+                record.quotation_teu_warning_message = ""
+
+
 

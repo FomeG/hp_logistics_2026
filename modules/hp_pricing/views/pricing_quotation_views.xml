@@ -22,15 +22,13 @@
                             <field name="active"/>
                         </group>
                     </group>
+                    <div class="row">
+                        <div class="col-12">
+                            <field name="quotation_teu_warning_message" widget="html" nolabel="1"/>
+                        </div>
+                    </div>
                     <notebook>
                         <page string="Bookings">
-                            <group>
-                                <button name="action_add_bookings"
-                                        type="object"
-                                        string="Add Bookings"
-                                        class="oe_highlight"/>
-                            </group>
-
                             <field name="booking_ids" readonly="1" create="false" edit="false">
                                 <list>
                                     <field name="booking_no"/>
