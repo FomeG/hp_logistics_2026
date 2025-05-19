@@ -99,7 +99,7 @@ class HpDepartmentInherit(models.Model):
             user.write({'groups_id': [(3, group.id)]})
             
     def _get_manage_user_by_type(self, department_type):
-        departments = self.env['hp.department'].sudo().search([('department_type', '=', department_type)])
+        departments = self.env['hr.department'].sudo().search([('department_type', '=', department_type)])
         employees = departments.mapped('manager_id')
         users = employees.mapped('user_id')
         return users
