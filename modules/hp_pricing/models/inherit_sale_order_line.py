@@ -35,7 +35,7 @@ class SaleOrderLine(models.Model):
 
     pricing_quotation_id = fields.Many2one(
         'pricing.quotation', string="Pricing Quotation",
-        domain="[('valid_to', '>=', etd_sale)]",
+        domain="[('valid_to', '>=', etd_sale), ('sealine_id', '=', 'produc_template_id.sealine.id')]",
         tracking=True
     )
 

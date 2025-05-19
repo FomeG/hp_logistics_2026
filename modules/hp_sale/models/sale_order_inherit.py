@@ -45,7 +45,7 @@ class SaleOrderInherrit(models.Model):
         for order in self:
             # Find lines with product_type_filter = 'pricing' and missing booking_id
             pricing_lines_without_booking = order.order_line.filtered(
-                lambda line: line.product_type_filter == 'pricing' and not line.booking_id
+                lambda line: line.product_type_filter == 'pricing' and (not line.booking_id and not line.pricing_quotation.id)
             )
 
             # Skip if there are no pricing lines without booking
