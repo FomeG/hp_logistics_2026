@@ -8,6 +8,9 @@ class HpDepartmentInherit(models.Model):
     TYPE_PRICING = 'pricing'
     TYPE_TRUCKING = 'trucking'
 
+    ROLE_MANAGER = 'manager'
+    ROLE_MEMBER = 'member'
+
     department_type = fields.Selection([
         (TYPE_SALE, 'Sale'),
         (TYPE_PRICING, 'Pricing'),
@@ -20,14 +23,14 @@ class HpDepartmentInherit(models.Model):
         for department in departments:
             manager = department.manager_id
             if manager:
-                department._assign_group_to_manager(manager.id, department.department_type, 'manager')
+                department._assign_group_to_manager(manager.id)
                 
         return departments
 
     def write(self, vals):
         for department in self:
             if 'department_type' in vals:
-                if department.department_type:
+                if department.department_type != vals.get('department_type'):
                     raise UserError(_("You cannot modify the Department Type once it's set."))
             
             if 'manager_id' in vals:
@@ -35,8 +38,8 @@ class HpDepartmentInherit(models.Model):
                 new_manager_id = vals.get('manager_id')
                 if new_manager_id != old_manager_id:
                     department.department_type = department.department_type if department.department_type else vals.get('department_type')
-                    department._remove_group_of_manage(old_manager_id, department.department_type, 'manager')
-                    department._assign_group_to_manager(new_manager_id, department.department_type, 'manager')
+                    department._remove_group_of_manage(old_manager_id)
+                    department._assign_group_to_manager(new_manager_id)
 
         return super(HpDepartmentInherit, self).write(vals)
 
@@ -50,17 +53,17 @@ class HpDepartmentInherit(models.Model):
 
             manager = department.manager_id
             if manager:
-                department._remove_group_of_manage(manager.id, department.department_type, 'manager')
+                department._remove_group_of_manage(manager.id)
             
         return super().unlink()
     
-    def _get_group_by_type(self, department_type, role='member'):
+    def _get_group_by_role(self, role):
         group_map = {
-            'manager': {
+            self.ROLE_MANAGER: {
                 self.TYPE_SALE: 'sales_team.group_sale_salesman_all_leads',
                 self.TYPE_PRICING: 'hp_pricing.group_hp_pricing_lead',
             },
-            'member': {
+            self.ROLE_MEMBER: {
                 self.TYPE_SALE: 'sales_team.group_sale_salesman',
                 self.TYPE_PRICING: 'hp_pricing.group_hp_pricing_member',
             }
@@ -70,30 +73,33 @@ class HpDepartmentInherit(models.Model):
         if not group_dict:
             raise ValidationError(_(f"Unknown group role: {role}"))
 
-        group_xml_id = group_dict.get(department_type)
+        group_xml_id = group_dict.get(self.department_type)
         if not group_xml_id:
-            raise ValidationError(_(f"Unknown group {role} for department type: {department_type}"))
+            raise ValidationError(_(f"Unknown group {role} for department type: {self.department_type}"))
 
         return group_xml_id
     
-    def _assign_group_to_manager(self, manager_id, department_type, role):
+    def _assign_group_to_manager(self, manager_id):
         manager = self.env['hr.employee'].sudo().browse(manager_id)
         user = manager.user_id
         if not user:
             raise ValidationError(_("Manager is not associated with user."))
 
-        group_xml_id = self._get_group_by_type(department_type, role)
+        group_xml_id = self._get_group_by_role(self.ROLE_MANAGER)
         if not user.has_group(group_xml_id):
             group = self.env.ref(group_xml_id)
             user.write({'groups_id': [(4, group.id)]})
     
-    def _remove_group_of_manage(self, manager_id, department_type, role):
+    def _remove_group_of_manage(self, manager_id):
         manager = self.env['hr.employee'].sudo().browse(manager_id)
+        count_department = self.env['hr.department'].sudo().search_count([
+            ('manager_id', '=', manager_id)
+        ]) 
         user = manager.user_id
-        if not user:
+        if not user or count_department > 1:
             return
         
-        group_xml_id = self._get_group_by_type(department_type, role)
+        group_xml_id = self._get_group_by_role(self.ROLE_MANAGER)
         if user.has_group(group_xml_id):
             group = self.env.ref(group_xml_id)
             user.write({'groups_id': [(3, group.id)]})
