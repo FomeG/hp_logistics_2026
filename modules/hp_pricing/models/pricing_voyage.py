@@ -69,17 +69,6 @@ class PricingVoyage(models.Model):
     #     else:
     #         return []  # Empty domain if no region assigned
 
-    @api.onchange('pricing_member_id')
-    def _onchange_pricing_member_id(self):
-        if self.env.user.has_group('hp_pricing.group_hp_pricing_director') and not self.sealine_id:
-            self.pricing_member_id = False  # reset
-            return {
-                'warning': {
-                    'title': _("Missing Sealine"),
-                    'message': _("Please select a Sealine before choosing a Pricing Member.")
-                }
-            }
-
     @api.onchange('sealine_id')
     def _onchange_sealine_id(self):
         user = self.env.user
@@ -132,8 +121,8 @@ class PricingVoyage(models.Model):
         pricing_member = None
 
         # Validation: If user is director, sealine is required
-        # if is_director and not sealine_id:
-        #     raise UserError(_("Please select a Sealine before creating a voyage."))
+        if is_director and not sealine_id:
+            raise UserError(_("Please select a Sealine before creating a voyage."))
 
         if is_director and sealine_id:
             sealine = self.env['pricing.sealine'].browse(sealine_id)
