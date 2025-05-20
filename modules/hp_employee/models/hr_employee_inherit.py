@@ -25,6 +25,11 @@ class HrEmployeeInherit(models.Model):
             created_records = super().create(valid_vals)
             self.env.cr.commit()
 
+            for employee in created_records:
+                department = employee.department_id
+                if department:
+                    employee._assign_group_to_member(department)
+
         if duplicate_emails or duplicate_phones:
             message_parts = []
             if duplicate_emails:
@@ -45,6 +50,15 @@ class HrEmployeeInherit(models.Model):
                 ], limit=1)
                 if conflict:
                     raise UserError(_("%s '%s' is already used by another employee.") % (field.replace('_', ' ').title(), value))
+        
+        if 'department_id' in vals:
+            for employee in self:
+                old_department = employee.department_id
+                new_department_id = vals.get('department_id')
+                if old_department.id != new_department_id:
+                    employee._remove_group_of_member(old_department)
+                    new_department = self.env['hr.department'].sudo().browse(new_department_id)
+                    employee._assign_group_to_member(new_department)
 
         return super().write(vals)
 
@@ -73,3 +87,23 @@ class HrEmployeeInherit(models.Model):
                     'default_partner_id': self.work_contact_id.id,
             })
         }
+
+    def _assign_group_to_member(self, department):
+        user = self.user_id
+        if not user or not department:
+            return
+
+        group_xml_id = department._get_group_by_role(department.ROLE_MEMBER)
+        if not user.has_group(group_xml_id):
+            group = self.env.ref(group_xml_id)
+            user.write({'groups_id': [(4, group.id)]})
+    
+    def _remove_group_of_member(self, department):
+        user = self.user_id
+        if not user or not department:
+            return
+
+        group_xml_id = department._get_group_by_role(department.ROLE_MEMBER)
+        if user.has_group(group_xml_id):
+            group = self.env.ref(group_xml_id)
+            user.write({'groups_id': [(3, group.id)]})
