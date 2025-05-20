@@ -132,8 +132,8 @@ class PricingVoyage(models.Model):
         pricing_member = None
 
         # Validation: If user is director, sealine is required
-        if is_director and not sealine_id:
-            raise UserError(_("Please select a Sealine before creating a voyage."))
+        # if is_director and not sealine_id:
+        #     raise UserError(_("Please select a Sealine before creating a voyage."))
 
         if is_director and sealine_id:
             sealine = self.env['pricing.sealine'].browse(sealine_id)

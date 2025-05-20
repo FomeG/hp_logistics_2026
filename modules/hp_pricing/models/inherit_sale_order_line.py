@@ -35,7 +35,7 @@ class SaleOrderLine(models.Model):
 
     pricing_quotation_id = fields.Many2one(
         'pricing.quotation', string="Pricing Quotation",
-        domain="[('valid_to', '>=', etd_sale), ('sealine_id', '=', 'produc_template_id.sealine.id')]",
+        domain="[('valid_to', '>=', etd_sale), ('sealine_id', '=', 'produc_template_id.sealine_id.id')]",
         tracking=True
     )
 
@@ -70,6 +70,23 @@ class SaleOrderLine(models.Model):
             self.booking_id = False
             self.volume_cont = False
             self.base_price = 0.0
+
+    @api.onchange('etd_sale', 'product_template_id')
+    def _onchange_auto_set_pricing_quotation(self):
+        for record in self:
+            if record.etd_sale and record.product_template_id and record.product_template_id.sealine_id:
+                matching_quotation = self.env['pricing.quotation'].search([
+                    ('valid_to', '>=', record.etd_sale),
+                    ('sealine_id', '=', record.product_template_id.sealine_id.id)
+                ], limit=1)
+
+                if matching_quotation:
+                    record.pricing_quotation_id = matching_quotation
+                    record._onchange_booking_or_quotation()
+                else:
+                    record.pricing_quotation_id = False  # clear if nothing found
+            else:
+                record.pricing_quotation_id = False  # clear if conditions not met
 
     @api.onchange('booking_id', 'pricing_quotation_id', 'volume_cont')
     def _onchange_booking_or_quotation(self):

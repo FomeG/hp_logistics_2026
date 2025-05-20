@@ -57,18 +57,25 @@
             <!-- Show these fields only if product_type_filter is 'pricing' -->
             <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="after">
                  <field name="etd_sale" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
-                <field name="booking_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
-                <field name="pricing_quotation_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
                 <field name="volume_cont" readonly="product_type_filter in ['trucking', 'common', 'custom']"
                        required="product_type_filter == 'pricing'"/>
             </xpath>
 
-            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="after">
-                <field name="etd_sale" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
+            <!-- Show these fields only if product_type_filter is 'pricing' -->
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_qty']" position="after">
                 <field name="booking_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
                 <field name="pricing_quotation_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="after">
+                <field name="etd_sale" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
                 <field name="volume_cont" readonly="product_type_filter in ['trucking', 'common', 'custom']"
                        required="product_type_filter == 'pricing'"/>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_uom_qty']" position="after">
+                <field name="booking_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
+                <field name="pricing_quotation_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
             </xpath>
 
             <!-- Find the partner_id field and add the domain attribute -->
