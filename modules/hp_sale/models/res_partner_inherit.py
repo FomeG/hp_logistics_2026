@@ -1,9 +1,12 @@
-from odoo import models, api, _
+from odoo import models, api, fields, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.osv import expression
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
+
+    is_sale_man = fields.Boolean(string="Is Sale Man", compute="_compute_is_sale_man", store=False)
+    sale_user_ids = fields.Many2many('res.users', compute='_compute_sale_user_ids', store=False)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -89,7 +92,23 @@ class ResPartner(models.Model):
                     ('user_id', '=', current_user_id),
                     ('id', '=', current_partner_id)
             ]
-    
+    @api.depends()
+    def _compute_sale_user_ids(self):
+        group = self.env.ref('sales_team.group_sale_salesman')
+        users = self.env['res.users'].search([
+            ('groups_id', 'in', group.id),
+            ('share', '=', False),
+            ('id', '!=', self.env.ref('base.user_admin').id)
+        ])
+        for partner in self:
+            partner.sale_user_ids = users
+
+    @api.depends()
+    def _compute_is_sale_man(self):
+        for partner in self:
+            partner.is_sale_man = partner.is_only_group_sale_salesman()
+
+
     def is_only_group_sale_salesman(self):
         group_sale_salesman_id = self.env.ref('sales_team.group_sale_salesman').id
         group_sale_salesman_all_leads_id = self.env.ref('sales_team.group_sale_salesman_all_leads').id
