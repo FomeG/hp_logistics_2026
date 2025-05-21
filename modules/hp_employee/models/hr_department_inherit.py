@@ -30,7 +30,7 @@ class HpDepartmentInherit(models.Model):
     def write(self, vals):
         for department in self:
             if 'department_type' in vals:
-                if department.department_type != vals.get('department_type'):
+                if department.department_type and department.department_type != vals.get('department_type'):
                     raise UserError(_("You cannot modify the Department Type once it's set."))
             
             if 'manager_id' in vals:
