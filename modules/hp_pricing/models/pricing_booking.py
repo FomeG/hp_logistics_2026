@@ -129,37 +129,43 @@ class PricingBooking(models.Model):
         bookings = super().create(vals_list)
 
         # Auto-link to pricing quotation
-        for booking in bookings:
-            booking._auto_link_to_quotation()
+        # for booking in bookings:
+        #     booking._auto_link_to_quotation()
 
         return bookings
 
     def write(self, vals):
         for record in self:
+            # Check if etd is changing
+            if 'etd' in vals:
+                new_etd = fields.Date.from_string(vals['etd']) if vals['etd'] else None
+                if new_etd and new_etd < fields.Date.today():
+                    record._deactivate_expired_always_quotation()
+
             booking_price = vals.get('booking_price', record.booking_price)
             company_booking_price = vals.get('company_booking_price', record.company_booking_price)
-            self._validate_booking_prices(booking_price, company_booking_price, action="updating")
+            record._validate_booking_prices(booking_price, company_booking_price, action="updating")
 
         result = super().write(vals)
 
-        # Check if fee_type changed and re-link to appropriate quotation
-        if 'fee_type' in vals:
-            for record in self:
-                record._auto_link_to_quotation()
+        # # Check if fee_type changed and re-link to appropriate quotation
+        # if 'fee_type' in vals:
+        #     for record in self:
+        #         record._auto_link_to_quotation()
 
         return result
 
-    def _auto_link_to_quotation(self):
-        """Automatically link booking to a quotation with the same fee_type"""
-        if not self.pricing_quotation_id:
-            # Find a quotation with same fee_type that doesn't have this booking
-            quotation = self.env['pricing.quotation'].search([
-                ('fee_type', '=', self.fee_type),
-                ('active', '=', True)
-            ], limit=1)
-
-            if quotation:
-                self.sudo().write({'pricing_quotation_id': quotation.id})
+    # def _auto_link_to_quotation(self):
+    #     """Automatically link booking to a quotation with the same fee_type"""
+    #     if not self.pricing_quotation_id:
+    #         # Find a quotation with same fee_type that doesn't have this booking
+    #         quotation = self.env['pricing.quotation'].search([
+    #             ('fee_type', '=', self.fee_type),
+    #             ('active', '=', True)
+    #         ], limit=1)
+    #
+    #         if quotation:
+    #             self.sudo().write({'pricing_quotation_id': quotation.id})
 
     @api.constrains('booking_no')
     def _check_unique_booking_no(self):
@@ -234,5 +240,14 @@ class PricingBooking(models.Model):
                 record.teu_warning_message = message
             else:
                 record.teu_warning_message = ""
+
+    def _deactivate_expired_always_quotations(self):
+        for booking in self:
+            if booking.etd and booking.etd < fields.Date.today():
+                related_quotations = self.env['pricing.quotation'].search([
+                    ('always', '=', True),
+                    ('booking_ids', 'in', booking.id)
+                ])
+                related_quotations.write({'active': False})
 
 

@@ -54,6 +54,7 @@ class PricingQuotation(models.Model):
     )
 
     active = fields.Boolean(default=True)
+    always = fields.Boolean("Always Valid", default=False)
 
     # Computed fields for TEU tracking from sale orders
     reserved_teu_from_orders = fields.Float(
@@ -75,8 +76,8 @@ class PricingQuotation(models.Model):
         quotations = super().create(vals_list)
 
         # Auto-link unlinked bookings with same fee_type
-        for quotation in quotations:
-            quotation._auto_link_bookings()
+        # for quotation in quotations:
+        #     quotation._auto_link_bookings()
 
         return quotations
 
@@ -84,22 +85,37 @@ class PricingQuotation(models.Model):
         result = super().write(vals)
 
         # Check if fee_type changed and re-link bookings
-        if 'fee_type' in vals:
-            for record in self:
-                record._auto_link_bookings()
+        # if 'fee_type' in vals:
+        #     for record in self:
+        #         record._auto_link_bookings()
 
         return result
 
-    def _auto_link_bookings(self):
-        """Automatically link bookings with same fee_type that are not linked to any quotation"""
-        unlinked_bookings = self.env['pricing.booking'].search([
-            ('fee_type', '=', self.fee_type),
-            ('pricing_quotation_id', '=', False),
-            ('active', '=', True)
-        ])
+    # def _auto_link_bookings(self):
+    #     """Automatically link bookings with same fee_type that are not linked to any quotation"""
+    #     unlinked_bookings = self.env['pricing.booking'].search([
+    #         ('fee_type', '=', self.fee_type),
+    #         ('pricing_quotation_id', '=', False),
+    #         ('active', '=', True)
+    #     ])
+    #
+    #     if unlinked_bookings:
+    #         unlinked_bookings.sudo().write({'pricing_quotation_id': self.id})
 
-        if unlinked_bookings:
-            unlinked_bookings.sudo().write({'pricing_quotation_id': self.id})
+    def action_create_booking(self):
+        self.ensure_one()
+        return {
+            'name': _('Create Booking'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'pricing.booking',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_fee_type': self.fee_type,
+                'default_sealine_id': self.sealine_id.id,
+                'create_booking_from_quotation': True,
+            }
+        }
 
     # display_name
     @api.depends('fee_type', 'valid_from', 'valid_to')

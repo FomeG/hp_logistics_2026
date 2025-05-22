@@ -7,6 +7,9 @@
         <field name="model">pricing.quotation</field>
         <field name="arch" type="xml">
             <form class="oe_form_configuration">
+                <header>
+                    <button name="action_create_booking" type="object" string="Create Booking" class="btn-primary" />
+                </header>
                 <sheet>
                     <group>
                         <group>
@@ -28,7 +31,7 @@
                         </div>
                     </div>
                     <notebook>
-                        <page string="Bookings">
+                        <page string="Bookings" invisible="booking_ids == False">
                             <field name="booking_ids" readonly="1" create="false" edit="false">
                                 <list>
                                     <field name="booking_no"/>
@@ -38,7 +41,7 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Related Sales Orders">
+                        <page string="Related Sales Orders" invisible="sale_line_ids == False">
                             <field name="sale_line_ids" readonly="1">
                                 <list>
                                     <field name="order_id"/>
