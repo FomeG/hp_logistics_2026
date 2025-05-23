@@ -132,7 +132,7 @@ class PricingQuotation(models.Model):
     @api.depends('fee_type', 'valid_from', 'valid_to', 'always', 'sealine_id')
     def _compute_display_name(self):
         for record in self:
-            sealine_name = record.sealine_id.name if record.sealine_id else "No Sealine"
+            sealine_name = record.sealine_id.sealine_name if record.sealine_id else "No Sealine"
             if record.always:
                 record.display_name = f"{sealine_name} - {record.fee_type} (Always Valid)"
             else:

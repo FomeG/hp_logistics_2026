@@ -205,10 +205,10 @@ class PricingBooking(models.Model):
 
         # Get sealine from voyage if available, otherwise use quotation's sealine
         sealine_id = False
-        if self.voyage_id and self.voyage_id.sealine_id:
-            sealine_id = self.voyage_id.sealine_id.id
-        elif self.pricing_quotation_id.sealine_id:
+        if self.pricing_quotation_id.sealine_id:
             sealine_id = self.pricing_quotation_id.sealine_id.id
+        elif self.voyage_id and self.voyage_id.sealine_id:
+            sealine_id = self.voyage_id.sealine_id.id
 
         # Find a voyage with the same sealine for default
         default_voyage_id = False
