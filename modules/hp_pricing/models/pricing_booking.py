@@ -128,9 +128,9 @@ class PricingBooking(models.Model):
         # Create the booking first
         bookings = super().create(vals_list)
 
-        # Auto-link to pricing quotation
-        # for booking in bookings:
-        #     booking._auto_link_to_quotation()
+        # Create linked quotation for each booking
+        for booking in bookings:
+            booking._create_linked_quotation()
 
         return bookings
 
@@ -155,17 +155,84 @@ class PricingBooking(models.Model):
 
         return result
 
-    # def _auto_link_to_quotation(self):
-    #     """Automatically link booking to a quotation with the same fee_type"""
-    #     if not self.pricing_quotation_id:
-    #         # Find a quotation with same fee_type that doesn't have this booking
-    #         quotation = self.env['pricing.quotation'].search([
-    #             ('fee_type', '=', self.fee_type),
-    #             ('active', '=', True)
-    #         ], limit=1)
-    #
-    #         if quotation:
-    #             self.sudo().write({'pricing_quotation_id': quotation.id})
+    def _create_linked_quotation(self):
+        """Create a linked pricing quotation for this booking"""
+        quotation_vals = {
+            'fee_type': self.fee_type,
+            'sealine_id': self.voyage_id.sealine_id.id if self.voyage_id and self.voyage_id.sealine_id else False,
+            'cont_20_price': 120,  # default values following Cosco table
+            'cont_40_price': 270,  # default values following Cosco table
+            'always': True,
+            'valid_from': fields.Date.today(),
+            'valid_to': self.etd,
+            'active': True,
+        }
+
+        quotation = self.env['pricing.quotation'].create(quotation_vals)
+        self.pricing_quotation_id = quotation.id
+
+        return quotation
+
+    def action_create_booking(self):
+        """Duplicate Booking - Create a new booking with same values"""
+        self.ensure_one()
+        return {
+            'name': _('Duplicate Booking'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'pricing.booking',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_voyage_id': self.voyage_id.id if self.voyage_id else False,
+                'default_volume_quantity_1': self.volume_quantity_1,
+                'default_volume_cont_1': self.volume_cont_1,
+                'default_volume_quantity_2': self.volume_quantity_2,
+                'default_volume_cont_2': self.volume_cont_2,
+                'default_booking_price': self.booking_price,
+                'default_company_booking_price': self.company_booking_price,
+                'default_booking_status': self.booking_status,
+                'default_fee_type': self.fee_type,
+                'create_booking_from_booking': True,
+                'source_booking_id': self.id,
+            }
+        }
+
+    def action_create_booking_from_quotation(self):
+        """Create booking from linked quotation values"""
+        self.ensure_one()
+        if not self.pricing_quotation_id:
+            raise ValidationError(_("No linked pricing quotation found for this booking."))
+
+        # Get sealine from voyage if available, otherwise use quotation's sealine
+        sealine_id = False
+        if self.voyage_id and self.voyage_id.sealine_id:
+            sealine_id = self.voyage_id.sealine_id.id
+        elif self.pricing_quotation_id.sealine_id:
+            sealine_id = self.pricing_quotation_id.sealine_id.id
+
+        # Find a voyage with the same sealine for default
+        default_voyage_id = False
+        if sealine_id:
+            voyage = self.env['pricing.voyage'].search([
+                ('sealine_id', '=', sealine_id)
+            ], limit=1)
+            default_voyage_id = voyage.id if voyage else False
+
+        return {
+            'name': _('Create Booking from Quotation'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'pricing.booking',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_voyage_id': default_voyage_id,
+                'default_fee_type': self.pricing_quotation_id.fee_type,
+                'default_booking_price': self.booking_price,
+                'default_company_booking_price': self.company_booking_price,
+                'create_booking_from_quotation': True,
+                'quotation_id': self.pricing_quotation_id.id,
+            }
+        }
 
     @api.constrains('booking_no')
     def _check_unique_booking_no(self):
@@ -244,10 +311,17 @@ class PricingBooking(models.Model):
     def _deactivate_expired_always_quotations(self):
         for booking in self:
             if booking.etd and booking.etd < fields.Date.today():
-                related_quotations = self.env['pricing.quotation'].search([
-                    ('always', '=', True),
-                    ('booking_ids', 'in', booking.id)
-                ])
-                related_quotations.write({'active': False})
+                booking.pricing_quotation_id.write({'active': False})
+
+    @api.model
+    def _cron_deactivate_expired_quotations(self):
+        """Cron job to deactivate expired quotations"""
+        expired_bookings = self.search([
+            ('etd', '<', fields.Date.today()),
+            ('pricing_quotation_id.always', '=', True),
+            ('pricing_quotation_id.active', '=', True)
+        ])
+        for booking in expired_bookings:
+            booking._deactivate_expired_always_quotation()
 
 

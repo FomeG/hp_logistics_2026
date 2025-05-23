@@ -112,16 +112,33 @@ class PricingQuotation(models.Model):
             'target': 'new',
             'context': {
                 'default_fee_type': self.fee_type,
-                'default_sealine_id': self.sealine_id.id,
                 'create_booking_from_quotation': True,
+                'quotation_id': self.id,
+                # Set default voyage based on sealine if available
+                'default_voyage_id': self._get_default_voyage_for_sealine(),
             }
         }
 
+    def _get_default_voyage_for_sealine(self):
+        """Get a default voyage for the sealine of this quotation"""
+        if self.sealine_id:
+            voyage = self.env['pricing.voyage'].search([
+                ('sealine_id', '=', self.sealine_id.id)
+            ], limit=1)
+            return voyage.id if voyage else False
+        return False
+
     # display_name
-    @api.depends('fee_type', 'valid_from', 'valid_to')
+    @api.depends('fee_type', 'valid_from', 'valid_to', 'always', 'sealine_id')
     def _compute_display_name(self):
         for record in self:
-            record.display_name = f"{record.fee_type} valid from {record.valid_from} to {record.valid_to}"
+            sealine_name = record.sealine_id.name if record.sealine_id else "No Sealine"
+            if record.always:
+                record.display_name = f"{sealine_name} - {record.fee_type} (Always Valid)"
+            else:
+                valid_from = record.valid_from or "N/A"
+                valid_to = record.valid_to or "N/A"
+                record.display_name = f"{sealine_name} - {record.fee_type} ({valid_from} to {valid_to})"
 
     @api.constrains('display_name')
     def _check_unique_display_name(self):

@@ -6,9 +6,9 @@
         <field name="inherit_id" ref="hp_pricing.pricing_booking_form_view"/>
         <field name="arch" type="xml">
             <!-- Add notebook after the existing groups -->
-            <xpath expr="//sheet/group" position="after">
+            <xpath expr="//sheet/group[last()]" position="after">
                 <notebook>
-                    <page string="Related Sales Order and Reservations" name="sale_lines">
+                    <page string="Related Sales Order and Reservations" name="sale_lines" invisible="not sale_line_ids">
                         <field name="sale_line_ids" readonly="1">
                             <list>
                                 <field name="order_id"/>

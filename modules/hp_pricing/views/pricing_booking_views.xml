@@ -6,7 +6,12 @@
         <field name="model">pricing.booking</field>
         <field name="arch" type="xml">
             <form class="oe_form_configuration">
-                <div class="alert alert-danger text-center" role="alert">
+                <header>
+                    <button name="action_create_booking" type="object" string="Duplicate Booking" class="btn-secondary" invisible="not id"/>
+                    <button name="action_create_booking_from_quotation" type="object" string="Create Booking from Linked Quotation" class="btn-primary" invisible="not pricing_quotation_id"/>
+                </header>
+                <field name="id" invisible="1"/>
+                <div class="alert alert-danger text-center" role="alert" invisible="not id">
                     <span><i class="fa fa-exclamation-circle"/> Please check to ensure the booking volume is equal or more than total volume required by all linked sale order (and/or reservations).</span>
                 </div>
                 <sheet>
@@ -28,6 +33,23 @@
                             <field name="active" invisible="1"/>
                         </group>
                     </group>
+
+                    <!-- Pricing quotation section -->
+                    <group string="Linked Pricing Quotation" invisible="not pricing_quotation_id">
+                        <field name="pricing_quotation_id" readonly="1">
+                            <form>
+                                <group>
+                                    <field name="display_name"/>
+                                    <field name="cont_20_price"/>
+                                    <field name="cont_40_price"/>
+                                    <field name="valid_from"/>
+                                    <field name="valid_to"/>
+                                    <field name="always"/>
+                                </group>
+                            </form>
+                        </field>
+                    </group>
+
                     <chatter/>
                 </sheet>
             </form>

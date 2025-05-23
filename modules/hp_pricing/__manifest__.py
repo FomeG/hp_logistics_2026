@@ -12,6 +12,9 @@
         'mail', 'base', 'sale', 'product', 'sale_management', 'project'
     ],
     'data': [
+        # data
+        'data/check_expired_booking.xml',
+
         # security
         'security/hp_pricing_security.xml',
         'security/ir.model.access.csv',

@@ -31,7 +31,7 @@
                         </div>
                     </div>
                     <notebook>
-                        <page string="Bookings" invisible="booking_ids == False">
+                        <page string="Bookings" invisible="not booking_ids">
                             <field name="booking_ids" readonly="1" create="false" edit="false">
                                 <list>
                                     <field name="booking_no"/>
@@ -41,7 +41,7 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Related Sales Orders" invisible="sale_line_ids == False">
+                        <page string="Related Sales Orders" invisible="not sale_line_ids">
                             <field name="sale_line_ids" readonly="1">
                                 <list>
                                     <field name="order_id"/>
