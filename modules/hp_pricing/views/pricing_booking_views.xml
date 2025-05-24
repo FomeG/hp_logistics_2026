@@ -86,7 +86,7 @@
     </record>
 
     <record id="pricing_booking_action_form" model="ir.actions.act_window">
-        <field name="name">DS Booking</field>
+        <field name="name">Booking List</field>
         <field name="res_model">pricing.booking</field>
         <field name="search_view_id" ref="pricing_booking_search_view"/>
         <field name="view_id" ref="pricing_booking_list_view"/>

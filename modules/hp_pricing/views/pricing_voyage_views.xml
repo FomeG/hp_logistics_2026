@@ -13,9 +13,9 @@
                         <field name="voyage_no"/>
                     </group>
                     <group>
-                        <field name="pricing_member_id" required="1" options="{'no_create': True, 'no_create_edit': True}" />
                         <field name="sealine_id" required="1" />
                         <field name="etd" required="1" />
+                        <field name="pricing_member_id" required="1" options="{'no_create': True, 'no_create_edit': True}" />
                     </group>
                 </group>
             </form>
@@ -27,7 +27,7 @@
         <field name="model">pricing.voyage</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-            <list string="DS Chuyến tàu">
+            <list string="Voyage List">
                 <field name="pricing_member_id"/>
                 <field name="shipping_vessel_id"/>
                 <field name="voyage_no"/>
@@ -42,7 +42,7 @@
         <field name="name">pricing.voyage.search</field>
         <field name="model">pricing.voyage</field>
         <field name="arch" type="xml">
-            <search string="DS Chuyến tàu">
+            <search string="Voyage List">
                 <field name="pricing_member_id" string="Nhân viên Pricing"/>
                 <field name="shipping_vessel_id" string="Tàu hàng"/>
                 <field name="voyage_no" string="Số voyage"/>
@@ -53,7 +53,7 @@
     </record>
 
     <record id="pricing_voyage_action_form" model="ir.actions.act_window">
-        <field name="name">DS Chuyến tàu</field>
+        <field name="name">Voyage List</field>
         <field name="res_model">pricing.voyage</field>
         <field name="search_view_id" ref="pricing_voyage_search_view"/>
         <field name="view_id" ref="pricing_voyage_list_view"/>
