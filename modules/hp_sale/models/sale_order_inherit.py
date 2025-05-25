@@ -21,10 +21,10 @@ class SaleOrderInherrit(models.Model):
     state = fields.Selection([
         ('draft', "Draft Quotation"),
         ('activated', "Quotation Activated"),
-        ('customer_confirm', "Res-Customer Confirmed"),
-        ('sale_leader_confirm', "Res-Sales Leader Confirmed"),
-        ('pricing_leader_confirm', "Res-Pricing Leader Confirmed"),
-        ('sent', "Res-Quotation Sent"),
+        ('customer_confirm', "Customer Confirmed"),
+        ('sale_leader_confirm', "Sales Leader Confirmed"),
+        ('pricing_leader_confirm', "Pricing Leader Confirmed"),
+        ('sent', "Quotation Sent"),
         ('sale', "Order-Confirmed"),
         ('cancel', "Cancelled"),
     ], string="Status", readonly=True, copy=False, index=True, tracking=3, default='draft')
@@ -46,7 +46,7 @@ class SaleOrderInherrit(models.Model):
         for order in self:
             # Find lines with product_type_filter = 'pricing' and missing booking_id
             pricing_lines_without_booking = order.order_line.filtered(
-                lambda line: line.product_type_filter == 'pricing' and (not line.booking_id and not line.pricing_quotation.id)
+                lambda line: line.product_type_filter == 'pricing' and (not line.booking_id and not line.pricing_quotation_id.id)
             )
 
             # Skip if there are no pricing lines without booking
@@ -138,14 +138,14 @@ class SaleOrderInherrit(models.Model):
             if not existing_task:
                 # Get list of users to exclude
                 # excluded_ids = get_excluded_user_ids(self.env)
-                pricing_managers = self.env['hr.department']._get_manage_user_by_type('pricing')
+                sale_managers = self.env['hr.department']._get_manage_user_by_type('sale')
 
                 # Find sales leader excluding admins/CEOs
                 sale_director_group = self.env.ref('sales_team.group_sale_manager')
                 sale_director = self.env['res.users'].search([
                     ('groups_id', 'in', sale_director_group.id),
                     # ('id', 'not in', excluded_ids),
-                    ('id', 'in', pricing_managers.ids),
+                    ('id', 'in', sale_managers.ids),
                     ('active', '=', True)
                 ], limit=1)
 

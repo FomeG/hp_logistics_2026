@@ -19,8 +19,8 @@
                         <group>
                             <field name="voyage_id"/>
                             <field name="booking_no" placeholder="e.g. YMJAM491311743"/>
-                            <field name="volume_quantity_1"/>
-                            <field name="volume_cont_1"/>
+                            <field name="volume_quantity_1" required="1"/>
+                            <field name="volume_cont_1" required="1"/>
                             <field name="volume_quantity_2"/>
                             <field name="volume_cont_2"/>
                         </group>

@@ -35,7 +35,7 @@ class SaleOrderLine(models.Model):
 
     pricing_quotation_id = fields.Many2one(
         'pricing.quotation',
-        domain="['|', ('valid_to', '>=', etd_sale), ('always', '=', True), ('sealine_id', '=', product_template_id.sealine_id.id)]",
+        # domain="['|', ('valid_to', '>=', etd_sale), ('always', '=', True), ('sealine_id', '=', product_template_id.sealine_id.id)]",
         string="Pricing Quotation",
         tracking=True
     )
@@ -57,6 +57,19 @@ class SaleOrderLine(models.Model):
         string="Commission (%)",
         default=0.0,
     )
+
+    def _get_pricing_quotation_domain(self):
+        # Check if all required fields exist
+        if not self.etd_sale or not self.product_template_id or not self.product_template_id.sealine_id:
+            return {'domain': {'pricing_quotation_id': [('id', '=', False)]}}
+
+        # Build domain only when all fields are available
+        domain = [
+            '|',
+            ('valid_to', '>=', self.etd_sale),
+            ('always', '=', True),
+            ('sealine_id', '=', self.product_template_id.sealine_id.id)
+        ]
 
     @api.onchange('product_type_filter')
     def _onchange_product_type_filter(self):

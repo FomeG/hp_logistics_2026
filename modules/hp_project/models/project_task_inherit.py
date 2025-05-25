@@ -433,11 +433,31 @@ class ProjectTaskInherit(models.Model):
         self.ensure_one()
         self.validate_action_submit('action_approve_price')
 
+        # Check volume_total validity
+        if not self.sale_line_id.booking_id.volume_total:
+            raise UserError(_("Booking has no valid volume total (TEU)."))
+
+        # Determine base price based on container type
+        cont = self.sale_line_id.volume_cont
+        if not cont:
+            raise UserError(_("Container type is required when Booking is selected."))
+
+        if cont in ['40DC', '40HC', '40HQ', '40RF', '40HCRF', '40OT']:
+            multiplier = 2
+        elif cont in ['20DC', '20RF', '20OT', '20HC']:
+            multiplier = 1
+        else:
+            raise UserError(_("Unrecognized container type: %s") % cont)
+
+        base_price = (
+                                    self.booking_id.company_booking_price * multiplier
+                            ) / self.booking_id.volume_total
+
         # Find and update the matching sale order line
         if self.sale_line_id:
             self.sale_line_id.sudo().write({
                 'booking_id': self.booking_id.id,
-                'base_price': self.booking_id.company_booking_price,
+                'base_price': base_price,
                 'etd_sale': self.booking_id.voyage_id.etd,
             })
 
