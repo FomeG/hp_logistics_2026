@@ -434,7 +434,7 @@ class ProjectTaskInherit(models.Model):
         self.validate_action_submit('action_approve_price')
 
         # Check volume_total validity
-        if not self.sale_line_id.booking_id.volume_total:
+        if not self.booking_id.volume_total:
             raise UserError(_("Booking has no valid volume total (TEU)."))
 
         # Determine base price based on container type

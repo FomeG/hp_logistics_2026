@@ -110,6 +110,12 @@ class SaleOrderInherrit(models.Model):
                 "Cannot proceed to customer confirmation. The following products need a booking assignment: %s"
             ) % product_names)
 
+        for line in self.order_line:
+            if line.price_unit < line.base_price:
+                raise ValidationError(_(
+                    "The Price unit can not less than Base price"
+                ))
+
         # Set state to customer_confirm
         self.write({'state': 'customer_confirm'})
 
