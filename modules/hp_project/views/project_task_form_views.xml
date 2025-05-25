@@ -169,15 +169,28 @@
                                 class="btn btn-link"
                                 invisible="not product_template_id" />
                         </div>
+                        <label for="pricing_quotation_id" />
+                        <div class="o_row">
+                            <field name="pricing_quotation_id"
+                                string="Pricing Quotation"
+                                help=""
+                                domain="[('create_uid', '=', uid)]"
+                                context="{'default_project_task_id': id}" />
+                            <button string="Create New"
+                                class="btn btn-link"
+                                type="object"
+                                name="action_pricing_quotation"
+                                invisible="pricing_quotation_id" />
+                        </div>
                     </group>
                     <group>
                         <field name="etd" string="ETD" readonly="is_product_has_price" />
                         <field name="booking_id" readonly="is_product_has_price"/>
-<!--                        <field name="sale_price"-->
-<!--                            class="oe_inline"-->
-<!--                            readonly="is_product_has_price"-->
-<!--                            widget="monetary"-->
-<!--                            options="{'currency_field': 'currency_id', 'field_digits': True}" />-->
+                        <!--                        <field name="sale_price"-->
+                        <!--                            class="oe_inline"-->
+                        <!--                            readonly="is_product_has_price"-->
+                        <!--                            widget="monetary"-->
+                        <!--                            options="{'currency_field': 'currency_id', 'field_digits': True}" />-->
                         <field name="cost"
                             class="oe_inline"
                             readonly="is_product_has_price"
@@ -189,7 +202,7 @@
                             type="object"
                             string="Approve Price"
                             class="btn btn-success"
-                            invisible="not currency_id or not booking_id or is_done"  />
+                            invisible="not currency_id or not booking_id or is_done or not pricing_quotation_id" />
 
                         <h3 class="text-success" invisible="not is_product_has_price">
                             <i class="fa fa-check" /> Approved Price </h3>
