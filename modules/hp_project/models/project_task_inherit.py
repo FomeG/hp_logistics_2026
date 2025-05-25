@@ -21,6 +21,7 @@ class ProjectTaskInherit(models.Model):
     currency_id = fields.Many2one('res.currency', string="Currency", default=lambda self: self.env.company.currency_id)
     sale_price = fields.Monetary(string="Sale Price", currency_field='currency_id')
     cost = fields.Monetary(string="Cost", currency_field='currency_id')
+    pricing_quotation_id = fields.Many2one('pricing.quotation', string='Pricing Quotation')
 
     start_time = fields.Datetime(string="Start Time", readonly=True)
     end_time = fields.Datetime(string="End Time", readonly=True)
@@ -187,7 +188,8 @@ class ProjectTaskInherit(models.Model):
         for task in self:
             product = task.product_template_id
             sale_order_line = task.sale_order_id.order_line.filtered(lambda line: line.product_id.id == product.product_variant_id.id)
-            task.is_product_has_price = True if sale_order_line and sale_order_line.booking_id and sale_order_line.base_price else False
+            pricing_quotation = task.pricing_quotation_id
+            task.is_product_has_price = True if sale_order_line and pricing_quotation and sale_order_line.booking_id and sale_order_line.base_price else False
 
     @api.depends('sale_line_id', 'booking_id')
     def _compute_order_has_booking(self):
@@ -518,6 +520,8 @@ class ProjectTaskInherit(models.Model):
                 #     raise ValidationError(_("Product is required."))
                 if not self.booking_id:
                     raise ValidationError(_("Booking is required."))
+                if not self.pricing_quotation_id:
+                    raise ValidationError(_("Pricing quotation is required."))
                 # if not self.sale_price or not self.cost:
                 #     raise ValidationError(_("Sale price or Cost is not exist."))
 
@@ -561,5 +565,18 @@ class ProjectTaskInherit(models.Model):
 
             case _:
                 return
-            
+    
+    def action_pricing_quotation(self):
+        self.ensure_one()
+        return {
+                'name': _('Create Pricing Quotation'),
+                'type': 'ir.actions.act_window',
+                'res_model': 'pricing.quotation',
+                'view_mode': 'form',
+                'view_id': self.env.ref('hp_pricing.pricing_quotation_form_view').id,
+                'target': 'new',
+                'context': dict(self._context, **{
+                    'default_project_task_id': self.id,
+            })
+        }
 

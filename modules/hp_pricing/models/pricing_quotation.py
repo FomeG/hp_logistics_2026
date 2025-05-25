@@ -75,6 +75,12 @@ class PricingQuotation(models.Model):
         # Create the quotation first
         quotations = super().create(vals_list)
 
+        project_task_id = self._context.get('default_project_task_id')
+        if project_task_id:
+            project_task = self.env['project.task'].browse(project_task_id)
+            if project_task.exists():
+                project_task.pricing_quotation_id = quotations[0].id
+
         # Auto-link unlinked bookings with same fee_type
         # for quotation in quotations:
         #     quotation._auto_link_bookings()
