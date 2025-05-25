@@ -17,7 +17,7 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="voyage_id"/>
+                            <field name="voyage_id" options="{'no_create': True, 'no_create_edit': True}"/>
                             <field name="booking_no" placeholder="e.g. YMJAM491311743"/>
                             <field name="volume_quantity_1" required="1"/>
                             <field name="volume_cont_1" required="1"/>
