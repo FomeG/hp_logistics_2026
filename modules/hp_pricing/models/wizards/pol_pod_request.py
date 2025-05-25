@@ -41,7 +41,7 @@ class PodPolRequestWizard(models.TransientModel):
         pricing_director = self.env['res.users'].search([
             ('groups_id', 'in', pricing_director_group.id),
             # ('id', 'not in', excluded_ids),
-            ('id', 'in', pricing_managers),
+            ('id', 'in', pricing_managers.ids),
             ('active', '=', True)
         ], limit=1)
 

@@ -2,6 +2,7 @@ from odoo import models, fields, _
 from odoo.exceptions import UserError, ValidationError
 import logging
 from odoo.addons.hp_pricing.models.inherit_res_users import get_excluded_user_ids
+from odoo.addons.hp_employee.models.hr_department_inherit import HpDepartmentInherit
 
 _logger = logging.getLogger(__name__)
 
@@ -62,12 +63,14 @@ class SaleOrderInherrit(models.Model):
 
                 if not existing_task:
                     # Get list of users to exclude
-                    excluded_ids = get_excluded_user_ids(self.env)
+                    # excluded_ids = get_excluded_user_ids(self.env)
+                    pricing_managers = self.env['hr.department']._get_manage_user_by_type('pricing')
 
                     pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
                     pricing_director = self.env['res.users'].search([
                         ('groups_id', 'in', pricing_director_group.id),
-                        ('id', 'not in', excluded_ids),
+                        # ('id', 'not in', excluded_ids),
+                        ('id', 'in', pricing_managers.ids),
                         ('active', '=', True)
                     ], limit=1)
 
@@ -134,14 +137,15 @@ class SaleOrderInherrit(models.Model):
 
             if not existing_task:
                 # Get list of users to exclude
-                excluded_ids = get_excluded_user_ids(self.env)
-                _logger.info(F"excluded_ids: {excluded_ids}")
+                # excluded_ids = get_excluded_user_ids(self.env)
+                pricing_managers = self.env['hr.department']._get_manage_user_by_type('pricing')
 
                 # Find sales leader excluding admins/CEOs
                 sale_director_group = self.env.ref('sales_team.group_sale_manager')
                 sale_director = self.env['res.users'].search([
                     ('groups_id', 'in', sale_director_group.id),
-                    ('id', 'not in', excluded_ids),
+                    # ('id', 'not in', excluded_ids),
+                    ('id', 'in', pricing_managers.ids),
                     ('active', '=', True)
                 ], limit=1)
 
@@ -197,12 +201,14 @@ class SaleOrderInherrit(models.Model):
 
             if not existing_task:
                 # Get list of users to exclude
-                excluded_ids = get_excluded_user_ids(self.env)
+                # excluded_ids = get_excluded_user_ids(self.env)
+                pricing_managers = self.env['hr.department']._get_manage_user_by_type('pricing')
 
                 pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
                 pricing_director = self.env['res.users'].search([
                     ('groups_id', 'in', pricing_director_group.id),
-                    ('id', 'not in', excluded_ids),
+                    # ('id', 'not in', excluded_ids),
+                    ('id', 'in', pricing_managers.ids),
                     ('active', '=', True)
                 ], limit=1)
 
