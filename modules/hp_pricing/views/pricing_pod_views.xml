@@ -8,7 +8,7 @@
             <form class="oe_form_configuration">
                 <sheet>
                     <div class="oe_title">
-                        <label for="pod_name" string="Cảng dỡ hàng"/>
+                        <label for="pod_name" string="Port of Discharge"/>
                         <h1><field name="pod_name" placeholder="e.g. YOKOHAMA"/></h1>
                     </div>
                     <group name="first" col="2">
@@ -25,9 +25,9 @@
         <field name="model">pricing.pod</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-            <list string="DS Cảng dỡ hàng">
-                <field name="pod_name" string="Cảng dỡ hàng"/>
-                <field name="region_id" string="Khu vực vận chuyển"/>
+            <list string="Port of Discharge">
+                <field name="pod_name" string="Port of Discharge"/>
+                <field name="region_id" string="Region"/>
             </list>
         </field>
     </record>
@@ -36,15 +36,15 @@
         <field name="name">pricing.pod.search</field>
         <field name="model">pricing.pod</field>
         <field name="arch" type="xml">
-            <search string="DS Cảng dỡ hàng">
-                <field name="pod_name" string="Cảng dỡ hàng"/>
+            <search string="Port of Discharge">
+                <field name="pod_name" string="Port of Discharge"/>
                 <field name="region_id"/>
             </search>
         </field>
     </record>
 
     <record id="pricing_pod_action_form" model="ir.actions.act_window">
-        <field name="name">DS Cảng dỡ hàng</field>
+        <field name="name">Ports of Discharge</field>
         <field name="res_model">pricing.pod</field>
         <field name="search_view_id" ref="pricing_pod_search_view"/>
         <field name="view_id" ref="pricing_pod_list_view"/>

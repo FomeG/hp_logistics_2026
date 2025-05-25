@@ -41,7 +41,7 @@
     </record>
 
     <record id="pricing_sealine_action_form" model="ir.actions.act_window">
-        <field name="name">Sealine List</field>
+        <field name="name">List of Sealines</field>
         <field name="res_model">pricing.sealine</field>
         <field name="search_view_id" ref="pricing_sealine_search_view"/>
         <field name="view_id" ref="pricing_sealine_list_view"/>
