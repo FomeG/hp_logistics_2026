@@ -100,12 +100,12 @@ class SaleOrderInherrit(models.Model):
     def action_customer_confirm(self):
         """Submit quotation for customer review after validation."""
         # Validate all pricing lines have bookings
-        pricing_lines_without_booking = self.order_line.filtered(
-            lambda line: line.product_type_filter == 'pricing' and not line.booking_id
+        pricing_lines_without_price = self.order_line.filtered(
+            lambda line: line.product_type_filter == 'pricing' and not line.booking_id and not line.pricing_quotation_id
         )
 
-        if pricing_lines_without_booking:
-            product_names = ", ".join(line.product_id.name for line in pricing_lines_without_booking)
+        if pricing_lines_without_price:
+            product_names = ", ".join(line.product_id.name for line in pricing_lines_without_price)
             raise ValidationError(_(
                 "Cannot proceed to customer confirmation. The following products need a booking assignment: %s"
             ) % product_names)
@@ -145,6 +145,8 @@ class SaleOrderInherrit(models.Model):
                 # Get list of users to exclude
                 # excluded_ids = get_excluded_user_ids(self.env)
                 sale_managers = self.env['hr.department']._get_manage_user_by_type('sale')
+
+                print(f"sale_managers: {sale_managers}")
 
                 # Find sales leader excluding admins/CEOs
                 sale_director_group = self.env.ref('sales_team.group_sale_manager')
