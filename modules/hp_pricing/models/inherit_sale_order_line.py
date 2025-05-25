@@ -35,7 +35,7 @@ class SaleOrderLine(models.Model):
 
     pricing_quotation_id = fields.Many2one(
         'pricing.quotation',
-        # domain="['|', ('valid_to', '>=', etd_sale), ('always', '=', True), ('sealine_id', '=', product_template_id.sealine_id.id)]",
+        domain=lambda self: self._get_pricing_quotation_domain_lambda(),
         string="Pricing Quotation",
         tracking=True
     )
@@ -58,18 +58,37 @@ class SaleOrderLine(models.Model):
         default=0.0,
     )
 
-    def _get_pricing_quotation_domain(self):
-        # Check if all required fields exist
-        if not self.etd_sale or not self.product_template_id or not self.product_template_id.sealine_id:
-            return {'domain': {'pricing_quotation_id': [('id', '=', False)]}}
+    def _get_pricing_quotation_domain_lambda(self):
+        """Calculate domain for pricing_quotation_id field using lambda approach"""
+        # If we're in a new record creation context or missing required data
+        if not self or not hasattr(self, 'etd_sale') or not hasattr(self, 'product_template_id'):
+            return [('id', '=', False)]
 
-        # Build domain only when all fields are available
-        domain = [
-            '|',
-            ('valid_to', '>=', self.etd_sale),
-            ('always', '=', True),
-            ('sealine_id', '=', self.product_template_id.sealine_id.id)
-        ]
+        # For each record, calculate available quotations
+        if isinstance(self, type(self).browse([])):  # Empty recordset
+            return [('id', '=', False)]
+
+        # Get all valid quotation IDs for current context
+        valid_quotation_ids = []
+
+        for record in self:
+            if record.etd_sale and record.product_template_id and record.product_template_id.sealine_id:
+                # Find quotations that match the criteria
+                quotations = self.env['pricing.quotation'].search([
+                    ('sealine_id', '=', record.product_template_id.sealine_id.id),
+                    '|',
+                    ('valid_to', '>=', record.etd_sale),
+                    ('always', '=', True)
+                ])
+                valid_quotation_ids.extend(quotations.ids)
+
+        # Remove duplicates
+        valid_quotation_ids = list(set(valid_quotation_ids))
+
+        if valid_quotation_ids:
+            return [('id', 'in', valid_quotation_ids)]
+        else:
+            return [('id', '=', False)]
 
     @api.onchange('product_type_filter')
     def _onchange_product_type_filter(self):

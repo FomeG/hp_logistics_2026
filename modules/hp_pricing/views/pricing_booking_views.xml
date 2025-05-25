@@ -61,7 +61,7 @@
         <field name="model">pricing.booking</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-            <list string="DS Booking">
+            <list string="Booking List">
                 <field name="voyage_id"/>
                 <field name="booking_no"/>
                 <field name="volume_total"/>
@@ -77,7 +77,7 @@
         <field name="name">pricing.booking.search</field>
         <field name="model">pricing.booking</field>
         <field name="arch" type="xml">
-            <search string="DS Booking">
+            <search string="Booking List">
                 <field name="booking_no" string="Booking No"/>
                 <field name="booking_status" string="Booking Status"/>
                 <field name="voyage_id" string="Voyage"/>
