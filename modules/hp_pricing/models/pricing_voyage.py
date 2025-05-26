@@ -159,56 +159,60 @@ class PricingVoyage(models.Model):
 
         return pricing_member
 
-    @api.model
-    def create(self, vals):
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Create method that handles batch creation properly"""
         user = self.env.user
         is_director = user.has_group('hp_pricing.group_hp_pricing_director')
-        sealine_id = vals.get('sealine_id')
-        pricing_member_id = vals.get('pricing_member_id')
 
-        # If pricing_member_id is not provided, determine it based on sealine
-        if not pricing_member_id and sealine_id:
-            sealine = self.env['pricing.sealine'].browse(sealine_id)
-            region = sealine.pod_id.region_id if sealine.pod_id else False
+        # Process each record in the batch
+        for vals in vals_list:
+            sealine_id = vals.get('sealine_id')
+            pricing_member_id = vals.get('pricing_member_id')
 
-            if region:
-                if is_director:
-                    # DIRECTOR: Try to find any active pricing team member for the region
-                    pricing_member = self.env['pricing.team.member'].search([
-                        ('region_id', '=', region.id),
-                        ('active', '=', True)
-                    ], limit=1)
+            # If pricing_member_id is not provided, determine it based on sealine
+            if not pricing_member_id and sealine_id:
+                sealine = self.env['pricing.sealine'].browse(sealine_id)
+                region = sealine.pod_id.region_id if sealine.pod_id else False
 
-                    if pricing_member:
-                        vals['pricing_member_id'] = pricing_member.id
-                    else:
-                        # No members found - create pricing member for current director
-                        pricing_member = self._get_or_create_pricing_member_for_current_user(user, region)
+                if region:
+                    if is_director:
+                        # DIRECTOR: Try to find any active pricing team member for the region
+                        pricing_member = self.env['pricing.team.member'].search([
+                            ('region_id', '=', region.id),
+                            ('active', '=', True)
+                        ], limit=1)
+
                         if pricing_member:
                             vals['pricing_member_id'] = pricing_member.id
+                        else:
+                            # No members found - create pricing member for current director
+                            pricing_member = self._get_or_create_pricing_member_for_current_user(user, region)
+                            if pricing_member:
+                                vals['pricing_member_id'] = pricing_member.id
+                    else:
+                        # NON-DIRECTOR: Look for current user's pricing member for this region
+                        pricing_member = self.env['pricing.team.member'].search([
+                            ('user_id', '=', user.id),
+                            ('region_id', '=', region.id),
+                            ('active', '=', True)
+                        ], limit=1)
+
+                        if pricing_member:
+                            vals['pricing_member_id'] = pricing_member.id
+                        else:
+                            # Create pricing member for current user in this region
+                            pricing_member = self._get_or_create_pricing_member_for_current_user(user, region)
+                            if pricing_member:
+                                vals['pricing_member_id'] = pricing_member.id
+
+            # Validation: Ensure pricing_member_id is set
+            if not vals.get('pricing_member_id'):
+                # For any user without pricing member, create one
+                pricing_member = self._get_or_create_pricing_member_for_current_user(user)
+                if pricing_member:
+                    vals['pricing_member_id'] = pricing_member.id
                 else:
-                    # NON-DIRECTOR: Look for current user's pricing member for this region
-                    pricing_member = self.env['pricing.team.member'].sudo().search([
-                        ('user_id', '=', user.id),
-                        ('region_id', '=', region.id),
-                        ('active', '=', True)
-                    ], limit=1)
+                    raise UserError(_("Unable to create pricing member. Please contact the administrator."))
 
-                    if pricing_member:
-                        vals['pricing_member_id'] = pricing_member.id
-                    else:
-                        # Create pricing member for current user in this region
-                        pricing_member = self._get_or_create_pricing_member_for_current_user(user, region)
-                        if pricing_member:
-                            vals['pricing_member_id'] = pricing_member.id
-
-        # Validation: Ensure pricing_member_id is set
-        if not vals.get('pricing_member_id'):
-            # For any user without pricing member, create one
-            pricing_member = self._get_or_create_pricing_member_for_current_user(user)
-            if pricing_member:
-                vals['pricing_member_id'] = pricing_member.id
-            else:
-                raise UserError(_("Unable to create pricing member. Please contact the administrator."))
-
-        return super(PricingVoyage, self).create(vals)
+        return super(PricingVoyage, self).create(vals_list)

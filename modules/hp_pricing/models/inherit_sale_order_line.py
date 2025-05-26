@@ -8,14 +8,15 @@ _logger = logging.getLogger(__name__)
 
 
 class SaleOrderLine(models.Model):
-    _inherit = 'sale.order.line'
+    _inherit = ['sale.order.line', 'mail.thread']
+    _name = 'sale.order.line'
 
     product_type_filter = fields.Selection([
         ('pricing', "Pricing"),
         ('trucking', "Trucking"),
         ('common', "Common"),
         ('custom', "Custom"),
-    ], string="Product Type", default='common')
+    ], string="Product Type (Filter)", default='common')
 
     etd_sale = fields.Date(
         string="ETD Sale",
