@@ -32,8 +32,9 @@ class PricingVoyage(models.Model):
         help="Estimate Departure"
     )
     pricing_member_id = fields.Many2one(
-        'pricing.team.member', string="Pricing Member",
-        # default=lambda self: self.env['pricing.team.member'].search([('user_id', '=', self.env.user.id)], limit=1),
+        'pricing.team.member',
+        string="Pricing Member",
+        domain=lambda self: self._get_pricing_member_domain_lambda(),
         tracking=True
     )
     sealine_id = fields.Many2one(
@@ -60,49 +61,86 @@ class PricingVoyage(models.Model):
             if existing_voyage:
                 raise ValidationError(_("The Voyage '%s' already exists.") % record.display_name)
 
-    # @api.model
-    # def _get_pod_domain(self):
-    #     """Return the domain for POD selection based on user region"""
-    #     user = self.env.user
-    #     if user.region_id:
-    #         return [('region_id', '=', user.region_id.id)]
-    #     else:
-    #         return []  # Empty domain if no region assigned
+    def _get_pricing_member_domain_lambda(self):
+        """Calculate domain for pricing_member_id field using lambda approach"""
+        # If we're in a new record creation context or missing required data
+        if not self or not hasattr(self, 'sealine_id'):
+            return [('id', '=', False)]
+
+        # For empty recordset
+        if isinstance(self, type(self).browse([])):
+            return [('id', '=', False)]
+
+        # Get all valid pricing member IDs for current context
+        valid_member_ids = []
+        user = self.env.user
+        is_director = user.has_group('hp_pricing.group_hp_pricing_director')
+
+        for record in self:
+            if record.sealine_id and record.sealine_id.pod_id and record.sealine_id.pod_id.region_id:
+                region = record.sealine_id.pod_id.region_id
+
+                if is_director:
+                    # DIRECTOR: Find all pricing members for this region
+                    members = self.env['pricing.team.member'].sudo().search([
+                        ('region_id', '=', region.id),
+                        ('active', '=', True)
+                    ])
+                    valid_member_ids.extend(members.ids)
+                else:
+                    # NON-DIRECTOR: Find only current user's pricing member for this region
+                    current_user_member = self.env['pricing.team.member'].sudo().search([
+                        ('user_id', '=', user.id),
+                        ('region_id', '=', region.id),
+                        ('active', '=', True)
+                    ], limit=1)
+                    if current_user_member:
+                        valid_member_ids.extend(current_user_member.ids)
+
+        # Remove duplicates
+        valid_member_ids = list(set(valid_member_ids))
+
+        if valid_member_ids:
+            return [('id', 'in', valid_member_ids)]
+        else:
+            return [('id', '=', False)]
 
     @api.onchange('sealine_id')
     def _onchange_sealine_id(self):
+        """Auto-set pricing member when sealine changes"""
         # Clear pricing_member_id when sealine changes
         self.pricing_member_id = False
 
+        # If no sealine selected, do nothing more
+        if not self.sealine_id:
+            return
+
         user = self.env.user
+        is_director = user.has_group('hp_pricing.group_hp_pricing_director')
         sealine = self.sealine_id
         region = sealine.pod_id.region_id if sealine.pod_id else False
-        is_director = user.has_group('hp_pricing.group_hp_pricing_director')
 
-        if not self.sealine_id or not region:
-            return {'domain': {'pricing_member_id': [('id', '=', False)]}}
-
-        # Find active pricing team members assigned to this region
-        members = self.env['pricing.team.member'].sudo().search([
-            ('region_id', '=', region.id),
-            ('active', '=', True)
-        ])
+        # If sealine has no region, do nothing more
+        if not region:
+            return
 
         if is_director:
-            # DIRECTOR: Show all suitable pricing members for the region
+            # DIRECTOR: Find any pricing member for this region
+            members = self.env['pricing.team.member'].sudo().search([
+                ('region_id', '=', region.id),
+                ('active', '=', True)
+            ])
+
             if members:
-                # Set the first available member as default
+                # Auto-select first available member
                 self.pricing_member_id = members[0]
-                return {'domain': {'pricing_member_id': [('id', 'in', members.ids)]}}
             else:
-                # No members found - create pricing member for current director
+                # No members found - create one for director
                 pricing_member = self._get_or_create_pricing_member_for_current_user(user, region)
                 if pricing_member:
                     self.pricing_member_id = pricing_member
-                    return {'domain': {'pricing_member_id': [('id', '=', pricing_member.id)]}}
         else:
-            # NON-DIRECTOR: Show only current user as pricing member
-            # Check if current user has pricing member for this region
+            # NON-DIRECTOR: Find current user's pricing member for this region
             current_user_member = self.env['pricing.team.member'].sudo().search([
                 ('user_id', '=', user.id),
                 ('region_id', '=', region.id),
@@ -110,18 +148,12 @@ class PricingVoyage(models.Model):
             ], limit=1)
 
             if current_user_member:
-                # Current user already has pricing member for this region
                 self.pricing_member_id = current_user_member
-                return {'domain': {'pricing_member_id': [('id', '=', current_user_member.id)]}}
             else:
-                # Create pricing member for current user in this region
+                # Create pricing member for current user
                 pricing_member = self._get_or_create_pricing_member_for_current_user(user, region)
                 if pricing_member:
                     self.pricing_member_id = pricing_member
-                    return {'domain': {'pricing_member_id': [('id', '=', pricing_member.id)]}}
-
-                return {'domain': {'pricing_member_id': [('id', '=', False)]}}
-
 
     def _get_or_create_pricing_member_for_current_user(self, user, region=False):
         """Get or create pricing member for current user and assign to region if provided"""
@@ -137,12 +169,16 @@ class PricingVoyage(models.Model):
                 'active': True,
             })
 
-        # Find existing pricing member
-        pricing_member = self.env['pricing.team.member'].sudo().search([
+        # Find existing pricing member for this user and region
+        domain = [
             ('user_id', '=', user.id),
             ('pricing_team_id', '=', pricing_team.id),
             ('active', '=', True)
-        ], limit=1)
+        ]
+        if region:
+            domain.append(('region_id', '=', region.id))
+
+        pricing_member = self.env['pricing.team.member'].sudo().search(domain, limit=1)
 
         if not pricing_member:
             # Create new pricing member
@@ -155,7 +191,7 @@ class PricingVoyage(models.Model):
         else:
             # Update existing pricing member with region if provided and not already set
             if region and not pricing_member.region_id:
-                pricing_member.write({'region_id': region.id})
+                pricing_member.sudo().write({'region_id': region.id})
 
         return pricing_member
 
