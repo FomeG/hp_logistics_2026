@@ -11,14 +11,28 @@ class HpDepartmentInherit(models.Model):
     ROLE_MANAGER = 'manager'
     ROLE_MEMBER = 'member'
 
+    ARRAY_TYPE = [TYPE_SALE, TYPE_PRICING, TYPE_TRUCKING]
+
     department_type = fields.Selection([
         (TYPE_SALE, 'Sale'),
         (TYPE_PRICING, 'Pricing'),
         (TYPE_TRUCKING, 'Trucking'),
     ], string='Department Type', required=True)
 
+    @api.model
+    def can_create_department(self):
+        count = self.sudo().search_count([('department_type', 'in', self.ARRAY_TYPE)])
+        return count < len(self.ARRAY_TYPE)
+
     @api.model_create_multi
     def create(self, vals_list):
+        for vals in vals_list:
+            dept_type = vals.get('department_type')
+            if dept_type:
+                existing = self.sudo().search([('department_type', '=', dept_type)], limit=1)
+                if existing:
+                    raise ValidationError(f"Department with type '{dept_type}' already exists.")
+                
         departments = super().create(vals_list)
         for department in departments:
             manager = department.manager_id
