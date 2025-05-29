@@ -69,22 +69,34 @@ class SaleOrderInherrit(models.Model):
                 ], limit=1)
 
                 if not existing_task:
-                    # Get list of users to exclude
-                    # excluded_ids = get_excluded_user_ids(self.env)
-                    pricing_managers = self.env['hr.department']._get_manage_user_by_type('pricing')
-
-                    pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
-                    pricing_director = self.env['res.users'].search([
-                        ('groups_id', 'in', pricing_director_group.id),
-                        # ('id', 'not in', excluded_ids),
-                        ('id', 'in', pricing_managers.ids),
-                        ('active', '=', True)
-                    ], limit=1)
-
                     assignee_ids = []
+                    # Get list of pricing member related to sealine
+                    region_id = line.product_template_id.sealine_id.pod_id.sudo().region_id
 
-                    if pricing_director:
-                        assignee_ids.append(pricing_director.id)
+                    # Find all users in that region
+                    pricing_member_group = self.env.ref('hp_pricing.group_hp_pricing_member')
+                    pricing_users_in_region = self.env['res.users'].search([
+                        ('region_id', '=', region_id.id),
+                        ('groups_id', 'in', [pricing_member_group.id]),
+                        ('active', '=', True)
+                    ])
+
+                    if len(pricing_users_in_region) == 1:
+                        assignee_ids.append(pricing_users_in_region[0].id)
+                    else:
+                        # Get list of pricing managers
+                        pricing_managers = self.env['hr.department']._get_manage_user_by_type('pricing')
+
+                        pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
+                        pricing_director = self.env['res.users'].search([
+                            ('groups_id', 'in', [pricing_director_group.id]),
+                            # ('id', 'not in', excluded_ids),
+                            ('id', 'in', pricing_managers.ids),
+                            ('active', '=', True)
+                        ], limit=1)
+
+                        if pricing_director:
+                            assignee_ids.append(pricing_director.id)
 
                     # Create a new task for request_price with assignees
                     task_vals = {
