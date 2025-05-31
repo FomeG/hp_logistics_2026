@@ -1,8 +1,16 @@
-from odoo import models, api, _
+from odoo import models, api, fields, _
 from odoo.exceptions import ValidationError, UserError
 
 class HrEmployeeInherit(models.Model):
     _inherit = 'hr.employee'
+
+    dept_manager_id = fields.Many2one('hr.employee', compute='_compute_manager_id', store=False)
+
+    @api.depends('department_id')
+    def _compute_manager_id(self):
+        for employee in self:
+            employee.dept_manager_id = employee.department_id.manager_id if employee.department_id else False
+                
 
     @api.model_create_multi
     def create(self, vals_list):
