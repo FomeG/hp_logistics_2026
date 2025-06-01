@@ -580,3 +580,6 @@ class ProjectTaskInherit(models.Model):
             })
         }
 
+    def sale_order(self):
+        self.ensure_one()
+        return self.sale_order_id or (self.sale_line_id and self.sale_line_id.sale_order_id)

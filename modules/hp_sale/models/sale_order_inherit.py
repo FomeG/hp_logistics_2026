@@ -321,3 +321,15 @@ class SaleOrderInherrit(models.Model):
                     # Create the task
                     self.env['project.task'].with_context(default_allow_billable=False).sudo().create(task_vals).send_notification_by_stage('open', assignee_ids)
 
+    def get_sale_order_lines_missing_price(self):
+        self.ensure_one()  # Make sure we're working on exactly one sale.order
+        # Now safe to do single-record operations
+        return self.order_line.filtered(lambda l: not l.price_unit)
+    def is_cancelled(self):
+        return self.state == 'cancel'
+    def is_activated(self):
+        return  self.state == 'activated'
+    def is_customer_confirmed(self):
+        return self.state == 'customer_confirm'
+    def can_update_price(self):
+        return self.state in ['draft','activated']
