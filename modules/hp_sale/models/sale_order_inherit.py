@@ -17,18 +17,6 @@ class SaleOrderInherrit(models.Model):
         string="Bookings"
     )
 
-    # Override the entire state field
-    # state = fields.Selection([
-    #     ('draft', "Draft Quotation"),
-    #     ('activated', "Quotation Activated"),
-    #     ('customer_confirm', "Customer Confirmed"),
-    #     ('sale_leader_confirm', "Sales Leader Confirmed"),
-    #     ('pricing_leader_confirm', "Pricing Leader Confirmed"),
-    #     ('sent', "Quotation Sent"),
-    #     ('sale', "Order-Confirmed"),
-    #     ('cancel', "Cancelled"),
-    # ], string="Status", readonly=True, copy=False, index=True, tracking=3, default='draft')
-
     state = fields.Selection(selection_add=[
         ('activated', 'Quotation Activated'),
         ('customer_confirm', 'Customer Confirmed'),
@@ -329,6 +317,8 @@ class SaleOrderInherrit(models.Model):
         return self.state == 'cancel'
     def is_activated(self):
         return  self.state == 'activated'
+    def is_sale_leader_confirmed(self):
+        return self.state == 'sale_leader_confirm'
     def is_customer_confirmed(self):
         return self.state == 'customer_confirm'
     def can_update_price(self):

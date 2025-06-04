@@ -20,6 +20,8 @@ class SaleOrderListener(Component):
             self._handle_quotation_cancelled(record)
         elif record.is_customer_confirmed():
             self._handle_quotation_customer_confirmed(record)
+        elif record.is_sale_leader_confirmed():
+            self._handle_quotation_sale_leader_confirmed(record)
 
     def _handle_quotation_activated(self,record: SaleOrder) -> None:
         project = False
@@ -41,3 +43,24 @@ class SaleOrderListener(Component):
 
     def _handle_quotation_customer_confirmed(self,record: SaleOrder) -> None:
         _logger.info("_handle_quotation_customer_confirmed {record}")
+        service = TaskService(self.env)
+        project = service.get_project_by_type(TaskService.PROJECT_TYPE_APPROVE_QUOTATION)
+        if not project:
+            return
+        service.create_task('sale', project.id, TaskService.TASK_TYPE_APPROVE_QUOTATION, record)
+
+    def _handle_quotation_customer_confirmed(self,record: SaleOrder) -> None:
+        _logger.info("_handle_quotation_customer_confirmed {record}")
+        service = TaskService(self.env)
+        project = service.get_project_by_type(TaskService.PROJECT_TYPE_APPROVE_QUOTATION)
+        if not project:
+            return
+        service.create_task('sale', project.id, TaskService.TASK_TYPE_APPROVE_QUOTATION, record)
+
+    def _handle_quotation_sale_leader_confirmed(self,record: SaleOrder) -> None:
+        _logger.info("_handle_quotation_sale_leader_confirmed {record}")
+        service = TaskService(self.env)
+        project = service.get_project_by_type(TaskService.PROJECT_TYPE_APPROVE_QUOTATION)
+        if not project:
+            return
+        service.create_task('pricing', project.id, TaskService.TASK_TYPE_APPROVE_QUOTATION, record)
