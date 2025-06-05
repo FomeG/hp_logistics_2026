@@ -13,8 +13,10 @@ class SaleOrderListener(Component):
     _apply_on = ['sale.order']
 
     def on_record_write(self, record, fields=None):
+        _logger.info("SaleOrderListener triggered on_record_write with fields: %s, record: %s", fields, record)
         if record.is_activated():
             #todo: check old status != activated
+            _logger.info("Creating price request task")
             self._handle_quotation_activated(record)
         elif record.is_cancelled():
             self._handle_quotation_cancelled(record)

@@ -1,4 +1,4 @@
-from odoo import models, fields, _
+from odoo import models, fields, _, api
 from odoo.exceptions import UserError, ValidationError
 import logging
 from odoo.addons.hp_pricing.models.inherit_res_users import get_excluded_user_ids
@@ -24,84 +24,91 @@ class SaleOrderInherrit(models.Model):
         ('pricing_leader_confirm', 'Pricing Leader Confirmed'),
     ], string="Status", readonly=True, copy=False, index=True, tracking=3, default='draft')
 
+    @api.model
+    def write(self, vals):
+        _logger.info("SaleOrderInherrit write called with vals: %s", vals)
+        res = super(SaleOrderInherrit, self).write(vals)
+        self._event('on_record_write').notify(res, fields=vals.keys())
+        return res
+
     # When activate Quotation => check if some product is missing booking/price => make task and assgin to all users relating to the pod
     def action_activate_quotation(self):
         """Submit quotation for customer review."""
         self.write({'state': 'activated'})
-        self._create_request_price_tasks()
+        # self._create_request_price_tasks()
         return True
 
-    def _create_request_price_tasks(self):
-        """Create tasks for request_price when quotation is activated."""
-        project_request_price = self.env['project.project'].search([('type', '=', 'request_price')], limit=1)
-
-        if not project_request_price:
-            return
-
-        for order in self:
-            # Find lines with product_type_filter = 'pricing' and missing booking_id
-            pricing_lines_without_booking = order.order_line.filtered(
-                lambda line: line.product_type_filter == 'pricing' and (not line.booking_id and not line.pricing_quotation_id.id)
-            )
-
-            # Skip if there are no pricing lines without booking
-            if not pricing_lines_without_booking:
-                continue
-
-            for line in pricing_lines_without_booking:
-                # Check if a task already exists for this product/order combination
-                existing_task = self.env['project.task'].search([
-                    ('sale_order_id', '=', order.id),
-                    ('sale_line_id', '=', line.id),
-                    ('project_id', '=', project_request_price.id)
-                ], limit=1)
-
-                if not existing_task:
-                    assignee_ids = []
-                    # Get list of pricing member related to sealine
-                    region_id = line.product_template_id.sealine_id.pod_id.sudo().region_id
-
-                    # Find all users in that region
-                    pricing_member_group = self.env.ref('hp_pricing.group_hp_pricing_member')
-                    pricing_users_in_region = self.env['res.users'].search([
-                        ('region_id', '=', region_id.id),
-                        ('groups_id', 'in', [pricing_member_group.id]),
-                        ('active', '=', True)
-                    ])
-
-                    if len(pricing_users_in_region) == 1:
-                        assignee_ids.append(pricing_users_in_region[0].id)
-                    else:
-                        # Get list of pricing managers
-                        pricing_managers = self.env['hr.department']._get_manage_user_by_type('pricing')
-
-                        pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
-                        pricing_director = self.env['res.users'].search([
-                            ('groups_id', 'in', [pricing_director_group.id]),
-                            # ('id', 'not in', excluded_ids),
-                            ('id', 'in', pricing_managers.ids),
-                            ('active', '=', True)
-                        ], limit=1)
-
-                        if pricing_director:
-                            assignee_ids.append(pricing_director.id)
-
-                    # Create a new task for request_price with assignees
-                    task_vals = {
-                        'name': f"Request Price for {line.product_id.name}",
-                        'project_id': project_request_price.id,
-                        'sale_order_id': order.id,
-                        'sale_line_id': line.id,
-                        'product_template_id': line.product_template_id.id,
-                        'etd': line.etd_sale,
-                        'date_assign': fields.Datetime.now(),
-                    }
-
-                    # Add assignees if found
-                    if assignee_ids:
-                        task_vals['user_ids'] = [(6, 0, assignee_ids)]
-
-                    self.env['project.task'].sudo().create(task_vals).send_notification_by_stage('open', assignee_ids)
+    # def _create_request_price_tasks(self):
+    #     """Create tasks for request_price when quotation is activated."""
+    #     project_request_price = self.env['project.project'].search([('type', '=', 'request_price')], limit=1)
+    #
+    #     if not project_request_price:
+    #         return
+    #
+    #     for order in self:
+    #         # Find lines with product_type_filter = 'pricing' and missing booking_id
+    #         pricing_lines_without_booking = order.order_line.filtered(
+    #             lambda line: line.product_type_filter == 'pricing' and (not line.booking_id and not line.pricing_quotation_id.id)
+    #         )
+    #
+    #         # Skip if there are no pricing lines without booking
+    #         if not pricing_lines_without_booking:
+    #             continue
+    #
+    #         for line in pricing_lines_without_booking:
+    #             # Check if a task already exists for this product/order combination
+    #             existing_task = self.env['project.task'].search([
+    #                 ('sale_order_id', '=', order.id),
+    #                 ('sale_line_id', '=', line.id),
+    #                 ('project_id', '=', project_request_price.id)
+    #             ], limit=1)
+    #
+    #             if not existing_task:
+    #                 assignee_ids = []
+    #                 # Get list of pricing member related to sealine
+    #                 region_id = line.product_template_id.sealine_id.pod_id.sudo().region_id
+    #
+    #                 # Find all users in that region
+    #                 pricing_member_group = self.env.ref('hp_pricing.group_hp_pricing_member')
+    #                 pricing_users_in_region = self.env['res.users'].search([
+    #                     ('region_id', '=', region_id.id),
+    #                     ('groups_id', 'in', [pricing_member_group.id]),
+    #                     ('active', '=', True)
+    #                 ])
+    #
+    #                 if len(pricing_users_in_region) == 1:
+    #                     assignee_ids.append(pricing_users_in_region[0].id)
+    #                 else:
+    #                     # Get list of pricing managers
+    #                     pricing_managers = self.env['hr.department']._get_manage_user_by_type('pricing')
+    #
+    #                     pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
+    #                     pricing_director = self.env['res.users'].search([
+    #                         ('groups_id', 'in', [pricing_director_group.id]),
+    #                         # ('id', 'not in', excluded_ids),
+    #                         ('id', 'in', pricing_managers.ids),
+    #                         ('active', '=', True)
+    #                     ], limit=1)
+    #
+    #                     if pricing_director:
+    #                         assignee_ids.append(pricing_director.id)
+    #
+    #                 # Create a new task for request_price with assignees
+    #                 task_vals = {
+    #                     'name': f"Request Price for {line.product_id.name}",
+    #                     'project_id': project_request_price.id,
+    #                     'sale_order_id': order.id,
+    #                     'sale_line_id': line.id,
+    #                     'product_template_id': line.product_template_id.id,
+    #                     'etd': line.etd_sale,
+    #                     'date_assign': fields.Datetime.now(),
+    #                 }
+    #
+    #                 # Add assignees if found
+    #                 if assignee_ids:
+    #                     task_vals['user_ids'] = [(6, 0, assignee_ids)]
+    #
+    #                 self.env['project.task'].sudo().create(task_vals).send_notification_by_stage('open', assignee_ids)
 
     # When customer confirmed => click button to change state and create task for sale leader to confirm
     def action_customer_confirm(self):
@@ -127,7 +134,7 @@ class SaleOrderInherrit(models.Model):
         self.write({'state': 'customer_confirm'})
 
         # Create approval task for team leader
-        self._create_approval_tasks_sale_leader()
+        # self._create_approval_tasks_sale_leader()
 
         return True
 
