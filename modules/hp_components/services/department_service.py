@@ -14,3 +14,6 @@ class DepartmentService:
 
     def get_pricing_department_leader(self):
         return self._get_department_leader_by_type(HpDepartmentInherit.TYPE_PRICING)
+    
+    def get_sale_department_leader(self):
+        return self._get_department_leader_by_type(HpDepartmentInherit.TYPE_SALE)

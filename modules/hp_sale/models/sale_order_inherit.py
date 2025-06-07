@@ -188,7 +188,7 @@ class SaleOrderInherrit(models.Model):
                 if assignee_ids:
                     task_vals['user_ids'] = [(6, 0, assignee_ids)]
 
-                self.env['project.task'].sudo().create(task_vals).send_notification_by_stage('open', assignee_ids)
+                self.env['project.task'].sudo().create(task_vals)
 
     def action_sale_leader_approved(self):
         """Move to pricing leader confirmation after sales manager approves."""
@@ -252,7 +252,7 @@ class SaleOrderInherrit(models.Model):
                 if assignee_ids:
                     task_vals['user_ids'] = [(6, 0, assignee_ids)]
 
-                self.env['project.task'].sudo().create(task_vals).send_notification_by_stage('open', assignee_ids)
+                self.env['project.task'].sudo().create(task_vals)
 
     def action_final_confirm(self):
         """Confirm the order after pricing manager approves."""
@@ -314,7 +314,7 @@ class SaleOrderInherrit(models.Model):
                         task_vals['user_ids'] = [(6, 0, assignee_ids)]
 
                     # Create the task
-                    self.env['project.task'].with_context(default_allow_billable=False).sudo().create(task_vals).send_notification_by_stage('open', assignee_ids)
+                    self.env['project.task'].with_context(default_allow_billable=False).sudo().create(task_vals)
 
     def get_sale_order_lines_missing_price(self):
         self.ensure_one()  # Make sure we're working on exactly one sale.order
