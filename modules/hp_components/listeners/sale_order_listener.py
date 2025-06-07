@@ -12,6 +12,7 @@ class SaleOrderListener(Component):
     _inherit = 'base.event.listener'
     _apply_on = ['sale.order']
 
+
     def on_record_write(self, record, fields=None):
         _logger.info("SaleOrderListener triggered on_record_write with fields: %s, record: %s", fields, record)
         if record.is_activated():
@@ -29,15 +30,17 @@ class SaleOrderListener(Component):
         project = False
         service = TaskService(self.env)
         sale_order_lines_without_price = record.get_sale_order_lines_missing_price()
+        _logger.info(f"sale_order_lines_without_price: {sale_order_lines_without_price}")
         if not sale_order_lines_without_price:
             return
         else:
             # case 1: request price if needed
             project = service.get_project_by_type(TaskService.PROJECT_TYPE_PRICE_REQUEST)
+        _logger.info(f"project: {project}")
         if not project:
             return
         for sale_order_line in sale_order_lines_without_price:
-            service.create_task(project.id, TaskService.TASK_TYPE_PRICE_REQUEST, sale_order_line)
+            service.create_task('pricing',project.id, TaskService.TASK_TYPE_PRICE_REQUEST, sale_order_line)
 
     def _handle_quotation_cancelled(self,record: SaleOrder) -> None:
         if record.is_cancelled():

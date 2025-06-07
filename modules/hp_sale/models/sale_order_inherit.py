@@ -24,18 +24,11 @@ class SaleOrderInherrit(models.Model):
         ('pricing_leader_confirm', 'Pricing Leader Confirmed'),
     ], string="Status", readonly=True, copy=False, index=True, tracking=3, default='draft')
 
-    @api.model
-    def write(self, vals):
-        _logger.info("SaleOrderInherrit write called with vals: %s", vals)
-        res = super(SaleOrderInherrit, self).write(vals)
-        self._event('on_record_write').notify(res, fields=vals.keys())
-        return res
-
     # When activate Quotation => check if some product is missing booking/price => make task and assgin to all users relating to the pod
     def action_activate_quotation(self):
         """Submit quotation for customer review."""
         self.write({'state': 'activated'})
-        # self._create_request_price_tasks()
+
         return True
 
     # def _create_request_price_tasks(self):
@@ -319,7 +312,7 @@ class SaleOrderInherrit(models.Model):
     def get_sale_order_lines_missing_price(self):
         self.ensure_one()  # Make sure we're working on exactly one sale.order
         # Now safe to do single-record operations
-        return self.order_line.filtered(lambda l: not l.price_unit)
+        return self.order_line.filtered(lambda l: not l.booking_id and not l.pricing_quotation_id)
     def is_cancelled(self):
         return self.state == 'cancel'
     def is_activated(self):
