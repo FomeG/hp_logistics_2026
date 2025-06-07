@@ -2,7 +2,7 @@ from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import datetime
 import logging
-from odoo.addons.hp_pricing.models.inherit_res_users import get_excluded_user_ids
+from odoo.addons.hp_components.services.task_service import TaskService
 
 _logger = logging.getLogger(__name__)
 
@@ -22,6 +22,7 @@ class ProjectTaskInherit(models.Model):
     sale_price = fields.Monetary(string="Sale Price", currency_field='currency_id')
     cost = fields.Monetary(string="Cost", currency_field='currency_id')
     pricing_quotation_id = fields.Many2one('pricing.quotation', string='Pricing Quotation')
+    rejection_reason = fields.Text(string='Rejection Reason')
 
     start_time = fields.Datetime(string="Start Time", readonly=True)
     end_time = fields.Datetime(string="End Time", readonly=True)
@@ -49,6 +50,23 @@ class ProjectTaskInherit(models.Model):
     ], string="Approval Type")
 
     allowed_region_ids = fields.Many2many('pricing.region', compute='_compute_allowed_region_ids')
+
+    def write(self, vals):
+        stage_obj = self.env['project.task.type']
+        new_stage_id = vals.get('stage_id', False)
+        for task in self:
+            current_stage = task.stage_id
+            if current_stage and current_stage.name.lower() == "done":
+                raise UserError(_("Cannot update a done Task"))
+
+            if new_stage_id:
+                new_stage = stage_obj.browse(new_stage_id)
+                if new_stage and new_stage.name.lower() == "in progress" and not task.start_time:
+                    vals['start_time'] = datetime.now()
+                elif new_stage and new_stage.name.lower() == "done" and not task.end_time:
+                    vals['end_time'] = datetime.now()
+
+        return super().write(vals)
 
     @api.depends('project_id')
     def _compute_allowed_user_ids(self):
@@ -128,30 +146,6 @@ class ProjectTaskInherit(models.Model):
                 task.sale_line_id = matching_line[0].id if matching_line else False
             else:
                 task.sale_line_id = False
-
-    def write(self, vals):
-        stage_obj = self.env['project.task.type']
-        new_stage_id = vals.get('stage_id', False)
-        for task in self:
-            current_stage = task.stage_id
-            old_user_ids = set(task._origin.user_ids.ids if task._origin.user_ids else [])
-            new_user_ids = set(task.user_ids.ids if task.user_ids else [])
-
-            added_user_ids = new_user_ids - old_user_ids
-            if not added_user_ids:
-                task.send_notification_by_stage('open', added_user_ids)
-
-            if current_stage and current_stage.name.lower() == "done":
-                raise UserError(_("Cannot update a done Task"))
-
-            if new_stage_id:
-                new_stage = stage_obj.browse(new_stage_id)
-                if new_stage and new_stage.name.lower() == "in progress" and not task.start_time:
-                    vals['start_time'] = datetime.now()
-                elif new_stage and new_stage.name.lower() == "done" and not task.end_time:
-                    vals['end_time'] = datetime.now()
-
-        return super().write(vals)
     
     @api.depends('project_id')
     def _check_project_pricing(self):
@@ -196,6 +190,20 @@ class ProjectTaskInherit(models.Model):
         for task in self:
             task.is_order_has_booking = True if task.booking_id and task.sale_line_id.booking_id.id == task.booking_id.id else False
 
+    @api.onchange('etd')
+    def _onchange_etd_set_booking_domain(self):
+        if self.etd:
+            return {
+                'domain': {
+                    'booking_id': [('voyage_id.etd', '>=', self.etd)]
+                }
+            }
+
+    @api.onchange('booking_id')
+    def _onchange_booking_id(self):
+       self.etd = self.booking_id.voyage_id.etd
+
+    # Update done task
     def update_done_task(self, pod_id = None, pol_id = None):
         done_stage = self.env['project.task.type'].search([('name', '=', 'Done')], limit=1)
         self.write({
@@ -205,7 +213,13 @@ class ProjectTaskInherit(models.Model):
         })
         return True
 
-    
+    # Avoiding order to be confirmed from project/task
+    def _ensure_sale_order_linked(self, sol_ids):
+        if self.env.context.get('skip_so_confirmation'):
+            return
+        return super()._ensure_sale_order_linked(sol_ids)
+
+    # ====== start action show form ======
     def action_show_sale_order_detail(self):
         self.ensure_one()
         return {
@@ -244,327 +258,6 @@ class ProjectTaskInherit(models.Model):
             'context': {'create': False, 'update': False, 'delete': False},
             'flags': {'mode': 'readonly'},
         }
-
-    # Add rejection reason field to handle the rejection cases
-    rejection_reason = fields.Text(string='Rejection Reason')
-
-    def action_sale_leader_approve(self):
-        """Approve quotation by sales leader and create task for pricing leader"""
-        self.ensure_one()
-
-        # Validate the action
-        if not self.sale_order_id or self.sale_order_id.state != 'customer_confirm':
-            raise ValidationError(_("This quotation cannot be approved in its current state."))
-
-        # Find lines with product_type_filter = 'pricing' and missing booking_id
-        pricing_lines_without_booking = self.sale_order_id.order_line.filtered(
-            lambda line: line.product_type_filter == 'pricing'
-        )
-
-        if not pricing_lines_without_booking:
-            # Update quotation state to sale_leader_confirm
-            self.sale_order_id.sudo().write({'state': 'sale'})
-        else:
-            # Update quotation state to sale_leader_confirm
-            self.sale_order_id.sudo().action_sale_leader_approved()
-
-        # Mark the task as done
-        self.update_done_task()
-
-        # Post a message in the chatter
-        self.message_post(body=_("Quotation approved by sales leader."))
-        return True
-
-    def action_sale_leader_reject(self):
-        """Reject quotation by sales leader"""
-        self.ensure_one()
-
-        # Validate the action
-        if not self.sale_order_id or self.sale_order_id.state != 'customer_confirm':
-            raise ValidationError(_("This quotation cannot be rejected in its current state."))
-
-        # Check if rejection reason is provided
-        if not self.rejection_reason:
-            raise ValidationError(_("Please provide a reason for rejection."))
-
-        # Handle rejection logic here
-        # You might want to set the quotation back to draft or another state
-        self.sale_order_id.sudo().write({'state': 'activated'})
-
-        # Mark the task as done
-        self.update_done_task()
-
-        # Post a message in the chatter
-        self.message_post(body=_("Quotation rejected by sales leader and set back to Activated state. Reason: %s") % self.rejection_reason)
-        return True
-
-    def action_pricing_leader_approve(self):
-        """Approve quotation by pricing leader and confirm order"""
-        self.ensure_one()
-
-        # Validate the action
-        if not self.sale_order_id or self.sale_order_id.state != 'sale_leader_confirm':
-            raise ValidationError(_("This quotation cannot be approved in its current state."))
-
-        # Update quotation state to pricing_leader_confirm
-        self.sale_order_id.sudo().action_pricing_leader_approved()
-
-        # Mark the task as done
-        self.update_done_task()
-
-        # Post a message in the chatter
-        self.message_post(body=_("Quotation approved by pricing leader."))
-        return True
-
-    def action_pricing_leader_reject(self):
-        """Reject quotation by pricing leader"""
-        self.ensure_one()
-
-        # Validate the action
-        if not self.sale_order_id or self.sale_order_id.state != 'sale_leader_confirm':
-            raise ValidationError(_("This quotation cannot be rejected in its current state."))
-
-        # Check if rejection reason is provided
-        if not self.rejection_reason:
-            raise ValidationError(_("Please provide a reason for rejection."))
-
-        # Handle rejection logic here
-        # You might want to set the quotation back to customer_confirm
-        self.sale_order_id.sudo().write({'state': 'customer_confirm'})
-
-        # Mark the task as done
-        self.update_done_task()
-
-        # Post a message in the chatter
-        self.message_post(body=_("Quotation rejected by pricing leader. Reason: %s") % self.rejection_reason)
-        return True
-
-    # Avoiding order to be confirmed from project/task
-    def _ensure_sale_order_linked(self, sol_ids):
-        if self.env.context.get('skip_so_confirmation'):
-            return
-        return super()._ensure_sale_order_linked(sol_ids)
-
-    def action_approve_pod_pol(self):
-        self.ensure_one()
-        self.validate_action_submit('action_approve_pod_pol')
-
-        pol = self.env['pricing.pol'].search([('pol_name', 'ilike', self.pol_name_request)], limit=1)
-        pod = self.env['pricing.pod'].search([('pod_name', 'ilike', self.pod_name_request)], limit=1)
-        if not pod:
-            pod = self.env['pricing.pod'].create({
-                'pod_name': self.pod_name_request,
-                'region_id': self.region_id.id,
-            })
-        if not pol:
-            pol = self.env['pricing.pol'].create({
-                'pol_name': self.pol_name_request
-            })
-
-        new_sealine = self.env['pricing.sealine'].search([('pod_id', '=', pod.id), ('pol_id', '=', pol.id)], limit=1)
-        if new_sealine:
-            new_product = self.env['product.template'].search([('sealine_id', '=', new_sealine.id)], limit=1)
-            if new_product:
-                # add sale order item
-                sale_order = self.sale_order_id
-                # Create new sealine
-                new_sale_line = self.env['sale.order.line'].sudo().create({
-                    'order_id': sale_order.id,
-                    'product_id': new_product.product_variant_id.id,
-                    'product_uom_qty': 1.0,
-                    'name': new_product.name,
-                    'product_type_filter': 'pricing'
-                })
-
-                # create task request price
-                project_request_price = self.env['project.project'].search([('type', '=', 'request_price')], limit=1)
-                if project_request_price:
-                    # Get list of users to exclude
-                    excluded_ids = get_excluded_user_ids(self.env)
-
-                    pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
-                    pricing_director = self.env['res.users'].search([
-                        ('groups_id', 'in', pricing_director_group.id),
-                        ('id', 'not in', excluded_ids),
-                        ('active', '=', True)
-                    ], limit=1)
-
-                    assignee_ids = []
-                    if pricing_director:
-                        assignee_ids.append(pricing_director.id)
-
-                    # Create a new task for request_price with assignees
-                    task_vals = {
-                        'name': new_product.name,
-                        'project_id': project_request_price.id,
-                        'sale_order_id': sale_order.id,
-                        'sale_line_id': new_sale_line.id,
-                        'product_template_id': new_product.id,
-                        'etd': self.etd,
-                        'date_assign': datetime.now(),
-                    }
-
-                    # Add assignees if found
-                    if assignee_ids:
-                        task_vals['user_ids'] = [(6, 0, assignee_ids)]
-
-                    self.env['project.task'].sudo().with_context(skip_so_confirmation=True).create(task_vals).send_notification_by_stage('open', assignee_ids)
-                    sale_order.sudo().write({'state': 'activated'})
-                self.update_done_task(pod.id, pol.id)
-                self.send_notification_by_stage('done')
-                self.message_post(body=_("Create POD/POL successfully: %s, %s") % (self.pod_name_request, self.pol_name_request))
-
-                return True
-        raise UserError('Create POD/POL failed.')
-
-    @api.onchange('etd')
-    def _onchange_etd_set_booking_domain(self):
-        if self.etd:
-            return {
-                'domain': {
-                    'booking_id': [('voyage_id.etd', '>=', self.etd)]
-                }
-            }
-
-    @api.onchange('booking_id')
-    def _onchange_booking_id(self):
-       self.etd = self.booking_id.voyage_id.etd
-
-    # Update booking => base price for sale order line
-    def action_approve_price(self):
-        self.ensure_one()
-        self.validate_action_submit('action_approve_price')
-
-        # Check volume_total validity
-        if not self.booking_id.volume_total:
-            raise UserError(_("Booking has no valid volume total (TEU)."))
-
-        # Determine base price based on container type
-        cont = self.sale_line_id.volume_cont
-        if not cont:
-            raise UserError(_("Container type is required when Booking is selected."))
-
-        if cont in ['40DC', '40HC', '40HQ', '40RF', '40HCRF', '40OT']:
-            multiplier = 2
-        elif cont in ['20DC', '20RF', '20OT', '20HC']:
-            multiplier = 1
-        else:
-            raise UserError(_("Unrecognized container type: %s") % cont)
-
-        base_price = (
-                                    self.booking_id.company_booking_price * multiplier
-                            ) / self.booking_id.volume_total
-
-        # Find and update the matching sale order line
-        if self.sale_line_id:
-            self.sale_line_id.sudo().write({
-                'booking_id': self.booking_id.id,
-                'base_price': base_price,
-                'etd_sale': self.booking_id.voyage_id.etd,
-            })
-
-        self.update_done_task()
-        self.send_notification_by_stage('done')
-        self.message_post(body=_("Approve price successfully with sale line: %s") % self.sale_line_id.name)
-        return True
-    
-    def action_approve_booking(self):
-        self.ensure_one()
-        self.validate_action_submit('action_approve_booking')
-
-        if not self.sale_order_id or not self.sale_line_id or not self.booking_id:
-            raise ValidationError(_("Sales Order, Sales Order Line, and Booking are required."))
-
-            # Add this sale order to the booking's sale_order_ids if not already there
-        if self.sale_line_id.id not in self.booking_id.sale_line_ids.ids:
-            self.booking_id.sudo().write({
-                'sale_line_ids': [(4, self.sale_line_id.id)],
-                'booking_status': 'booked',  # Update booking status to booked
-            })
-
-        # self.sale_line_id.sudo().write({
-        #     'booking_id': self.booking_id.id,
-        # })
-        self.update_done_task()
-        self.send_notification_by_stage('done')
-        # self.message_post(body=_("Approve booking success with booking no: %s") % self.booking_id.booking_no)
-        # Post a message in the chatter
-        self.message_post(body=_(
-            "Booking approved successfully. The booking %s has been assigned to %s and linked to the sales order %s."
-        ) % (self.booking_id.booking_no, self.sale_line_id.name, self.sale_order_id.name))
-
-        return True
-    
-    def validate_action_submit(self, action):
-        match action:
-            case 'action_approve_booking':
-                if not self.sale_order_id:
-                    raise ValidationError(_("Quotation is required."))
-                # if not self.sale_line_id:
-                #     raise ValidationError(_("Sale order line is required."))
-                if not self.booking_id:
-                    raise ValidationError(_("Booking is required."))
-                
-            case 'action_approve_pod_pol':
-                if not self.sale_order_id:
-                    raise ValidationError(_("Quotation is required."))
-                if not self.pod_name_request:
-                    raise ValidationError(_("POD name is required."))
-                if not self.pol_name_request:
-                    raise ValidationError(_("POL name is required."))
-                if not self.region_id:
-                    raise ValidationError(_("Region name is required."))
-                
-            case 'action_approve_price':
-                # if not self.product_template_id:
-                #     raise ValidationError(_("Product is required."))
-                if not self.booking_id:
-                    raise ValidationError(_("Booking is required."))
-                if not self.pricing_quotation_id:
-                    raise ValidationError(_("Pricing quotation is required."))
-                # if not self.sale_price or not self.cost:
-                #     raise ValidationError(_("Sale price or Cost is not exist."))
-
-            # case 'action_confirm_quotation':
-            #     if not self.sale_order_id:
-            #         raise ValidationError(_("Quotation is not exist."))
-
-            case _:
-                return
-    
-    def send_notification_by_stage(self, stage, assignees_ids=None):
-        self.ensure_one()
-        activity_type_id = self.env.ref('mail.mail_activity_data_todo').id
-        model_id = self.env['ir.model']._get_id('project.task')
-
-        match stage:
-            case 'done':
-                creator = self.create_uid
-                if creator:
-                    self.env['mail.activity'].create({
-                        'activity_type_id': activity_type_id,
-                        'note': f'<p>Task "{self.name}" has been completed.</p>',
-                        'res_id': self.id,
-                        'res_model_id': model_id,
-                        'user_id': creator.id,
-                        'summary': f'Task "{self.name}" has been completed.'
-                    })
-        
-            case 'open':
-                # assignees = self.user_ids
-                if assignees_ids:
-                    for assignee_id in assignees_ids:
-                        self.env['mail.activity'].create({
-                            'activity_type_id': activity_type_id,
-                            'note': f'<p>Task "{self.name}" has been assigned to you.</p>',
-                            'res_id': self.id,
-                            'res_model_id': model_id,
-                            'user_id': assignee_id,
-                            'summary': f'You have been assigned task "{self.name}".'
-                        })
-
-            case _:
-                return
     
     def action_pricing_quotation(self):
         self.ensure_one()
@@ -579,6 +272,71 @@ class ProjectTaskInherit(models.Model):
                     'default_project_task_id': self.id,
             })
         }
+    # ====== end action show form ======
+
+    # ====== start action approve reject ======
+    def action_sale_leader_approve(self):
+        self.ensure_one()
+        task_service = TaskService(self.env)
+        result = task_service.handle_approve_quotation_by_type(self, task_service.SALE_TYPE)
+        if (result):
+            self.message_post(body=_("Quotation approved by sales leader."))
+            return True
+        raise UserError('Approve quotation failed.')
+
+    def action_sale_leader_reject(self):
+        self.ensure_one()
+        task_service = TaskService(self.env)
+        result = task_service.handle_reject_quotation_by_type(self, task_service.SALE_TYPE)
+        if (result):
+            self.message_post(body=_("Quotation rejected by sales leader and set back to Activated state. Reason: %s") % self.rejection_reason)
+            return True
+        raise UserError('Reject quotation failed.')
+
+    def action_pricing_leader_approve(self):
+        self.ensure_one()
+        task_service = TaskService(self.env)
+        result = task_service.handle_approve_quotation_by_type(self, task_service.PRICING_TYPE)
+        if (result):
+            self.message_post(body=_("Quotation approved by pricing leader."))
+            return True
+        raise UserError('Approve quotation failed.')
+
+    def action_pricing_leader_reject(self):
+        self.ensure_one()
+        task_service = TaskService(self.env)
+        result = task_service.handle_reject_quotation_by_type(self, task_service.PRICING_TYPE)
+        if (result):
+            self.message_post(body=_("Quotation rejected by pricing leader. Reason: %s") % self.rejection_reason)
+            return True
+        raise UserError('Reject quotation failed.')
+
+    def action_approve_pod_pol(self):
+        self.ensure_one()
+        result = TaskService(self.env).handle_approve_pod_pol(self)
+        if (result):
+            self.message_post(body=_("Create POD/POL successfully: %s, %s") % (self.pod_name_request, self.pol_name_request))
+            return True
+        raise UserError('Create POD/POL failed.')
+
+    def action_approve_price(self):
+        self.ensure_one()
+        result = TaskService(self.env).handle_approve_price(self)
+        if (result):
+            self.message_post(body=_("Approve price successfully with sale line: %s") % self.sale_line_id.name)
+            return True
+        raise UserError('Approve price failed.')
+    
+    def action_approve_booking(self):
+        self.ensure_one()
+        result = TaskService(self.env).handle_approve_booking(self)
+        if (result):
+            self.message_post(body=_(
+                "Booking approved successfully. The booking %s has been assigned to %s and linked to the sales order %s."
+            ) % (self.booking_id.booking_no, self.sale_line_id.name, self.sale_order_id.name))
+            return True
+        raise UserError('Approve booking failed.')
+    # ====== end action approve reject ======
 
     def sale_order(self):
         self.ensure_one()

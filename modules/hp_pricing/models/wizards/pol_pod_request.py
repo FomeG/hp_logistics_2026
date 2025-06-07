@@ -54,7 +54,7 @@ class PodPolRequestWizard(models.TransientModel):
         if assignee_ids:
             task_vals['user_ids'] = [(6, 0, assignee_ids)]
 
-        self.env['project.task'].sudo().create(task_vals).send_notification_by_stage('open', assignee_ids)
+        self.env['project.task'].sudo().create(task_vals)
 
         # Show success message
         return {

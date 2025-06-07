@@ -20,6 +20,29 @@ class ProjectTaskListener(Component):
         self._handle_project_task_updated(record)
 
     def _handle_project_task_created(self, task):
+        self.notify_task_open(task)
+
+    def _handle_project_task_updated(self, task):
+        # service = TaskService(self.env)
+        # service.update_sale_order_line_price_by_task(task)
+        if task.stage_id and task.stage_id.name.lower() == 'done':
+            self.notify_task_done(task)
+
+    def notify_task_done(self, task):
+        creator = task.create_uid
+        if creator:
+            service = ActivityService(
+                env=self.env,
+                model_name='project.task',
+                record_id=task.id,
+                user_ids=creator.id)
+            service._create_activity_by_type(
+                'mail.mail_activity_data_todo',
+                summary='Task has been completed',
+                note=f'<p>Your task has been completed.: <b>{task.name}</b></p>'
+            )
+    
+    def notify_task_open(self, task):
         if task.user_ids:
             service = ActivityService(
                 env=self.env,
@@ -30,9 +53,3 @@ class ProjectTaskListener(Component):
                 summary='New Task Assigned',
                 note=f'<p>You have been assigned a new task: <b>{task.name}</b></p>'
             )
-        else:
-            _logger.info('No tasks assigned')
-
-    def _handle_project_task_updated(self, task):
-        service = TaskService(self.env)
-        service.update_sale_order_line_price_by_task(task)
