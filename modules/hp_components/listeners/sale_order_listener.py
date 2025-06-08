@@ -40,7 +40,7 @@ class SaleOrderListener(Component):
         if not project:
             return
         for sale_order_line in sale_order_lines_without_price:
-            service.create_task('pricing',project.id, TaskService.TASK_TYPE_PRICE_REQUEST, sale_order_line)
+            service.create_task_by_sale_order_line('pricing',project.id, TaskService.TASK_TYPE_PRICE_REQUEST, sale_order_line)
 
     def _handle_quotation_cancelled(self,record: SaleOrder) -> None:
         if record.is_cancelled():
@@ -52,15 +52,7 @@ class SaleOrderListener(Component):
         project = service.get_project_by_type(TaskService.PROJECT_TYPE_APPROVE_QUOTATION)
         if not project:
             return
-        service.create_task('sale', project.id, TaskService.TASK_TYPE_APPROVE_QUOTATION, record)
-
-    def _handle_quotation_customer_confirmed(self,record: SaleOrder) -> None:
-        _logger.info("_handle_quotation_customer_confirmed {record}")
-        service = TaskService(self.env)
-        project = service.get_project_by_type(TaskService.PROJECT_TYPE_APPROVE_QUOTATION)
-        if not project:
-            return
-        service.create_task('sale', project.id, TaskService.TASK_TYPE_APPROVE_QUOTATION, record)
+        service.create_task_by_sale_order('sale', project.id, TaskService.TASK_TYPE_APPROVE_QUOTATION, record)
 
     def _handle_quotation_sale_leader_confirmed(self,record: SaleOrder) -> None:
         _logger.info("_handle_quotation_sale_leader_confirmed {record}")
@@ -68,4 +60,4 @@ class SaleOrderListener(Component):
         project = service.get_project_by_type(TaskService.PROJECT_TYPE_APPROVE_QUOTATION)
         if not project:
             return
-        service.create_task('pricing', project.id, TaskService.TASK_TYPE_APPROVE_QUOTATION, record)
+        service.create_task_by_sale_order('pricing', project.id, TaskService.TASK_TYPE_APPROVE_QUOTATION, record)

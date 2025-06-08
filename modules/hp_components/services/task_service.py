@@ -1,6 +1,7 @@
 from .cancel_task_service import CancelTaskService
 from .price_request_service import PriceRequestService
 from .approve_quotation_service import ApproveQuotationService
+from .product_request_service import ProductRequestService
 from .sale_order_service import SaleOrderService
 from .department_service import DepartmentService
 from odoo.exceptions import ValidationError, UserError
@@ -11,8 +12,10 @@ class TaskService:
     _name = 'task.service'
     TASK_TYPE_PRICE_REQUEST = 'price_request'
     TASK_TYPE_APPROVE_QUOTATION = 'approve_quotation'
+    TASK_TYPE_PRODUCT_REQUEST = 'product_request'
     PROJECT_TYPE_PRICE_REQUEST = 'request_price'
     PROJECT_TYPE_APPROVE_QUOTATION = 'approve_quotation'
+    PROJECT_TYPE_PRODUCT_REQUEST = 'request_product'
 
     ACTION_APPROVE_POL_POL = 'approve_pod_pol'
     ACTION_APPROVE_PRICE = 'approve_price'
@@ -28,11 +31,15 @@ class TaskService:
     def __init__(self, env):
         self.env = env
 
-    def create_task(self, department_type, project_id, task_type, sale_order_line):
+    def create_task_by_sale_order_line(self, project_id, task_type, sale_order_line):
         if task_type == self.TASK_TYPE_PRICE_REQUEST:
             PriceRequestService(self.env).create(project_id, sale_order_line)
-        elif task_type == self.TASK_TYPE_APPROVE_QUOTATION:
-            ApproveQuotationService(self.env).create(department_type, project_id, sale_order_line.order_id)
+
+    def create_task_by_sale_order(self, department_type, project_id, task_type, sale_order, etd=False, pod_name_request=False, pol_name_request=False):
+        if task_type == self.TASK_TYPE_APPROVE_QUOTATION:
+            ApproveQuotationService(self.env).create(department_type, project_id, sale_order)
+        elif task_type == self.TASK_TYPE_PRODUCT_REQUEST:
+            ProductRequestService(self.env)._create_product_request_task(department_type, project_id, sale_order, etd, pod_name_request, pol_name_request)
 
     def cancel_tasks_by_sale_order(self, sale_order):
             CancelTaskService(self.env).cancel_tasks_by_sale_order(sale_order)
