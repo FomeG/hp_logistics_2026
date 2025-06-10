@@ -14,52 +14,24 @@ class PodPolRequestWizard(models.TransientModel):
     etd = fields.Date(string="ETD", required=True, default=fields.Date.today())
     pod_name_request = fields.Char('POD name request', required=True)
     pol_name_request = fields.Char('POL name request', required=True)
+    volume_cont = fields.Selection([
+        ('20DC', '20DC'),
+        ('20RF', '20RF'),
+        ('20OT', '20OT'),
+        ('20HC', '20HC'),
+        ('40DC', '40DC'),
+        ('40HC', '40HC'),
+        ('40HQ', '40HQ'),
+        ('40RF', '40RF'),
+        ('40HCRF', '40HCRF'),
+        ('40OT', '40OT'),
+    ], string="Container Type (For this quotation)", default='20DC')
 
     def action_task_create_new_sealine(self):
         self.ensure_one()
         service = TaskService(self.env)
         project = service.get_project_by_type(TaskService.PROJECT_TYPE_PRODUCT_REQUEST)
-        service.create_task_by_sale_order('pricing', project.id, TaskService.TASK_TYPE_PRODUCT_REQUEST, self.sale_order_id, self.etd, self.pod_name_request, self.pol_name_request)
-
-        # project = self.env['project.project'].search([('type', '=', 'request_product')], limit=1)
-        #
-        # if not project:
-        #     raise UserError(_("No project found with type 'request_product'. Please create it first."))
-        #
-        # # Create task with the collected information
-        # task_vals = {
-        #     'name': f'POD/POL Request for {self.sale_order_id.name}',
-        #     'project_id': project.id,
-        #     'sale_order_id': self.sale_order_id.id,
-        #     'etd': self.etd,
-        #     'pod_name_request': self.pod_name_request,
-        #     'pol_name_request': self.pol_name_request,
-        # }
-        #
-        # # Get list of users to exclude
-        # # excluded_ids = get_excluded_user_ids(self.env)
-        # pricing_managers = self.env['hr.department']._get_manage_user_by_type('pricing')
-        #
-        # _logger.info((f"pricing manager ids: {pricing_managers}"))
-        #
-        # pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
-        # pricing_director = self.env['res.users'].search([
-        #     ('groups_id', 'in', pricing_director_group.id),
-        #     # ('id', 'not in', excluded_ids),
-        #     ('id', 'in', pricing_managers.ids),
-        #     ('active', '=', True)
-        # ], limit=1)
-        #
-        # assignee_ids = []
-        #
-        # if pricing_director:
-        #     assignee_ids.append(pricing_director.id)
-        #
-        # # Add assignees if found
-        # if assignee_ids:
-        #     task_vals['user_ids'] = [(6, 0, assignee_ids)]
-        #
-        # self.env['project.task'].sudo().create(task_vals)
+        service.create_task_by_sale_order('pricing', project.id, TaskService.TASK_TYPE_PRODUCT_REQUEST, self.sale_order_id, self.etd, self.pod_name_request, self.pol_name_request, self.volume_cont)
 
         # Show success message
         return {

@@ -51,6 +51,19 @@ class ProjectTaskInherit(models.Model):
 
     allowed_region_ids = fields.Many2many('pricing.region', compute='_compute_allowed_region_ids')
 
+    volume_cont = fields.Selection([
+        ('20DC', '20DC'),
+        ('20RF', '20RF'),
+        ('20OT', '20OT'),
+        ('20HC', '20HC'),
+        ('40DC', '40DC'),
+        ('40HC', '40HC'),
+        ('40HQ', '40HQ'),
+        ('40RF', '40RF'),
+        ('40HCRF', '40HCRF'),
+        ('40OT', '40OT'),
+    ], string="Container Type (For this quotation)", default='20DC')
+
     def write(self, vals):
         stage_obj = self.env['project.task.type']
         new_stage_id = vals.get('stage_id', False)
@@ -322,6 +335,7 @@ class ProjectTaskInherit(models.Model):
     def action_approve_price(self):
         self.ensure_one()
         result = TaskService(self.env).handle_approve_price(self)
+        _logger.info(f"sale_line_id: {self.sale_line_id.name}")
         if (result):
             self.message_post(body=_("Approve price successfully with sale line: %s") % self.sale_line_id.name)
             return True

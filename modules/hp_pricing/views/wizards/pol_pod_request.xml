@@ -12,6 +12,7 @@
                     <field name="etd" required="1"/>
                     <field name="pod_name_request" required="1" placeholder="Enter Port of Discharge name"/>
                     <field name="pol_name_request" required="1" placeholder="Enter Port of Loading name"/>
+                    <field name="volume_cont" required="1" placeholder="Container Type (For this quotation)"/>
                 </group>
                 <footer>
                     <button name="action_task_create_new_sealine" string="Request New Sealine" type="object" class="btn-primary"/>

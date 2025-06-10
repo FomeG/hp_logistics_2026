@@ -7,6 +7,9 @@ from .department_service import DepartmentService
 from odoo.exceptions import ValidationError, UserError
 from odoo import _
 from datetime import datetime
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class TaskService:
     _name = 'task.service'
@@ -35,11 +38,11 @@ class TaskService:
         if task_type == self.TASK_TYPE_PRICE_REQUEST:
             PriceRequestService(self.env).create(project_id, sale_order_line)
 
-    def create_task_by_sale_order(self, department_type, project_id, task_type, sale_order, etd=False, pod_name_request=False, pol_name_request=False):
+    def create_task_by_sale_order(self, department_type, project_id, task_type, sale_order, etd=False, pod_name_request=False, pol_name_request=False, volume_cont=False):
         if task_type == self.TASK_TYPE_APPROVE_QUOTATION:
             ApproveQuotationService(self.env).create(department_type, project_id, sale_order)
         elif task_type == self.TASK_TYPE_PRODUCT_REQUEST:
-            ProductRequestService(self.env)._create_product_request_task(department_type, project_id, sale_order, etd, pod_name_request, pol_name_request)
+            ProductRequestService(self.env)._create_product_request_task(project_id, sale_order, etd, pod_name_request, pol_name_request, volume_cont)
 
     def cancel_tasks_by_sale_order(self, sale_order):
             CancelTaskService(self.env).cancel_tasks_by_sale_order(sale_order)
@@ -83,6 +86,7 @@ class TaskService:
                 new_sale_order_line = self.env['sale.order.line'].sudo().create({
                     'order_id': sale_order.id,
                     'product_id': new_product.product_variant_id.id,
+                    'volume_cont': record.volume_cont,
                     'product_uom_qty': 1.0,
                     'name': new_product.name,
                     'product_type_filter': 'pricing'
@@ -124,6 +128,7 @@ class TaskService:
 
         # Determine base price based on container type
         cont = record.sale_line_id.volume_cont
+        _logger.info(f"cont: {cont}")
         if cont in ['40DC', '40HC', '40HQ', '40RF', '40HCRF', '40OT']:
             multiplier = 2
         elif cont in ['20DC', '20RF', '20OT', '20HC']:

@@ -14,7 +14,7 @@ class ProductRequestService(BaseTaskService):
         super().__init__(env)
         self.department_service = DepartmentService(env)
 
-    def _create_product_request_task(self,project_id, sale_order, etd, pod_name_request, pol_name_request):
+    def _create_product_request_task(self,project_id, sale_order, etd, pod_name_request, pol_name_request, volume_cont):
         leader = self.department_service.get_pricing_department_leader()
         if leader:
             assignee = leader
@@ -28,5 +28,6 @@ class ProductRequestService(BaseTaskService):
             'etd': etd,
             'pod_name_request': pod_name_request,
             'pol_name_request': pol_name_request,
+            'volume_cont': volume_cont,
             'description': f"Need new product for quotation {sale_order.name}",
         })

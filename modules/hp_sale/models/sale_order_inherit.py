@@ -1,10 +1,11 @@
+from logging import Logger
+
 from odoo import models, fields, _, api
 from odoo.exceptions import UserError, ValidationError
 import logging
-from odoo.addons.hp_pricing.models.inherit_res_users import get_excluded_user_ids
 from odoo.addons.hp_employee.models.hr_department_inherit import HpDepartmentInherit
 
-_logger = logging.getLogger(__name__)
+_logger: Logger = logging.getLogger(__name__)
 
 class SaleOrderInherrit(models.Model):
     _inherit = 'sale.order'
@@ -133,55 +134,55 @@ class SaleOrderInherrit(models.Model):
 
 
     # Ceate task for sale leader to confirm
-    def _create_approval_tasks_sale_leader(self):
-        """Create tasks for quotation approval by team leader."""
-        project_approve_quotation = self.env['project.project'].search([('type', '=', 'approve_quotation')], limit=1)
-
-        if not project_approve_quotation:
-            return
-
-        for order in self:
-            # Check if a task already exists for this order
-            existing_task = self.env['project.task'].search([
-                ('sale_order_id', '=', order.id),
-                ('project_id', '=', project_approve_quotation.id),
-                ('approval_type', '=', 'sale_leader')
-            ], limit=1)
-
-            if not existing_task:
-                # Get list of users to exclude
-                # excluded_ids = get_excluded_user_ids(self.env)
-                sale_managers = self.env['hr.department']._get_manage_user_by_type('sale')
-
-                print(f"sale_managers: {sale_managers}")
-
-                # Find sales leader excluding admins/CEOs
-                sale_director_group = self.env.ref('sales_team.group_sale_manager')
-                sale_director = self.env['res.users'].search([
-                    ('groups_id', 'in', sale_director_group.id),
-                    # ('id', 'not in', excluded_ids),
-                    ('id', 'in', sale_managers.ids),
-                    ('active', '=', True)
-                ], limit=1)
-
-                assignee_ids = []
-                if sale_director:
-                    assignee_ids.append(sale_director.id)
-
-                # Create a new task for approval
-                task_vals = {
-                    'name': f"Sale Leader Approve Quotation: {order.name}",
-                    'project_id': project_approve_quotation.id,
-                    'sale_order_id': order.id,
-                    'date_assign': fields.Datetime.now(),
-                    'approval_type': 'sale_leader',
-                }
-
-                # Add assignees if found
-                if assignee_ids:
-                    task_vals['user_ids'] = [(6, 0, assignee_ids)]
-
-                self.env['project.task'].sudo().create(task_vals)
+    # def _create_approval_tasks_sale_leader(self):
+    #     """Create tasks for quotation approval by team leader."""
+    #     project_approve_quotation = self.env['project.project'].search([('type', '=', 'approve_quotation')], limit=1)
+    #
+    #     if not project_approve_quotation:
+    #         return
+    #
+    #     for order in self:
+    #         # Check if a task already exists for this order
+    #         existing_task = self.env['project.task'].search([
+    #             ('sale_order_id', '=', order.id),
+    #             ('project_id', '=', project_approve_quotation.id),
+    #             ('approval_type', '=', 'sale_leader')
+    #         ], limit=1)
+    #
+    #         if not existing_task:
+    #             # Get list of users to exclude
+    #             # excluded_ids = get_excluded_user_ids(self.env)
+    #             sale_managers = self.env['hr.department']._get_manage_user_by_type('sale')
+    #
+    #             print(f"sale_managers: {sale_managers}")
+    #
+    #             # Find sales leader excluding admins/CEOs
+    #             sale_director_group = self.env.ref('sales_team.group_sale_manager')
+    #             sale_director = self.env['res.users'].search([
+    #                 ('groups_id', 'in', sale_director_group.id),
+    #                 # ('id', 'not in', excluded_ids),
+    #                 ('id', 'in', sale_managers.ids),
+    #                 ('active', '=', True)
+    #             ], limit=1)
+    #
+    #             assignee_ids = []
+    #             if sale_director:
+    #                 assignee_ids.append(sale_director.id)
+    #
+    #             # Create a new task for approval
+    #             task_vals = {
+    #                 'name': f"Sale Leader Approve Quotation: {order.name}",
+    #                 'project_id': project_approve_quotation.id,
+    #                 'sale_order_id': order.id,
+    #                 'date_assign': fields.Datetime.now(),
+    #                 'approval_type': 'sale_leader',
+    #             }
+    #
+    #             # Add assignees if found
+    #             if assignee_ids:
+    #                 task_vals['user_ids'] = [(6, 0, assignee_ids)]
+    #
+    #             self.env['project.task'].sudo().create(task_vals)
 
     def action_sale_leader_approved(self):
         """Move to pricing leader confirmation after sales manager approves."""
@@ -199,53 +200,53 @@ class SaleOrderInherrit(models.Model):
         return True
 
     # Ceate task for pricing leader to confirm
-    def _create_approval_tasks_pricing_leader(self):
-        """Create tasks for quotation approval by pricing leaders."""
-        project_approve_quotation = self.env['project.project'].search([('type', '=', 'approve_quotation')], limit=1)
-
-        if not project_approve_quotation:
-            return
-
-        for order in self:
-            # Check if a task already exists for this order
-            existing_task = self.env['project.task'].search([
-                ('sale_order_id', '=', order.id),
-                ('project_id', '=', project_approve_quotation.id),
-                ('approval_type', '=', 'pricing_leader')
-            ], limit=1)
-
-            if not existing_task:
-                # Get list of users to exclude
-                # excluded_ids = get_excluded_user_ids(self.env)
-                pricing_managers = self.env['hr.department']._get_manage_user_by_type('pricing')
-
-                pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
-                pricing_director = self.env['res.users'].search([
-                    ('groups_id', 'in', pricing_director_group.id),
-                    # ('id', 'not in', excluded_ids),
-                    ('id', 'in', pricing_managers.ids),
-                    ('active', '=', True)
-                ], limit=1)
-
-                assignee_ids = []
-
-                if pricing_director:
-                    assignee_ids.append(pricing_director.id)
-
-                # Create a new task for approval
-                task_vals = {
-                    'name': f"Pricing Leader Approval: {order.name}",
-                    'project_id': project_approve_quotation.id,
-                    'sale_order_id': order.id,
-                    'date_assign': fields.Datetime.now(),
-                    'approval_type': 'pricing_leader',
-                }
-
-                # Add assignees if found
-                if assignee_ids:
-                    task_vals['user_ids'] = [(6, 0, assignee_ids)]
-
-                self.env['project.task'].sudo().create(task_vals)
+    # def _create_approval_tasks_pricing_leader(self):
+    #     """Create tasks for quotation approval by pricing leaders."""
+    #     project_approve_quotation = self.env['project.project'].search([('type', '=', 'approve_quotation')], limit=1)
+    #
+    #     if not project_approve_quotation:
+    #         return
+    #
+    #     for order in self:
+    #         # Check if a task already exists for this order
+    #         existing_task = self.env['project.task'].search([
+    #             ('sale_order_id', '=', order.id),
+    #             ('project_id', '=', project_approve_quotation.id),
+    #             ('approval_type', '=', 'pricing_leader')
+    #         ], limit=1)
+    #
+    #         if not existing_task:
+    #             # Get list of users to exclude
+    #             # excluded_ids = get_excluded_user_ids(self.env)
+    #             pricing_managers = self.env['hr.department']._get_manage_user_by_type('pricing')
+    #
+    #             pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
+    #             pricing_director = self.env['res.users'].search([
+    #                 ('groups_id', 'in', pricing_director_group.id),
+    #                 # ('id', 'not in', excluded_ids),
+    #                 ('id', 'in', pricing_managers.ids),
+    #                 ('active', '=', True)
+    #             ], limit=1)
+    #
+    #             assignee_ids = []
+    #
+    #             if pricing_director:
+    #                 assignee_ids.append(pricing_director.id)
+    #
+    #             # Create a new task for approval
+    #             task_vals = {
+    #                 'name': f"Pricing Leader Approval: {order.name}",
+    #                 'project_id': project_approve_quotation.id,
+    #                 'sale_order_id': order.id,
+    #                 'date_assign': fields.Datetime.now(),
+    #                 'approval_type': 'pricing_leader',
+    #             }
+    #
+    #             # Add assignees if found
+    #             if assignee_ids:
+    #                 task_vals['user_ids'] = [(6, 0, assignee_ids)]
+    #
+    #             self.env['project.task'].sudo().create(task_vals)
 
     def action_final_confirm(self):
         """Confirm the order after pricing manager approves."""
@@ -261,53 +262,53 @@ class SaleOrderInherrit(models.Model):
 
         return True
 
-    def _create_booking_approval_tasks(self):
-        """Create tasks for approving bookings when a sales order is confirmed."""
-        project_approve_booking = self.env['project.project'].search([('type', '=', 'assign_booking')], limit=1)
-
-        if not project_approve_booking:
-            return
-
-        for order in self:
-            # Find lines with product_type_filter = 'pricing' and having booking_id
-            pricing_lines_with_booking = order.order_line.filtered(
-                lambda line: line.product_type_filter == 'pricing' and line.booking_id
-            )
-
-            for line in pricing_lines_with_booking:
-                # Check if a task already exists for this sale line's booking
-                existing_task = self.env['project.task'].search([
-                    ('sale_order_id', '=', order.id),
-                    ('sale_line_id', '=', line.id),
-                    ('booking_id', '=', line.booking_id.id),
-                    ('project_id', '=', project_approve_booking.id)
-                ], limit=1)
-
-                if not existing_task:
-                    # Find the booking creator or responsible person to assign
-                    assignee_ids = []
-                    booking = line.booking_id
-
-                    # First try the creator of the booking
-                    if booking.create_uid:
-                        assignee_ids.append(booking.create_uid.id)
-
-                    # Create a new task for booking approval
-                    task_vals = {
-                        'name': f"Approve Booking: {line.product_id.name} in {order.name}",
-                        'project_id': project_approve_booking.id,
-                        'sale_order_id': order.id,
-                        'sale_line_id': line.id,
-                        'booking_id': line.booking_id.id,
-                        'date_assign': fields.Datetime.now(),
-                    }
-
-                    # Add assignees if found
-                    if assignee_ids:
-                        task_vals['user_ids'] = [(6, 0, assignee_ids)]
-
-                    # Create the task
-                    self.env['project.task'].with_context(default_allow_billable=False).sudo().create(task_vals)
+    # def _create_booking_approval_tasks(self):
+    #     """Create tasks for approving bookings when a sales order is confirmed."""
+    #     project_approve_booking = self.env['project.project'].search([('type', '=', 'assign_booking')], limit=1)
+    #
+    #     if not project_approve_booking:
+    #         return
+    #
+    #     for order in self:
+    #         # Find lines with product_type_filter = 'pricing' and having booking_id
+    #         pricing_lines_with_booking = order.order_line.filtered(
+    #             lambda line: line.product_type_filter == 'pricing' and line.booking_id
+    #         )
+    #
+    #         for line in pricing_lines_with_booking:
+    #             # Check if a task already exists for this sale line's booking
+    #             existing_task = self.env['project.task'].search([
+    #                 ('sale_order_id', '=', order.id),
+    #                 ('sale_line_id', '=', line.id),
+    #                 ('booking_id', '=', line.booking_id.id),
+    #                 ('project_id', '=', project_approve_booking.id)
+    #             ], limit=1)
+    #
+    #             if not existing_task:
+    #                 # Find the booking creator or responsible person to assign
+    #                 assignee_ids = []
+    #                 booking = line.booking_id
+    #
+    #                 # First try the creator of the booking
+    #                 if booking.create_uid:
+    #                     assignee_ids.append(booking.create_uid.id)
+    #
+    #                 # Create a new task for booking approval
+    #                 task_vals = {
+    #                     'name': f"Approve Booking: {line.product_id.name} in {order.name}",
+    #                     'project_id': project_approve_booking.id,
+    #                     'sale_order_id': order.id,
+    #                     'sale_line_id': line.id,
+    #                     'booking_id': line.booking_id.id,
+    #                     'date_assign': fields.Datetime.now(),
+    #                 }
+    #
+    #                 # Add assignees if found
+    #                 if assignee_ids:
+    #                     task_vals['user_ids'] = [(6, 0, assignee_ids)]
+    #
+    #                 # Create the task
+    #                 self.env['project.task'].with_context(default_allow_billable=False).sudo().create(task_vals)
 
     def get_sale_order_lines_missing_price(self):
         self.ensure_one()  # Make sure we're working on exactly one sale.order
