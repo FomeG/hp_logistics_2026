@@ -10,7 +10,6 @@ class ProjectTaskInherit(models.Model):
     _inherit = 'project.task'
 
     sale_order_id = fields.Many2one('sale.order', string='Sales Order', compute=False)
-    product_template_id = fields.Many2one('product.template', string='Product', compute=False)
     booking_id = fields.Many2one('pricing.booking', string='Booking')
     region_id = fields.Many2one('pricing.region', string='Region')
     pod_name_request = fields.Char('POD name request')
@@ -35,11 +34,11 @@ class ProjectTaskInherit(models.Model):
     is_project_pricing = fields.Boolean(compute="_check_project_pricing", store=False)
     is_done = fields.Boolean(string="Is Done", compute="_compute_is_done", store=False)
     allowed_user_ids = fields.Many2many('res.users', compute='_compute_allowed_user_ids', store=False)
+    product_template_id = fields.Many2one('product.template', string='Product', compute='_compute_product_template_id', store=False)
 
     sale_line_id = fields.Many2one(
         'sale.order.line',
         string='Sales Order Line',
-        compute='_compute_sale_line_id',
         store=True,
         help="Related sale order line for this task"
     )
@@ -149,16 +148,14 @@ class ProjectTaskInherit(models.Model):
                         product_id=task.sale_line_id.product_id.display_name,
                     ))
 
-    @api.depends('sale_order_id', 'product_template_id')
-    def _compute_sale_line_id(self):
+    @api.depends('sale_line_id')
+    def _compute_product_template_id(self):
         for task in self:
-            if task.sale_order_id and task.product_template_id:
-                matching_line = task.sale_order_id.order_line.filtered(
-                    lambda line: line.product_id.product_tmpl_id.id == task.product_template_id.id
-                )
-                task.sale_line_id = matching_line[0].id if matching_line else False
+            sale_order_line = task.sale_line_id
+            if sale_order_line and sale_order_line.product_template_id:
+                task.product_template_id = sale_order_line.product_template_id.id
             else:
-                task.sale_line_id = False
+                task.product_template_id = False
     
     @api.depends('project_id')
     def _check_project_pricing(self):

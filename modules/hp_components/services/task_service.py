@@ -113,7 +113,6 @@ class TaskService:
                 'project_id': project_request_price.id,
                 'sale_order_id': sale_order.id,
                 'sale_line_id': sale_order_line.id,
-                'product_template_id': product.id,
                 'etd': task.etd,
                 'date_assign': datetime.now(),
             }
