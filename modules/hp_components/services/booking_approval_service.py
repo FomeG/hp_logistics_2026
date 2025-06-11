@@ -19,13 +19,13 @@ class BookingApprovalService(BaseTaskService):
         task = self._sale_order_line_has_open_task(sale_order_line)
         if task:
             return
-        if self._is_pricing_type_sale_order_line_with_booking(sale_order_line):
-            self._create_confirm_booking_task(project_id, sale_order_line)
+        if self._is_pricing_type_sale_order_line_with_booking_not_booked(sale_order_line):
+            self._create_assign_booking_task(project_id, sale_order_line)
 
     def _is_pricing_type_sale_order_line_with_booking_not_booked(self,sale_order_line) -> bool:
         return sale_order_line.product_id.product_tmpl_id.type == 'pricing' and sale_order_line.booking_id and sale_order_line.booking_id.booking_status != 'booked'
 
-    def _is_pricing_type_sale_order_line_with_booking_not_booked(self,project_id, sale_order_line):
+    def _create_assign_booking_task(self,project_id, sale_order_line):
         member = sale_order_line.booking_id.create_uid
         if member:
             assignee = member

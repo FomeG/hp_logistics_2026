@@ -238,10 +238,10 @@
                         type="object"
                         string="Approve Booking"
                         class="btn btn-success"
-                        invisible="not sale_order_id or not sale_line_id or not booking_id or is_order_has_booking" />
+                        invisible="not sale_order_id or not sale_line_id or not booking_id or not is_order_has_booking or is_done" />
 
                     <h3 class="text-success"
-                        invisible="not sale_order_id or not sale_line_id or not booking_id or not is_order_has_booking">
+                        invisible="not sale_order_id or not sale_line_id or not booking_id or not is_order_has_booking or not is_done">
                         <i class="fa fa-check" /> Approved Booking </h3>
                 </group>
             </xpath>

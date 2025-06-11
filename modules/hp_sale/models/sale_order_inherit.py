@@ -72,8 +72,6 @@ class SaleOrderInherrit(models.Model):
     def action_final_confirm(self):
         """Confirm the order after pricing manager approves."""
         for order in self:
-            # Create booking approval tasks for each pricing line with booking
-            order._create_booking_approval_tasks()
 
             # First change to a state that the original action_confirm accepts
             order.write({'state': 'sent'})
