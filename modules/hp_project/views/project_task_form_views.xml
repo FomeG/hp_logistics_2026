@@ -202,7 +202,7 @@
                             type="object"
                             string="Approve Price"
                             class="btn btn-success"
-                            invisible="not currency_id or is_done or not booking_id or not pricing_quotation_id" />
+                            invisible="not currency_id or is_done or (not booking_id and not pricing_quotation_id)" />
 
                         <h3 class="text-success" invisible="not is_product_has_price">
                             <i class="fa fa-check" /> Approved Price </h3>

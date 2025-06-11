@@ -25,6 +25,8 @@ class SaleOrderListener(Component):
             self._handle_quotation_customer_confirmed(record)
         elif record.is_sale_leader_confirmed():
             self._handle_quotation_sale_leader_confirmed(record)
+        elif record.is_order():
+            self._handle_quotation_confirmed(record)
 
     def _handle_quotation_activated(self,record: SaleOrder) -> None:
         project = False
@@ -42,6 +44,22 @@ class SaleOrderListener(Component):
         for sale_order_line in sale_order_lines_without_price:
             service.create_task_by_sale_order_line(project.id, TaskService.TASK_TYPE_PRICE_REQUEST, sale_order_line)
 
+    def _handle_quotation_confirmed(self,record: SaleOrder) -> None:
+        project = False
+        service = TaskService(self.env)
+        sale_order_lines_with_booking = record.get_sale_order_lines_with_booking()
+        _logger.info(f"sale_order_lines_without_price: {sale_order_lines_with_booking}")
+        if not sale_order_lines_with_booking:
+            return
+        else:
+            # case 1: request price if needed
+            project = service.get_project_by_type(TaskService.PROJECT_TYPE_ASSIGN_BOOKING)
+        _logger.info(f"project: {project}")
+        if not project:
+            return
+        for sale_order_line in sale_order_lines_with_booking:
+            service.create_task_by_sale_order_line(project.id, TaskService.TASK_TYPE_ASSIGN_BOOKING, sale_order_line)
+
     def _handle_quotation_cancelled(self,record: SaleOrder) -> None:
         if record.is_cancelled():
             TaskService(self.env).cancel_tasks_by_sale_order(record)
@@ -55,9 +73,10 @@ class SaleOrderListener(Component):
         service.create_task_by_sale_order('sale', project.id, TaskService.TASK_TYPE_APPROVE_QUOTATION, record)
 
     def _handle_quotation_sale_leader_confirmed(self,record: SaleOrder) -> None:
-        _logger.info("_handle_quotation_sale_leader_confirmed {record}")
+        _logger.info(f"_handle_quotation_sale_leader_confirmed {record}")
         service = TaskService(self.env)
         project = service.get_project_by_type(TaskService.PROJECT_TYPE_APPROVE_QUOTATION)
+        _logger.info(f"project: {project}")
         if not project:
             return
         service.create_task_by_sale_order('pricing', project.id, TaskService.TASK_TYPE_APPROVE_QUOTATION, record)

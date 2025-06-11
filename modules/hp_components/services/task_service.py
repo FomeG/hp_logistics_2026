@@ -1,5 +1,6 @@
 from .cancel_task_service import CancelTaskService
 from .price_request_service import PriceRequestService
+from .booking_approval_service import BookingApprovalService
 from .approve_quotation_service import ApproveQuotationService
 from .product_request_service import ProductRequestService
 from .sale_order_service import SaleOrderService
@@ -16,9 +17,11 @@ class TaskService:
     TASK_TYPE_PRICE_REQUEST = 'price_request'
     TASK_TYPE_APPROVE_QUOTATION = 'approve_quotation'
     TASK_TYPE_PRODUCT_REQUEST = 'product_request'
+    TASK_TYPE_ASSIGN_BOOKING = 'booking_assign'
     PROJECT_TYPE_PRICE_REQUEST = 'request_price'
     PROJECT_TYPE_APPROVE_QUOTATION = 'approve_quotation'
     PROJECT_TYPE_PRODUCT_REQUEST = 'request_product'
+    PROJECT_TYPE_ASSIGN_BOOKING = 'assign_booking'
 
     ACTION_APPROVE_POL_POL = 'approve_pod_pol'
     ACTION_APPROVE_PRICE = 'approve_price'
@@ -37,6 +40,8 @@ class TaskService:
     def create_task_by_sale_order_line(self, project_id, task_type, sale_order_line):
         if task_type == self.TASK_TYPE_PRICE_REQUEST:
             PriceRequestService(self.env).create(project_id, sale_order_line)
+        elif task_type == self.TASK_TYPE_ASSIGN_BOOKING:
+            BookingApprovalService(self.env).create(project_id, sale_order_line)
 
     def create_task_by_sale_order(self, department_type, project_id, task_type, sale_order, etd=False, pod_name_request=False, pol_name_request=False, volume_cont=False):
         if task_type == self.TASK_TYPE_APPROVE_QUOTATION:
@@ -162,6 +167,7 @@ class TaskService:
         return True
     
     def handle_reject_quotation_by_type(self, record, type):
+        record.update_done_task()
         match type:
             case self.SALE_TYPE:
                 self.validate_by_action(record, self.ACTION_REJECT_QUOTATION_BY_SALE)
@@ -172,28 +178,21 @@ class TaskService:
             case _:
                 return False
 
-        record.update_done_task()
         return True
 
     def handle_approve_quotation_by_type(self, record, type):
+        record.update_done_task()
         match type:
             case self.SALE_TYPE:
                 self.validate_by_action(record, self.ACTION_APPROVE_QUOTATION_BY_SALE)
-                pricing_lines_without_booking = record.sale_order_id.order_line.filtered(
-                    lambda line: line.product_type_filter == 'pricing'
-                )
-                if not pricing_lines_without_booking:
-                    record.sale_order_id.sudo().write({'state': 'sale'})
-                else:
-                    record.sale_order_id.sudo().action_sale_leader_approved()
+                record.sale_order_id.sudo().action_sale_leader_approved()
         
             case self.PRICING_TYPE:
                 self.validate_by_action(record, self.ACTION_APPROVE_QUOTATION_BY_PRICING)
                 record.sale_order_id.sudo().action_pricing_leader_approved()
             case _:
                 return False
-        
-        record.update_done_task()
+
         return True
     
     def validate_by_action(self, record, action):

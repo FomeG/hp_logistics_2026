@@ -17,6 +17,7 @@ class ApproveQuotationService(BaseTaskService):
 
     def create(self,department_type, project_id, sale_order):
         task = self._get_open_tasks_by_sale_order(sale_order)
+        _logger.info(f"task: {task}")
         if len(task) > 0:
             return
         if self._is_pricing_type_sale_order(sale_order):
@@ -30,6 +31,7 @@ class ApproveQuotationService(BaseTaskService):
 
     def _create_approval_task(self,department_type, project_id, sale_order):
         leader = self.department_service._get_department_leader_by_type(department_type)
+        _logger.info(f"leader: {leader}")
         approval_type = 'sale_leader' if department_type == 'sale' else 'pricing_leader'
         if not leader:
             return

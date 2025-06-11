@@ -32,78 +32,6 @@ class SaleOrderInherrit(models.Model):
 
         return True
 
-    # def _create_request_price_tasks(self):
-    #     """Create tasks for request_price when quotation is activated."""
-    #     project_request_price = self.env['project.project'].search([('type', '=', 'request_price')], limit=1)
-    #
-    #     if not project_request_price:
-    #         return
-    #
-    #     for order in self:
-    #         # Find lines with product_type_filter = 'pricing' and missing booking_id
-    #         pricing_lines_without_booking = order.order_line.filtered(
-    #             lambda line: line.product_type_filter == 'pricing' and (not line.booking_id and not line.pricing_quotation_id.id)
-    #         )
-    #
-    #         # Skip if there are no pricing lines without booking
-    #         if not pricing_lines_without_booking:
-    #             continue
-    #
-    #         for line in pricing_lines_without_booking:
-    #             # Check if a task already exists for this product/order combination
-    #             existing_task = self.env['project.task'].search([
-    #                 ('sale_order_id', '=', order.id),
-    #                 ('sale_line_id', '=', line.id),
-    #                 ('project_id', '=', project_request_price.id)
-    #             ], limit=1)
-    #
-    #             if not existing_task:
-    #                 assignee_ids = []
-    #                 # Get list of pricing member related to sealine
-    #                 region_id = line.product_template_id.sealine_id.pod_id.sudo().region_id
-    #
-    #                 # Find all users in that region
-    #                 pricing_member_group = self.env.ref('hp_pricing.group_hp_pricing_member')
-    #                 pricing_users_in_region = self.env['res.users'].search([
-    #                     ('region_id', '=', region_id.id),
-    #                     ('groups_id', 'in', [pricing_member_group.id]),
-    #                     ('active', '=', True)
-    #                 ])
-    #
-    #                 if len(pricing_users_in_region) == 1:
-    #                     assignee_ids.append(pricing_users_in_region[0].id)
-    #                 else:
-    #                     # Get list of pricing managers
-    #                     pricing_managers = self.env['hr.department']._get_manage_user_by_type('pricing')
-    #
-    #                     pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
-    #                     pricing_director = self.env['res.users'].search([
-    #                         ('groups_id', 'in', [pricing_director_group.id]),
-    #                         # ('id', 'not in', excluded_ids),
-    #                         ('id', 'in', pricing_managers.ids),
-    #                         ('active', '=', True)
-    #                     ], limit=1)
-    #
-    #                     if pricing_director:
-    #                         assignee_ids.append(pricing_director.id)
-    #
-    #                 # Create a new task for request_price with assignees
-    #                 task_vals = {
-    #                     'name': f"Request Price for {line.product_id.name}",
-    #                     'project_id': project_request_price.id,
-    #                     'sale_order_id': order.id,
-    #                     'sale_line_id': line.id,
-    #                     'product_template_id': line.product_template_id.id,
-    #                     'etd': line.etd_sale,
-    #                     'date_assign': fields.Datetime.now(),
-    #                 }
-    #
-    #                 # Add assignees if found
-    #                 if assignee_ids:
-    #                     task_vals['user_ids'] = [(6, 0, assignee_ids)]
-    #
-    #                 self.env['project.task'].sudo().create(task_vals).send_notification_by_stage('open', assignee_ids)
-
     # When customer confirmed => click button to change state and create task for sale leader to confirm
     def action_customer_confirm(self):
         """Submit quotation for customer review after validation."""
@@ -127,69 +55,11 @@ class SaleOrderInherrit(models.Model):
         # Set state to customer_confirm
         self.write({'state': 'customer_confirm'})
 
-        # Create approval task for team leader
-        # self._create_approval_tasks_sale_leader()
-
         return True
-
-
-    # Ceate task for sale leader to confirm
-    # def _create_approval_tasks_sale_leader(self):
-    #     """Create tasks for quotation approval by team leader."""
-    #     project_approve_quotation = self.env['project.project'].search([('type', '=', 'approve_quotation')], limit=1)
-    #
-    #     if not project_approve_quotation:
-    #         return
-    #
-    #     for order in self:
-    #         # Check if a task already exists for this order
-    #         existing_task = self.env['project.task'].search([
-    #             ('sale_order_id', '=', order.id),
-    #             ('project_id', '=', project_approve_quotation.id),
-    #             ('approval_type', '=', 'sale_leader')
-    #         ], limit=1)
-    #
-    #         if not existing_task:
-    #             # Get list of users to exclude
-    #             # excluded_ids = get_excluded_user_ids(self.env)
-    #             sale_managers = self.env['hr.department']._get_manage_user_by_type('sale')
-    #
-    #             print(f"sale_managers: {sale_managers}")
-    #
-    #             # Find sales leader excluding admins/CEOs
-    #             sale_director_group = self.env.ref('sales_team.group_sale_manager')
-    #             sale_director = self.env['res.users'].search([
-    #                 ('groups_id', 'in', sale_director_group.id),
-    #                 # ('id', 'not in', excluded_ids),
-    #                 ('id', 'in', sale_managers.ids),
-    #                 ('active', '=', True)
-    #             ], limit=1)
-    #
-    #             assignee_ids = []
-    #             if sale_director:
-    #                 assignee_ids.append(sale_director.id)
-    #
-    #             # Create a new task for approval
-    #             task_vals = {
-    #                 'name': f"Sale Leader Approve Quotation: {order.name}",
-    #                 'project_id': project_approve_quotation.id,
-    #                 'sale_order_id': order.id,
-    #                 'date_assign': fields.Datetime.now(),
-    #                 'approval_type': 'sale_leader',
-    #             }
-    #
-    #             # Add assignees if found
-    #             if assignee_ids:
-    #                 task_vals['user_ids'] = [(6, 0, assignee_ids)]
-    #
-    #             self.env['project.task'].sudo().create(task_vals)
 
     def action_sale_leader_approved(self):
         """Move to pricing leader confirmation after sales manager approves."""
         self.write({'state': 'sale_leader_confirm'})
-
-        # Create approval task for pricing team leader
-        self._create_approval_tasks_pricing_leader()
 
         return True
 
@@ -198,55 +68,6 @@ class SaleOrderInherrit(models.Model):
         self.write({'state': 'pricing_leader_confirm'})
 
         return True
-
-    # Ceate task for pricing leader to confirm
-    # def _create_approval_tasks_pricing_leader(self):
-    #     """Create tasks for quotation approval by pricing leaders."""
-    #     project_approve_quotation = self.env['project.project'].search([('type', '=', 'approve_quotation')], limit=1)
-    #
-    #     if not project_approve_quotation:
-    #         return
-    #
-    #     for order in self:
-    #         # Check if a task already exists for this order
-    #         existing_task = self.env['project.task'].search([
-    #             ('sale_order_id', '=', order.id),
-    #             ('project_id', '=', project_approve_quotation.id),
-    #             ('approval_type', '=', 'pricing_leader')
-    #         ], limit=1)
-    #
-    #         if not existing_task:
-    #             # Get list of users to exclude
-    #             # excluded_ids = get_excluded_user_ids(self.env)
-    #             pricing_managers = self.env['hr.department']._get_manage_user_by_type('pricing')
-    #
-    #             pricing_director_group = self.env.ref('hp_pricing.group_hp_pricing_director')
-    #             pricing_director = self.env['res.users'].search([
-    #                 ('groups_id', 'in', pricing_director_group.id),
-    #                 # ('id', 'not in', excluded_ids),
-    #                 ('id', 'in', pricing_managers.ids),
-    #                 ('active', '=', True)
-    #             ], limit=1)
-    #
-    #             assignee_ids = []
-    #
-    #             if pricing_director:
-    #                 assignee_ids.append(pricing_director.id)
-    #
-    #             # Create a new task for approval
-    #             task_vals = {
-    #                 'name': f"Pricing Leader Approval: {order.name}",
-    #                 'project_id': project_approve_quotation.id,
-    #                 'sale_order_id': order.id,
-    #                 'date_assign': fields.Datetime.now(),
-    #                 'approval_type': 'pricing_leader',
-    #             }
-    #
-    #             # Add assignees if found
-    #             if assignee_ids:
-    #                 task_vals['user_ids'] = [(6, 0, assignee_ids)]
-    #
-    #             self.env['project.task'].sudo().create(task_vals)
 
     def action_final_confirm(self):
         """Confirm the order after pricing manager approves."""
@@ -314,6 +135,11 @@ class SaleOrderInherrit(models.Model):
         self.ensure_one()  # Make sure we're working on exactly one sale.order
         # Now safe to do single-record operations
         return self.order_line.filtered(lambda l: not l.booking_id and not l.pricing_quotation_id)
+
+    def get_sale_order_lines_with_booking(self):
+        self.ensure_one()  # Make sure we're working on exactly one sale.order
+        # Now safe to do single-record operations
+        return self.order_line.filtered(lambda l: l.booking_id and l.booking_id.booking_status != 'booked')
     def is_cancelled(self):
         return self.state == 'cancel'
     def is_activated(self):
@@ -322,5 +148,7 @@ class SaleOrderInherrit(models.Model):
         return self.state == 'sale_leader_confirm'
     def is_customer_confirmed(self):
         return self.state == 'customer_confirm'
+    def is_order(self):
+        return self.state == 'sent'
     def can_update_price(self):
         return self.state in ['draft','activated']
