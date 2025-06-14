@@ -25,7 +25,7 @@
         <field name="model">freight.purchase.route</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-            <list string="List Routes ">
+            <list string="List Routes">
                 <field name="name" />
                 <field name="is_active" />
                 <field name="pol_id" />

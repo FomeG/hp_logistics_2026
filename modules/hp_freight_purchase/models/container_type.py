@@ -5,11 +5,11 @@ from odoo.exceptions import ValidationError
 class ContainerType(models.Model):
     _name = 'container.type'
     _description = 'Container Type'
-    _inherit = ['unique.code.mixin']
+    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin']
 
-    name = fields.Char(required=True)
-    teu = fields.Float(required=True,  default=20.0,)
-    is_active = fields.Boolean(string='Is Active', default=True)
+    name = fields.Char(required=True, tracking=True)
+    teu = fields.Float(required=True,  default=20.0, tracking=True)
+    is_active = fields.Boolean(string='Is Active', default=True, tracking=True)
 
     @api.constrains('name')
     def _check_name(self):

@@ -22,7 +22,7 @@
         <field name="model">freight.purchase.fee</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-            <list string="List Fee ">
+            <list string="List Fee">
                 <field name="code" />
                 <field name="name" />
                 <field name="amount" />
