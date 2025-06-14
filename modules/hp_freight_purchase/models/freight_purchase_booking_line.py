@@ -25,6 +25,8 @@ class FreightPurchaseBookingLine(models.Model):
     customer_id = fields.Many2one('res.partner', compute='_compute_sale_info', store=True, string='Customer')
     salesman_id = fields.Many2one('res.users', compute='_compute_sale_info', store=True, string='Salesperson')
 
+    #todo: move this to settings
+    RESERVATION_DEADLINE_HOURS = 24
     reservation_expiration_date = fields.Datetime(
         string='Reservation Expiry',
         help="Date after which the reservation is released if the sale order is not confirmed."
@@ -75,3 +77,14 @@ class FreightPurchaseBookingLine(models.Model):
         if self.quotation_line_id:
             self.price = self.quotation_line_id.price
 
+    def write(self, vals):
+        origin_sale_order_lines = {rec.id: rec.sale_order_line_ids.ids for rec in self}
+        res = super().write(vals)
+        if 'sale_order_line_ids' in vals:
+            for record in self:
+                record._event('on_change_sale_order_line').notify(
+                    record,
+                    origin_sale_order_lines[record.id],
+                    record.sale_order_line_ids.ids
+                )
+        return res

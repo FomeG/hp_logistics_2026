@@ -11,6 +11,7 @@ class ContainerType(models.Model):
     teu = fields.Float(required=True,  default=20.0, tracking=True)
     is_active = fields.Boolean(string='Is Active', default=True, tracking=True)
 
+
     @api.constrains('name')
     def _check_name(self):
         for record in self:

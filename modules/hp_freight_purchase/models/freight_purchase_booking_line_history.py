@@ -15,5 +15,4 @@ class FreightPurchaseBookingLineHistory(models.Model):
         ('manual_expire', 'Unassigned Manually'),
     ], required=True)
     user_id = fields.Many2one('res.users', default=lambda self: self.env.user)
-    timestamp = fields.Datetime(default=fields.Datetime.now)
     note = fields.Text()

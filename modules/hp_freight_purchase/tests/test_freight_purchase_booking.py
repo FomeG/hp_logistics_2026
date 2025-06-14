@@ -76,38 +76,33 @@ class TestFreightPurchaseBooking(TransactionCase):
             'partner_id': self.env.ref('base.res_partner_1').id,
         })
 
-    def test_create_booking_line(self):
-        booking = self.Booking.create({
+        self.booking = self.Booking.create({
                 'name': 'Test Booking',
                 'quotation_id': self.QuotationLineRec.quotation_id.id,
                 'vessel_id': self.vesselRec.id,
                 'etd': fields.Date.today(),
             })
-        line = self.BookingLine.create({
-            'booking_id': booking.id,
+        self.bookingLine = self.BookingLine.create({
+            'booking_id': self.booking.id,
             'quotation_line_id': self.QuotationLineRec.id,
             'quantity': 3,
         })
-        self.assertTrue(line.container_type_id)
-        self.assertEqual(line.status, 'available')
+    def test_create_booking_line(self):
 
-    # def test_auto_reservation_expiry(self):
-    #     booking_line = self.BookingLine.create({
-    #         'quotation_line_id': self.QuotationLineRec.id,
-    #         'quantity': 2,
-    #     })
-    #
-    #     sale_line = self.SaleOrderLine.create({
-    #         'order_id': self.sale_order.id,
-    #         'product_id': self.product.id,
-    #         'product_uom_qty': 2,
-    #         'booking_line_id': booking_line.id,
-    #     })
-    #
-    #     self.assertTrue(booking_line.reservation_expiration_date)
-    #     delta = booking_line.reservation_expiration_date - fields.Datetime.now()
-    #     self.assertTrue(delta.total_seconds() < 86400 + 60)  # max 1 day + 1min drift
-    #
+        self.assertTrue(self.bookingLine.container_type_id)
+        self.assertEqual(self.bookingLine.status, 'available')
+
+    def test_assign_unassign_sale_order_line(self):
+        sale_order_line = self.SaleOrderLine.create({
+            'order_id': self.sale_order.id,
+            'product_id': self.product.id,
+            'product_uom_qty': 2,
+            'booking_line_id': self.bookingLine.id,
+        })
+        self.assertEqual(self.bookingLine.customer_id, self.sale_order.partner_id)
+        sale_order_line.write({'booking_line_id': False})
+        self.assertFalse(self.bookingLine.customer_id)
+
     # def test_unassign_and_create_history(self):
     #     booking_line = self.BookingLine.create({
     #         'quotation_line_id': self.env.ref('your_module.sample_quotation_line').id,
