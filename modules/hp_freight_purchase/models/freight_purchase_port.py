@@ -5,12 +5,12 @@ from odoo.exceptions import ValidationError
 class FreightPurchasePort(models.Model):
     _name = 'freight.purchase.port'
     _description = 'Port'
-    _inherit = ['unique.code.mixin']
+    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin']
 
-    name = fields.Char(required=True)
-    is_pod = fields.Boolean(string='Is POD',default=True)
-    region_id = fields.Many2one('freight.purchase.region', string='Region')
-    is_active = fields.Boolean(string='Is Active', default=True)
+    name = fields.Char(required=True, tracking=True)
+    is_pod = fields.Boolean(string='Is POD',default=True, tracking=True)
+    region_id = fields.Many2one('freight.purchase.region', string='Region', tracking=True)
+    is_active = fields.Boolean(string='Is Active', default=True, tracking=True)
 
     @api.constrains('is_pod', 'region_id')
     def _check_region_required(self):

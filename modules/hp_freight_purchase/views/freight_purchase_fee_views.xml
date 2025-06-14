@@ -26,6 +26,7 @@
                 <field name="code" />
                 <field name="name" />
                 <field name="amount" />
+                <field name="create_date" />
             </list>
         </field>
     </record>
@@ -43,7 +44,7 @@
     </record>
 
     <record id="freight_purchase_fee_action" model="ir.actions.act_window">
-        <field name="name">Freight Purchase fee</field>
+        <field name="name">Freight Purchase Fee</field>
         <field name="res_model">freight.purchase.fee</field>
         <field name="search_view_id" ref="freight_purchase_fee_search_view" />
         <field name="view_id" ref="freight_purchase_fee_list_view" />

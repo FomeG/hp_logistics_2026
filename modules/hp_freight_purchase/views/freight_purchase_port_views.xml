@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="freight_purchase_port_form_view" model="ir.ui.view">
+        <field name="name">freight.purchase.port.form</field>
+        <field name="model">freight.purchase.port</field>
+        <field name="arch" type="xml">
+            <form string="port">
+                <sheet>
+                    <group>
+                        <field name="name" required="1" />
+                        <field name="is_pod" required="1" />
+                        <field name="is_active" required="1" />
+                        <field name="region_id" required="1" />
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="freight_purchase_port_list_view" model="ir.ui.view">
+        <field name="name">freight.purchase.port.list</field>
+        <field name="model">freight.purchase.port</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list string="List ports ">
+                <field name="code" />
+                <field name="name" />
+                <field name="is_pod" />
+                <field name="is_active" />
+                <field name="region_id" />
+                <field name="create_date" />
+            </list>
+        </field>
+    </record>
+
+    <record id="freight_purchase_port_search_view" model="ir.ui.view">
+        <field name="name">freight.purchase.port.search</field>
+        <field name="model">freight.purchase.port</field>
+        <field name="arch" type="xml">
+            <search string="List ports">
+                <field name="code" />
+                <field name="name" />
+                <field name="is_pod" />
+                <field name="is_active" />
+                <field name="region_id" />
+            </search>
+        </field>
+    </record>
+
+    <record id="freight_purchase_port_action" model="ir.actions.act_window">
+        <field name="name">Freight Purchase Port</field>
+        <field name="res_model">freight.purchase.port</field>
+        <field name="search_view_id" ref="freight_purchase_port_search_view" />
+        <field name="view_id" ref="freight_purchase_port_list_view" />
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>
