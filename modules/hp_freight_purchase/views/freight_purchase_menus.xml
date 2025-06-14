@@ -4,6 +4,7 @@
         groups=""
         sequence="40" />
 
+    <!-- Purchase menus -->
     <menuitem id="menu_purchase_team"
         name="Purchase"
         parent="menu_purchase_root"
@@ -45,5 +46,20 @@
         parent="menu_purchase_team"
         sequence="60" />
 
+    <!-- Booking & Quotation menus -->
+    <menuitem id="menu_booking_quotation_team"
+        name="Booking and Quotation"
+        parent="menu_purchase_root"
+        sequence="20" />
+    <menuitem id="menu_freight_purchase_quotation"
+        name="Quotations"
+        action="freight_purchase_quotation_action"
+        parent="menu_booking_quotation_team"
+        sequence="10" />
+    <menuitem id="menu_freight_purchase_booking"
+        name="Bookings"
+        action="freight_purchase_booking_action"
+        parent="menu_booking_quotation_team"
+        sequence="20" />
 
 </odoo>

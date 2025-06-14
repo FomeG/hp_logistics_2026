@@ -15,7 +15,7 @@ class FreightPurchaseBookingLine(models.Model):
     container_type_id = fields.Many2one(related='quotation_line_id.container_type_id',store=True,readonly=True, string='Container Type')
 
     # pre-order
-    quantity = fields.Integer(string="quantity",required=True, default=1)
+    quantity = fields.Integer(string="Quantity",required=True, default=1)
     price = fields.Float(string="This price should be the same as the one of quotation")
     sale_order_line_ids = fields.One2many('sale.order.line', 'booking_line_id', string='Sale Order Lines')
     reserved_by_id = fields.Many2one('res.users', string='Reserved by Salesperson')

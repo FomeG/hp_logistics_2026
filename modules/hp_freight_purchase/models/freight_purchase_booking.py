@@ -6,11 +6,12 @@ class FreightPurchaseBooking(models.Model):
 
     _name = 'freight.purchase.booking'
     _description = 'Freight Purchase Booking'
-    _inherit = ['mail.thread','unique.code.mixin']
+    _inherit = ['mail.thread','unique.code.mixin', 'mail.activity.mixin']
+
     name = fields.Char(required=True, string='Booking Name')
-    vessel_id = fields.Many2one('freight.purchase.vessel')
-    quotation_id = fields.Many2one('freight.purchase.quotation', required=True)
-    etd = fields.Date(required=True,index=True)
+    vessel_id = fields.Many2one('freight.purchase.vessel', string="Vessel",  tracking=True)
+    quotation_id = fields.Many2one('freight.purchase.quotation', required=True, string="Quotation",  tracking=True)
+    etd = fields.Date(required=True, index=True,  tracking=True)
     status = fields.Selection(
         string="Status",
         selection=[

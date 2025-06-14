@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="freight_purchase_booking_form_view" model="ir.ui.view">
+        <field name="name">freight.purchase.booking.form</field>
+        <field name="model">freight.purchase.booking</field>
+        <field name="arch" type="xml">
+            <form class="oe_form_configuration">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="vessel_id" />
+                            <field name="quotation_id" />
+                            <field name="etd" />
+                            <field name="status" />
+                        </group>
+                        <group>
+                            <field name="route_id" />
+                            <field name="shipping_line_id" />
+                            <field name="teu_volume" />
+                            <field name="note" />
+                        </group>
+                    </group>
+
+                    <group string="Booking Lines">
+                        <field name="line_ids" string="Bookings">
+                            <form>
+                                <group>
+                                    <field name="pod_id" domain="[('is_pod', '=', True)]" />
+                                    <field name="quotation_line_id" />
+                                    <field name="container_type_id" />
+                                    <field name="teu_volume" />
+                                    <field name="quantity" />
+                                    <field name="price" string="Price" />
+                                    <field name="status" />
+                                    <field name="note" />
+                                    <field name="sale_order_line_ids" />
+                                </group>
+                            </form>
+                            <list>
+                                <field name="pod_id" />
+                                <field name="quotation_line_id" />
+                                <field name="container_type_id" />
+                                <field name="quantity" />
+                                <field name="price" />
+                                <field name="teu_volume" />
+                                <field name="status" />
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="freight_purchase_booking_list_view" model="ir.ui.view">
+        <field name="name">freight.purchase.booking.list</field>
+        <field name="model">freight.purchase.booking</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list string="Booking List">
+                <field name="name" />
+                <field name="vessel_id" />
+                <field name="quotation_id" />
+                <field name="route_id" />
+                <field name="shipping_line_id" />
+                <field name="etd" />
+                <field name="teu_volume" />
+                <field name="status" />
+                <field name="create_date" />
+            </list>
+        </field>
+    </record>
+
+    <record id="freight_purchase_booking_search_view" model="ir.ui.view">
+        <field name="name">freight.purchase.booking.search</field>
+        <field name="model">freight.purchase.booking</field>
+        <field name="arch" type="xml">
+            <search string="Booking List">
+                <field name="name" />
+                <field name="status" />
+            </search>
+        </field>
+    </record>
+
+    <record id="freight_purchase_booking_action" model="ir.actions.act_window">
+        <field name="name">Booking List</field>
+        <field name="res_model">freight.purchase.booking</field>
+        <field name="search_view_id" ref="freight_purchase_booking_search_view" />
+        <field name="view_id" ref="freight_purchase_booking_list_view" />
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

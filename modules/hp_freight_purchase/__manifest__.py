@@ -19,6 +19,8 @@
         'views/freight_purchase_route_views.xml',
         'views/freight_purchase_vessel_views.xml',
         'views/freight_purchase_container_type_views.xml',
+        'views/freight_purchase_quotation_views.xml',
+        'views/freight_purchase_booking_views.xml',
 
         #menu
         'views/freight_purchase_menus.xml',

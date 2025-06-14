@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="freight_purchase_quotation_form_view" model="ir.ui.view">
+        <field name="name">freight.purchase.quotation.form</field>
+        <field name="model">freight.purchase.quotation</field>
+        <field name="arch" type="xml">
+            <form class="oe_form_configuration">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="route_id" />
+                            <field name="shipping_line_id"
+                                domain="[('is_shipping_line', '=', True)]" />
+                            <field name="note" />
+                            <field name="is_active" />
+                        </group>
+                        <group>
+                            <field name="available_from" />
+                            <field name="available_to" />
+                            <field name="fees" />
+                        </group>
+                    </group>
+
+                    <group string="Quotation Lines">
+                        <field name="line_ids" string="Quotations">
+                            <form>
+                                <group>
+                                    <field name="container_type_id" />
+                                    <field name="cost"/>
+                                    <field name="price" />
+                                </group>
+                            </form>
+                            <list>
+                                <field name="container_type_id" />
+                                <field name="cost" />
+                                <field name="price" string="Internal price" />
+                                <field name="create_date" />
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="freight_purchase_quotation_list_view" model="ir.ui.view">
+        <field name="name">freight.purchase.quotation.list</field>
+        <field name="model">freight.purchase.quotation</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list string="Quotation List">
+                <field name="name" />
+                <field name="route_id" />
+                <field name="shipping_line_id" />
+                <field name="available_from" />
+                <field name="available_to" />
+                <field name="is_active" />
+                <field name="create_date" />
+            </list>
+        </field>
+    </record>
+
+    <record id="freight_purchase_quotation_search_view" model="ir.ui.view">
+        <field name="name">freight.purchase.quotation.search</field>
+        <field name="model">freight.purchase.quotation</field>
+        <field name="arch" type="xml">
+            <search string="Quotation List">
+                <field name="name" />
+                <field name="available_from" />
+                <field name="available_to" />
+                <field name="is_active" />
+            </search>
+        </field>
+    </record>
+
+    <record id="freight_purchase_quotation_action" model="ir.actions.act_window">
+        <field name="name">Quotation List</field>
+        <field name="res_model">freight.purchase.quotation</field>
+        <field name="search_view_id" ref="freight_purchase_quotation_search_view" />
+        <field name="view_id" ref="freight_purchase_quotation_list_view" />
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>
