@@ -6,8 +6,19 @@
     'category': 'HP',
     'version': '18.0.0.0.1',
     "license": "LGPL-3",
-    'depends': ['base','sale','hp_components'],
-    'data': [],
+    'depends': ['base', 'mail', 'sale','hp_components'],
+    'data': [
+        # security
+        'security/hp_freight_purchase_security.xml',
+        'security/ir.model.access.csv',
+
+        #views
+        'views/freight_purchase_region_views.xml',
+        'views/freight_purchase_fee_views.xml',
+
+        #menu
+        'views/freight_purchase_menus.xml',
+    ],
     'installable': True,
     'application': True,
 }

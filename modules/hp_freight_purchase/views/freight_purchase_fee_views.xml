@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="freight_purchase_fee_form_view" model="ir.ui.view">
+        <field name="name">freight.purchase.fee.form</field>
+        <field name="model">freight.purchase.fee</field>
+        <field name="arch" type="xml">
+            <form string="Fee">
+                <sheet>
+                    <group>
+                        <field name="name" required="1" />
+                        <field name="amount" required="0" />
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="freight_purchase_fee_list_view" model="ir.ui.view">
+        <field name="name">freight.purchase.fee.list</field>
+        <field name="model">freight.purchase.fee</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list string="List Fee ">
+                <field name="code" />
+                <field name="name" />
+                <field name="amount" />
+            </list>
+        </field>
+    </record>
+
+    <record id="freight_purchase_fee_search_view" model="ir.ui.view">
+        <field name="name">freight.purchase.fee.search</field>
+        <field name="model">freight.purchase.fee</field>
+        <field name="arch" type="xml">
+            <search string="List Fee">
+                <field name="code" />
+                <field name="name" />
+                <field name="amount" />
+            </search>
+        </field>
+    </record>
+
+    <record id="freight_purchase_fee_action" model="ir.actions.act_window">
+        <field name="name">Freight Purchase fee</field>
+        <field name="res_model">freight.purchase.fee</field>
+        <field name="search_view_id" ref="freight_purchase_fee_search_view" />
+        <field name="view_id" ref="freight_purchase_fee_list_view" />
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

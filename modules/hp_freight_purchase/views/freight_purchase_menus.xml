@@ -1,0 +1,100 @@
+<odoo>
+    <menuitem id="menu_purchase_root"
+        name="Freight Purchase"
+        groups=""
+        sequence="40" />
+
+    <menuitem id="menu_purchase_team"
+        name="Purchase"
+        parent="menu_purchase_root"
+        sequence="10" />
+
+    <menuitem id="menu_freight_purchase_region"
+        name="Regions"
+        action="freight_purchase_region_action"
+        parent="menu_purchase_team"
+        sequence="10" />
+
+    <menuitem id="menu_freight_purchase_fee"
+        name="Fee"
+        action="freight_purchase_fee_action"
+        parent="menu_purchase_team"
+        sequence="20" />
+
+
+    <!-- Pricing Teams and Members-->
+    <!-- <menuitem id="menu_pricing_team"
+              name="Pricing Team"
+              parent="menu_pricing_root"
+              sequence="30"/>
+
+    <menuitem id="menu_sale_pricing_team"
+              action="action_pricing_team"
+              parent="menu_pricing_team"
+              sequence="10"/>
+
+    <menuitem id="menu_sale_pricing_team_member"
+              action="action_pricing_team_member"
+              parent="menu_pricing_team"
+              sequence="20"/> -->
+
+    <!-- Submenu: Voyage Management -->
+    <!-- <menuitem id="menu_pricing_voyage"
+              name="Booking and Quotation"
+              parent="menu_pricing_root"
+              sequence="20"/> -->
+
+    <!-- Pricing Voyage Entries -->
+    <!-- <menuitem id="menu_sale_pricing_voyage"
+              action="pricing_voyage_action_form"
+              parent="menu_pricing_voyage"
+              sequence="10"/>
+
+    <menuitem id="menu_sale_pricing_booking"
+              action="pricing_booking_action_form"
+              parent="menu_pricing_voyage"
+              sequence="20"/>
+
+    <menuitem id="menu_sale_pricing_quotation"
+              action="pricing_quotation_action_form"
+              parent="menu_pricing_voyage"
+              sequence="30"/> -->
+
+    <!-- Submenu: Information Management -->
+    <!-- <menuitem id="menu_pricing_data"
+              name="Main Info"
+              parent="menu_pricing_root"
+              sequence="10"/> -->
+
+    <!-- Pricing Information Entries -->
+    <!-- <menuitem id="menu_sale_pricing_pol"
+              action="pricing_pol_action_form"
+              parent="menu_pricing_data"
+              sequence="10"/>
+
+    <menuitem id="menu_sale_pricing_pod"
+              action="pricing_pod_action_form"
+              parent="menu_pricing_data"
+              sequence="20"/>
+
+    <menuitem id="menu_sale_pricing_sealine"
+              action="pricing_sealine_action_form"
+              parent="menu_pricing_data"
+              sequence="25"/>
+
+    <menuitem id="menu_sale_pricing_region"
+              action="pricing_region_action_form"
+              parent="menu_pricing_data"
+              sequence="30"/>
+
+    <menuitem id="menu_sale_pricing_shipping_line"
+              action="pricing_shipping_line_action_form"
+              parent="menu_pricing_data"
+              sequence="40"/>
+
+    <menuitem id="menu_sale_pricing_shipping_vessel"
+              action="pricing_shipping_vessel_action_form"
+              parent="menu_pricing_data"
+              sequence="50"/> -->
+
+</odoo>
