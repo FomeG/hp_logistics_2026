@@ -102,28 +102,3 @@ class TestFreightPurchaseBooking(TransactionCase):
         self.assertEqual(self.bookingLine.customer_id, self.sale_order.partner_id)
         sale_order_line.write({'booking_line_id': False})
         self.assertFalse(self.bookingLine.customer_id)
-
-    # def test_unassign_and_create_history(self):
-    #     booking_line = self.BookingLine.create({
-    #         'quotation_line_id': self.env.ref('your_module.sample_quotation_line').id,
-    #         'quantity': 1,
-    #     })
-    #
-    #     sale_line = self.SaleOrderLine.create({
-    #         'order_id': self.sale_order.id,
-    #         'product_id': self.product.id,
-    #         'product_uom_qty': 1,
-    #         'booking_line_id': booking_line.id,
-    #     })
-    #
-    #     # Force unlinking
-    #     booking_line.write({
-    #         'sale_order_line_ids': [(3, sale_line.id)]
-    #     })
-    #
-    #     history = self.env['freight.booking.line.history'].search([
-    #         ('booking_line_id', '=', booking_line.id),
-    #         ('sale_order_line_id', '=', sale_line.id),
-    #         ('event_type', '=', 'unassign')
-    #     ])
-    #     self.assertEqual(len(history), 1)
