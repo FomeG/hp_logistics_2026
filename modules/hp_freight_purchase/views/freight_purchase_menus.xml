@@ -51,15 +51,35 @@
         name="Purchase"
         parent="menu_purchase_root"
         sequence="20" />
+
     <menuitem id="menu_freight_purchase_quotation"
         name="Quotations"
         action="freight_purchase_quotation_action"
         parent="menu_purchase_team"
         sequence="10" />
+
+    <menuitem id="menu_freight_purchase_quotation_line"
+        name="Quotation Lines"
+        action="freight_purchase_quotation_line_action"
+        parent="menu_purchase_team"
+        sequence="20" />
+
     <menuitem id="menu_freight_purchase_booking"
         name="Bookings"
         action="freight_purchase_booking_action"
         parent="menu_purchase_team"
-        sequence="20" />
+        sequence="30" />
+
+    <menuitem id="freight_purchase_booking_line"
+        name="Booking Lines"
+        action="freight_purchase_booking_line_action"
+        parent="menu_purchase_team"
+        sequence="40" />
+
+    <menuitem id="freight_purchase_booking_line_history"
+        name="Booking Line History"
+        action="freight_purchase_booking_line_history_action"
+        parent="menu_purchase_team"
+        sequence="50" />
 
 </odoo>

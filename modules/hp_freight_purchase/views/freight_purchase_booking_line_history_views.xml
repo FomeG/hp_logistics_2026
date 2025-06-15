@@ -1,0 +1,63 @@
+<odoo>
+
+    <record id="freight_purchase_booking_line_history_form_view" model="ir.ui.view">
+        <field name="name">freight.purchase.booking.line.history.form</field>
+        <field name="model">freight.purchase.booking.line.history</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="booking_line_id"/>
+                        <field name="sale_order_line_id"/>
+                        <field name="event_type"/>
+                        <field name="user_id"/>
+                        <field name="note"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="freight_purchase_booking_line_history_list_view" model="ir.ui.view">
+        <field name="name">freight.purchase.booking.line.history.list</field>
+        <field name="model">freight.purchase.booking.line.history</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="booking_line_id"/>
+                <field name="event_type"/>
+                <field name="user_id"/>
+                <field name="sale_order_line_id"/>
+                <field name="note"/>
+                <field name="create_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="freight_purchase_booking_line_history_search_view" model="ir.ui.view">
+        <field name="name">freight.purchase.booking.line.history.search</field>
+        <field name="model">freight.purchase.booking.line.history</field>
+        <field name="arch" type="xml">
+            <search string="Booking Line History Search">
+                <field name="booking_line_id" />
+                <field name="event_type" />
+                <field name="user_id" />
+                <field name="sale_order_line_id" />
+                <field name="create_date" />
+                <group expand="1" string="Group By">
+                    <filter name="group_by_booking" string="Booking Line" context="{'group_by': 'booking_line_id'}"/>
+                    <filter name="group_by_event" string="Event Type" context="{'group_by': 'event_type'}"/>
+                    <filter name="group_by_user" string="User" context="{'group_by': 'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+    <record id="freight_purchase_booking_line_history_action" model="ir.actions.act_window">
+        <field name="name">Booking Line History</field>
+        <field name="res_model">freight.purchase.booking.line.history</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="freight_purchase_booking_line_history_list_view"/>
+    </record>
+
+</odoo>

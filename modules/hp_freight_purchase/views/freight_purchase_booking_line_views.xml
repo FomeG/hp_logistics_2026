@@ -1,0 +1,82 @@
+<odoo>
+
+    <record id="freight_purchase_booking_line_form_view" model="ir.ui.view">
+        <field name="name">freight.purchase.booking.line.form</field>
+        <field name="model">freight.purchase.booking.line</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="booking_id"/>
+                        <field name="quotation_line_id"/>
+                        <field name="container_type_id"/>
+                        <field name="quantity"/>
+                        <field name="price"/>
+                        <field name="teu_volume"/>
+                        <field name="status"/>
+                        <field name="reservation_expiration_date"/>
+                        <field name="reserved_by_id"/>
+
+                    </group>
+                    <group>
+                        <field name="note"/>
+                        <field name="sale_order_id"/>
+                        <field name="customer_id"/>
+                        <field name="salesman_id"/>
+                        <field name="sale_order_line_ids"/>
+                    </group>
+                    <group string="Booking Line History">
+                        <field name="history_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="event_type"/>
+                                <field name="user_id"/>
+                                <field name="sale_order_line_id"/>
+                                <field name="note"/>
+                                <field name="create_date"/>
+                            </list>
+                        </field>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="freight_purchase_booking_line_list_view" model="ir.ui.view">
+        <field name="name">freight.purchase.booking.line.list</field>
+        <field name="model">freight.purchase.booking.line</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="booking_id"/>
+                <field name="container_type_id"/>
+                <field name="quotation_line_id"/>
+                <field name="quantity"/>
+                <field name="price"/>
+                <field name="status"/>
+                <field name="teu_volume"/>
+                <field name="reservation_expiration_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="freight_purchase_booking_line_search_view" model="ir.ui.view">
+        <field name="name">freight.purchase.booking.line.search</field>
+        <field name="model">freight.purchase.booking.line</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="booking_id"/>
+                <field name="quotation_line_id"/>
+                <field name="status"/>
+                <field name="reserved_by_id"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="freight_purchase_booking_line_action" model="ir.actions.act_window">
+        <field name="name">Booking Lines</field>
+        <field name="res_model">freight.purchase.booking.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="freight_purchase_booking_line_search_view"/>
+        <field name="view_id" ref="freight_purchase_booking_line_list_view"/>
+    </record>
+
+</odoo>
