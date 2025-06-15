@@ -3,7 +3,6 @@
 from . import container_type
 from . import res_partner_inherit
 from . import freight_purchase_vessel
-from . import freight_purchase_shipping_line
 from . import freight_purchase_region
 from . import freight_purchase_port
 from . import freight_purchase_route
