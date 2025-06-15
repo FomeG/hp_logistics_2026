@@ -11,11 +11,11 @@
                         <field name="quotation_line_id"/>
                         <field name="container_type_id"/>
                         <field name="quantity"/>
-                        <field name="price"/>
+                        <field name="price" string="Price" />
                         <field name="teu_volume"/>
                         <field name="status"/>
                         <field name="reservation_expiration_date"/>
-                        <field name="reserved_by_id"/>
+                        <field name="reserved_by_id" string="Reserved By" />
 
                     </group>
                     <group>
@@ -25,18 +25,8 @@
                         <field name="salesman_id"/>
                         <field name="sale_order_line_ids"/>
                     </group>
-                    <group string="Booking Line History">
-                        <field name="history_ids" nolabel="1">
-                            <list editable="bottom">
-                                <field name="event_type"/>
-                                <field name="user_id"/>
-                                <field name="sale_order_line_id"/>
-                                <field name="note"/>
-                                <field name="create_date"/>
-                            </list>
-                        </field>
-                    </group>
                 </sheet>
+                <chatter />
             </form>
         </field>
     </record>

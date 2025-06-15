@@ -4,20 +4,20 @@ from odoo import models, fields, api
 class FreightPurchaseBookingLine(models.Model):
     _name = 'freight.purchase.booking.line'
     _description = 'Freight Booking Line'
-    _inherit = ['mail.thread']
+    _inherit = ['mail.thread', 'mail.thread', 'mail.activity.mixin']
 
-    booking_id = fields.Many2one('freight.purchase.booking', required=True, ondelete='cascade', string='Booking')
+    booking_id = fields.Many2one('freight.purchase.booking', required=True, ondelete='cascade', string='Booking', tracking=True)
     #filter with perf reason
-    pod_id = fields.Many2one(related='booking_id.quotation_id.route_id.pod_id',store=True,readonly=True,string='Port of Discharge (POD)')
+    pod_id = fields.Many2one(related='booking_id.quotation_id.route_id.pod_id',store=True,readonly=True,string='Port of Discharge (POD)', tracking=True)
 
     #keep ref with quotation line in order to track the price of    preorder vs order
-    quotation_line_id = fields.Many2one('freight.purchase.quotation.line', required=True, string='Quotation Line')
+    quotation_line_id = fields.Many2one('freight.purchase.quotation.line', required=True, string='Quotation Line', tracking=True)
     container_type_id = fields.Many2one(related='quotation_line_id.container_type_id',store=True,readonly=True, string='Container Type')
 
     # pre-order
-    quantity = fields.Integer(string="Quantity",required=True, default=1)
-    price = fields.Float(string="This price should be the same as the one of quotation")
-    sale_order_line_ids = fields.One2many('sale.order.line', 'booking_line_id', string='Sale Order Lines')
+    quantity = fields.Integer(string="Quantity",required=True, default=1, tracking=True)
+    price = fields.Float(string="This price should be the same as the one of quotation", tracking=True)
+    sale_order_line_ids = fields.One2many('sale.order.line', 'booking_line_id', string='Sale Order Lines', tracking=True)
     reserved_by_id = fields.Many2one('res.users', string='Reserved by Salesperson')
 
     #these fields will be used for filter
@@ -34,7 +34,6 @@ class FreightPurchaseBookingLine(models.Model):
 
     # Computed TEU
     teu_volume = fields.Float(compute='_compute_teu_volume', store=True, string='Teu Volume')
-    history_ids = fields.One2many('freight.purchase.booking.line.history', 'booking_line_id')
     note = fields.Text()
 
     status = fields.Selection(
