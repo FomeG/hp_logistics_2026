@@ -5,14 +5,14 @@
         <field name="model">freight.purchase.quotation.line</field>
         <field name="arch" type="xml">
             <form>
-                <sheet>
-                    <group>
+<!--                <sheet>-->
+                    <group col="2">
                         <field name="quotation_id"/>
                         <field name="container_type_id"/>
                         <field name="cost"/>
                         <field name="price"/>
                     </group>
-                </sheet>
+<!--                </sheet>-->
             </form>
         </field>
     </record>
