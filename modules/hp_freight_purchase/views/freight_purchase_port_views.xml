@@ -9,9 +9,9 @@
                 <sheet>
                     <group>
                         <field name="name" required="1" />
-                        <field name="is_pod" required="1" />
-                        <field name="is_active" required="1" />
-                        <field name="region_id" required="1" />
+                        <field name="is_pod" required="0" />
+                        <field name="region_id" invisible="not is_pod" required="is_pod" />
+                        <field name="is_active" required="1" invisible="not id"/>
                     </group>
                 </sheet>
                 <chatter />
@@ -28,9 +28,10 @@
                 <field name="code" />
                 <field name="name" />
                 <field name="is_pod" />
-                <field name="is_active" />
                 <field name="region_id" />
-                <field name="create_date" />
+                <field name="employees" string="Employees"/>
+                <field name="is_active" />
+                <field name="create_date" groups="base.group_system"/>
             </list>
         </field>
     </record>

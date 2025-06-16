@@ -21,3 +21,23 @@ class FreightPurchasePort(models.Model):
                     # Check if the region exists in the database
                 if not record.region_id.exists():
                     raise ValidationError("Selected region does not exist in the system.")
+
+    @api.onchange('is_pod')
+    def _onchange_is_pod(self):
+        for record in self:
+            if not record.is_pod:
+                record.region_id = False
+
+    employees = fields.Char(
+        string="Employees in Region",
+        compute='_compute_region_employees',
+        store=False
+    )
+
+    @api.depends('region_id.employee_ids')
+    def _compute_region_employees(self):
+        for port in self:
+            if port.region_id and port.region_id.employee_ids:
+                port.employees = ", ".join(port.region_id.employee_ids.mapped('name'))
+            else:
+                port.employees = ""
