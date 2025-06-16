@@ -12,6 +12,9 @@ class FreightPurchaseRoute(models.Model):
     pod_id = fields.Many2one('freight.purchase.port', domain="[('is_pod', '=', True)]", required=True,tracking=True)
     region_id = fields.Many2one(related='pod_id.region_id', store=True,tracking=True)
     is_active = fields.Boolean(string='Is Active', default=True,tracking=True)
+    quotation_ids = fields.One2many('freight.purchase.quotation', 'route_id', string='Quotations')
+
+    total_quotations = fields.Char(string="Total Quotations", compute='_compute_total_quotation', store=False)
 
     @api.depends('pol_id', 'pod_id')
     def _compute_route_name(self):
@@ -28,3 +31,12 @@ class FreightPurchaseRoute(models.Model):
         for route in self:
             if route.pol_id == route.pod_id:
                 raise models.ValidationError("POL and POD cannot be the same!")
+            
+    @api.depends('quotation_ids')
+    def _compute_total_quotation(self):
+        for route in self:
+            if route.quotation_ids:
+                total = len(route.quotation_ids)
+                route.total_quotations = f"{total} Quotation(s)"
+            else:
+                route.total_quotations = "0 Quotation(s)"

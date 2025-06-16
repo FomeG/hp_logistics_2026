@@ -14,7 +14,7 @@
                             <field name="shipping_line_id"
                                 domain="[('is_shipping_line', '=', True)]" />
                             <field name="note" />
-                            <field name="is_active" />
+                            <field name="is_active" invisible="not id" />
                         </group>
                         <group>
                             <field name="available_from" />

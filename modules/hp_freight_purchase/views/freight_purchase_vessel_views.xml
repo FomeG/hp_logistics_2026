@@ -9,7 +9,19 @@
                 <sheet>
                     <group>
                         <field name="name" required="1" />
-                        <field name="is_active" required="1" />
+                        <field name="is_active" required="1" invisible="not id" />
+                        <field name="booking_ids" readonly="1" invisible="not id">
+                            <list>
+                                <field name="name" />
+                                <field name="quotation_id" />
+                                <field name="route_id" />
+                                <field name="shipping_line_id" />
+                                <field name="etd" />
+                                <field name="teu_volume" />
+                                <field name="status" />
+                                <field name="create_date" />
+                            </list>
+                        </field>
                     </group>
                 </sheet>
                 <chatter />
@@ -25,6 +37,7 @@
             <list string="List Vessels">
                 <field name="code" />
                 <field name="name" />
+                <field name="total_bookings" />
                 <field name="is_active" />
                 <field name="create_date" />
             </list>

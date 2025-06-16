@@ -9,26 +9,32 @@
                 <sheet>
                     <group>
                         <field name="name" required="1" />
-                        <field name="is_active" required="1" />
-                        <field name="employee_ids"
-                            domain="[('department_id.department_type', '=', 'pricing')]">
-                            <list>
-                                <field name="name" />
-                                <field name="work_phone" />
-                                <field name="work_email" />
-                                <field name="address_id"/>
-                                <field name="job_id" />
-                                <field name="active" />
-                            </list>    
-                        </field>
-                        <field name="ports" >
-                            <list>
-                                <field name="name" />
-                                <field name="is_pod" />
-                                <field name="is_active" />
-                            </list>
-                        </field>
+                        <field name="is_active" required="1" invisible="not id" />
                     </group>
+                    <notebook>
+                        <page string="Employees">
+                            <field name="employee_ids"
+                                domain="[('department_id.department_type', '=', 'pricing')]">
+                                <list create="0" delete="0" edit="0" multi_edit="0">
+                                    <field name="name" />
+                                    <field name="work_phone" />
+                                    <field name="work_email" />
+                                    <field name="address_id" />
+                                    <field name="job_id" />
+                                    <field name="active" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Ports">
+                            <field name="ports">
+                                <list>
+                                    <field name="name" />
+                                    <field name="is_pod" />
+                                    <field name="is_active" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter />
             </form>
@@ -44,9 +50,9 @@
                 <field name="code" />
                 <field name="name" />
                 <field name="is_active" />
-                <field name="employee_ids" />
-                <field name="ports" />
-                <field name="create_date" />
+                <field name="employee_string" />
+                <field name="port_string" />
+                <field name="create_date" groups="base.group_system" />
             </list>
         </field>
     </record>

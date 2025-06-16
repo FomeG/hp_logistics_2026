@@ -10,6 +10,7 @@
                     <group>
                         <field name="name" required="1" />
                         <field name="amount" required="0" />
+                        <field name="quotations" readonly="1" invisible="not id" />
                     </group>
                 </sheet>
                 <chatter />
@@ -26,6 +27,7 @@
                 <field name="code" />
                 <field name="name" />
                 <field name="amount" />
+                <field name="total_quotation" />
                 <field name="create_date" />
             </list>
         </field>

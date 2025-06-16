@@ -10,6 +10,9 @@ class ContainerType(models.Model):
     name = fields.Char(required=True, tracking=True)
     teu = fields.Float(required=True,  default=20.0, tracking=True)
     is_active = fields.Boolean(string='Is Active', default=True, tracking=True)
+    quotation_line_ids = fields.One2many('freight.purchase.quotation.line', 'container_type_id', string='Quotation Lines')
+
+    total_quotation_lines = fields.Char(string="Total Quotation Lines", compute='_compute_total_quotation_line', store=False)
 
 
     @api.constrains('name')
@@ -24,3 +27,12 @@ class ContainerType(models.Model):
         for record in self:
             if record.teu <= 0:
                 raise ValidationError(f"TEU must be a positive number")
+    
+    @api.depends('quotation_line_ids')
+    def _compute_total_quotation_line(self):
+        for record in self:
+            if record.quotation_line_ids:
+                total = len(record.quotation_line_ids)
+                record.total_quotation_lines = f"{total} Quotation Line(s)"
+            else:
+                record.total_quotation_lines = "0 Quotation Line(s)"

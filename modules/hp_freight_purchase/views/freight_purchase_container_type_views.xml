@@ -9,8 +9,16 @@
                 <sheet>
                     <group>
                         <field name="name" required="1" />
-                        <field name="teu" required="1" />
+                        <field name="teu" required="1" invisible="not id" />
                         <field name="is_active" required="1" />
+                        <field name="quotation_line_ids" readonly="1" invisible="not id">
+                            <list>
+                                <field name="quotation_id" string="Quotation" />
+                                <field name="cost" string="Booking price" />
+                                <field name="price" string="Internal price" />
+                                <field name="create_date" string="Created" />
+                            </list>
+                        </field>
                     </group>
                 </sheet>
                 <chatter />
@@ -28,6 +36,7 @@
                 <field name="name" />
                 <field name="teu" />
                 <field name="is_active" />
+                <field name="total_quotation_lines" />
                 <field name="create_date" />
             </list>
         </field>
