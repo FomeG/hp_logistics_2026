@@ -6,7 +6,7 @@
     'category': 'HP',
     'version': '18.0.0.0.1',
     "license": "LGPL-3",
-    'depends': ['base', 'mail', 'sale','hp_components'],
+    'depends': ['base', 'mail', 'sale','hp_components', 'hp_sale'],
     'data': [
         # security
         'security/hp_freight_purchase_security.xml',
