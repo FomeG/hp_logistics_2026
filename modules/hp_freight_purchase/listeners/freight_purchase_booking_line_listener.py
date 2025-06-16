@@ -11,7 +11,6 @@ class FreightPurchaseBookingLineListener(Component):
 
     def on_change_sale_order_line(self, record, origin_sale_order_lines, new_sale_order_lines):
         self._compute_expiration(record,origin_sale_order_lines, new_sale_order_lines)
-        self._compute_booking_line_history(record,origin_sale_order_lines, new_sale_order_lines)
 
     def _compute_expiration(self, record, origin_sale_order_lines, new_sale_order_lines):
         deadline = record.RESERVATION_DEADLINE_HOURS
@@ -27,5 +26,3 @@ class FreightPurchaseBookingLineListener(Component):
                     record.write({
                         'reservation_expiration_date': False
                     })
-    def _compute_booking_line_history(self, record, origin_sale_order_lines, new_sale_order_lines):
-        _logger.info('_compute_booking_line_history')

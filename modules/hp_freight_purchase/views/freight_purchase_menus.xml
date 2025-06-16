@@ -82,10 +82,4 @@
         parent="menu_purchase_team"
         sequence="40" />
 
-    <menuitem id="freight_purchase_booking_line_history"
-        name="Booking Line History"
-        action="freight_purchase_booking_line_history_action"
-        parent="menu_purchase_team"
-        sequence="50" />
-
 </odoo>

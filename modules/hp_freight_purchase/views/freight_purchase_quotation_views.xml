@@ -19,7 +19,12 @@
                         <group>
                             <field name="available_from" />
                             <field name="available_to" />
-                            <field name="fees" />
+                            <field name="fees">
+                                <list>
+                                    <field name="name" />
+                                    <field name="amount" />
+                                </list>
+                            </field>
                         </group>
                     </group>
 
