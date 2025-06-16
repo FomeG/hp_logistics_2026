@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+<!--    &lt;!&ndash; Hide default partner sheet and notebook for shipping line &ndash;&gt;-->
+<!--<record id="hide_default_partner_sheet_for_shipping_line" model="ir.ui.view">-->
+<!--    <field name="name">freight.partner.form.shipping_line.hide_default</field>-->
+<!--    <field name="model">res.partner</field>-->
+<!--    <field name="inherit_id" ref="base.view_partner_form"/>-->
+<!--    <field name="priority" eval="16"/>-->
+<!--    <field name="arch" type="xml">-->
+<!--        <xpath expr="//form/sheet" position="attributes">-->
+<!--            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>-->
+<!--        </xpath>-->
+<!--        <xpath expr="//form/sheet/notebook" position="attributes">-->
+<!--            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>-->
+<!--        </xpath>-->
+<!--        &lt;!&ndash; Replace default chatter with a conditionally hidden one &ndash;&gt;-->
+<!--        <xpath expr="//form/chatter" position="replace">-->
+<!--            <chatter invisible="[('is_shipping_line', '=', True)]"/>-->
+<!--        </xpath>-->
+<!--    </field>-->
+<!--</record>-->
+
+<!-- Add custom section for shipping line -->
+<record id="freight_purchase_shipping_line_form_view" model="ir.ui.view">
+    <field name="name">freight.purchase.shipping.line.form</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="priority" eval="17"/>
+    <field name="arch" type="xml">
+        <!-- Hide default sheet for shipping lines -->
+        <xpath expr="//form/sheet" position="attributes">
+            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>
+        </xpath>
+        <!-- Hide notebook for shipping lines -->
+        <xpath expr="//form/sheet/notebook" position="attributes">
+            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>
+        </xpath>
+        <!-- Replace default chatter with a conditionally hidden one -->
+        <xpath expr="//form/chatter" position="replace">
+            <chatter invisible="[('is_shipping_line', '=', True)]"/>
+        </xpath>
+        <!-- Hide Meetings button in button_box -->
+        <xpath expr="//div[@name='button_box']/button[@name='schedule_meeting']" position="attributes">
+            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>
+        </xpath>
+        <!-- Hide Sales button in button_box -->
+        <xpath expr="//div[@name='button_box']/button[@name='action_view_sale_order']" position="attributes">
+            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>
+        </xpath>
+
+        <!-- Hide Invoices button in button_box -->
+        <xpath expr="//div[@name='button_box']/button[@name='action_view_partner_invoices']" position="attributes">
+            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>
+        </xpath>
+
+        <!-- Hide Quotation button in button_box -->
+<!--        <xpath expr="//div[@name='button_box']/button[@name='action_create_new_quotation']" position="attributes">-->
+<!--            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>-->
+<!--        </xpath>-->
+
+        <!-- Hide Task button in button_box -->
+        <xpath expr="//div[@name='button_box']/button[@name='action_view_tasks']" position="attributes">
+            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>
+        </xpath>
+
+        <!-- Add custom section for shipping line -->
+        <xpath expr="//form" position="inside">
+            <div invisible="not is_shipping_line" class="oe_form_container col-12">
+                <sheet>
+                    <group class="oe_form_group">
+                        <field name="name" string="Shipping Line Name" placeholder="e.g. Global Shipping Co." class="oe_form_field"/>
+                        <field name="email" string="Shipping Line Email" widget="email" placeholder="e.g. contact@shippingline.com" class="oe_form_field"/>
+                        <field name="is_shipping_line" invisible="1"/>
+                    </group>
+                </sheet>
+            </div>
+        </xpath>
+    </field>
+</record>
+
+    <record id="freight_purchase_shipping_line_list_view" model="ir.ui.view">
+        <field name="name">freight.purchase.shipping.line.list</field>
+        <field name="model">res.partner</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list string="Shipping Lines">
+                <field name="name" string="Shipping Line Name"/>
+                <field name="email" string="Shipping Line Email"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="freight_purchase_shipping_line_search_view" model="ir.ui.view">
+        <field name="name">freight.purchase.shipping.line.search</field>
+        <field name="model">res.partner</field>
+        <field name="arch" type="xml">
+            <search string="Shipping Lines">
+                <field name="name" string="Shipping Line Name"/>
+                <field name="email" string="Shipping Line Email"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="freight_purchase_shipping_line_action" model="ir.actions.act_window">
+        <field name="name">Shipping Lines</field>
+        <field name="view_mode">list,form</field>
+        <field name="res_model">res.partner</field>
+        <field name="domain">[('is_shipping_line', '=', True)]</field>
+        <field name="context">{'default_is_shipping_line': True}</field>
+        <field name="search_view_id" ref="freight_purchase_shipping_line_search_view"/>
+        <field name="views" eval="[
+            (ref('freight_purchase_shipping_line_list_view'), 'list'),
+            (ref('freight_purchase_shipping_line_form_view'), 'form'),
+        ]"/>
+    </record>
+
+</odoo>

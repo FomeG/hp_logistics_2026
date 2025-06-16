@@ -10,7 +10,13 @@
         parent="menu_purchase_root"
         sequence="10" />
 
-        <menuitem id="menu_freight_purchase_vessel"
+    <menuitem id="menu_freight_purchase_shipping_line"
+        name="Shipping Lines"
+        action="freight_purchase_shipping_line_action"
+        parent="menu_base_team"
+        sequence="10" />
+
+    <menuitem id="menu_freight_purchase_vessel"
         name="Vessels"
         action="freight_purchase_vessel_action"
         parent="menu_base_team"
