@@ -41,9 +41,9 @@
             <chatter invisible="[('is_shipping_line', '=', True)]"/>
         </xpath>
         <!-- Hide Meetings button in button_box -->
-        <xpath expr="//div[@name='button_box']/button[@name='schedule_meeting']" position="attributes">
+        <!-- <xpath expr="//div[@name='button_box']/button[@name='schedule_meeting']" position="attributes">
             <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>
-        </xpath>
+        </xpath> -->
         <!-- Hide Sales button in button_box -->
         <xpath expr="//div[@name='button_box']/button[@name='action_view_sale_order']" position="attributes">
             <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>
