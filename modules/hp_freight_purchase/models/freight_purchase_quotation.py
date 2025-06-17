@@ -1,4 +1,5 @@
-from odoo import models, fields
+from odoo import models, fields, api
+
 
 class FreightPurchaseQuotation(models.Model):
     _name = 'freight.purchase.quotation'
@@ -16,4 +17,19 @@ class FreightPurchaseQuotation(models.Model):
     is_active = fields.Boolean(default=True, tracking=True)
     line_ids = fields.One2many('freight.purchase.quotation.line', 'quotation_id', tracking=True)
 
+    str_fees = fields.Char(
+        string="Fees",
+        compute='_compute_fees',
+        store=False
+    )
 
+    @api.depends('fees')
+    def _compute_fees(self):
+        for quotation in self:
+            if not quotation.fees:
+                quotation.str_fees = f"No fees applied"
+            else:
+                names = []
+                for fee in quotation.fees:
+                    names.append(fee.name)
+                quotation.str_fees = ", ".join(names)

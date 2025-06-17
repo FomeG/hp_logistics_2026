@@ -1,84 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-
-<!-- Add custom section for shipping line -->
-<record id="freight_purchase_shipping_line_form_view" model="ir.ui.view">
-    <field name="name">freight.purchase.shipping.line.form</field>
-    <field name="model">res.partner</field>
-    <field name="inherit_id" ref="base.view_partner_form"/>
-    <field name="priority" eval="17"/>
-    <field name="arch" type="xml">
-        <!-- Hide default sheet for shipping lines -->
-        <xpath expr="//form/sheet" position="attributes">
-            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>
-        </xpath>
-        <!-- Hide notebook for shipping lines -->
-        <xpath expr="//form/sheet/notebook" position="attributes">
-            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>
-        </xpath>
-        <!-- Replace default chatter with a conditionally hidden one -->
-<!--        <xpath expr="//form/chatter" position="replace">-->
-<!--            <chatter invisible="[('is_shipping_line', '=', True)]"/>-->
-<!--        </xpath>-->
-        <!-- Hide Meetings button in button_box -->
-       <xpath expr="//div[@name='button_box']/button[@name='schedule_meeting']" position="attributes">
-            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>
-        </xpath>
-        <!-- Hide Sales button in button_box -->
-        <xpath expr="//div[@name='button_box']/button[@name='action_view_sale_order']" position="attributes">
-            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>
-        </xpath>
-
-        <!-- Hide Invoices button in button_box -->
-        <xpath expr="//div[@name='button_box']/button[@name='action_view_partner_invoices']" position="attributes">
-            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>
-        </xpath>
-
-        <!-- Hide Quotation button in button_box -->
-        <xpath expr="//div[@name='button_box']/button[@name='action_create_new_quotation']" position="attributes">
-            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>
-        </xpath>
-
-        <!-- Hide Task button in button_box -->
-        <xpath expr="//div[@name='button_box']/button[@name='action_view_tasks']" position="attributes">
-            <attribute name="invisible">[('is_shipping_line', '=', True)]</attribute>
-        </xpath>
-
-        <xpath expr="//field[@name='vat']" position="attributes">
-            <attribute name="required">0</attribute>
-        </xpath>
-
-        <xpath expr="//field[@name='phone']" position="attributes">
-            <attribute name="required">0</attribute>
-        </xpath>
-
-        <xpath expr="//form/sheet/group/group/field[@name='phone']" position="attributes">
-            <attribute name="required">0</attribute>
-        </xpath>
-
+    <!-- Add custom section for shipping line -->
+    <record id="freight_purchase_shipping_line_form_view" model="ir.ui.view">
+        <field name="name">freight.purchase.shipping.line.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority" eval="37"/>
+        <field name="arch" type="xml">
             <!-- Add custom section for shipping line -->
-        <xpath expr="//form" position="inside">
-            <div invisible="not is_shipping_line" class="oe_form_container col-12">
+            <xpath expr="//form/sheet" position="replace">
                 <sheet>
-                    <group class="oe_form_group">
-                        <field name="name" string="Shipping Line Name" placeholder="e.g. Global Shipping Co." class="oe_form_field"/>
-                        <field name="email" string="Shipping Line Email" widget="email" placeholder="e.g. contact@shippingline.com" class="oe_form_field"/>
+                    <group>
+                        <field name="name" string="Shipping Line Name" placeholder="e.g. Global Shipping Co." class="oe_form_field" required="1"/>
+                        <field name="email" string="Shipping Line Email" widget="email" placeholder="e.g. contact@shippingline.com" class="oe_form_field" required="1"/>
                         <field name="is_shipping_line" value="1" invisible="1" />
+                        <notebook invisible="not id">
+                            <page string="Quotations" invisible="not quotation_ids">
+                                <field name="quotation_ids"
+                                       context="{'list_view_ref': 'hp_freight_purchase.freight_purchase_quotation_short_list_view'}"
+                                       readonly="1"
+                                />
+                            </page>
+                            <page string="Bookings" invisible="not booking_ids">
+                                <field name="booking_ids"
+                                       context="{'list_view_ref': 'hp_freight_purchase.freight_purchase_booking_short_list_view'}"
+                                       options="{'no_create': True, 'no_edit': True}" readonly="1"
+                                />
+                            </page>
+                        </notebook>
                     </group>
-                    <notebook invisible="not id">
-                        <page string="Bookings">
-                            <field name="booking_ids" options="{'no_create': True, 'no_edit': True}" readonly="1" />
-                        </page>
-                        <page string="Quotations">
-                            <field name="quotation_ids" readonly="1" />
-                        </page>
-                    </notebook>
                 </sheet>
-            </div>
-        </xpath>
-    </field>
-</record>
+            </xpath>
+        </field>
+    </record>
 
+    <!-- Quotation List Short View -->
+    <record id="freight_purchase_quotation_short_list_view" model="ir.ui.view">
+        <field name="name">freight.purchase.quotation.list</field>
+        <field name="model">freight.purchase.quotation</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="route_id" />
+                <field name="available_from" string="From"/>
+                <field name="available_to" string="Until" />
+                <field name="str_fees" />
+                <field name="is_active" string="Active" />
+                <field name="create_date" options="{'format': 'MM/dd/yyyy HH:mm:ss'}"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Booking List Short View -->
+    <record id="freight_purchase_booking_short_list_view" model="ir.ui.view">
+        <field name="name">freight.purchase.booking.list</field>
+        <field name="model">freight.purchase.booking</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code" string="Code"/>
+                <field name="quotation_id" groups="base.group_system"/>
+                <field name="vessel_id"/>
+                <field name="route_id" />
+                <field name="etd" />
+                <field name="teu_volume" />
+                <field name="status" />
+                <field name="create_date" options="{'format': 'MM/dd/yyyy HH:mm:ss'}"/>
+            </list>
+        </field>
+    </record>
+    
     <record id="freight_purchase_shipping_line_list_view" model="ir.ui.view">
         <field name="name">freight.purchase.shipping.line.list</field>
         <field name="model">res.partner</field>

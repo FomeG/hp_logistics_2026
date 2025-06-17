@@ -15,7 +15,7 @@ class ResPartnerInherit(models.Model):
     @api.depends('booking_ids')
     def _compute_total_booking(self):
         for record in self:
-            if record.total_bookings:
+            if record.booking_ids:
                 total = len(record.booking_ids)
                 record.total_bookings = f"{total} Booking(s)"
             else:
@@ -24,8 +24,10 @@ class ResPartnerInherit(models.Model):
     @api.depends('quotation_ids')
     def _compute_total_quotation(self):
         for record in self:
-            if record.total_quotations:
+            if record.quotation_ids:
                 total = len(record.quotation_ids)
                 record.total_quotations = f"{total} Quotation(s)"
             else:
                 record.total_quotations = "0 Quotation(s)"
+
+    #todo require name + email
