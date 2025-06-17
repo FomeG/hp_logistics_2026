@@ -12,6 +12,24 @@ class ResPartnerInherit(models.Model):
     total_bookings = fields.Char(string="Total Bookings", compute='_compute_total_booking', store=False)
     total_quotations = fields.Char(string="Total Quotations", compute='_compute_total_quotation', store=False)
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            is_shipping_line = vals.get('is_shipping_line', False)
+            email = vals.get('email')
+            if is_shipping_line and not email:
+                raise ValidationError("Shipping line email is required.")
+        return super().create(vals_list)
+    
+    def write(self, vals):
+        for record in self:
+            is_shipping_line = vals.get('is_shipping_line', record.is_shipping_line)
+            email = vals.get('email', record.email)
+            if is_shipping_line and not email:
+                raise ValidationError("Shipping line email is required.")
+
+        return super().write(vals)
+
     @api.depends('booking_ids')
     def _compute_total_booking(self):
         for record in self:
