@@ -7,23 +7,26 @@
             <form>
                 <sheet>
                     <group>
-                        <field name="booking_id"/>
-                        <field name="quotation_line_id"/>
-                        <field name="container_type_id"/>
-                        <field name="quantity"/>
-                        <field name="price" string="Price" />
-                        <field name="teu_volume"/>
-                        <field name="status"/>
-                        <field name="reservation_expiration_date"/>
-                        <field name="reserved_by_id" string="Reserved By" />
-
+                        <group>
+                            <field name="booking_id" />
+                            <field name="quantity" />
+                            <field name="price" string="Price" />
+                            <field name="reserved_by_id" string="Reserved By" />
+                            <field name="note" />
+                        </group>
+                        <group>
+                            <field name="quotation_line_id" />
+                            <field name="container_type_id" />
+                            <field name="teu_volume" />
+                            <field name="reservation_expiration_date" />
+                            <field name="status" />
+                        </group>
                     </group>
-                    <group>
-                        <field name="note"/>
-                        <field name="sale_order_id"/>
-                        <field name="customer_id"/>
-                        <field name="salesman_id"/>
-                        <field name="sale_order_line_ids"/>
+                    <group string="Sale Order Infomation">
+                        <field name="sale_order_id" />
+                        <field name="customer_id" />
+                        <field name="salesman_id" />
+                        <field name="sale_order_line_ids" string="Order Lines"/>
                     </group>
                 </sheet>
                 <chatter />
@@ -36,14 +39,14 @@
         <field name="model">freight.purchase.booking.line</field>
         <field name="arch" type="xml">
             <list>
-                <field name="booking_id"/>
-                <field name="container_type_id"/>
-                <field name="quotation_line_id"/>
-                <field name="quantity"/>
-                <field name="price"/>
-                <field name="status"/>
-                <field name="teu_volume"/>
-                <field name="reservation_expiration_date"/>
+                <field name="booking_id" />
+                <field name="container_type_id" />
+                <field name="quotation_line_id" />
+                <field name="quantity" />
+                <field name="price" />
+                <field name="status" />
+                <field name="teu_volume" />
+                <field name="reservation_expiration_date" />
             </list>
         </field>
     </record>
@@ -53,10 +56,10 @@
         <field name="model">freight.purchase.booking.line</field>
         <field name="arch" type="xml">
             <search>
-                <field name="booking_id"/>
-                <field name="quotation_line_id"/>
-                <field name="status"/>
-                <field name="reserved_by_id"/>
+                <field name="booking_id" />
+                <field name="quotation_line_id" />
+                <field name="status" />
+                <field name="reserved_by_id" />
             </search>
         </field>
     </record>
@@ -65,8 +68,8 @@
         <field name="name">Booking Lines</field>
         <field name="res_model">freight.purchase.booking.line</field>
         <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="freight_purchase_booking_line_search_view"/>
-        <field name="view_id" ref="freight_purchase_booking_line_list_view"/>
+        <field name="search_view_id" ref="freight_purchase_booking_line_search_view" />
+        <field name="view_id" ref="freight_purchase_booking_line_list_view" />
     </record>
 
 </odoo>

@@ -24,7 +24,7 @@
                     </group>
 
                     <group string="Booking Lines">
-                        <field name="line_ids" string="Bookings">
+                        <field name="line_ids" string="">
                             <form>
                                 <group>
                                     <field name="pod_id" domain="[('is_pod', '=', True)]" />

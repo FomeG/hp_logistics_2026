@@ -29,7 +29,7 @@
                     </group>
 
                     <group string="Quotation Lines">
-                        <field name="line_ids" string="Quotations">
+                        <field name="line_ids" string="">
                             <form>
                                 <group>
                                     <field name="container_type_id" />
