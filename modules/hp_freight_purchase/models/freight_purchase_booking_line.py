@@ -5,6 +5,7 @@ class FreightPurchaseBookingLine(models.Model):
     _name = 'freight.purchase.booking.line'
     _description = 'Freight Booking Line'
     _inherit = ['mail.thread', 'mail.thread', 'mail.activity.mixin']
+    _order = 'create_date desc'
 
     booking_id = fields.Many2one('freight.purchase.booking', required=True, ondelete='cascade', string='Booking', tracking=True)
     #filter with perf reason

@@ -4,8 +4,8 @@ from odoo import models, fields, api
 class FreightPurchaseRoute(models.Model):
     _name = 'freight.purchase.route'
     _description = 'Route'
-
     _inherit = ['mail.thread', 'mail.activity.mixin']
+    _order = 'create_date desc'
 
     name = fields.Char(string='Route Name',compute='_compute_route_name',store=True,index=True,tracking=True)
     pol_id = fields.Many2one('freight.purchase.port', domain="[('is_pod', '=', False)]", required=True,tracking=True)

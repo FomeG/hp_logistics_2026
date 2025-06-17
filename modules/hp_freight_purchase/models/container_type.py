@@ -6,6 +6,7 @@ class ContainerType(models.Model):
     _name = 'container.type'
     _description = 'Container Type'
     _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin']
+    _order = 'create_date desc'
 
     name = fields.Char(required=True, tracking=True)
     teu = fields.Float(required=True,  default=20.0, tracking=True)

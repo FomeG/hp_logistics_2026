@@ -7,6 +7,7 @@ class FreightPurchaseBooking(models.Model):
     _name = 'freight.purchase.booking'
     _description = 'Freight Purchase Booking'
     _inherit = ['mail.thread','unique.code.mixin', 'mail.activity.mixin']
+    _order = 'create_date desc'
 
     name = fields.Char(required=True, string='Booking Name')
     vessel_id = fields.Many2one('freight.purchase.vessel', string="Vessel",  tracking=True)

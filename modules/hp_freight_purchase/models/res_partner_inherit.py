@@ -4,6 +4,9 @@ from odoo.exceptions import ValidationError
 
 class ResPartnerInherit(models.Model):
     _inherit = 'res.partner'
+    _order = 'create_date desc'
+
+
     is_shipping_line = fields.Boolean(string='Is a Shipping Line', default=False)
 
     booking_ids = fields.One2many('freight.purchase.booking', 'shipping_line_id', string='Bookings')

@@ -6,6 +6,7 @@ class FreightPurchasePort(models.Model):
     _name = 'freight.purchase.port'
     _description = 'Port'
     _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin']
+    _order = 'create_date desc'
 
     name = fields.Char(required=True, tracking=True)
     is_pod = fields.Boolean(string='Is POD',default=True, tracking=True)

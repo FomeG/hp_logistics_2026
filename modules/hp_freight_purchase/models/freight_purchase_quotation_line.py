@@ -4,6 +4,7 @@ class FreightPurchaseQuotationLine(models.Model):
     _name = 'freight.purchase.quotation.line'
     _description = 'Purchase Quotation Line'
     _inherit = ['mail.thread']
+    _order = 'create_date desc'
 
     quotation_id = fields.Many2one('freight.purchase.quotation', required=True, ondelete='cascade')
     container_type_id = fields.Many2one('container.type', required=True)
