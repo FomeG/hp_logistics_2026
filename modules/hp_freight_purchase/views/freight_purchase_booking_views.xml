@@ -34,19 +34,6 @@
 
                     <group string="Booking Lines" invisible="not id">
                         <field name="line_ids">
-                            <form>
-                                <group>
-                                    <field name="pod_id" domain="[('is_pod', '=', True)]" />
-                                    <field name="quotation_line_id"/>
-                                    <field name="container_type_id" />
-                                    <field name="teu_volume" />
-                                    <field name="quantity" />
-                                    <field name="price" string="Price" />
-                                    <field name="status" />
-                                    <field name="note" />
-                                    <field name="sale_order_line_ids" />
-                                </group>
-                            </form>
                             <list>
                                 <field name="pod_id" />
                                 <field name="quotation_line_id" />

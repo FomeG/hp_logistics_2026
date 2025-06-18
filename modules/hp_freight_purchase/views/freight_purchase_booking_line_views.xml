@@ -11,7 +11,8 @@
                             <field name="booking_id" />
                             <field name="quantity" />
                             <field name="price" string="Price" />
-                            <field name="reserved_by_id" string="Reserved By" />
+                            <field name="employee_id" string="Reserved By"
+                                domain="[('department_id.department_type', '=', 'sale')]" />
                             <field name="note" />
                         </group>
                         <group>
@@ -26,7 +27,23 @@
                         <field name="sale_order_id" />
                         <field name="customer_id" />
                         <field name="salesman_id" />
-                        <field name="sale_order_line_ids" string="Order Lines"/>
+                        <field name="sale_order_line_ids" string="Order Lines">
+                            <list editable="top" create="false" delete="true">
+                                <field name="order_id" />
+                                <field name="product_id" />
+                                <field name="product_uom_qty" />
+                                <field name="price_unit" />
+                                <field name="price_subtotal" />
+                            </list>
+                        </field>
+                        <div invisible="sale_order_line_ids">
+                            <button name="action_add_sale_line"
+                                string="Add Sale Lines"
+                                type="object"
+                                class="btn-primary"
+                                style="margin-left: 8px; height: fit-content;"
+                             />
+                        </div>
                     </group>
                 </sheet>
                 <chatter />

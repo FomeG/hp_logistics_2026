@@ -19,7 +19,8 @@ class FreightPurchaseBookingLine(models.Model):
     quantity = fields.Integer(string="Quantity",required=True, default=1, tracking=True)
     price = fields.Float(string="This price should be the same as the one of quotation", tracking=True)
     sale_order_line_ids = fields.One2many('sale.order.line', 'booking_line_id', string='Sale Order Lines', tracking=True)
-    reserved_by_id = fields.Many2one('res.users', string='Reserved by Salesperson')
+    reserved_by_id = fields.Many2one('res.users', string='Reserved by Salesperson', compute='_compute_user_reserve', store=True)
+    employee_id = fields.Many2one('hr.employee', string='Sale Members', compute='_compute_employee_id', inverse='_inverse_employee_id', store=False)
 
     #these fields will be used for filter
     sale_order_id = fields.Many2one('sale.order', compute='_compute_sale_info', store=True, string='Sale Order')
@@ -71,6 +72,25 @@ class FreightPurchaseBookingLine(models.Model):
         for line in self:
             teu_ratio = line.container_type_id.teu
             line.teu_volume = teu_ratio * line.quantity
+        
+    @api.depends('employee_id')
+    def _compute_user_reserve(self):
+        for line in self:
+            employee = line.employee_id
+            if employee and employee.user_id:
+                line.reserved_by_id = employee.user_id
+            else:
+                line.reserved_by_id = False
+    
+    @api.depends('reserved_by_id')
+    def _compute_employee_id(self):
+        for record in self:
+            user = record.reserved_by_id
+            record.employee_id = self.env['hr.employee'].search([('user_id', '=', user.id)], limit=1) if user else False
+
+    def _inverse_employee_id(self):
+        for record in self:
+            record.reserved_by_id = record.employee_id.user_id if record.employee_id and record.employee_id.user_id else False
 
     @api.onchange('quotation_line_id')
     def _onchange_quotation_line_id(self):
@@ -88,3 +108,17 @@ class FreightPurchaseBookingLine(models.Model):
                     record.sale_order_line_ids.ids
                 )
         return res
+
+    def action_add_sale_line(self):
+        return {
+            'name': 'Select Sale Order Line',
+            'type': 'ir.actions.act_window',
+            'res_model': 'sale.order.line',
+            'view_mode': 'list',
+            'view_id': self.env.ref('hp_freight_purchase.view_sale_order_line_selection').id,
+            'target': 'new',
+            'domain': [('booking_line_id', '=', False)],
+            'context': {
+                'booking_line_id': self.id,
+            },
+        }

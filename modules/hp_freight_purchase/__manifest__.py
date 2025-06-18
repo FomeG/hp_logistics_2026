@@ -24,6 +24,7 @@
         'views/freight_purchase_quotation_line_views.xml',
         'views/freight_purchase_booking_views.xml',
         'views/freight_purchase_booking_line_views.xml',
+        'views/sale_order_line_selection_views.xml',
 
         #menu
         'views/freight_purchase_menus.xml',

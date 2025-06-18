@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_sale_order_line_selection" model="ir.ui.view">
+        <field name="name">sale.order.line.selection.tree</field>
+        <field name="model">sale.order.line</field>
+        <field name="arch" type="xml">
+            <list string="Select Sale Order Line" create="false" edit="false">
+                <field name="order_id" />
+                <field name="order_partner_id" />
+                <field name="product_id" />
+                <field name="product_uom_qty" />
+                <field name="price_unit" />
+                <field name="price_subtotal" />
+                <button name="action_select_this_line"
+                    string="Select"
+                    type="object"
+                    class="btn-light"
+                    icon="fa-check" />
+            </list>
+        </field>
+    </record>
+</odoo>
