@@ -78,8 +78,8 @@ class FreightPurchaseQuotation(models.Model):
                 formatted_date = record.available_to.strftime('%d-%m-%Y')
             else:
                 formatted_date = ''
-
-            record.name = f"Quotation - {shipping_name} - {route_name} - {formatted_date}"
+            if shipping_name != '' and route_name != '':
+                record.name = f"Quotation - {shipping_name} - {route_name} - {formatted_date}"
 
     @api.model
     def create_from_booking_form(self, booking_form):
