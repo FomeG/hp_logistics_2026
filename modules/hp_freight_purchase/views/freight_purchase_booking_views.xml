@@ -23,8 +23,8 @@
                         </group>
 
                         <group invisible="id > 0 or booking_mode == 'with_quotation'">
-                            <field name="quotation_route_id" required="booking_mode == 'without_quotation'"/>
-                            <field name="quotation_shipping_line_id" required="booking_mode == 'without_quotation'" domain="[('is_shipping_line', '=', True)]"/>
+                            <field name="quotation_route_id" required="not id and booking_mode == 'without_quotation'"/>
+                            <field name="quotation_shipping_line_id" required="not id and booking_mode == 'without_quotation'" domain="[('is_shipping_line', '=', True)]"/>
                         </group>
                         <group>
                             <field name="teu_volume" />
