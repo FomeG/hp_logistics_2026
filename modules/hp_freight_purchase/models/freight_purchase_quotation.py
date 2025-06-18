@@ -80,3 +80,12 @@ class FreightPurchaseQuotation(models.Model):
                 formatted_date = ''
 
             record.name = f"Quotation - {shipping_name} - {route_name} - {formatted_date}"
+
+    @api.model
+    def create_from_booking_form(self, booking_form):
+        return self.create({
+            'route_id': booking_form.get('quotation_route_id'),
+            'shipping_line_id': booking_form.get('quotation_shipping_line_id'),
+            'available_from': fields.Date.today(),
+            'available_to': booking_form.get('etd'),
+        })

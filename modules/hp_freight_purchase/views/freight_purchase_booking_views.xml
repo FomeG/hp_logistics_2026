@@ -9,21 +9,30 @@
                 <sheet>
                     <group>
                         <group>
+                            <field name="booking_mode" required="1" invisible="id > 0"/>
+                            <field name="quotation_id" invisible="booking_mode == 'without_quotation'"  readonly="id > 0"/>
+                            <field name="code" required="1" string="Code" help="Book Code"/>
                             <field name="name" />
-                            <field name="vessel_id" />
-                            <field name="quotation_id" />
+                            <field name="vessel_id" required="1" />
                             <field name="etd" />
                             <field name="status" />
                         </group>
-                        <group>
+                        <group invisible="booking_mode == 'without_quotation'" >
                             <field name="route_id" />
                             <field name="shipping_line_id" />
+                        </group>
+
+                        <group invisible="booking_mode == 'with_quotation'">
+                            <field name="quotation_route_id" required="booking_mode == 'without_quotation'"/>
+                            <field name="quotation_shipping_line_id" required="booking_mode == 'without_quotation'" domain="[('is_shipping_line', '=', True)]"/>
+                        </group>
+                        <group>
                             <field name="teu_volume" />
                             <field name="note" />
                         </group>
                     </group>
 
-                    <group string="Booking Lines">
+                    <group string="Booking Lines" invisible="not line_ids">
                         <field name="line_ids" string="">
                             <form>
                                 <group>
