@@ -41,7 +41,7 @@ class FreightPurchaseBooking(models.Model):
     booking_mode = fields.Selection([
         ('with_quotation', 'With Quotation'),
         ('without_quotation', 'Without Quotation'),
-    ], string='Booking Mode', required=True, default='with_quotation', store=False)
+    ], string='Booking Mode', required=True, default='with_quotation')
 
     # Temporary fields for quotation creation
     quotation_route_id = fields.Many2one('freight.purchase.route',string='Route',store=False)
