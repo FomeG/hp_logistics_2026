@@ -12,7 +12,7 @@
                             <field name="booking_mode" required="1" invisible="id > 0"/>
                             <field name="quotation_id" invisible="not id and booking_mode == 'without_quotation'"  readonly="id > 0"/>
                             <field name="code" required="1" string="Code" help="Book Code"/>
-                            <field name="name" />
+                            <field name="name" readonly="1"/>
                             <field name="vessel_id" required="1" />
                             <field name="etd" />
                             <field name="status" />
