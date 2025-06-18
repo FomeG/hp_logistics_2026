@@ -40,8 +40,7 @@
                             <button name="action_add_sale_line"
                                 string="Add Sale Lines"
                                 type="object"
-                                class="btn-primary"
-                                style="margin-left: 8px; height: fit-content;"
+                                class="btn-light ml-2"
                              />
                         </div>
                     </group>

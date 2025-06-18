@@ -14,7 +14,7 @@
                 <button name="action_select_this_line"
                     string="Select"
                     type="object"
-                    class="btn-light"
+                    class="btn-primary"
                     icon="fa-check" />
             </list>
         </field>
