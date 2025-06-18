@@ -24,6 +24,7 @@
         <field name="arch" type="xml">
             <list string="Quotation Lines">
                 <field name="quotation_id" string="Quotation"/>
+                <field name="container_type_id" />
                 <field name="cost" string="Booking price"/>
                 <field name="price" string="Internal price"/>
                 <field name="create_date" string="Created"/>
