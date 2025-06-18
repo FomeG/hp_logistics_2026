@@ -32,8 +32,8 @@
                         </group>
                     </group>
 
-                    <group string="Booking Lines" invisible="not line_ids">
-                        <field name="line_ids" string="">
+                    <group string="Booking Lines" invisible="not id">
+                        <field name="line_ids">
                             <form>
                                 <group>
                                     <field name="pod_id" domain="[('is_pod', '=', True)]" />
