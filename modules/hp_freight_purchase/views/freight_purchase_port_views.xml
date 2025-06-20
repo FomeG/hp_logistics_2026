@@ -46,6 +46,24 @@
                 <field name="is_pod" />
                 <field name="is_active" />
                 <field name="region_id" />
+
+                <!-- Filters: POD -->
+                <separator string="POD Status"/>
+                <filter string="POD" name="filter_is_pod" domain="[('is_pod', '=', True)]"/>
+                <filter string="POL" name="filter_not_pod" domain="[('is_pod', '=', False)]"/>
+
+                <!-- Filters: Active -->
+                <separator string="Active Status"/>
+                <filter string="Active" name="filter_active" domain="[('is_active', '=', True)]"/>
+                <filter string="Inactive" name="filter_inactive" domain="[('is_active', '=', False)]"/>
+
+                <!-- Group By -->
+                <separator string="Group By"/>
+                <group expand="1" string="Group By">
+                    <filter string="Region" name="group_by_region" context="{'group_by': 'region_id'}"/>
+                    <filter string="POD" name="group_by_is_pod" context="{'group_by': 'is_pod'}"/>
+                    <filter string="Active" name="group_by_is_active" context="{'group_by': 'is_active'}"/>
+                </group>
             </search>
         </field>
     </record>

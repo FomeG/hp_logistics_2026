@@ -51,6 +51,22 @@
                 <field name="code" />
                 <field name="name" />
                 <field name="amount" />
+
+                <!-- Filter Groups -->
+                <separator string="Amount"/>
+                <filter string="Amount > 500" name="filter_amount_high" domain="[('amount', '&gt;', 500)]"/>
+<!--                <filter string="Amount < 500" name="filter_amount_low" domain="[('amount', '&lt;=', 500)]"/>-->
+
+                <separator string="Quotation Link"/>
+                <filter string="With Quotations" name="filter_with_quotation" domain="[('quotations', '!=', False)]"/>
+                <filter string="Without Quotations" name="filter_without_quotation" domain="[('quotations', '=', False)]"/>
+
+                <!-- Group By -->
+                <separator string="Group By"/>
+                <group expand="1" string="Group By">
+                    <filter string="Amount" name="group_by_amount" context="{'group_by': 'amount'}"/>
+                    <filter string="Name" name="group_by_name" context="{'group_by': 'name'}"/>
+                </group>
             </search>
         </field>
     </record>

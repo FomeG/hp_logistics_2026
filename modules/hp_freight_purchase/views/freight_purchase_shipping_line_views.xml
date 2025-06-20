@@ -90,6 +90,27 @@
             <search string="Shipping Lines">
                 <field name="name" string="Shipping Line Name"/>
                 <field name="email" string="Shipping Line Email"/>
+
+                <!-- Filters: Quotations -->
+                <separator string="Quotations"/>
+                <filter string="With Quotations" name="filter_has_quotations"
+                        domain="[('quotation_ids', '!=', False)]"/>
+                <filter string="Without Quotations" name="filter_no_quotations"
+                        domain="[('quotation_ids', '=', False)]"/>
+
+                <!-- Filters: Bookings -->
+                <separator string="Bookings"/>
+                <filter string="With Bookings" name="filter_has_bookings"
+                        domain="[('booking_ids', '!=', False)]"/>
+                <filter string="Without Bookings" name="filter_no_bookings"
+                        domain="[('booking_ids', '=', False)]"/>
+
+                <!-- Group By -->
+                <separator string="Group By"/>
+                <group expand="1" string="Group By">
+                    <filter string="Created Date" name="group_by_created"
+                            context="{'group_by': 'create_date'}"/>
+                </group>
             </search>
         </field>
     </record>

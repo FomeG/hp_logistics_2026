@@ -76,6 +76,20 @@
                 <field name="quotation_line_id" />
                 <field name="status" />
                 <field name="reserved_by_id" />
+
+                <filter string="Available" name="filter_status_available" domain="[('status', '=', 'available')]"/>
+                <filter string="Reserved" name="filter_status_reserved" domain="[('status', '=', 'reserved')]"/>
+                <filter string="Allocated" name="filter_status_allocated" domain="[('status', '=', 'allocated')]"/>
+                <filter string="Shipped" name="filter_status_shipped" domain="[('status', '=', 'shipped')]"/>
+                <filter string="Cancelled" name="filter_status_cancelle" domain="[('status', '=', 'cancelled')]"/>
+
+                <!-- Group By Filters -->
+                <group expand="1" string="Group By">
+                    <filter string="Booking" name="group_by_booking" context="{'group_by': 'booking_id'}"/>
+                    <filter string="Status" name="group_by_status" context="{'group_by': 'status'}"/>
+                    <filter string="Reserved By" name="group_by_reserved" context="{'group_by': 'reserved_by_id'}"/>
+                </group>
+
             </search>
         </field>
     </record>

@@ -65,6 +65,29 @@
                 <field name="code" />
                 <field name="name" />
                 <field name="is_active" />
+
+                <!-- Active Filters -->
+                <separator string="Status"/>
+                <filter string="Active" name="filter_active" domain="[('is_active', '=', True)]"/>
+                <filter string="Inactive" name="filter_inactive" domain="[('is_active', '=', False)]"/>
+
+                <!-- Employee Filters -->
+                <separator string="Employees"/>
+                <filter string="Has Employees" name="filter_with_employees" domain="[('employee_ids', '!=', False)]"/>
+                <filter string="No Employees" name="filter_without_employees" domain="[('employee_ids', '=', False)]"/>
+
+                <!-- Port Filters -->
+                <separator string="Ports"/>
+                <filter string="Has Ports" name="filter_with_ports" domain="[('ports', '!=', False)]"/>
+                <filter string="No Ports" name="filter_without_ports" domain="[('ports', '=', False)]"/>
+
+                <!-- Group By -->
+                <separator string="Group By"/>
+                <group expand="1" string="Group By">
+                    <filter string="Active" name="group_by_active" context="{'group_by': 'is_active'}"/>
+                    <filter string="Employees" name="group_by_employees" context="{'group_by': 'employee_string'}"/>
+                    <filter string="Ports" name="group_by_ports" context="{'group_by': 'port_string'}"/>
+                </group>
             </search>
         </field>
     </record>

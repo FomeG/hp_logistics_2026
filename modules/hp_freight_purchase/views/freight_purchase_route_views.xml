@@ -56,6 +56,25 @@
                 <field name="pol_id" />
                 <field name="pod_id" />
                 <field name="create_date" />
+
+                <!-- Active Filters -->
+                <separator string="Status"/>
+                <filter string="Active" name="filter_active" domain="[('is_active', '=', True)]"/>
+                <filter string="Inactive" name="filter_inactive" domain="[('is_active', '=', False)]"/>
+
+                <!-- Quotation Filters -->
+                <separator string="Quotations"/>
+                <filter string="With Quotations" name="filter_has_quotations" domain="[('quotation_ids', '!=', False)]"/>
+                <filter string="Without Quotations" name="filter_no_quotations" domain="[('quotation_ids', '=', False)]"/>
+
+                <!-- Group By -->
+                <separator string="Group By"/>
+                <group expand="1" string="Group By">
+                    <filter string="POL" name="group_by_pol" context="{'group_by': 'pol_id'}"/>
+                    <filter string="POD" name="group_by_pod" context="{'group_by': 'pod_id'}"/>
+                    <filter string="Region" name="group_by_region" context="{'group_by': 'region_id'}"/>
+                    <filter string="Status" name="group_by_active" context="{'group_by': 'is_active'}"/>
+                </group>
             </search>
         </field>
     </record>

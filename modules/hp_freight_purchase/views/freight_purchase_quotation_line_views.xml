@@ -43,9 +43,17 @@
                 <field name="price"/>
                 <field name="create_date"/>
 
+                <!-- Filter Sections -->
+                <separator string="Cost"/>
+                <filter string="Cost > 500" name="filter_cost_high" domain="[('cost', '&gt;', 500)]"/>
+<!--                <filter string="Cost <= 500" name="filter_cost_low" domain="[('cost', '&lt;=', 500)]"/>-->
+
+                <!-- Group By -->
+                <separator string="Group By"/>
                 <group expand="1" string="Group By">
                     <filter name="group_by_quotation" string="Quotation" context="{'group_by': 'quotation_id'}"/>
                     <filter name="group_by_container" string="Container Type" context="{'group_by': 'container_type_id'}"/>
+                    <filter name="group_by_create_date" string="Created Date" context="{'group_by': 'create_date'}"/>
                 </group>
             </search>
         </field>

@@ -51,6 +51,21 @@
                 <field name="name" />
                 <field name="teu" />
                 <field name="is_active" />
+
+                <!-- Filter Sections -->
+                <separator string="Status"/>
+                <filter string="Active" name="filter_active" domain="[('is_active', '=', True)]"/>
+                <filter string="Inactive" name="filter_inactive" domain="[('is_active', '=', False)]"/>
+
+                <separator string="TEU Range"/>
+                <filter string="TEU > 5" name="filter_teu_high" domain="[('teu', '&gt;', 5)]"/>
+                <filter string="TEU ≤ 5" name="filter_teu_low" domain="[('teu', '&lt;=', 5)]"/>
+
+                <!-- Group By Section -->
+                <separator string="Group By"/>
+                <group expand="1" string="Group By">
+                    <filter string="Active" name="group_by_active" context="{'group_by': 'is_active'}"/>
+                </group>
             </search>
         </field>
     </record>

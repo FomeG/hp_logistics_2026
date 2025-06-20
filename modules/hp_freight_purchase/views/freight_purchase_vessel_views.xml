@@ -52,6 +52,23 @@
                 <field name="code" />
                 <field name="name" />
                 <field name="is_active" />
+
+                <!-- Filters: Active -->
+                <separator string="Status"/>
+                <filter string="Active" name="filter_active" domain="[('is_active', '=', True)]"/>
+                <filter string="Inactive" name="filter_inactive" domain="[('is_active', '=', False)]"/>
+
+                <!-- Filters: Bookings -->
+                <separator string="Bookings"/>
+                <filter string="With Bookings" name="filter_with_bookings" domain="[('booking_ids', '!=', False)]"/>
+                <filter string="Without Bookings" name="filter_without_bookings" domain="[('booking_ids', '=', False)]"/>
+
+                <!-- Group By -->
+                <separator string="Group By"/>
+                <group expand="1" string="Group By">
+                    <filter string="Active Status" name="group_by_active" context="{'group_by': 'is_active'}"/>
+                    <filter string="Created Date" name="group_by_created" context="{'group_by': 'create_date'}"/>
+                </group>
             </search>
         </field>
     </record>
