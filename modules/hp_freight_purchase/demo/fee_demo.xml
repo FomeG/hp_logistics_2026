@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="fee_bl" model="freight.purchase.fee">
+          <field name="name">Cleaning Fee</field>
+          <field name="amount">35.0</field>
+        </record>
+        <record id="fee_local_charge" model="freight.purchase.fee">
+          <field name="name">Local Charge</field>
+          <field name="amount">100.0</field>
+        </record>
+        <record id="fee_documentation" model="freight.purchase.fee">
+          <field name="name">CFS Fee</field>
+          <field name="amount">25.0</field>
+        </record>
+        <record id="fee_terminal" model="freight.purchase.fee">
+          <field name="name">Handling Charge</field>
+          <field name="amount">150.0</field>
+        </record>
+
+
+    </data>
+</odoo>

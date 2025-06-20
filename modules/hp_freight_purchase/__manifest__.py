@@ -29,6 +29,14 @@
         #menu
         'views/freight_purchase_menus.xml',
     ],
+    'demo': [
+        'data/container_type_demo.xml',
+        'data/fee_demo.xml',
+        'data/port_demo.xml',
+        'data/region_demo.xml',
+        'data/shipping_line_demo.xml',
+        'data/vessels_demo.xml',
+    ],
     'installable': True,
     'application': True,
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="vessel_warnow_chief" model="freight.purchase.vessel">
+          <field name="name">WARNOW CHIEF 052S</field>
+          <field name="is_active">1</field>
+        </record>
+        <record id="vessel_ca_osaka" model="freight.purchase.vessel">
+          <field name="name">CA OSAKA 2417E</field>
+          <field name="is_active">1</field>
+        </record>
+        <record id="vessel_hyundai_supreme" model="freight.purchase.vessel">
+          <field name="name">HYUNDAI SUPREME 012E</field>
+          <field name="is_active">1</field>
+        </record>
+
+    </data>
+</odoo>

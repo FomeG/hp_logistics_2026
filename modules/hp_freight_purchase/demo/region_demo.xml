@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="region_northeast_asia" model="freight.purchase.region">
+          <field name="name">Northeast Asia</field>
+          <field name="is_active">1</field>
+        </record>
+        <record id="region_southeast_asia" model="freight.purchase.region">
+          <field name="name">Southeast Asia</field>
+          <field name="is_active">1</field>
+        </record>
+        <record id="region_south_asia" model="freight.purchase.region">
+          <field name="name">South Asia</field>
+          <field name="is_active">1</field>
+        </record>
+        <record id="region_west_asia" model="freight.purchase.region">
+          <field name="name">West Asia</field>
+          <field name="is_active">1</field>
+        </record>
+        <record id="region_eu" model="freight.purchase.region">
+          <field name="name">EU</field>
+          <field name="is_active">1</field>
+        </record>
+    </data>
+</odoo>
