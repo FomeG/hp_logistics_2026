@@ -53,6 +53,14 @@ class FreightPurchaseBookingLine(models.Model):
         store=True,
     )
 
+    # Computed invisible btn add sale line
+    can_add_sale_line = fields.Boolean(compute='_compute_can_add_sale_line', store=False)
+    
+    @api.depends('sale_order_line_ids', 'status')
+    def _compute_can_add_sale_line(self):
+        for record in self:
+            record.can_add_sale_line = False if record.sale_order_line_ids or record.status == 'cancelled' else True
+
     @api.depends('sale_order_line_ids')
     def _compute_sale_info(self):
         for line in self:
