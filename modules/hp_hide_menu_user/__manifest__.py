@@ -8,7 +8,7 @@
     'data': [
         'security/security.xml',
         'views/res_users_views.xml',
-        'data/menu_items_hide.xml'
+        # 'data/menu_items_hide.xml'
     ],
     'license': 'LGPL-3',
     'installable': True,
