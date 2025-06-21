@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- USERS -->
+    <record id="user_dos" model="res.users">
+        <field name="name">DOS</field>
+        <field name="login">dos@test.com</field>
+        <field name="password">123456</field>
+    </record>
+    <record id="user_sm1" model="res.users">
+        <field name="name">Sale member 1</field>
+        <field name="login">sm1@test.com</field>
+        <field name="password">123456</field>
+    </record>
+    <record id="user_sm2" model="res.users">
+        <field name="name">Sale member 2</field>
+        <field name="login">sm2@test.com</field>
+        <field name="password">123456</field>
+    </record>
+    <record id="user_dopr" model="res.users">
+        <field name="name">dopr</field>
+        <field name="login">dopr@test.com</field>
+        <field name="password">123456</field>
+    </record>
+    <record id="user_pm1" model="res.users">
+        <field name="name">Pricing Member 1</field>
+        <field name="login">pm1@test.com</field>
+        <field name="password">123456</field>
+    </record>
+    <record id="user_pm2" model="res.users">
+        <field name="name">Pricing Member 2</field>
+        <field name="login">pm2@test.com</field>
+        <field name="password">123456</field>
+    </record>
+
+    <!-- EMPLOYEES (without department yet) -->
+    <record id="emp_dos" model="hr.employee">
+        <field name="name">DOS</field>
+        <field name="job_title">Sale Director</field>
+        <field name="user_id" ref="user_dos"/>
+        <field name="work_email">dos@test.com</field>
+    </record>
+    <record id="emp_sm1" model="hr.employee">
+        <field name="name">Sale member 1</field>
+        <field name="job_title">Sale</field>
+        <field name="user_id" ref="user_sm1"/>
+        <field name="parent_id" ref="emp_dos"/>
+        <field name="coach_id" ref="emp_dos"/>
+        <field name="work_email">sm1@test.com</field>
+    </record>
+    <record id="emp_sm2" model="hr.employee">
+        <field name="name">Sale member 2</field>
+        <field name="job_title">Sale</field>
+        <field name="user_id" ref="user_sm2"/>
+        <field name="parent_id" ref="emp_dos"/>
+        <field name="coach_id" ref="emp_dos"/>
+        <field name="work_email">sm2@test.com</field>
+    </record>
+    <record id="emp_dopr" model="hr.employee">
+        <field name="name">dopr</field>
+        <field name="job_title">Pricing Director</field>
+        <field name="user_id" ref="user_dopr"/>
+        <field name="work_email">dopr@test.com</field>
+    </record>
+    <record id="emp_pm1" model="hr.employee">
+        <field name="name">Pricing Member 1</field>
+        <field name="job_title">Pricing</field>
+        <field name="user_id" ref="user_pm1"/>
+        <field name="parent_id" ref="emp_dopr"/>
+        <field name="coach_id" ref="emp_dopr"/>
+        <field name="work_email">pm1@test.com</field>
+    </record>
+    <record id="emp_pm2" model="hr.employee">
+        <field name="name">Pricing Member 2</field>
+        <field name="job_title">Pricing</field>
+        <field name="user_id" ref="user_pm2"/>
+        <field name="parent_id" ref="emp_dopr"/>
+        <field name="coach_id" ref="emp_dopr"/>
+        <field name="work_email">pm2@test.com</field>
+    </record>
+
+    <!-- DEPARTMENTS (after employees are created, esp. managers) -->
+    <record id="dept_sales" model="hr.department">
+        <field name="name">Sales</field>
+        <field name="department_type">sale</field>
+        <field name="manager_id" ref="emp_dos"/>
+    </record>
+    <record id="dept_pricing" model="hr.department">
+        <field name="name">Pricing</field>
+        <field name="department_type">pricing</field>
+        <field name="manager_id" ref="emp_dopr"/>
+    </record>
+
+    <!-- UPDATE EMPLOYEES WITH department_id -->
+    <function model="hr.employee" name="write">
+        <value eval="ref('emp_dos')"/>
+        <value eval="{'department_id': ref('dept_sales')}"/>
+    </function>
+    <function model="hr.employee" name="write">
+        <value eval="ref('emp_sm1')"/>
+        <value eval="{'department_id': ref('dept_sales')}"/>
+    </function>
+    <function model="hr.employee" name="write">
+        <value eval="ref('emp_sm2')"/>
+        <value eval="{'department_id': ref('dept_sales')}"/>
+    </function>
+    <function model="hr.employee" name="write">
+        <value eval="ref('emp_dopr')"/>
+        <value eval="{'department_id': ref('dept_pricing')}"/>
+    </function>
+    <function model="hr.employee" name="write">
+        <value eval="ref('emp_pm1')"/>
+        <value eval="{'department_id': ref('dept_pricing')}"/>
+    </function>
+    <function model="hr.employee" name="write">
+        <value eval="ref('emp_pm2')"/>
+        <value eval="{'department_id': ref('dept_pricing')}"/>
+    </function>
+
+</odoo>

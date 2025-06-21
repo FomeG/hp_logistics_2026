@@ -22,6 +22,9 @@ HP Employee App
             'hp_employee/static/src/js/hide_action_create.js',
         ]
     },
+    'demo': [
+        'data/demo_data.xml',
+    ],
     'installable': True,
     'application': False,
 }
