@@ -9,7 +9,7 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="name" readonly="1"/>
+                            <field name="name" readonly="not id"/>
                             <field name="route_id" />
                             <field name="shipping_line_id"
                                 domain="[('is_shipping_line', '=', True)]"
@@ -58,12 +58,12 @@
         <field name="priority">1</field>
         <field name="arch" type="xml">
             <list string="Quotation List">
-                <field name="name" />
-                <field name="route_id" />
+                <field name="name" groups="base.group_system"/>
                 <field name="shipping_line_id" />
-                <field name="available_from" />
-                <field name="available_to" />
-                <field name="is_active" />
+                <field name="route_id" />
+                <field name="str_available" />
+                <field name="total_quotation_lines" string="Lines" />
+                <field name="is_active" groups="base.group_system"/>
                 <field name="create_date" />
             </list>
         </field>
