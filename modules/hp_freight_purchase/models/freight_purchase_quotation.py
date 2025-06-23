@@ -77,16 +77,17 @@ class FreightPurchaseQuotation(models.Model):
     @api.depends('shipping_line_id.name', 'route_id.name', 'available_to')
     def _compute_name(self):
         for record in self:
-            shipping_name = record.shipping_line_id.name or ''
-            route_name = record.route_id.name or ''
-
-            # Check that available_to is a valid date
-            if record.available_to and isinstance(record.available_to, (date, datetime)):
-                formatted_date = record.available_to.strftime('%d-%m-%Y')
-            else:
+            if record.shipping_line_id and record.route_id and record.available_to:
+                shipping_name = record.shipping_line_id.name or ''
+                route_name = record.route_id.name or ''
                 formatted_date = ''
-            if shipping_name != '' and route_name != '':
+                if isinstance(record.available_to, (date, datetime)):
+                    formatted_date = record.available_to.strftime('%d-%m-%Y')
+
                 record.name = f"Quotation - {shipping_name} - {route_name} - {formatted_date}"
+            else:
+                # Keep the name empty until all fields are filled
+                record.name = False
 
     @api.model
     def create_from_booking_form(self, booking_form):

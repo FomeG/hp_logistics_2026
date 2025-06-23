@@ -114,14 +114,19 @@ class FreightPurchaseBooking(models.Model):
     @api.depends('shipping_line_id.name', 'route_id.name', 'etd')
     def _compute_name(self):
         for record in self:
-            shipping_name = record.shipping_line_id.name or ''
-            route_name = record.route_id.name or ''
-            formatted_date = ''
+            for record in self:
+                if record.shipping_line_id and record.route_id and record.etd:
+                    shipping_name = record.shipping_line_id.name or ''
+                    route_name = record.route_id.name or ''
+                    formatted_date = ''
 
-            if record.etd and isinstance(record.etd, (date, datetime)):
-                formatted_date = record.etd.strftime('%d-%m-%Y')
+                    if record.etd and isinstance(record.etd, (date, datetime)):
+                        formatted_date = record.etd.strftime('%d-%m-%Y')
 
-            record.name = f"Booking - {shipping_name} - {route_name} - {formatted_date}"
+                    record.name = f"Booking - {shipping_name} - {route_name} - {formatted_date}"
+                else:
+                    # If fields are not yet filled, keep name empty
+                    record.name = False
 
     @api.depends('line_ids')
     def _compute_total_booking_lines(self):
