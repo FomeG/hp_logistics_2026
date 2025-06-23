@@ -29,6 +29,11 @@
         #menu
         'views/freight_purchase_menus.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'hp_freight_purchase/static/src/js/many2one_new_tab.js',
+        ],
+    },
     'demo': [
         'data/container_type_demo.xml',
         'data/fee_demo.xml',
