@@ -8,6 +8,14 @@
     "license": "LGPL-3",
     'depends': ['base', 'mail', 'sale','hp_components', 'hp_sale'],
     'data': [
+        #data demo
+        'demo/container_type_demo.xml',
+        'demo/fee_demo.xml',
+        'demo/region_demo.xml',
+        'demo/port_demo.xml',
+        'demo/shipping_line_demo.xml',
+        'demo/vessels_demo.xml',
+
         # security
         'security/hp_freight_purchase_security.xml',
         'security/ir.model.access.csv',
@@ -26,17 +34,18 @@
         'views/freight_purchase_booking_line_views.xml',
         'views/sale_order_line_selection_views.xml',
 
+
         #menu
         'views/freight_purchase_menus.xml',
     ],
-    'demo': [
-        'data/container_type_demo.xml',
-        'data/fee_demo.xml',
-        'data/port_demo.xml',
-        'data/region_demo.xml',
-        'data/shipping_line_demo.xml',
-        'data/vessels_demo.xml',
-    ],
+    # 'demo': [
+    #     'demo/container_type_demo.xml',
+    #     'demo/fee_demo.xml',
+    #     'demo/port_demo.xml',
+    #     'demo/region_demo.xml',
+    #     'demo/shipping_line_demo.xml',
+    #     'demo/vessels_demo.xml',
+    # ],
     'installable': True,
     'application': True,
 }
