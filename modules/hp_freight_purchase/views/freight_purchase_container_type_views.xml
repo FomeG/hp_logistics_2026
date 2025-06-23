@@ -9,7 +9,7 @@
                 <sheet>
                     <group>
                         <field name="name" required="1" />
-                        <field name="teu" required="1" invisible="not id" />
+                        <field name="teu" required="1"/>
                         <field name="is_active" required="1" />
                         <field name="quotation_line_ids" readonly="1" invisible="not id">
                             <list>

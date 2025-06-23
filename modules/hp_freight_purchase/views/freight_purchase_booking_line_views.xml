@@ -7,26 +7,47 @@
             <form>
                 <sheet>
                     <group>
-                        <group>
-                            <field name="booking_id" />
-                            <field name="quantity" />
-                            <field name="price" string="Price" />
-                            <field name="employee_id" string="Reserved By"
-                                domain="[('department_id.department_type', '=', 'sale')]" />
-                            <field name="note" />
+                        <group colspan="2">
+                            <field name="booking_id" invisible="context.get('from_booking_form')" placeholder="Select booking to filter quotation lines"/>
+                            <field name="quotation_id" readonly="1" string="Linked Quotation"
+                                groups="base.group_system" widget="many2one_new_tab" />
+                            <field name="quotation_line_id"
+                                invisible="(context.get('from_booking_form') and not parent.quotation_id.line_ids) or not has_quotation_lines"
+                                domain="[('quotation_id','=',quotation_id)]"
+                                options="{'no_create': True, 'no_edit': True}"
+                                widget="many2one_new_tab"
+                            />
                         </group>
-                        <group>
-                            <field name="quotation_line_id" />
-                            <field name="container_type_id" />
+                        <group colspan="2" invisible="has_quotation_lines">
+                            <field name="quotation_line_container_type_id"
+                                required="not has_quotation_lines" widget="many2one_new_tab" />
+                            <field name="quotation_line_cost" required="not has_quotation_lines"/>
+                            <field name="quotation_line_price" required="not has_quotation_lines"/>
+                        </group>
+                        <group colspan="2">
+                            <field name="container_type_id" invisible="not quotation_line_id"
+                                widget="many2one_new_tab" />
+                            <field name="unit_price" required="1"/>
+                            <field name="quantity" />
                             <field name="teu_volume" />
+                        </group>
+                        <group colspan="2">
+                            <field name="price" string="Price" readonly="1"/>
+                            <field name="employee_id" string="Reserved By"
+                                domain="[('department_id.department_type', '=', 'sale')]"
+                                options="{'no_create': True, 'no_edit': True}"
+                                widget="many2one_new_tab"
+                            />
                             <field name="reservation_expiration_date" />
+                            <field name="note" />
+
                             <field name="status" />
                         </group>
                     </group>
-                    <group string="Sale Order Infomation">
-                        <field name="sale_order_id" />
-                        <field name="customer_id" />
-                        <field name="salesman_id" />
+                    <group string="Sale Order Information">
+                        <field name="sale_order_id" widget="many2one_new_tab" />
+                        <field name="customer_id" widget="many2one_new_tab" />
+                        <field name="salesman_id" widget="many2one_new_tab" />
                         <field name="sale_order_line_ids" string="Order Lines" readonly="status == 'cancelled'">
                             <list editable="top" create="false" delete="true">
                                 <field name="order_id" />
@@ -100,6 +121,7 @@
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="freight_purchase_booking_line_search_view" />
         <field name="view_id" ref="freight_purchase_booking_line_list_view" />
+        <field name="context">{'from_booking_form': False}</field>
     </record>
 
 </odoo>

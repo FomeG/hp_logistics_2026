@@ -1,5 +1,7 @@
-from odoo import models, fields, api
-
+from odoo import models, fields, api, exceptions
+from ..validators.quotation_line_validator import QuotationLineValidator
+import logging
+_logger = logging.getLogger(__name__)
 class FreightPurchaseQuotationLine(models.Model):
     _name = 'freight.purchase.quotation.line'
     _description = 'Purchase Quotation Line'
@@ -19,4 +21,33 @@ class FreightPurchaseQuotationLine(models.Model):
             record.name = False
             if record.quotation_id and record.container_type_id:
                 record.name = f"Quotation: {record.quotation_id.name} for container type: {record.container_type_id.name}"
-                
+
+    @api.model
+    def create_from_booking_line_form(self, booking_line_form):
+        try:
+            validated, errors = QuotationLineValidator.validate_booking_line_form(booking_line_form, self.env)
+            # Check required fields
+            booking_id = booking_line_form.get('booking_id')
+            if not booking_id:
+                errors.append(f"Booking is required")
+            booking = self.env['freight.purchase.booking'].browse(booking_id)
+            if not booking.exists():
+                errors.append(f"Booking #{booking_id} doesn't exist.")
+
+            if errors:
+                raise exceptions.ValidationError("\n".join([f"• {e}" for e in errors]))
+
+            validated['quotation_id'] = booking.quotation_id.id
+
+            return self.create(validated)
+        except exceptions.ValidationError:
+            raise  # Re-raise validation errors
+        except Exception as e:
+            _logger.exception(f"System error creating quotation line {e}")
+            raise exceptions.ValidationError(f"A system error occurred, Cannot create quotation line. Please contact support.")
+
+    @api.onchange('cost')
+    def _onchange_cost(self):
+        for record in self:
+            if record.cost:
+                record.price = record.cost

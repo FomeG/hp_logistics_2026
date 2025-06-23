@@ -54,6 +54,8 @@ class FreightPurchaseBooking(models.Model):
     quotation_route_id = fields.Many2one('freight.purchase.route',string='Route',store=False)
     quotation_shipping_line_id = fields.Many2one('res.partner',string="Shipping line", domain="[('is_shipping_line', '=', True)]", store=False)
 
+    total_booking_lines = fields.Char(string="Total Booking Lines", compute='_compute_total_booking_lines', store=False)
+
     @api.constrains('code')
     def _check_code_required_and_unique(self):
         for record in self:
@@ -120,3 +122,10 @@ class FreightPurchaseBooking(models.Model):
                 formatted_date = record.etd.strftime('%d-%m-%Y')
 
             record.name = f"Booking - {shipping_name} - {route_name} - {formatted_date}"
+
+    @api.depends('line_ids')
+    def _compute_total_booking_lines(self):
+        for record in self:
+            record.total_booking_lines = "0 Booking Line(s)"
+            if record.line_ids:
+                record.total_booking_lines = f"{len(record.line_ids)} Booking Line(s)"

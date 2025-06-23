@@ -1,6 +1,8 @@
 from datetime import date, datetime
+from itertools import count
 
 from odoo import models, fields, api
+from odoo.addons.base.models.ir_actions_report import available
 
 
 class FreightPurchaseQuotation(models.Model):
@@ -19,10 +21,15 @@ class FreightPurchaseQuotation(models.Model):
     note = fields.Text()
     is_active = fields.Boolean(default=True, tracking=True)
     line_ids = fields.One2many('freight.purchase.quotation.line', 'quotation_id', tracking=True)
-
+    total_quotation_lines = fields.Char(string="Total Quotation Lines", compute='_compute_total_quotation_lines', store=False)
     str_fees = fields.Char(
         string="Fees",
         compute='_compute_fees',
+        store=False
+    )
+    str_available = fields.Char(
+        string="Available",
+        compute='_compute_str_available',
         store=False
     )
 
@@ -89,3 +96,15 @@ class FreightPurchaseQuotation(models.Model):
             'available_from': fields.Date.today(),
             'available_to': booking_form.get('etd'),
         })
+    @api.depends('line_ids')
+    def _compute_total_quotation_lines(self):
+        for record in self:
+            record.total_quotation_lines = "0 Quotation Line(s)"
+            if record.line_ids:
+                record.total_quotation_lines = f"{len(record.line_ids)} Quotation Line(s)"
+    def _compute_str_available(self):
+        for record in self:
+            record.str_available = ''
+            if record.available_from and record.available_to:
+                record.str_available = f"{record.available_from.strftime('%d-%m-%Y')} - {record.available_to.strftime('%d-%m-%Y')}"
+    #todo require name + email

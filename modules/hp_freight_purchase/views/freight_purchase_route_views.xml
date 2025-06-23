@@ -10,9 +10,11 @@
                     <group>
                         <field name="name" required="1" />
                         <field name="is_active" required="1" invisible="not id" />
-                        <field name="pol_id" required="1" domain="[('is_pod', '=', False)]" />
-                        <field name="pod_id" required="1" domain="[('is_pod', '=', True)]" />
-                        <field name="region_id" required="1" />
+                        <field name="pol_id" required="1" domain="[('is_pod', '=', False)]"
+                            widget="many2one_new_tab" />
+                        <field name="pod_id" required="1" domain="[('is_pod', '=', True)]"
+                            widget="many2one_new_tab" />
+                        <field name="region_id" required="1" widget="many2one_new_tab" />
                         <field name="quotation_ids" readonly="1" invisible="not id">
                             <list>
                                 <field name="name" string="Name" />
