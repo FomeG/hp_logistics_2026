@@ -51,8 +51,8 @@ class FreightPurchaseBooking(models.Model):
     ], string='Booking Mode', required=True, default='with_quotation')
 
     # Temporary fields for quotation creation
-    quotation_route_id = fields.Many2one('freight.purchase.route',string='Route',store=False)
-    quotation_shipping_line_id = fields.Many2one('res.partner',string="Shipping line", domain="[('is_shipping_line', '=', True)]", store=False)
+    quotation_route_id = fields.Many2one('freight.purchase.route',string='Route',store=True)
+    quotation_shipping_line_id = fields.Many2one('res.partner',string="Shipping line", domain="[('is_shipping_line', '=', True)]", store=True)
 
     total_booking_lines = fields.Char(string="Total Booking Lines", compute='_compute_total_booking_lines', store=False)
 
@@ -78,11 +78,35 @@ class FreightPurchaseBooking(models.Model):
     def create(self, vals_list: list[ValuesType]) -> Self:
         for vals in vals_list:
             if vals.get('booking_mode') == 'without_quotation':
+                # If booking without quotation → create a quotation
                 quotation = self.env['freight.purchase.quotation'].create_from_booking_form(vals)
                 vals['quotation_id'] = quotation.id
 
-            # Compute vals['name'] manually if quotation is not set => shipping_line, route not exist
-            if not vals.get('name'):
+                # Prepare name using temporary fields
+                shipping_name = ''
+                route_name = ''
+                etd_str = ''
+
+                if vals.get('quotation_shipping_line_id'):
+                    shipping_name = self.env['res.partner'].browse(vals['quotation_shipping_line_id']).name or ''
+                if vals.get('quotation_route_id'):
+                    route_name = self.env['freight.purchase.route'].browse(vals['quotation_route_id']).name or ''
+                if vals.get('etd'):
+                    etd_str = fields.Date.to_date(vals['etd']).strftime('%d-%m-%Y')
+
+                print(f"quotation_shipping_line_id: {shipping_name}")
+                print(f"quotation_route_id: {route_name}")
+                print(f"etd: {etd_str}")
+
+                if shipping_name and route_name and etd_str:
+                    vals['name'] = f"Booking - {shipping_name} - {route_name} - {etd_str}"
+                else:
+                    vals['name'] = False  # Leave empty if not enough info
+
+                print(f"name: {vals['name']}")
+
+            else:
+                # Booking with quotation → use related quotation fields
                 shipping_name = ''
                 route_name = ''
                 etd_str = ''
@@ -91,14 +115,14 @@ class FreightPurchaseBooking(models.Model):
                     quotation = self.env['freight.purchase.quotation'].browse(vals['quotation_id'])
                     shipping_name = quotation.shipping_line_id.name or ''
                     route_name = quotation.route_id.name or ''
-                elif vals.get('quotation_shipping_line_id') and vals.get('quotation_route_id'):
-                    shipping_name = self.env['res.partner'].browse(vals['quotation_shipping_line_id']).name or ''
-                    route_name = self.env['freight.purchase.route'].browse(vals['quotation_route_id']).name or ''
-
                 if vals.get('etd'):
                     etd_str = fields.Date.to_date(vals['etd']).strftime('%d-%m-%Y')
 
-                vals['name'] = f"Booking - {shipping_name} - {route_name} - {etd_str}"
+                if shipping_name and route_name and etd_str:
+                    vals['name'] = f"Booking - {shipping_name} - {route_name} - {etd_str}"
+                else:
+                    vals['name'] = False  # Leave empty if not enough info
+
         return super().create(vals_list)
 
     def write(self, vals):
@@ -111,22 +135,39 @@ class FreightPurchaseBooking(models.Model):
         return super().write(vals)
 
     # For making the name updated visibly
-    @api.depends('shipping_line_id.name', 'route_id.name', 'etd')
+    @api.depends('shipping_line_id.name', 'route_id.name', 'etd', 'quotation_route_id.name',
+                 'quotation_shipping_line_id.name', 'booking_mode')
     def _compute_name(self):
         for record in self:
-            for record in self:
+            if record.booking_mode == 'with_quotation':
+                # With quotation: use related shipping_line_id and route_id
                 if record.shipping_line_id and record.route_id and record.etd:
                     shipping_name = record.shipping_line_id.name or ''
                     route_name = record.route_id.name or ''
                     formatted_date = ''
 
-                    if record.etd and isinstance(record.etd, (date, datetime)):
+                    if isinstance(record.etd, (date, datetime)):
                         formatted_date = record.etd.strftime('%d-%m-%Y')
 
                     record.name = f"Booking - {shipping_name} - {route_name} - {formatted_date}"
                 else:
-                    # If fields are not yet filled, keep name empty
-                    record.name = False
+                    record.name = False  # Leave empty if missing data
+
+            elif record.booking_mode == 'without_quotation':
+                # Without quotation: use temporary fields quotation_shipping_line_id and quotation_route_id
+                if record.quotation_shipping_line_id and record.quotation_route_id and record.etd:
+                    shipping_name = record.quotation_shipping_line_id.name or ''
+                    route_name = record.quotation_route_id.name or ''
+                    formatted_date = ''
+
+                    if isinstance(record.etd, (date, datetime)):
+                        formatted_date = record.etd.strftime('%d-%m-%Y')
+
+                    record.name = f"Booking - {shipping_name} - {route_name} - {formatted_date}"
+                else:
+                    record.name = False  # Leave empty if missing data
+            else:
+                record.name = False  # Fallback, though not expected
 
     @api.depends('line_ids')
     def _compute_total_booking_lines(self):
