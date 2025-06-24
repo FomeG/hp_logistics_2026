@@ -6,7 +6,7 @@
     'category': 'HP',
     'version': '18.0.0.0.1',
     "license": "LGPL-3",
-    'depends': ['base', 'mail', 'sale','hp_components', 'hp_sale'],
+    'depends': ['base', 'mail', 'sale','hp_components', 'hp_sale','hp_employee'],
     'data': [
         #data demo
         'demo/container_type_demo.xml',
