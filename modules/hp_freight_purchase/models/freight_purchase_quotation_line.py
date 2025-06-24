@@ -18,9 +18,10 @@ class FreightPurchaseQuotationLine(models.Model):
     @api.depends('quotation_id', 'container_type_id')
     def _compute_name(self):
         for record in self:
-            record.name = False
             if record.quotation_id and record.container_type_id:
                 record.name = f"Quotation: {record.quotation_id.name} for container type: {record.container_type_id.name}"
+            else:
+                record.name = ''
 
     @api.model
     def create_from_booking_line_form(self, booking_line_form):
