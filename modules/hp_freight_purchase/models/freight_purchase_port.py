@@ -5,7 +5,7 @@ from odoo.exceptions import ValidationError
 class FreightPurchasePort(models.Model):
     _name = 'freight.purchase.port'
     _description = 'Port'
-    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin']
+    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin','unique.normalized.name.mixin']
     _order = 'create_date desc'
 
     name = fields.Char(required=True, tracking=True)

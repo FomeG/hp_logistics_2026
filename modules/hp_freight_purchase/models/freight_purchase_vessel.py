@@ -3,7 +3,7 @@ from odoo import models, fields, api
 class FreightPurchaseVessel(models.Model):
     _name = 'freight.purchase.vessel'
     _description = 'Vessel'
-    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin']
+    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin','unique.normalized.name.mixin']
     _order = 'create_date desc'
 
     name = fields.Char(required=True, tracking=True)

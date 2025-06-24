@@ -8,6 +8,7 @@
             <form string="Port">
                 <sheet>
                     <group>
+                        <field name="code" string="Code" required="1" readonly="id > 0"/>
                         <field name="name" required="1" />
                         <field name="is_pod" required="0" />
                         <field name="region_id" invisible="not is_pod" required="is_pod" />
