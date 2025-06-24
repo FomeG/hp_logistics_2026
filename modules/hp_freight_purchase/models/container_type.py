@@ -1,11 +1,10 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 
-
 class ContainerType(models.Model):
     _name = 'container.type'
     _description = 'Container Type'
-    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin']
+    _inherit = ['unique.code.mixin','unique.normalized.name.mixin','mail.thread', 'mail.activity.mixin']
     _order = 'create_date desc'
 
     name = fields.Char(required=True, tracking=True)

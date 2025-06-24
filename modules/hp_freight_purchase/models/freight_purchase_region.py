@@ -3,7 +3,7 @@ from odoo import models, fields, api
 class FreightPurchaseRegion(models.Model):
     _name = 'freight.purchase.region'
     _description = 'Region'
-    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin']
+    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin','unique.normalized.name.mixin']
     _order = 'create_date desc'
 
     name = fields.Char(required=True, tracking=True)
