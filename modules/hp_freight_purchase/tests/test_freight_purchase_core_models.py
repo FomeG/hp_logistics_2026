@@ -8,23 +8,24 @@ class TestFreightPurchaseCoreModels(TransactionCase):
         self.Region = self.env['freight.purchase.region']
         self.Port = self.env['freight.purchase.port']
         self.Route = self.env['freight.purchase.route']
-        self.ShippingLine = self.env['res.partner'].create({
-            'name': 'Test Shipping Line',
-            'is_shipping_line': True
-        })
+        # self.ShippingLine = self.env['res.partner'].create({
+        #     'name': 'Test Shipping Line',
+        #     'email':'shippingline@test.com',
+        #     'is_shipping_line': True
+        # })
         self.Vessel = self.env['freight.purchase.vessel']
 
         self.RegionRec = self.Region.create({
             'name': 'North America',
-            'code': 'NA',
+            'code': 'NA11',
         })
         self.POL = self.Port.create({
             'name': 'Port A',
-            'is_pod': False
+            'is_local': False
         })
         self.POD = self.Port.create({
             'name': 'Port B',
-            'is_pod': True,
+            'is_local': True,
             'region_id': self.RegionRec.id,
         })
 
@@ -50,14 +51,27 @@ class TestFreightPurchaseCoreModels(TransactionCase):
         self.assertEqual(region.name, 'Asia')
         self.assertEqual(region.code, 'ASIA')
 
-    def test_port_requires_region_for_pod(self):
+    def test_port_requires_region(self):
+        # Test that creation without region fails
         with self.assertRaises(ValidationError):
             self.Port.create({
-                'name': 'POD without region',
+                'name': 'port without region',
                 'code': 'PODWR',
-                'is_pod': True,
+                'is_local': True,
                 'is_active': True
             })
+
+        # Test that creation with region succeeds
+        region = self.env['freight.purchase.region'].create({
+            'name': 'Test Region'
+        })
+        port = self.Port.create({
+            'name': 'Valid Port',
+            'code': 'VALID',
+            'region_id': region.id,
+            'is_local': True
+        })
+        self.assertTrue(port.exists())
 
     def test_route_creation_and_pod_link(self):
         route = self.Route.create({

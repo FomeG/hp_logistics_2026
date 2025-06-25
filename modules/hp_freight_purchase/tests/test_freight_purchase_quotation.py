@@ -21,12 +21,12 @@ class TestFreightPurchaseQuotation(TransactionCase):
         self.POL = self.Port.create({
             'name': 'Port A',
             'code': 'PORTA',
-            'is_pod': False,
+            'is_local': False,
         })
         self.POD = self.Port.create({
             'name': 'Port B',
             'code': 'PORTB',
-            'is_pod': True,
+            'is_local': True,
             'region_id': self.RegionRec.id,
         })
         self.Today = fields.Date.today()

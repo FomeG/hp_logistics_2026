@@ -8,10 +8,9 @@
             <form string="Port">
                 <sheet>
                     <group>
-                        <field name="code" string="Code" required="1" readonly="id > 0"/>
                         <field name="name" required="1" />
-                        <field name="is_pod" required="0" />
-                        <field name="region_id" invisible="not is_pod" required="is_pod" />
+                        <field name="region_id" required="1" />
+                        <field name="is_local"/>
                         <field name="is_active" required="1" invisible="not id"/>
                     </group>
                 </sheet>
@@ -28,10 +27,11 @@
             <list string="List Ports">
                 <field name="code" />
                 <field name="name" />
-                <field name="is_pod" />
                 <field name="region_id" />
                 <field name="employees" string="Employees"/>
+                <field name="is_local" />
                 <field name="is_active" />
+                <field name="normalized_name" groups="base.group_system"/>
                 <field name="create_date" groups="base.group_system"/>
             </list>
         </field>
@@ -44,14 +44,13 @@
             <search string="List Ports">
                 <field name="code" />
                 <field name="name" />
-                <field name="is_pod" />
-                <field name="is_active" />
                 <field name="region_id" />
+                <field name="is_local" />
+                <field name="is_active" />
 
                 <!-- Filters: POD -->
                 <separator string="POD Status"/>
-                <filter string="POD" name="filter_is_pod" domain="[('is_pod', '=', True)]"/>
-                <filter string="POL" name="filter_not_pod" domain="[('is_pod', '=', False)]"/>
+                <filter string="Local" name="filter_is_local" domain="[('is_local', '=', True)]"/>
 
                 <!-- Filters: Active -->
                 <separator string="Active Status"/>
@@ -62,7 +61,6 @@
                 <separator string="Group By"/>
                 <group expand="1" string="Group By">
                     <filter string="Region" name="group_by_region" context="{'group_by': 'region_id'}"/>
-                    <filter string="POD" name="group_by_is_pod" context="{'group_by': 'is_pod'}"/>
                     <filter string="Active" name="group_by_is_active" context="{'group_by': 'is_active'}"/>
                 </group>
             </search>

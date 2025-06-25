@@ -11,17 +11,66 @@ class FreightPurchaseQuotation(models.Model):
     _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin']
     _order = 'create_date desc'
 
-    name = fields.Char(required=True, string='Quotation Name', compute='_compute_name', store=True, tracking=True)
-    route_id = fields.Many2one('freight.purchase.route', required=True, tracking=True)
-    shipping_line_id = fields.Many2one('res.partner', domain="[('is_shipping_line', '=', True)]", required=True, tracking=True)
+    name = fields.Char(
+        string='Quotation Name',
+        required=True,
+        compute='_compute_name',
+        store=True,
+        tracking=True)
+    route_id = fields.Many2one(
+        'freight.purchase.route',
+        required=True,
+        tracking=True
+    )
+    pol_id = fields.Many2one(
+        related='route_id.pol_id',
+        string='POL',
+        store=True
+    )
+    pod_id = fields.Many2one(
+        related='route_id.pod_id',
+        string='POD',
+        store=True
+    )
+    shipment_type = fields.Selection(
+        related='route_id.shipment_type',
+        store=True
+    )
+    shipping_line_id = fields.Many2one(
+        'res.partner',
+        domain="[('is_shipping_line', '=', True)]",
+        required=True,
+        tracking=True
+    )
 
-    available_from = fields.Date(required=True, tracking=True)
-    available_to = fields.Date(required=True, tracking=True)
-    fees = fields.Many2many('freight.purchase.fee', string='Fees', tracking=True)
+    available_from = fields.Date(
+        required=True,
+        tracking=True
+    )
+    available_to = fields.Date(
+        required=True,
+        tracking=True
+    )
+    fees = fields.Many2many(
+        'freight.purchase.fee',
+        string='Fees',
+        tracking=True
+    )
     note = fields.Text()
-    is_active = fields.Boolean(default=True, tracking=True)
-    line_ids = fields.One2many('freight.purchase.quotation.line', 'quotation_id', tracking=True)
-    total_quotation_lines = fields.Char(string="Total Quotation Lines", compute='_compute_total_quotation_lines', store=False)
+    is_active = fields.Boolean(
+        default=True,
+        tracking=True
+    )
+    line_ids = fields.One2many(
+        'freight.purchase.quotation.line',
+        'quotation_id',
+        tracking=True
+    )
+    total_quotation_lines = fields.Char(
+        string="Total Quotation Lines",
+        compute='_compute_total_quotation_lines',
+        store=False
+    )
     str_fees = fields.Char(
         string="Fees",
         compute='_compute_fees',

@@ -40,7 +40,22 @@ class FreightPurchaseBooking(models.Model):
         store=True,
     )
     #duplication for the perf reason
-    route_id = fields.Many2one(related='quotation_id.route_id', store=True)
+    route_id = fields.Many2one(
+        related='quotation_id.route_id',
+        store=True
+    )
+    pol_id = fields.Many2one(
+        related='route_id.pol_id',
+        store=True
+    )
+    pod_id = fields.Many2one(
+        related='route_id.pod_id',
+        store=True
+    )
+    shipment_type = fields.Selection(
+        related='route_id.shipment_type',
+        store=True
+    )
     shipping_line_id = fields.Many2one(related='quotation_id.shipping_line_id', store=True)
     teu_volume = fields.Float()
     note = fields.Text()

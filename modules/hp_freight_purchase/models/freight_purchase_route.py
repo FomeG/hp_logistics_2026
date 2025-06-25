@@ -7,11 +7,43 @@ class FreightPurchaseRoute(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'create_date desc'
 
-    name = fields.Char(string='Route Name',compute='_compute_route_name',store=True,index=True,tracking=True)
-    pol_id = fields.Many2one('freight.purchase.port', domain="[('is_pod', '=', False)]", required=True,tracking=True)
-    pod_id = fields.Many2one('freight.purchase.port', domain="[('is_pod', '=', True)]", required=True,tracking=True)
-    region_id = fields.Many2one(related='pod_id.region_id', store=True,tracking=True)
-    is_active = fields.Boolean(string='Is Active', default=True,tracking=True)
+    name = fields.Char(
+        string='Route Name',
+        compute='_compute_route_name',
+        store=True,
+        index=True,
+        tracking=True
+    )
+    pol_id = fields.Many2one(
+        'freight.purchase.port',
+        required=True,
+        tracking=True
+    )
+    pod_id = fields.Many2one(
+        'freight.purchase.port',
+        required=True,
+        tracking=True
+    )
+    region_id = fields.Many2one(
+        related='pod_id.region_id',
+        store=True,
+        tracking=True
+    )
+    shipment_type = fields.Selection([
+        ('import', 'Import'),
+        ('export', 'Export')
+    ],
+        string='Shipment Type',
+        required=True,
+        tracking=True,
+        compute='_compute_shipment_type',
+        store=True,
+    )
+    is_active = fields.Boolean(
+        string='Is Active',
+        default=True,
+        tracking=True
+    )
     quotation_ids = fields.One2many('freight.purchase.quotation', 'route_id', string='Quotations')
 
     total_quotations = fields.Char(string="Total Quotations", compute='_compute_total_quotation', store=False)
@@ -40,3 +72,11 @@ class FreightPurchaseRoute(models.Model):
                 route.total_quotations = f"{total} Quotation(s)"
             else:
                 route.total_quotations = "0 Quotation(s)"
+
+    @api.depends('pol_id', 'pod_id')
+    def _compute_shipment_type(self):
+        for rec in self:
+            if rec.pod_id.is_local:
+                rec.shipment_type = 'import'
+            elif rec.pol_id.is_local:
+                rec.shipment_type = 'export'

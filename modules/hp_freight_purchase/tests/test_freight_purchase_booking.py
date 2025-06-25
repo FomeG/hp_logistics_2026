@@ -23,8 +23,9 @@ class TestFreightPurchaseBooking(TransactionCase):
             'name': '20GP',
             'teu': 20.0,
         })
-        shippingLine = self.env['res.partner'].create({
+        self.shippingLine = self.env['res.partner'].create({
             'name': 'Test Shipping Line',
+            'email': 'shippingline@test.com',
             'is_shipping_line': True
         })
         self.vesselRec = self.Vessel.create({
@@ -37,12 +38,12 @@ class TestFreightPurchaseBooking(TransactionCase):
         pol = self.Port.create({
             'name': 'Port A',
             'code': 'PORTA',
-            'is_pod': False,
+            'is_local': False,
         })
         pod = self.Port.create({
             'name': 'Port B',
             'code': 'PORTB',
-            'is_pod': True,
+            'is_local': True,
             'region_id': regionRec.id,
         })
         today = fields.Date.today()
@@ -53,7 +54,7 @@ class TestFreightPurchaseBooking(TransactionCase):
         })
         quotation = self.Quotation.create({
             'name': 'QTN-001',
-            'shipping_line_id': shippingLine.id,
+            'shipping_line_id': self.shippingLine.id,
             'route_id': route.id,
             'available_from': today,
             'available_to': in_15_days

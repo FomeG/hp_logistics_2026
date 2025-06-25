@@ -43,12 +43,12 @@ class TestFreightPurchaseBookingLineListener(TransactionComponentCase):
         pol = self.Port.create({
             'name': 'Port A',
             'code': 'PORTA',
-            'is_pod': False,
+            'is_local': False,
         })
         pod = self.Port.create({
             'name': 'Port B',
             'code': 'PORTB',
-            'is_pod': True,
+            'is_local': True,
             'region_id': regionRec.id,
         })
         today = fields.Date.today()

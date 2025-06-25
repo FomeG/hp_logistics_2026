@@ -1,3 +1,5 @@
+from pkg_resources import require
+
 from odoo import models, fields,api
 
 from odoo.exceptions import ValidationError
@@ -9,31 +11,34 @@ class FreightPurchasePort(models.Model):
     _order = 'create_date desc'
 
     name = fields.Char(required=True, tracking=True)
-    is_pod = fields.Boolean(string='Is POD',default=True, tracking=True)
-    region_id = fields.Many2one('freight.purchase.region', string='Region', tracking=True)
-    is_active = fields.Boolean(string='Is Active', default=True, tracking=True)
-
-    @api.constrains('is_pod', 'region_id')
-    def _check_region_required(self):
-        for record in self:
-            if record.is_pod:
-                if not record.region_id:
-                    raise ValidationError("Region is required for POD (Port of Discharge).")
-                    # Check if the region exists in the database
-                if not record.region_id.exists():
-                    raise ValidationError("Selected region does not exist in the system.")
-
-    @api.onchange('is_pod')
-    def _onchange_is_pod(self):
-        for record in self:
-            if not record.is_pod:
-                record.region_id = False
-
+    is_local = fields.Boolean(
+        string='Is Local Port',
+        required=False,
+        default=False,
+        tracking=True
+    )
+    region_id = fields.Many2one(
+        'freight.purchase.region',
+        string='Region',
+        required=True,
+        tracking=True
+    )
+    is_active = fields.Boolean(
+        string='Is Active',
+        default=True,
+        tracking=True
+    )
     employees = fields.Char(
         string="Employees in Region",
         compute='_compute_region_employees',
         store=False
     )
+
+    @api.constrains('region_id')
+    def _check_region_required(self):
+        for record in self:
+            if not record.region_id:
+                raise ValidationError("Region is required for the port.")
 
     @api.depends('region_id.employee_ids')
     def _compute_region_employees(self):

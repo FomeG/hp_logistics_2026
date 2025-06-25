@@ -3,25 +3,25 @@
     <data>
         <record id="port_hanoi_vn" model="freight.purchase.port">
           <field name="name">HANOI, VIETNAM</field>
-          <field name="is_pod">False</field>
+          <field name="is_local">1</field>
           <field name="is_active">1</field>
           <field name="region_id" ref="region_southeast_asia"/>
         </record>
         <record id="port_ho_chi_minh_vn" model="freight.purchase.port">
           <field name="name">HO CHI MINH, VIETNAM</field>
-          <field name="is_pod">False</field>
+          <field name="is_local">1</field>
           <field name="is_active">1</field>
           <field name="region_id" ref="region_southeast_asia"/>
         </record>
         <record id="port_incheon_kr" model="freight.purchase.port">
           <field name="name">INCHEON, KOREA</field>
-          <field name="is_pod">True</field>
+          <field name="is_local">0</field>
           <field name="is_active">1</field>
           <field name="region_id" ref="region_northeast_asia"/>
         </record>
         <record id="port_busan_kr" model="freight.purchase.port">
           <field name="name">BUSAN, KOREA</field>
-          <field name="is_pod">True</field>
+          <field name="is_local">0</field>
           <field name="is_active">1</field>
           <field name="region_id" ref="region_northeast_asia"/>
         </record>
