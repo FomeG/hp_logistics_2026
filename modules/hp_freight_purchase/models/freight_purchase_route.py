@@ -25,11 +25,6 @@ class FreightPurchaseRoute(models.Model):
         required=True,
         tracking=True
     )
-    region_id = fields.Many2one(
-        related='pod_id.region_id',
-        store=True,
-        tracking=True
-    )
     shipment_type = fields.Selection([
         ('import', 'Import'),
         ('export', 'Export')
