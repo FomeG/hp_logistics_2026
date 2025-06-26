@@ -15,7 +15,7 @@ class FreightPurchaseBooking(models.Model):
 
     name = fields.Char(
         string='Booking Name',
-        compute='_compute_name',
+        # compute='_compute_name',
         store=True,
         required=True,
         tracking=True
@@ -66,8 +66,8 @@ class FreightPurchaseBooking(models.Model):
     ], string='Booking Mode', required=True, default='with_quotation')
 
     # Temporary fields for quotation creation
-    quotation_route_id = fields.Many2one('freight.purchase.route',string='Route',store=True)
-    quotation_shipping_line_id = fields.Many2one('res.partner',string="Shipping line", domain="[('is_shipping_line', '=', True)]", store=True)
+    quotation_route_id = fields.Many2one('freight.purchase.route',string='Route',store=False)
+    quotation_shipping_line_id = fields.Many2one('res.partner',string="Shipping line", domain="[('is_shipping_line', '=', True)]", store=False)
 
     total_booking_lines = fields.Char(string="Total Booking Lines", compute='_compute_total_booking_lines', store=False)
 
@@ -103,9 +103,9 @@ class FreightPurchaseBooking(models.Model):
                 etd_str = ''
 
                 if vals.get('quotation_shipping_line_id'):
-                    shipping_name = self.env['res.partner'].browse(vals['quotation_shipping_line_id']).name or ''
+                    shipping_name = self.env['res.partner'].browse(vals.get('quotation_shipping_line_id')).name or ''
                 if vals.get('quotation_route_id'):
-                    route_name = self.env['freight.purchase.route'].browse(vals['quotation_route_id']).name or ''
+                    route_name = self.env['freight.purchase.route'].browse(vals.get('quotation_route_id')).name or ''
                 if vals.get('etd'):
                     etd_str = fields.Date.to_date(vals['etd']).strftime('%d-%m-%Y')
 
@@ -150,7 +150,7 @@ class FreightPurchaseBooking(models.Model):
         return super().write(vals)
 
     # For making the name updated visibly
-    @api.depends('shipping_line_id.name', 'route_id.name', 'etd', 'quotation_route_id.name',
+    @api.onchange('shipping_line_id.name', 'route_id.name', 'etd', 'quotation_route_id.name',
                  'quotation_shipping_line_id.name', 'booking_mode')
     def _compute_name(self):
         for record in self:
