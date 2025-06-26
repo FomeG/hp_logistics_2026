@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+from ..validators.route_validator import RouteCreateValidator, RouteUpdateValidator
 
 class FreightPurchaseRoute(models.Model):
     _name = 'freight.purchase.route'
@@ -48,25 +49,6 @@ class FreightPurchaseRoute(models.Model):
 
     total_quotations = fields.Char(string="Total Quotations", compute='_compute_total_quotation', store=False)
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        for vals in vals_list:
-            pol_id = vals.get('pol_id')
-            pod_id = vals.get('pod_id')
-
-            shipment_type = False
-            if pod_id and self.env['freight.purchase.port'].browse(pod_id).is_local:
-                shipment_type = 'import'
-            elif pol_id and self.env['freight.purchase.port'].browse(pol_id).is_local:
-                shipment_type = 'export'
-
-            if not shipment_type:
-                raise ValidationError("Shipment Type cannot be determined! Please select valid POL and POD.")
-
-            vals['shipment_type'] = shipment_type
-
-        return super().create(vals_list)
-
     @api.depends('pol_id', 'pod_id')
     def _compute_route_name(self):
         for route in self:
@@ -99,3 +81,32 @@ class FreightPurchaseRoute(models.Model):
                 rec.shipment_type = 'import'
             elif rec.pol_id.is_local:
                 rec.shipment_type = 'export'
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            pol_id = vals.get('pol_id')
+            pod_id = vals.get('pod_id')
+
+            shipment_type = False
+            if pod_id and self.env['freight.purchase.port'].browse(pod_id).is_local:
+                shipment_type = 'import'
+            elif pol_id and self.env['freight.purchase.port'].browse(pol_id).is_local:
+                shipment_type = 'export'
+
+            if not shipment_type:
+                raise ValidationError("Shipment Type cannot be determined! Please select valid POL and POD.")
+
+            vals['shipment_type'] = shipment_type
+
+            validated, errors = RouteCreateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().create(vals_list)
+    
+    def write(self, vals):
+        for record in self:
+            validated, errors = RouteUpdateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().write(vals)

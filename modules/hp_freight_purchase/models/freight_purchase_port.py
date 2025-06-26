@@ -1,8 +1,8 @@
 from pkg_resources import require
 
 from odoo import models, fields,api
-
 from odoo.exceptions import ValidationError
+from ..validators.port_validator import PortCreateValidator, PortUpdateValidator
 
 class FreightPurchasePort(models.Model):
     _name = 'freight.purchase.port'
@@ -47,3 +47,18 @@ class FreightPurchasePort(models.Model):
                 port.employees = ", ".join(port.region_id.employee_ids.mapped('name'))
             else:
                 port.employees = ""
+    
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            validated, errors = PortCreateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().create(vals_list)
+    
+    def write(self, vals):
+        for record in self:
+            validated, errors = PortUpdateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().write(vals)

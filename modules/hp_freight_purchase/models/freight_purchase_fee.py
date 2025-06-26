@@ -1,4 +1,6 @@
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
+from ..validators.fee_validator import FeeCreateValidator, FeeUpdateValidator
 
 class FreightPurchaseFee(models.Model):
     _name = 'freight.purchase.fee'
@@ -20,3 +22,18 @@ class FreightPurchaseFee(models.Model):
                 record.total_quotation = f"{total} Quotation(s)"
             else:
                 record.total_quotation = "0 Quotation(s)"
+    
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            validated, errors = FeeCreateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().create(vals_list)
+    
+    def write(self, vals):
+        for record in self:
+            validated, errors = FeeUpdateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().write(vals)

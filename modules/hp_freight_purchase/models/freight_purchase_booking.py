@@ -1,10 +1,10 @@
 from pkg_resources import require
-
 from odoo import models, fields, api
 from odoo.api import ValuesType, Self
 from odoo.exceptions import ValidationError, UserError
 from datetime import date, datetime
-
+from odoo.exceptions import ValidationError
+from ..validators.booking_validator import BookingCreateValidator, BookingUpdateValidator
 
 class FreightPurchaseBooking(models.Model):
 
@@ -71,18 +71,6 @@ class FreightPurchaseBooking(models.Model):
 
     total_booking_lines = fields.Char(string="Total Booking Lines", compute='_compute_total_booking_lines', store=False)
 
-    @api.constrains('code')
-    def _check_code_required_and_unique(self):
-        for record in self:
-            if not record.code:
-                raise ValidationError("Code is required.")
-            existing = self.search([
-                ('code', '=', record.code),
-                ('id', '!=', record.id)
-            ])
-            if existing:
-                raise ValidationError(f"Booking code '{record.code}' already exists.")
-
     @api.onchange('booking_mode')
     def _onchange_booking_mode(self):
         for record in self:
@@ -92,6 +80,10 @@ class FreightPurchaseBooking(models.Model):
     @api.model_create_multi
     def create(self, vals_list: list[ValuesType]) -> Self:
         for vals in vals_list:
+            validated, errors = BookingCreateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        
             if vals.get('booking_mode') == 'without_quotation':
                 # If booking without quotation → create a quotation
                 quotation = self.env['freight.purchase.quotation'].create_from_booking_form(vals)
@@ -143,6 +135,10 @@ class FreightPurchaseBooking(models.Model):
     def write(self, vals):
         if 'booking_mode' in vals:
             for record in self:
+                validated, errors = BookingUpdateValidator.validate(vals, self.env, record.id)
+                if errors:
+                    raise ValidationError("\n".join([f"• {e}" for e in errors]))
+
                 if record.id:
                     #prevent to change booking mode
                     if record.booking_mode != vals['booking_mode']:
