@@ -1,6 +1,6 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
-
+from ..validators.shipping_line_validator import ShippingLineCreateValidator, ShippingLineUpdateValidator
 
 class ResPartnerInherit(models.Model):
     _inherit = 'res.partner'
@@ -19,17 +19,19 @@ class ResPartnerInherit(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             is_shipping_line = vals.get('is_shipping_line', False)
-            email = vals.get('email')
-            if is_shipping_line and not email:
-                raise ValidationError("Shipping line email is required.")
+            if is_shipping_line:
+                validated, errors = ShippingLineCreateValidator.validate(vals, self.env)
+                if errors:
+                    raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super().create(vals_list)
     
     def write(self, vals):
         for record in self:
             is_shipping_line = vals.get('is_shipping_line', record.is_shipping_line)
-            email = vals.get('email', record.email)
-            if is_shipping_line and not email:
-                raise ValidationError("Shipping line email is required.")
+            if is_shipping_line:
+                validated, errors = ShippingLineUpdateValidator.validate(vals, self.env)
+                if errors:
+                    raise ValidationError("\n".join([f"• {e}" for e in errors]))
 
         return super().write(vals)
 

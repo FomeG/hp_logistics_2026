@@ -1,6 +1,6 @@
 from odoo import models, fields, api
-
-
+from odoo.exceptions import ValidationError
+from ..validators.route_validator import RouteCreateValidator, RouteUpdateValidator
 class FreightPurchaseRoute(models.Model):
     _name = 'freight.purchase.route'
     _description = 'Route'
@@ -73,6 +73,7 @@ class FreightPurchaseRoute(models.Model):
             else:
                 route.total_quotations = "0 Quotation(s)"
 
+<<<<<<< Updated upstream
     @api.depends('pol_id', 'pod_id')
     def _compute_shipment_type(self):
         for rec in self:
@@ -80,3 +81,19 @@ class FreightPurchaseRoute(models.Model):
                 rec.shipment_type = 'import'
             elif rec.pol_id.is_local:
                 rec.shipment_type = 'export'
+=======
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            validated, errors = RouteCreateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().create(vals_list)
+    
+    def write(self, vals):
+        for record in self:
+            validated, errors = RouteUpdateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().write(vals)
+>>>>>>> Stashed changes

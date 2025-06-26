@@ -1,4 +1,6 @@
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
+from ..validators.region_validator import RegionCreateValidator, RegionUpdateValidator
 
 class FreightPurchaseRegion(models.Model):
     _name = 'freight.purchase.region'
@@ -29,3 +31,18 @@ class FreightPurchaseRegion(models.Model):
                 region.port_string = ", ".join(region.ports.mapped('name'))
             else:
                 region.port_string = ""
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            validated, errors = RegionCreateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().create(vals_list)
+    
+    def write(self, vals):
+        for record in self:
+            validated, errors = RegionUpdateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().write(vals)

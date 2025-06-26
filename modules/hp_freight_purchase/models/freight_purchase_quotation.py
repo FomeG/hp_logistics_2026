@@ -1,8 +1,9 @@
 from datetime import date, datetime
 from itertools import count
-
 from odoo import models, fields, api
 from odoo.addons.base.models.ir_actions_report import available
+from odoo.exceptions import ValidationError
+from ..validators.quotation_validator import QuotationCreateValidator, QuotationUpdateValidator
 
 
 class FreightPurchaseQuotation(models.Model):
@@ -85,6 +86,9 @@ class FreightPurchaseQuotation(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            validated, errors = QuotationCreateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
             # Compute vals['name']
             if not vals.get('name'):
                 shipping_line_id = vals.get('shipping_line_id')
@@ -110,6 +114,13 @@ class FreightPurchaseQuotation(models.Model):
                 record.code = super(FreightPurchaseQuotation, record)._generate_code_from_name(record.name or '')
 
         return records
+    
+    def write(self, vals):
+        for record in self:
+            validated, errors = QuotationUpdateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().write(vals)
 
     @api.depends('fees')
     def _compute_fees(self):

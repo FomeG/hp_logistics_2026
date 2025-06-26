@@ -1,4 +1,6 @@
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
+from ..validators.vessel_validator import VesselCreateValidator, VesselUpdatealidator
 
 class FreightPurchaseVessel(models.Model):
     _name = 'freight.purchase.vessel'
@@ -20,5 +22,20 @@ class FreightPurchaseVessel(models.Model):
                 vessel.total_bookings = f"{total} Booking(s)"
             else:
                 vessel.total_bookings = "0 Booking(s)"
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            validated, errors = VesselCreateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().create(vals_list)
+    
+    def write(self, vals):
+        for record in self:
+            validated, errors = VesselUpdatealidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().write(vals)
 
 

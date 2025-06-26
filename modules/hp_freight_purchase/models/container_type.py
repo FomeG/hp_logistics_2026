@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+from ..validators.container_type_validator import ContainerTypeCreateValidator, ContainerTypeUpdateValidator
 
 class ContainerType(models.Model):
     _name = 'container.type'
@@ -36,3 +37,18 @@ class ContainerType(models.Model):
                 record.total_quotation_lines = f"{total} Quotation Line(s)"
             else:
                 record.total_quotation_lines = "0 Quotation Line(s)"
+    
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            validated, errors = ContainerTypeCreateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().create(vals_list)
+    
+    def write(self, vals):
+        for record in self:
+            validated, errors = ContainerTypeUpdateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().write(vals)
