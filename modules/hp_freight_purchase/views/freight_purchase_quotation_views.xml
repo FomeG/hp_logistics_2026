@@ -24,7 +24,6 @@
                             <field name="fees">
                                 <list>
                                     <field name="name" />
-                                    <field name="amount" />
                                 </list>
                             </field>
                         </group>
