@@ -11,8 +11,8 @@ class PortCreateValidator(FreightValidator):
                 'type': str,
                 'required': True,
             },
-            'is_pod': {
-                'label': f"Is POD",
+            'is_local': {
+                'label': f"Is Local Port",
                 'type': bool,
                 'required': True,
             },
@@ -42,8 +42,8 @@ class PortUpdateValidator(FreightValidator):
                 'label': f"Name",
                 'type': str,
             },
-            'is_pod': {
-                'label': f"Is POD",
+            'is_local': {
+                'label': f"Is Local Port",
                 'type': bool,
             },
             'is_active': {

@@ -37,21 +37,44 @@
                             <field name="note" />
                         </group>
                     </group>
-
-                    <group string="Booking Lines" invisible="not id">
-                        <field name="line_ids" context="{'from_booking_form': True}">
-                            <list>
-                                <field name="pod_id" />
-                                <field name="quotation_line_id" groups="base.group_system"/>
-                                <field name="container_type_id" />
-                                <field name="quantity" />
-                                <field name="price" />
-                                <field name="teu_volume" />
-                                <field name="reserved_by_id" />
-                                <field name="status" />
-                            </list>
-                        </field>
-                    </group>
+                    <notebook>
+                        <page string="Booking Lines" invisible="not id">
+                            <field name="line_ids" context="{'from_booking_form': True}">
+                                <list>
+                                    <field name="pod_id" />
+                                    <field name="quotation_line_id" groups="base.group_system"/>
+                                    <field name="container_type_id" />
+                                    <field name="quantity" />
+                                    <field name="price" />
+                                    <field name="teu_volume" />
+                                    <field name="reserved_by_id" />
+                                    <field name="status" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Warehouse" invisible="not id">
+                            <field name="warehouse_line_ids" context="{'from_booking_form': True}">
+                                <list edit="0" delete="0" create="1" readonly="1" no_open="1">
+                                    <field name="container_type_id" />
+                                    <field name="action" />
+                                    <field name="quantity" />
+                                    <field name="booking_line_id" />
+                                    <field name="create_date" />
+                                </list>
+                                <form string="Fee">
+                                    <sheet>
+                                        <group>
+                                            <field name="booking_id"
+                                                invisible="context.get('from_booking_form')" />
+                                            <field name="container_type_id" required="1" />
+                                            <field name="quantity" required="1" />
+                                            <field name="action" readonly="1"/>
+                                        </group>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter />
             </form>

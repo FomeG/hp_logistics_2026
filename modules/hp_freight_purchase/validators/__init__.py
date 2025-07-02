@@ -11,3 +11,4 @@ from . import fee_validator
 from . import port_validator
 from . import quotation_validator
 from . import booking_validator
+from . import warehouse_validator

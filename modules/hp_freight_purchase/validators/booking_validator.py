@@ -32,7 +32,7 @@ class BookingCreateValidator(FreightValidator):
             'status': {
                 'label': f"Status",
                 'type': str,
-                'in': {'draft', 'pending', 'confirmed', 'fully_assigned', 'shipped', 'cancelled', 'expired'},
+                'in': {'draft'},
                 'required': True,
             },
             'booking_mode': {
@@ -76,7 +76,7 @@ class BookingUpdateValidator(FreightValidator):
             'status': {
                 'label': f"Status",
                 'type': str,
-                'in': {'draft', 'pending', 'confirmed', 'fully_assigned', 'shipped', 'cancelled', 'expired'},
+                'in': {'pending', 'confirmed', 'fully_assigned', 'shipped', 'cancelled', 'expired'},
             },
             'booking_mode': {
                 'label': f"Is Active",

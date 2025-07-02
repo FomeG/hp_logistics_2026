@@ -13,7 +13,6 @@
                             widget="many2one_new_tab" />
                         <field name="pod_id" required="1" invisible="not pol_id"
                             widget="many2one_new_tab" />
-                        <field name="region_id" required="1" widget="many2one_new_tab" />
                         <field name="shipment_type" required="1" />
                         <field name="is_active" required="1" invisible="not id" />
                         <field name="quotation_ids" readonly="1" invisible="not id">
@@ -77,7 +76,6 @@
                 <group expand="1" string="Group By">
                     <filter string="POL" name="group_by_pol" context="{'group_by': 'pol_id'}"/>
                     <filter string="POD" name="group_by_pod" context="{'group_by': 'pod_id'}"/>
-                    <filter string="Region" name="group_by_region" context="{'group_by': 'region_id'}"/>
                     <filter string="Status" name="group_by_active" context="{'group_by': 'is_active'}"/>
                 </group>
             </search>

@@ -5,13 +5,41 @@ from ..validators.fee_validator import FeeCreateValidator, FeeUpdateValidator
 class FreightPurchaseFee(models.Model):
     _name = 'freight.purchase.fee'
     _description = 'Additional Fee from Shipping Line'
-    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin','unique.normalized.name.mixin']
+    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin']
     _order = 'create_date desc'
+    name = fields.Char(
+        required=True
+    )
+    shipping_line_id = fields.Many2one(
+        'res.partner',
+        domain="[('is_shipping_line', '=', True)]",
+        required=True
+    )
+    fee_type = fields.Many2one(
+        'freight.purchase.fee.type',
+        required=True,
+    )
+    date_from = fields.Date(
+        required=True,
+        tracking=True,
+        index=True,
+    )
+    date_to = fields.Date(
+        required=True,
+        tracking=True,
+        index=True
+    )
+    note = fields.Text()
+    line_ids = fields.One2many(
+        'freight.purchase.fee.line',
+        'fee_id',
+        string='Container Charges'
+    )
 
-    name = fields.Char(required=True, tracking=True)
-    amount = fields.Float(required=False, tracking=True)
+    _sql_constraints = [
+        ('unique_fee_period', 'unique(name, shipping_line_id, date_from, date_to)', 'Fee already exists for this shipping line and period.')
+    ]
     quotations = fields.Many2many('freight.purchase.quotation', string='Quotations')
-
     total_quotation = fields.Char(string="Total Quotations", compute='_compute_total_quotation', store=False)
 
     @api.depends('quotations')
