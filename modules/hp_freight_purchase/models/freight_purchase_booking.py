@@ -71,6 +71,13 @@ class FreightPurchaseBooking(models.Model):
 
     total_booking_lines = fields.Char(string="Total Booking Lines", compute='_compute_total_booking_lines', store=False)
 
+    # History warehouse
+    warehouse_line_ids = fields.One2many(
+        'freight.warehouse', 
+        'booking_id', 
+        string='Container Lines'
+    )
+
     @api.onchange('booking_mode')
     def _onchange_booking_mode(self):
         for record in self:
@@ -133,16 +140,19 @@ class FreightPurchaseBooking(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
-        if 'booking_mode' in vals:
-            for record in self:
-                validated, errors = BookingUpdateValidator.validate(vals, self.env, record.id)
-                if errors:
-                    raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        for record in self:
+            validated, errors = BookingUpdateValidator.validate(vals, self.env, record.id)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
 
-                if record.id:
-                    #prevent to change booking mode
-                    if record.booking_mode != vals['booking_mode']:
-                        raise UserError(f"You cannot change the booking mode after creation.")
+            if 'booking_mode' in vals and record.booking_mode != vals['booking_mode']:
+                raise UserError("You cannot change the booking mode after creation.")
+
+        if 'status' in vals and len(self) == 1:
+            ctx = dict(self.env.context)
+            ctx['old_status'] = self.status
+            return super(FreightPurchaseBooking, self.with_context(ctx)).write(vals)
+
         return super().write(vals)
 
     # For making the name updated visibly
