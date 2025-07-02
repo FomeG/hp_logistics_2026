@@ -52,6 +52,18 @@
         parent="menu_base_team"
         sequence="70" />
 
+    <menuitem id="menu_freight_purchase_fee_line"
+        name="Fee"
+        action="freight_purchase_fee_line_action"
+        parent="menu_base_team"
+        sequence="80" />
+
+    <menuitem id="menu_freight_purchase_fee_type"
+        name="Fee"
+        action="freight_purchase_fee_type_action"
+        parent="menu_base_team"
+        sequence="90" />
+
     <!-- Purchase menus -->
     <menuitem id="menu_purchase_team"
         name="Purchase"

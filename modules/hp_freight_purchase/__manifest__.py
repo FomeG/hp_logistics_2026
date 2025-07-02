@@ -23,6 +23,8 @@
         #views
         'views/freight_purchase_region_views.xml',
         'views/freight_purchase_fee_views.xml',
+        'views/freight_purchase_fee_line_views.xml',
+        'views/freight_purchase_fee_type_views.xml',
         'views/freight_purchase_port_views.xml',
         'views/freight_purchase_route_views.xml',
         'views/freight_purchase_vessel_views.xml',

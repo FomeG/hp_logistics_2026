@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="freight_purchase_fee_line_form_view" model="ir.ui.view">
+        <field name="name">freight.purchase.fee.line.form</field>
+        <field name="model">freight.purchase.fee.line</field>
+        <field name="arch" type="xml">
+            <form string="Fee Line">
+                <sheet>
+                    <group>
+                        <field name="fee_id" required="1" />
+                        <field name="container_type_id" required="1" />
+                        <field name="amount" required="1" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="freight_purchase_fee_line_list_view" model="ir.ui.view">
+        <field name="name">freight.purchase.fee.line.list</field>
+        <field name="model">freight.purchase.fee.line</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <list string="Fee Line List">
+                <field name="fee_id" />
+                <field name="container_type_id" />
+                <field name="amount" />
+            </list>
+        </field>
+    </record>
+
+    <record id="freight_purchase_fee_line_search_view" model="ir.ui.view">
+        <field name="name">freight.purchase.fee.line.search</field>
+        <field name="model">freight.purchase.fee.line</field>
+        <field name="arch" type="xml">
+            <search string="Fee Line Search">
+                <field name="fee_id" />
+                <field name="container_type_id" />
+                <field name="amount" />
+
+                <separator string="Amount"/>
+                <filter string="Amount > 500" name="filter_amount_high" domain="[('amount', '&gt;', 500)]"/>
+<!--                <filter string="Amount <= 500" name="filter_amount_low" domain="[('amount', '&lt;=', 500)]"/>-->
+
+                <separator string="Group By"/>
+                <group expand="1" string="Group By">
+                    <filter string="Fee" name="group_by_fee" context="{'group_by': 'fee_id'}"/>
+                    <filter string="Container Type" name="group_by_container_type" context="{'group_by': 'container_type_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="freight_purchase_fee_line_action" model="ir.actions.act_window">
+        <field name="name">Freight Purchase Fee Line</field>
+        <field name="res_model">freight.purchase.fee.line</field>
+        <field name="search_view_id" ref="freight_purchase_fee_line_search_view" />
+        <field name="view_id" ref="freight_purchase_fee_line_list_view" />
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>
