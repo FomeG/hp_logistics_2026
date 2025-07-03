@@ -71,11 +71,11 @@ class FreightPurchaseBooking(models.Model):
 
     total_booking_lines = fields.Char(string="Total Booking Lines", compute='_compute_total_booking_lines', store=False)
 
-    # History warehouse
-    warehouse_line_ids = fields.One2many(
-        'freight.warehouse', 
+    # inventory transaction
+    booking_inventory_ids = fields.One2many(
+        'freight.purchase.booking.inventory',
         'booking_id', 
-        string='Container Lines'
+        string='Booking Inventories'
     )
 
     @api.onchange('booking_mode')

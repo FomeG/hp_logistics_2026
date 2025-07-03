@@ -1,10 +1,14 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
-from ..validators.warehouse_validator import WarehouseCreateValidator
+from ..validators.booking_inventory_validator import BookingInventoryValidator
 
-class FreightWarehouse(models.Model):
-    _name = 'freight.warehouse'
+class FreightPurchaseBookingInventory(models.Model):
+    _name = 'freight.purchase.booking.inventory'
     _description = 'Booking - Container Relation'
+
+    ACTION_IN = 'in'
+    ACTION_OUT = 'out'
+    ACTION_RETURN = 'return'
 
     booking_id = fields.Many2one('freight.purchase.booking', required=True, string='Booking')
     booking_line_id = fields.Many2one('freight.purchase.booking.line', string='Booking Line')
@@ -23,7 +27,7 @@ class FreightWarehouse(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            validated, errors = WarehouseCreateValidator.validate(vals, self.env)
+            validated, errors = BookingInventoryValidator.validate_create(vals, self.env)
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super().create(vals_list)

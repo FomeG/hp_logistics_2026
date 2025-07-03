@@ -46,11 +46,11 @@
         parent="menu_base_team"
         sequence="60" />
 
-<!--    <menuitem id="menu_freight_purchase_fee"-->
-<!--        name="Fee"-->
-<!--        action="freight_purchase_fee_action"-->
-<!--        parent="menu_base_team"-->
-<!--        sequence="70" />-->
+    <menuitem id="menu_freight_purchase_fee"
+        name="Fee"
+        action="freight_purchase_fee_action"
+        parent="menu_base_team"
+        sequence="70" />
 
     <menuitem id="menu_freight_purchase_fee_line"
         name="Fee Line"
