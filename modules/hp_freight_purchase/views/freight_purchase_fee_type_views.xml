@@ -9,7 +9,8 @@
                 <sheet>
                     <group>
                         <field name="name" required="1" />
-                        <field name="active" />
+                        <field name="type" />
+                        <field name="is_active" invisible="not id"/>
                     </group>
                 </sheet>
             </form>
@@ -23,7 +24,8 @@
         <field name="arch" type="xml">
             <list string="Fee Type List">
                 <field name="name" />
-                <field name="active" />
+                <field name="type" />
+                <field name="is_active" />
             </list>
         </field>
     </record>
@@ -34,14 +36,14 @@
         <field name="arch" type="xml">
             <search string="Fee Type Search">
                 <field name="name" />
-
+                <field name="type" />
                 <separator string="Active Status"/>
-                <filter string="Active" name="filter_active" domain="[('active', '=', True)]"/>
-                <filter string="Inactive" name="filter_inactive" domain="[('active', '=', False)]"/>
+                <filter string="Active" name="filter_active" domain="[('is_active', '=', True)]"/>
+                <filter string="Inactive" name="filter_inactive" domain="[('is_active', '=', False)]"/>
 
                 <separator string="Group By"/>
                 <group expand="1" string="Group By">
-                    <filter string="Active Status" name="group_by_active" context="{'group_by': 'active'}"/>
+                    <filter string="Active Status" name="group_by_active" context="{'group_by': 'is_active'}"/>
                 </group>
             </search>
         </field>

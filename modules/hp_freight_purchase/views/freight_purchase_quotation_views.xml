@@ -21,11 +21,11 @@
                         <group>
                             <field name="available_from" />
                             <field name="available_to" />
-                            <field name="fees">
-                                <list>
-                                    <field name="name" />
-                                </list>
-                            </field>
+<!--                            <field name="fees">-->
+<!--                                <list>-->
+<!--                                    <field name="name" />-->
+<!--                                </list>-->
+<!--                            </field>-->
                         </group>
                     </group>
 
