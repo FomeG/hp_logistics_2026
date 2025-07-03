@@ -1,1 +1,1 @@
-from . import freight_warehouse_service
+from . import freight_purchase_booking_inventory_service

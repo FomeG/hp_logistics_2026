@@ -1,10 +1,10 @@
 from .freight_validator import FreightValidator
 
 # Validate create
-class WarehouseCreateValidator(FreightValidator):
+class BookingInventoryValidator(FreightValidator):
 
     @classmethod
-    def validate(cls, data, env):
+    def validate_create(cls, data, env):
         field_rules = {
             'booking_id': {
                 'label': f"Booking",
@@ -13,19 +13,19 @@ class WarehouseCreateValidator(FreightValidator):
                 'required': True,
             },
             'container_type_id': {
-                'label': f"Container Type Warehouse",
+                'label': f"Container Type",
                 'type': int,
                 'exists': 'container.type',
                 'required': True,
             },
             'quantity': {
-                'label': f"Quantity Warehouse",
+                'label': f"Quantity",
                 'type': int,
                 'min_value': 1,
                 'required': True
             },
             'action': {
-                'label': f"Action Warehouse",
+                'label': f"Action",
                 'type': str,
                 'in': {'in', 'out', 'return'},
                 'required': True,

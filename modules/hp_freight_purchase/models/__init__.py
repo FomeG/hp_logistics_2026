@@ -14,4 +14,4 @@ from . import freight_purchase_quotation_line
 from . import freight_purchase_booking
 from . import freight_purchase_booking_line
 from . import sale_order_line_inherit
-from . import freight_warehouse
+from . import freight_purchase_booking_inventory
