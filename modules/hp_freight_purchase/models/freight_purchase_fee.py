@@ -73,4 +73,6 @@ class FreightPurchaseFee(models.Model):
     @api.depends('shipping_line_id', 'fee_type_id','date_from')
     def _compute_name(self):
         for record in self:
-            record.name = f"{record.shipping_line_id.name or ''} - {record.fee_type_id.name or ''} - {record.date_from.strftime('%d-%m-%Y') or ''}".strip(' -')
+            date_str = record.date_from.strftime('%d-%m-%Y') if record.date_from else ''
+            record.name = f"{record.shipping_line_id.name or ''} - {record.fee_type_id.name or ''} - {date_str}".strip(
+                ' -')

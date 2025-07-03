@@ -19,7 +19,7 @@ class FreightPurchaseFeeType(models.Model):
         ],
         default='l',
     )
-    is_active = fields.Boolean(default=True, required=True)
+    active = fields.Boolean(default=True, required=True)
 
     @api.model_create_multi
     def create(self, vals_list):

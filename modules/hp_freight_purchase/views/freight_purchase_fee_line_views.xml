@@ -9,6 +9,10 @@
                 <sheet>
                     <group>
                         <field name="fee_id" required="1" />
+                        <field name="shipping_line_id" readonly="1" />
+                        <field name="fee_type_id" readonly="1" />
+                        <field name="date_from" readonly="1" />
+                        <field name="date_to" readonly="1" />
                         <field name="container_type_id" required="1" />
                         <field name="amount" required="1" />
                     </group>
@@ -24,6 +28,10 @@
         <field name="arch" type="xml">
             <list string="Fee Line List">
                 <field name="fee_id" />
+                <field name="shipping_line_id" />
+                <field name="fee_type_id" />
+                <field name="date_from" />
+                <field name="date_to" />
                 <field name="container_type_id" />
                 <field name="amount" />
             </list>
@@ -36,17 +44,24 @@
         <field name="arch" type="xml">
             <search string="Fee Line Search">
                 <field name="fee_id" />
+                <field name="shipping_line_id" />
+                <field name="fee_type_id" />
                 <field name="container_type_id" />
                 <field name="amount" />
+                <field name="date_from" />
+                <field name="date_to" />
 
                 <separator string="Amount"/>
                 <filter string="Amount > 500" name="filter_amount_high" domain="[('amount', '&gt;', 500)]"/>
-<!--                <filter string="Amount <= 500" name="filter_amount_low" domain="[('amount', '&lt;=', 500)]"/>-->
 
                 <separator string="Group By"/>
                 <group expand="1" string="Group By">
                     <filter string="Fee" name="group_by_fee" context="{'group_by': 'fee_id'}"/>
+                    <filter string="Shipping Line" name="group_by_shipping_line" context="{'group_by': 'shipping_line_id'}"/>
+                    <filter string="Fee Type" name="group_by_fee_type" context="{'group_by': 'fee_type_id'}"/>
                     <filter string="Container Type" name="group_by_container_type" context="{'group_by': 'container_type_id'}"/>
+                    <filter string="Date From" name="group_by_date_from" context="{'group_by': 'date_from'}"/>
+                    <filter string="Date To" name="group_by_date_to" context="{'group_by': 'date_to'}"/>
                 </group>
             </search>
         </field>
