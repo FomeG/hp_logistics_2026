@@ -1,10 +1,6 @@
 from odoo.addons.component.core import Component
 from ..services.freight_warehouse_service import FreightWarehouseService
 
-import logging
-
-_logger = logging.getLogger(__name__)
-
 class FreightPurchaseBookingListener(Component):
     _name = 'custom_component.freight_puchase_booking_listener'
     _inherit = 'base.event.listener'

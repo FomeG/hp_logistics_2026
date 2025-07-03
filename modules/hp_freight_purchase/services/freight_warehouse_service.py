@@ -1,8 +1,3 @@
-
-import logging
-
-_logger = logging.getLogger(__name__)
-
 class FreightWarehouseService:
     _name = "Freight Warehouse Service"
     def __init__(self, env):
