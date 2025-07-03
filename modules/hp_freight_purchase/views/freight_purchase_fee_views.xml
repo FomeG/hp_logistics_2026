@@ -9,7 +9,6 @@
                 <sheet>
                     <group>
                         <field name="name" required="1" />
-                        <field name="amount" required="0" />
                         <field name="quotations" readonly="1" invisible="not id">
                             <list>
                                 <field name="name" string="Name" />
@@ -36,7 +35,6 @@
             <list string="List Fee">
                 <field name="code" />
                 <field name="name" />
-                <field name="amount" />
                 <field name="total_quotation" />
                 <field name="create_date" />
             </list>
@@ -50,12 +48,6 @@
             <search string="List Fee">
                 <field name="code" />
                 <field name="name" />
-                <field name="amount" />
-
-                <!-- Filter Groups -->
-                <separator string="Amount"/>
-                <filter string="Amount > 500" name="filter_amount_high" domain="[('amount', '&gt;', 500)]"/>
-<!--                <filter string="Amount < 500" name="filter_amount_low" domain="[('amount', '&lt;=', 500)]"/>-->
 
                 <separator string="Quotation Link"/>
                 <filter string="With Quotations" name="filter_with_quotation" domain="[('quotations', '!=', False)]"/>
@@ -64,8 +56,8 @@
                 <!-- Group By -->
                 <separator string="Group By"/>
                 <group expand="1" string="Group By">
-                    <filter string="Amount" name="group_by_amount" context="{'group_by': 'amount'}"/>
-                    <filter string="Name" name="group_by_name" context="{'group_by': 'name'}"/>
+                    <filter string="Shipping Line" name="group_by_shipping_line" context="{'group_by': 'shipping_line_id'}"/>
+                    <filter string="Created Date" name="group_by_create_date" context="{'group_by': 'create_date'}"/>
                 </group>
             </search>
         </field>
