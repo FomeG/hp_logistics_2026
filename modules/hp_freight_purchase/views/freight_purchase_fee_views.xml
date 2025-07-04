@@ -58,6 +58,21 @@
             <search string="List Fee">
                 <field name="shipping_line_id" />
                 <field name="fee_type_id" />
+
+                <separator string="Quick Filters"/>
+                <!-- Date to within 1 week -->
+                <filter string="Ending Within 1 Week" name="filter_date_to_week"
+                        domain="[('date_to', '&lt;=', (context_today() + relativedelta(days=7)).strftime('%%Y-%%m-%%d'))]"/>
+
+                <!-- Fee Type Filter -->
+                <separator string="Fee Type"/>
+                <filter string="D Fees" name="filter_fee_type_doc"
+                        domain="[('fee_type_id.type', '=', 'd')]"/>
+                <filter string="L Fees" name="filter_fee_type_handling"
+                        domain="[('fee_type_id.type', '=', 'l')]"/>
+                <filter string="L/D Fees" name="filter_fee_type_ld"
+                        domain="[('fee_type_id.type', '=', 'l/d')]"/>
+
                 <separator string="Quotation Link"/>
                 <filter string="With Quotations" name="filter_with_quotation" domain="[('quotations', '!=', False)]"/>
                 <filter string="Without Quotations" name="filter_without_quotation" domain="[('quotations', '=', False)]"/>
@@ -66,6 +81,8 @@
                 <separator string="Group By"/>
                 <group expand="1" string="Group By">
                     <filter string="Shipping Line" name="group_by_shipping_line" context="{'group_by': 'shipping_line_id'}"/>
+                    <filter string="Fee Type" name="group_by_fee_type" context="{'group_by': 'fee_type_id'}"/>
+                    <filter string="Date To" name="group_by_date_to" context="{'group_by': 'date_to'}"/>
                     <filter string="Created Date" name="group_by_create_date" context="{'group_by': 'create_date'}"/>
                 </group>
             </search>

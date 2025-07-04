@@ -51,9 +51,9 @@
                 <field name="shipping_line_id" />
                 <field name="fee_type_id" />
                 <field name="container_type_id" />
-                <field name="amount" />
-                <field name="date_from" />
-                <field name="date_to" />
+<!--                <field name="amount" />-->
+<!--                <field name="date_from" />-->
+<!--                <field name="date_to" />-->
 
                 <separator string="Quick Filters"/>
                 <!-- Date to within 1 week -->
@@ -61,7 +61,7 @@
                         domain="[('date_to', '&lt;=', (context_today() + relativedelta(days=7)).strftime('%%Y-%%m-%%d'))]"/>
 
                 <!-- Fee Type Filter -->
-                <separator string="Quick Filters"/>
+                <separator string="Fee Type"/>
                 <filter string="D Fees" name="filter_fee_type_doc"
                         domain="[('fee_type_id.type', '=', 'd')]"/>
                 <filter string="L Fees" name="filter_fee_type_handling"
@@ -78,7 +78,7 @@
                     <filter string="Shipping Line" name="group_by_shipping_line" context="{'group_by': 'shipping_line_id'}"/>
                     <filter string="Fee Type" name="group_by_fee_type" context="{'group_by': 'fee_type_id'}"/>
                     <filter string="Container Type" name="group_by_container_type" context="{'group_by': 'container_type_id'}"/>
-                    <filter string="Date From" name="group_by_date_from" context="{'group_by': 'date_from'}"/>
+<!--                    <filter string="Date From" name="group_by_date_from" context="{'group_by': 'date_from'}"/>-->
                     <filter string="Date To" name="group_by_date_to" context="{'group_by': 'date_to'}"/>
                 </group>
             </search>
