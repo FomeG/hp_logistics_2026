@@ -1,6 +1,6 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
-from ..validators.fee_validator import  FeeValidator
+from ..validators.fee_validator import FeeTypeCreateValidator, FeeTypeUpdateValidator
 
 class FreightPurchaseFeeType(models.Model):
     _name = 'freight.purchase.fee.type'
@@ -25,10 +25,17 @@ class FreightPurchaseFeeType(models.Model):
     def create(self, vals_list):
         validated_list = []
         for vals in vals_list:
-            validated, errors = FeeValidator.validate_fee_type(vals, self.env)
+            validated, errors = FeeTypeCreateValidator.validate(vals, self.env)
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
             validated['name'] = f"{validated['name']} ({validated['type']})"
             validated_list.append(validated)
 
         return super().create(validated_list)
+
+    def write(self, vals):
+        for record in self:
+            validated, errors = FeeTypeUpdateValidator.validate(vals, self.env, record.id)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().write(validated if validated else vals)

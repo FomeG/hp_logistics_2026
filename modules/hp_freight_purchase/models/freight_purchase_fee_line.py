@@ -1,4 +1,6 @@
-from odoo import models, fields
+from odoo import models, fields, api
+from odoo.exceptions import ValidationError
+from ..validators.fee_validator import FeeLineCreateValidator, FeeLineUpdateValidator
 
 
 class FreightChargeFeeLine(models.Model):
@@ -48,3 +50,20 @@ class FreightChargeFeeLine(models.Model):
     _sql_constraints = [
         ('unique_container_fee', 'unique(fee_id, container_type_id)', 'Fee already exists for this container.')
     ]
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        validated_list = []
+        for vals in vals_list:
+            validated, errors = FeeLineCreateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+            validated_list.append(validated)
+        return super().create(validated_list)
+
+    def write(self, vals):
+        for record in self:
+            validated, errors = FeeLineUpdateValidator.validate(vals, self.env, record.id)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().write(validated if validated else vals)
