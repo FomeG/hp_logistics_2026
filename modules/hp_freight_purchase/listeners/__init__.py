@@ -1,2 +1,1 @@
 from . import freight_purchase_booking_line_listener
-from . import freight_puchase_booking_listener

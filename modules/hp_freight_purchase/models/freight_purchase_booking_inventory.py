@@ -24,6 +24,12 @@ class FreightPurchaseBookingInventory(models.Model):
         default='in',
     )
 
+    allow_container_type_ids = fields.Many2many(
+        comodel_name='container.type',
+        compute='_compute_allow_container_type_ids',
+        store=False
+    )
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -31,3 +37,11 @@ class FreightPurchaseBookingInventory(models.Model):
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super().create(vals_list)
+    
+    @api.depends('booking_id.quotation_id.line_ids.container_type_id')
+    def _compute_allow_container_type_ids(self):
+        for rec in self:
+            if rec.booking_id and rec.booking_id.quotation_id:
+                rec.allow_container_type_ids = rec.booking_id.quotation_id.line_ids.mapped('container_type_id')
+            else:
+                rec.allow_container_type_ids = False

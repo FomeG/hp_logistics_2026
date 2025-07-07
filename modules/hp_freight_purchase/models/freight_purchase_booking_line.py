@@ -1,5 +1,6 @@
 from ..validators.booking_line_validator import BookingLineValidator
 from odoo import models, fields, api, exceptions
+from odoo.addons.hp_freight_purchase.services.freight_purchase_booking_inventory_service import FreightPurchaseBookingInventoryService
 
 class FreightPurchaseBookingLine(models.Model):
     _name = 'freight.purchase.booking.line'
@@ -196,5 +197,25 @@ class FreightPurchaseBookingLine(models.Model):
             raise
         except Exception as e:
             raise exceptions.ValidationError("An unexpected error occurred. Please try again or contact support.")
+    
+    def write(self, vals):
+        for record in self:
+            if record.status == 'cancel':
+                raise exceptions.UserError("You cannot update booking line that is in 'Cancelled' status.")
 
+        if 'status' in vals and len(self) == 1:
+            ctx = dict(self.env.context)
+            ctx['old_status'] = self.status
+            return super(FreightPurchaseBookingLine, self.with_context(ctx)).write(vals)
 
+        return super().write(vals)
+
+    @api.constrains('booking_id', 'container_type_id', 'quantity')
+    def _check_quantity_against_quotation(self):
+        for line in self:
+            if line.booking_id and line.container_type_id and line.quantity:
+                container_avaliable = FreightPurchaseBookingInventoryService(self.env).count_quantity_container_available_in_booking(line.booking_id.id, line.container_type_id.id)
+                if line.quantity > container_avaliable:
+                    raise exceptions.ValidationError(
+                        f"Total quantity must be less than or equal to {container_avaliable}."
+                    )

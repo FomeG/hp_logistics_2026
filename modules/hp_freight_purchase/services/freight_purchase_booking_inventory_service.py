@@ -3,20 +3,15 @@ class FreightPurchaseBookingInventoryService:
     def __init__(self, env):
         self.env = env
 
-    def create_inventory_by_booking(self, booking, action) -> None:
-        booking_lines = booking.line_ids
-        if booking_lines:
-            inventory_vals = []
-            for line in booking_lines:
-                inventory_vals.append({
-                    'booking_id': booking.id,
-                    'booking_line_id': line.id,
-                    'container_type_id': line.container_type_id.id,
-                    'quantity': line.quantity,
-                    'action': action,
-                })
-            
-            self.env['freight.purchase.booking.inventory'].sudo().create(inventory_vals)
+    def create_inventory_by_booking_line(self, booking_line, action) -> None:
+        inventory_vals = {
+            'booking_id': booking_line.booking_id.id,
+            'booking_line_id': booking_line.id,
+            'container_type_id': booking_line.container_type_id.id,
+            'quantity': booking_line.quantity,
+            'action': action,
+        }
+        self.env['freight.purchase.booking.inventory'].sudo().create(inventory_vals)
         return
     
     def count_quantity_container_available_in_booking(self, booking_id, container_type_id):

@@ -1,6 +1,8 @@
 from datetime import timedelta
 from odoo import fields
 from odoo.addons.component.core import Component
+from ..services.freight_purchase_booking_inventory_service import FreightPurchaseBookingInventoryService
+from ..models.freight_purchase_booking_inventory import FreightPurchaseBookingInventory
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -26,3 +28,23 @@ class FreightPurchaseBookingLineListener(Component):
                     record.write({
                         'reservation_expiration_date': False
                     })
+    def on_record_write(self, record, fields=None):
+        if 'status' in fields:
+            old_status = record.env.context.get('old_status')
+            new_satus = record.status
+            service = FreightPurchaseBookingInventoryService(self.env)
+            action = None
+            if old_status in {'available', 'reserved', 'allocated', 'shipped'} and new_satus in {'cancelled'}:
+                action = FreightPurchaseBookingInventory.ACTION_RETURN
+
+            service.create_inventory_by_booking_line(record, action)
+        return
+
+    def on_record_create(self, record, fields=None):
+        status = record.status
+        service = FreightPurchaseBookingInventoryService(self.env)
+        if status in {'available', 'reserved', 'allocated', 'shipped'}:
+            action = FreightPurchaseBookingInventory.ACTION_OUT
+            service.create_inventory_by_booking_line(record, action) 
+
+        return

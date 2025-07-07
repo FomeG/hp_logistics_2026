@@ -77,6 +77,7 @@ class FreightPurchaseBooking(models.Model):
         'booking_id', 
         string='Booking Inventories'
     )
+    is_show_inventory = fields.Boolean(compute='_compute_is_show_inventory', store=False)
 
     @api.onchange('booking_mode')
     def _onchange_booking_mode(self):
@@ -148,11 +149,6 @@ class FreightPurchaseBooking(models.Model):
             if 'booking_mode' in vals and record.booking_mode != vals['booking_mode']:
                 raise UserError("You cannot change the booking mode after creation.")
 
-        if 'status' in vals and len(self) == 1:
-            ctx = dict(self.env.context)
-            ctx['old_status'] = self.status
-            return super(FreightPurchaseBooking, self.with_context(ctx)).write(vals)
-
         return super().write(vals)
 
     # For making the name updated visibly
@@ -196,3 +192,8 @@ class FreightPurchaseBooking(models.Model):
             record.total_booking_lines = "0 Booking Line(s)"
             if record.line_ids:
                 record.total_booking_lines = f"{len(record.line_ids)} Booking Line(s)"
+    
+    @api.depends('quotation_id')
+    def _compute_is_show_inventory(self):
+        for record in self:
+            record.is_show_inventory = True if record.id and record.quotation_id.line_ids else False
