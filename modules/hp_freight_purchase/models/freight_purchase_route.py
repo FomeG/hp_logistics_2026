@@ -25,15 +25,14 @@ class FreightPurchaseRoute(models.Model):
         required=True,
         tracking=True
     )
-    shipment_type = fields.Selection([
+    direction = fields.Selection([
         ('import', 'Import'),
-        ('export', 'Export')
+        ('export', 'Export'),
+        ('N/A', 'N/A'),
     ],
-        string='Shipment Type',
         required=True,
-        tracking=True,
-        compute='_compute_shipment_type',
-        store=True,
+        compute='_compute_direction',
+        default='export',
     )
     is_active = fields.Boolean(
         string='Is Active',
@@ -70,30 +69,17 @@ class FreightPurchaseRoute(models.Model):
                 route.total_quotations = "0 Quotation(s)"
 
     @api.depends('pol_id', 'pod_id')
-    def _compute_shipment_type(self):
+    def _compute_direction(self):
         for rec in self:
+            rec.direction = False
             if rec.pod_id.is_local:
-                rec.shipment_type = 'import'
+                rec.direction = 'import'
             elif rec.pol_id.is_local:
-                rec.shipment_type = 'export'
+                rec.direction = 'export'
 
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            pol_id = vals.get('pol_id')
-            pod_id = vals.get('pod_id')
-
-            shipment_type = False
-            if pod_id and self.env['freight.purchase.port'].browse(pod_id).is_local:
-                shipment_type = 'import'
-            elif pol_id and self.env['freight.purchase.port'].browse(pol_id).is_local:
-                shipment_type = 'export'
-
-            if not shipment_type:
-                raise ValidationError("Shipment Type cannot be determined! Please select valid POL and POD.")
-
-            vals['shipment_type'] = shipment_type
-
             validated, errors = RouteCreateValidator.validate(vals, self.env)
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))

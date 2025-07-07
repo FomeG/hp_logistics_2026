@@ -7,6 +7,12 @@ class FreightChargeFeeLine(models.Model):
     _name = 'freight.purchase.fee.line'
     _description = 'Container Type Charges'
 
+    name = fields.Char(
+        string="Name",
+        readonly=True,
+        compute='_compute_name',
+        store=True,
+    )
     fee_id = fields.Many2one(
         'freight.purchase.fee',
         ondelete='cascade',
@@ -67,3 +73,9 @@ class FreightChargeFeeLine(models.Model):
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super().write(validated if validated else vals)
+
+    @api.depends('fee_id','container_type_id')
+    def _compute_name(self):
+        for record in self:
+            record.name = f"{record.fee_id.name or ''} - {record.container_type_id.name or ''}"
+

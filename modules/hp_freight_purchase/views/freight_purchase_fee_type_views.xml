@@ -9,7 +9,9 @@
                 <sheet>
                     <group>
                         <field name="name" required="1" />
-                        <field name="type" />
+                        <field name="direction" />
+                        <field name="is_common" help="Check if the fee applied directly to quotation"/>
+                        <field name="amount" invisible="not is_common" required="is_common" />
                         <field name="active" invisible="not id"/>
                     </group>
                 </sheet>
@@ -24,7 +26,9 @@
         <field name="arch" type="xml">
             <list string="Fee Type List">
                 <field name="name" />
-                <field name="type" />
+                <field name="direction" />
+                <field name="is_common" />
+                <field name="amount" />
                 <field name="active" />
             </list>
         </field>
@@ -36,7 +40,10 @@
         <field name="arch" type="xml">
             <search string="Fee Type Search">
                 <field name="name" />
-                <field name="type" />
+                <field name="direction" />
+                <field name="is_common" />
+                <field name="amount" />
+                <field name="active" />
                 <separator string="Active Status"/>
                 <filter string="Active" name="filter_active" domain="[('active', '=', True)]"/>
                 <filter string="Inactive" name="filter_inactive" domain="[('active', '=', False)]"/>

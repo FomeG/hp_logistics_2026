@@ -18,34 +18,50 @@
                             <field name="note" />
                             <field name="is_active" invisible="not id" />
                         </group>
-                        <group>
+                        <group string="Availability">
                             <field name="available_from" />
                             <field name="available_to" />
-<!--                            <field name="fees">-->
-<!--                                <list>-->
-<!--                                    <field name="name" />-->
-<!--                                </list>-->
-<!--                            </field>-->
                         </group>
                     </group>
-
-                    <group string="Quotation Lines">
-                        <field name="line_ids" string="">
-                            <form>
-                                <group>
+                    <notebook>
+                        <page string="Container Rates">
+                            <field name="line_ids">
+                                <list>
                                     <field name="container_type_id" />
-                                    <field name="cost"/>
-                                    <field name="price" />
-                                </group>
-                            </form>
-                            <list>
-                                <field name="container_type_id" />
-                                <field name="cost" />
-                                <field name="price" string="Internal price" />
-                                <field name="create_date" />
-                            </list>
-                        </field>
-                    </group>
+                                    <field name="cost" />
+                                    <field name="price" string="Internal price" />
+                                    <field name="fee_line_ids" widget="many2many_tags"
+                                           options="{'no_create_edit': True}"
+                                           string="Fees"/>
+                                    <field name="create_date" groups="base.group_system" />
+                                </list>
+                                <form>
+                                    <group>
+                                        <field name="container_type_id" />
+                                        <field name="cost"/>
+                                        <field name="price" />
+                                    </group>
+                                    <group string="Fees">
+                                        <field name="fee_line_ids" invisible="not id">
+                                            <list editable="bottom">
+                                                <field name="fee_line_id"/>
+                                                <field name="amount"/>
+                                            </list>
+                                        </field>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Common Fees">
+                            <field name="fee_ids">
+                                <list editable="bottom">
+                                    <field name="fee_type_id"/>
+                                    <field name="amount"/>
+                                    <field name="note" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter />
             </form>

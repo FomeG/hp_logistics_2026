@@ -26,15 +26,17 @@ class FreightPurchaseQuotation(models.Model):
     pol_id = fields.Many2one(
         related='route_id.pol_id',
         string='POL',
-        store=True
+        store=True,
+        index=True,
     )
     pod_id = fields.Many2one(
         related='route_id.pod_id',
         string='POD',
-        store=True
+        store=True,
+        index=True,
     )
-    shipment_type = fields.Selection(
-        related='route_id.shipment_type',
+    direction = fields.Selection(
+        related='route_id.direction',
         store=True
     )
     shipping_line_id = fields.Many2one(
@@ -52,11 +54,6 @@ class FreightPurchaseQuotation(models.Model):
         required=True,
         tracking=True
     )
-    fees = fields.Many2many(
-        'freight.purchase.fee',
-        string='Fees',
-        tracking=True
-    )
     note = fields.Text()
     is_active = fields.Boolean(
         default=True,
@@ -67,14 +64,14 @@ class FreightPurchaseQuotation(models.Model):
         'quotation_id',
         tracking=True
     )
+    fee_ids = fields.One2many(
+        comodel_name="freight.purchase.quotation.fee",
+        inverse_name="quotation_id",
+        string="Common Fees"
+    )
     total_quotation_lines = fields.Char(
         string="Total Quotation Lines",
         compute='_compute_total_quotation_lines',
-        store=False
-    )
-    str_fees = fields.Char(
-        string="Fees",
-        compute='_compute_fees',
         store=False
     )
     str_available = fields.Char(
@@ -121,17 +118,6 @@ class FreightPurchaseQuotation(models.Model):
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super().write(vals)
-
-    @api.depends('fees')
-    def _compute_fees(self):
-        for quotation in self:
-            if not quotation.fees:
-                quotation.str_fees = f"No fees applied"
-            else:
-                names = []
-                for fee in quotation.fees:
-                    names.append(fee.name)
-                quotation.str_fees = ", ".join(names)
 
     # For making the name updated visibly
     @api.depends('shipping_line_id.name', 'route_id.name', 'available_to')

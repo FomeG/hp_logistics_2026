@@ -1,6 +1,7 @@
 from odoo import models, fields, api
+from odoo.addons.test_convert.tests.test_env import record
 from odoo.exceptions import ValidationError
-from ..validators.fee_validator import FeeCreateValidator, FeeUpdateValidator
+from ..validators.fee_validator import FeeValidator
 
 class FreightPurchaseFee(models.Model):
     _name = 'freight.purchase.fee'
@@ -14,13 +15,18 @@ class FreightPurchaseFee(models.Model):
         store=True,
     )
     shipping_line_id = fields.Many2one(
-        'res.partner',
+        comodel_name='res.partner',
         domain="[('is_shipping_line', '=', True)]",
         required=True
     )
     fee_type_id = fields.Many2one(
-        'freight.purchase.fee.type',
+        comodel_name='freight.purchase.fee.type',
+        domain="[('is_common', '=', False)]",
         required=True,
+    )
+    route_id = fields.Many2one(
+        comodel_name="freight.purchase.route",
+        required=False
     )
     date_from = fields.Date(
         required=False,
@@ -36,40 +42,44 @@ class FreightPurchaseFee(models.Model):
     line_ids = fields.One2many(
         'freight.purchase.fee.line',
         'fee_id',
-        string='Container Charges'
+        string='Container Fee'
     )
 
     _sql_constraints = [
-        ('unique_fee_period', 'unique(fee_type_id, shipping_line_id, date_from, date_to)', 'Fee already exists for this shipping line and period.')
+        ('unique_fee_period', 'unique(fee_type_id, shipping_line_id, date_from)', 'Fee already exists for this shipping line and period.')
     ]
-    quotations = fields.Many2many('freight.purchase.quotation', string='Quotations')
-    total_quotation = fields.Char(string="Total Quotations", compute='_compute_total_quotation', store=False)
 
-    @api.depends('quotations')
-    def _compute_total_quotation(self):
+    total_container_fees = fields.Char(
+        string="Total Container Fees",
+        compute='_compute_total_container_fees',
+        store=False
+    )
+
+
+    @api.depends('line_ids')
+    def _compute_total_container_fees(self):
         for record in self:
-            if record.quotations:
-                total = len(record.quotations)
-                record.total_quotation = f"{total} Quotation(s)"
+            if record.line_ids:
+                total = len(record.line_ids)
+                record.total_container_fees = f"{total} Fee(s)"
             else:
-                record.total_quotation = "0 Quotation(s)"
+                record.total_container_fees = "0 Fee"
 
     @api.model_create_multi
     def create(self, vals_list):
-        validated_list = []
         for vals in vals_list:
-            validated, errors = FeeCreateValidator.validate(vals, self.env)
+            validated, errors = FeeValidator.validate_fee(vals, self.env)
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
-            validated_list.append(validated)
-        return super().create(validated_list)
+        return super().create(vals_list)
 
     def write(self, vals):
-        for record in self:
-            validated, errors = FeeUpdateValidator.validate(vals, self.env, record.id)
-            if errors:
-                raise ValidationError("\n".join([f"• {e}" for e in errors]))
-        return super().write(validated if validated else vals)
+
+        current_record = self if isinstance(self, type(self)) else self[0]
+        validated, errors = FeeValidator.validate_fee(vals,self.env,mode='write',record=current_record)
+        if errors:
+            raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        return super().write(vals)
 
     @api.depends('shipping_line_id', 'fee_type_id','date_from')
     def _compute_name(self):

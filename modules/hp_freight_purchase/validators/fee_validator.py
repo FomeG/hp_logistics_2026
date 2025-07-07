@@ -1,7 +1,83 @@
+import datetime
+
 from .freight_validator import FreightValidator
 
 # ==================== FEE TYPE VALIDATORS ====================
+class FeeValidator(FreightValidator):
 
+    @classmethod
+    def validate_fee_type(cls, data, env, mode = 'create', record=None):
+        field_rules = {
+            'name': {
+                'label': f"Name",
+                'type': str,
+                'required': True,
+            },
+            'direction': {
+                'label': f"Direction",
+                'type': str,
+                'in': {'import', 'export'},
+                'depends':'is_common',
+                'condition': False
+            },
+            'is_common': {
+                'type': bool,
+                'label': f'Is Common',
+            },
+            'amount': {
+                'depends': 'is_common',
+                'condition': True,
+                'required': True,
+                'label': f"Amount",
+                'type': (int, float),
+                'min_value': 1.0
+            }
+        }
+        errors = []
+        validated = cls._validate(field_rules,data,env,errors, mode, record)
+        return (validated, errors) if not errors else ({}, errors)
+
+    @classmethod
+    def validate_fee(cls, data, env, mode = 'create', record=None):
+        field_rules = {
+            'shipping_line_id': {
+                'label': 'Shipping Line',
+                'type': int,
+                'exists': 'res.partner',
+                'domain': [('is_shipping_line', '=', True)],
+                'required': True,
+            },
+            'fee_type_id': {
+                'label': 'Fee Type',
+                'type': int,
+                'exists': 'freight.purchase.fee.type',
+                'required': True,
+            },
+            'date_from': {
+                'label': 'Date From',
+                'required': False,
+                'date': {
+                    'format': '%Y-%m-%d',
+                    'compare': {
+                        'field': 'date_to',
+                        'operator': '<=',
+                        'message': 'Date From Must be before or equal to Date To'
+                    }
+                }
+            },
+            'date_to': {
+                'label': 'Date To',
+                'required': False,
+                'date': {
+                    'format': '%Y-%m-%d'
+                }
+            },
+        }
+        errors = []
+        validated = cls._validate(field_rules,data,env,errors, mode, record)
+        return (validated, errors) if not errors else ({}, errors)
+
+# validate update
 class FeeTypeCreateValidator(FreightValidator):
     """Validates freight purchase fee type creation"""
     

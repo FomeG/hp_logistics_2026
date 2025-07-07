@@ -13,7 +13,7 @@ class FreightPurchaseBookingLine(models.Model):
 
     #keep ref with quotation line in order to track the price of    preorder vs order
     quotation_line_id = fields.Many2one('freight.purchase.quotation.line', required=False, string='Quotation Line', tracking=True, domain="[('quotation_id', '=', quotation_id)]")
-    container_type_id = fields.Many2one(related='quotation_line_id.container_type_id',store=True,readonly=True, string='Container Type')
+    container_type_id = fields.Many2one(related='quotation_line_id.container_type_id',store=True,readonly=True, string='Container Type DB')
 
     # pre-order
     quantity = fields.Integer(string="Quantity",required=True, default=1, tracking=True)
@@ -54,7 +54,7 @@ class FreightPurchaseBookingLine(models.Model):
         store=True,
     )
     # Temporary fields for quotation line creation
-    quotation_line_container_type_id = fields.Many2one('container.type', store=False, string='Container Type')
+    quotation_line_container_type_id = fields.Many2one('container.type', store=False, string='Tempo Container Type')
     quotation_line_cost = fields.Float(string="Booking price",store=False)
     quotation_line_price = fields.Float(string="Internal price set by sale director", store=False, readonly=False)
     quotation_id = fields.Many2one('freight.purchase.quotation',related='booking_id.quotation_id',store=False,readonly=True)

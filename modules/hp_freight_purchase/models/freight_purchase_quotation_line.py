@@ -8,12 +8,33 @@ class FreightPurchaseQuotationLine(models.Model):
     _inherit = ['mail.thread']
     _order = 'create_date desc'
 
-    quotation_id = fields.Many2one('freight.purchase.quotation', required=True, ondelete='cascade')
-    container_type_id = fields.Many2one('container.type', required=True)
-    cost = fields.Float(string="Booking price",required=True)
-    price = fields.Float(string="Internal price set by sale director",default=lambda self: self.cost if self.cost else 0.0)
-
-    name = fields.Char(string="Name", compute='_compute_name', store=False)
+    name = fields.Char(
+        string="Name",
+        compute='_compute_name',
+        store=False
+    )
+    quotation_id = fields.Many2one(
+        comodel_name='freight.purchase.quotation',
+        required=True,
+        ondelete='cascade'
+    )
+    container_type_id = fields.Many2one(
+        comodel_name='container.type',
+        required=True
+    )
+    cost = fields.Float(
+        string="Booking price",
+        required=True
+    )
+    price = fields.Float(
+        string="Internal price set by sale director",
+        default=lambda self: self.cost if self.cost else 0.0
+    )
+    fee_line_ids = fields.One2many(
+        comodel_name="freight.purchase.quotation.line.fee",
+        inverse_name="quotation_line_id",
+        string="Fee Lines"
+    )
 
     @api.depends('quotation_id', 'container_type_id')
     def _compute_name(self):

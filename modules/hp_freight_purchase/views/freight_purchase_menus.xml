@@ -47,24 +47,6 @@
             parent="menu_base_team"
             sequence="60" />
 
-        <menuitem id="menu_freight_purchase_fee"
-            name="Fee"
-            action="freight_purchase_fee_action"
-            parent="menu_base_team"
-            sequence="70" />
-
-        <menuitem id="menu_freight_purchase_fee_line"
-            name="Fee Line"
-            action="freight_purchase_fee_line_action"
-            parent="menu_base_team"
-            sequence="80" />
-
-        <menuitem id="menu_freight_purchase_fee_type"
-            name="Fee Type"
-            action="freight_purchase_fee_type_action"
-            parent="menu_base_team"
-            sequence="90" />
-
         <!-- Purchase menus -->
         <menuitem id="menu_purchase_team"
             name="Purchase"
@@ -95,5 +77,25 @@
             parent="menu_purchase_team"
             sequence="40" />
 
+        <!-- fee -->
+        <menuitem id="menu_freight_purchase_fee_menu"
+            name="Fee Management"
+            parent="menu_purchase_root"
+            sequence="30" />
+        <menuitem id="menu_freight_purchase_fee_type"
+            name="Fee Type"
+            action="freight_purchase_fee_type_action"
+            parent="menu_freight_purchase_fee_menu"
+            sequence="10" />
+        <menuitem id="menu_freight_purchase_fee"
+            name="Fee"
+            action="freight_purchase_fee_action"
+            parent="menu_freight_purchase_fee_menu"
+            sequence="20" />
+        <menuitem id="menu_freight_purchase_fee_line"
+            name="Fee Line"
+            action="freight_purchase_fee_line_action"
+            parent="menu_freight_purchase_fee_menu"
+            sequence="30" />
     </data>
 </odoo>

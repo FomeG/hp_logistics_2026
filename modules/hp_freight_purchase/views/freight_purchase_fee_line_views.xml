@@ -31,13 +31,11 @@
         <field name="priority">1</field>
         <field name="arch" type="xml">
             <list string="Fee Line List">
-                <field name="fee_id" />
-                <field name="container_type_id" />
-                <field name="amount" />
+<!--                <field name="fee_id" />-->
                 <field name="shipping_line_id" />
                 <field name="fee_type_id" />
-                <field name="date_from" />
-                <field name="date_to" />
+                <field name="container_type_id" />
+                <field name="amount" />
             </list>
         </field>
     </record>
@@ -55,26 +53,25 @@
 <!--                <field name="date_from" />-->
 <!--                <field name="date_to" />-->
 
-                <separator string="Quick Filters"/>
+                <separator string="Availability Filters"/>
                 <!-- Date to within 1 week -->
                 <filter string="Ending Within 1 Week" name="filter_date_to_week"
                         domain="[('date_to', '&lt;=', (context_today() + relativedelta(days=7)).strftime('%%Y-%%m-%%d'))]"/>
 
-                <!-- Fee Type Filter -->
-                <separator string="Fee Type"/>
-                <filter string="D Fees" name="filter_fee_type_doc"
-                        domain="[('fee_type_id.type', '=', 'd')]"/>
-                <filter string="L Fees" name="filter_fee_type_handling"
-                        domain="[('fee_type_id.type', '=', 'l')]"/>
-                <filter string="L/D Fees" name="filter_fee_type_ld"
-                        domain="[('fee_type_id.type', '=', 'l/d')]"/>
+                <!-- Fee direction Filter -->
+                <separator string="Direction Filters"/>
+                <filter string="D Fees" name="filter_fee_direction_import"
+                        domain="[('fee_type_id.direction', '=', 'import')]"/>
+                <filter string="L Fees" name="filter_fee_direction_export"
+                        domain="[('fee_type_id.direction', '=', 'export')]"/>
+
 
                 <separator string="Amount"/>
                 <filter string="Amount > 500" name="filter_amount_high" domain="[('amount', '&gt;', 500)]"/>
 
                 <separator string="Group By"/>
                 <group expand="1" string="Group By">
-                    <filter string="Fee" name="group_by_fee" context="{'group_by': 'fee_id'}"/>
+<!--                    <filter string="Fee" name="group_by_fee" context="{'group_by': 'fee_id'}"/>-->
                     <filter string="Shipping Line" name="group_by_shipping_line" context="{'group_by': 'shipping_line_id'}"/>
                     <filter string="Fee Type" name="group_by_fee_type" context="{'group_by': 'fee_type_id'}"/>
                     <filter string="Container Type" name="group_by_container_type" context="{'group_by': 'container_type_id'}"/>
