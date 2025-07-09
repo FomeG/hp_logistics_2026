@@ -111,10 +111,6 @@ class FreightPurchaseBooking(models.Model):
                 if vals.get('etd'):
                     etd_str = fields.Date.to_date(vals['etd']).strftime('%d-%m-%Y')
 
-                print(f"quotation_shipping_line_id: {shipping_name}")
-                print(f"quotation_route_id: {route_name}")
-                print(f"etd: {etd_str}")
-
                 if shipping_name and route_name and etd_str:
                     vals['name'] = f"Booking - {shipping_name} - {route_name} - {etd_str}"
                 else:

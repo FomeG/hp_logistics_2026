@@ -21,12 +21,16 @@ class QuotationCreateValidator(FreightValidator):
             },
             'available_from': {
                 'label': f"Available From",
-                'type': str,
+                'date': {
+                    'format': '%Y-%m-%d'
+                },
                 'required': True,
             },
             'available_to': {
                 'label': f"Available To",
-                'type': str,
+                'date': {
+                    'format': '%Y-%m-%d'
+                },
                 'required': True,
             },
             'is_active': {
