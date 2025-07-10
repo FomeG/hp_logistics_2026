@@ -1,5 +1,4 @@
 from odoo import models, fields, api
-from odoo.addons.test_convert.tests.test_env import record
 from odoo.exceptions import ValidationError
 from ..validators.fee_validator import FeeValidator
 
@@ -17,12 +16,14 @@ class FreightPurchaseFee(models.Model):
     shipping_line_id = fields.Many2one(
         comodel_name='res.partner',
         domain="[('is_shipping_line', '=', True)]",
-        required=True
+        required=True,
+        index=True,
     )
     fee_type_id = fields.Many2one(
         comodel_name='freight.purchase.fee.type',
         domain="[('is_common', '=', False)]",
         required=True,
+        index=True,
     )
     route_id = fields.Many2one(
         comodel_name="freight.purchase.route",
@@ -44,10 +45,6 @@ class FreightPurchaseFee(models.Model):
         'fee_id',
         string='Container Fee'
     )
-
-    _sql_constraints = [
-        ('unique_fee_period', 'unique(fee_type_id, shipping_line_id, date_from)', 'Fee already exists for this shipping line and period.')
-    ]
 
     total_container_fees = fields.Char(
         string="Total Container Fees",
@@ -87,3 +84,20 @@ class FreightPurchaseFee(models.Model):
             date_str = record.date_from.strftime('%d-%m-%Y') if record.date_from else ''
             record.name = f"{record.shipping_line_id.name or ''} - {record.fee_type_id.name or ''} - {date_str}".strip(
                 ' -')
+
+    @api.constrains('fee_type_id', 'shipping_line_id', 'date_from')
+    def _check_unique_fee_period(self):
+        for record in self:
+            domain = [
+                ('fee_type_id', '=', record.fee_type_id.id),
+                ('shipping_line_id', '=', record.shipping_line_id.id),
+                ('id', '!=', record.id)
+            ]
+
+            if record.date_from:
+                domain.append(('date_from', '=', record.date_from))
+            else:
+                domain.append(('date_from', '=', False))
+
+            if self.search_count(domain) > 0:
+                raise ValidationError(f"Fee already exists for this shipping line and period.")

@@ -5,6 +5,8 @@ from odoo.exceptions import ValidationError, UserError
 from datetime import date, datetime
 from odoo.exceptions import ValidationError
 from ..validators.booking_validator import BookingCreateValidator, BookingUpdateValidator
+from collections import defaultdict
+from odoo.addons.hp_freight_purchase.services.freight_purchase_booking_inventory_service import FreightPurchaseBookingInventoryService
 
 class FreightPurchaseBooking(models.Model):
 
@@ -109,10 +111,6 @@ class FreightPurchaseBooking(models.Model):
                 if vals.get('etd'):
                     etd_str = fields.Date.to_date(vals['etd']).strftime('%d-%m-%Y')
 
-                print(f"quotation_shipping_line_id: {shipping_name}")
-                print(f"quotation_route_id: {route_name}")
-                print(f"etd: {etd_str}")
-
                 if shipping_name and route_name and etd_str:
                     vals['name'] = f"Booking - {shipping_name} - {route_name} - {etd_str}"
                 else:
@@ -148,6 +146,28 @@ class FreightPurchaseBooking(models.Model):
 
             if 'booking_mode' in vals and record.booking_mode != vals['booking_mode']:
                 raise UserError("You cannot change the booking mode after creation.")
+            
+            if 'line_ids' in vals and record.quotation_id:
+                container_qty_map = defaultdict(int)
+                for line in vals['line_ids']:
+                    if line[0] == 0:
+                        data = line[2]
+                        if data.get('status') == 'cancel':
+                            continue
+
+                        quantity = data.get('quantity', 0)
+                        container_id = data.get('container_type_id')
+                        if not container_id:
+                            quotation_line = self.env['freight.purchase.quotation.line'].sudo().browse(data.get('quotation_line_id'))
+                            container_id = quotation_line.container_type_id.id
+                                
+                        container_qty_map[container_id] += quantity
+
+                for container_id, added_qty in container_qty_map.items():
+                    container_avaliable = FreightPurchaseBookingInventoryService(self.env).count_quantity_container_available_in_booking(record.id, container_id)
+                    if added_qty > container_avaliable:
+                        container = self.env['container.type'].sudo().browse(container_id)
+                        raise ValidationError(f"Total quantity of container {container.name} must be less than or equal to {container_avaliable}.")
 
         return super().write(vals)
 

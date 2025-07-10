@@ -142,6 +142,7 @@ class FreightPurchaseQuotation(models.Model):
             'shipping_line_id': booking_form.get('quotation_shipping_line_id'),
             'available_from': fields.Date.today(),
             'available_to': booking_form.get('etd'),
+            'is_active': True
         })
     @api.depends('line_ids')
     def _compute_total_quotation_lines(self):
