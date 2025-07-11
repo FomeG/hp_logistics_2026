@@ -28,12 +28,13 @@ class SaleOrderLineInherit(models.Model):
             self.write({'booking_line_id': booking_line_id})
         return {'type': 'ir.actions.act_window_close'}
 
-    # def action_create_route(self):
-    #     """Open wizard to collect POD/POL information"""
-    #     return {
-    #         'name': _('Create POD/POL Request'),
-    #         'type': 'ir.actions.act_window',
-    #         'res_model': 'pod.pol.request.wizard',
-    #         'view_mode': 'form',
-    #         'target': 'new',
-    #     }
+    def action_create_route(self):
+        """Open wizard to collect Port/Route information"""
+        return {
+            'name': _('Create Port/Route Request'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'port.route.request.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_sale_order_id': self.order_id.id}
+        }

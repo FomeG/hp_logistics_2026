@@ -218,12 +218,14 @@ class SaleOrderLine(models.Model):
             if record.booking_id and record.volume_cont and record.order_id.state == 'sale':
                 self._check_booking_teu_availability(record.booking_id, record.volume_cont, record.product_uom_qty)
 
-    def action_create_pricing_sealine(self):
-        """Open wizard to collect POD/POL information"""
-        return {
-            'name': _('Create POD/POL Request'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'pod.pol.request.wizard',
-            'view_mode': 'form',
-            'target': 'new',
-        }
+    # Migrated to hp_freight_purchase module
+    # def action_create_pricing_sealine(self):
+    #     """Open wizard to collect POD/POL information"""
+    #     return {
+    #         'name': _('Create POD/POL Request'),
+    #         'type': 'ir.actions.act_window',
+    #         'res_model': 'pod.pol.request.wizard',
+    #         'view_mode': 'form',
+    #         'target': 'new',
+    #     }
+

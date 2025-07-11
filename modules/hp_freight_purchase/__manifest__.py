@@ -35,7 +35,10 @@
         'views/freight_purchase_booking_views.xml',
         'views/freight_purchase_booking_line_views.xml',
         'views/sale_order_line_selection_views.xml',
+        'views/sale_order_inherit_views.xml',
 
+        # wizard views
+        'views/wizards/port_route_request.xml',
 
         #menu
         'views/freight_purchase_menus.xml',
