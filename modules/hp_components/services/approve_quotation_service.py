@@ -1,8 +1,10 @@
 from .base_task_service import BaseTaskService
-from odoo.addons.hp_sale.models.sale_order_inherit import SaleOrderInherrit
-from odoo import fields
+from datetime import datetime
 import logging
 from .department_service import DepartmentService
+from .project_service import ProjectService
+from odoo.exceptions import ValidationError
+from odoo import _
 
 _logger = logging.getLogger(__name__)
 
@@ -14,33 +16,85 @@ class ApproveQuotationService(BaseTaskService):
         self.env = env
         super().__init__(env)
         self.department_service = DepartmentService(env)
+        self.project_service = ProjectService(env)
 
-    def create(self,department_type, project_id, sale_order):
-        task = self._get_open_tasks_by_sale_order(sale_order)
-        _logger.info(f"task: {task}")
-        if len(task) > 0:
-            return
-        if self._is_pricing_type_sale_order(sale_order):
-            self._create_approval_task(department_type, project_id, sale_order)
-
-    def _is_pricing_type_sale_order(self, sale_order) -> bool:
+    def is_sale_order_has_product_pricing(self, sale_order) -> bool:
         return any(
             line.product_id.product_tmpl_id.type == 'pricing'
             for line in sale_order.order_line
         )
+    
+    def create_approve_quotation_task(self, sale_order, department_type):
+        project = self.project_service.get_project_by_type(ProjectService.PROJECT_TYPE_APPROVE_QUOTATION)
+        if department_type == DepartmentService.DEPARTMENT_TYPE_PRICING:
+            leader = self.department_service.get_pricing_department_leader()
+        elif department_type == DepartmentService.DEPARTMENT_TYPE_SALE:
+            leader = self.department_service.get_sale_department_leader()
+        else:
+            leader = None
 
-    def _create_approval_task(self,department_type, project_id, sale_order):
-        leader = self.department_service._get_department_leader_by_type(department_type)
-        _logger.info(f"leader: {leader}")
-        approval_type = 'sale_leader' if department_type == 'sale' else 'pricing_leader'
-        if not leader:
-            return
-        self.env['project.task'].create({
-            'name': f"Approve Quotation for: {sale_order.name}",
-            'project_id': project_id,
-            'user_ids': [leader.id],
-            'sale_order_id': sale_order.id,
-            'date_assign': fields.Datetime.now(),
-            'approval_type': approval_type,
-            'description': f"Need approval for quotation {sale_order.name}",
-        })
+        if project and leader:
+            self.env['project.task'].create({
+                'name': f"Approve Quotation for: {sale_order.name}",
+                'project_id': project.id,
+                'user_ids': [leader.id],
+                'sale_order_id': sale_order.id,
+                'date_assign': datetime.now(),
+                'approval_type': department_type,
+                'description': f"Need approval for quotation {sale_order.name}",
+            })
+
+    def handle_reject_quotation_by_type(self, task, type):
+        match type:
+            case ProjectService.SALE_TYPE:
+                self.validate_by_action(task, ProjectService.ACTION_REJECT_QUOTATION_BY_SALE)
+                task.sale_order_id.sudo().write({'state': 'activated'})
+            case ProjectService.PRICING_TYPE:
+                self.validate_by_action(task, ProjectService.ACTION_REJECT_QUOTATION_BY_PRICING)
+                task.sale_order_id.sudo().write({'state': 'customer_confirm'})
+            case _:
+                return False
+
+        task.update_done_task()
+        return True
+
+    def handle_approve_quotation_by_type(self, task, type):
+        match type:
+            case ProjectService.SALE_TYPE:
+                self.validate_by_action(task, ProjectService.ACTION_APPROVE_QUOTATION_BY_SALE)
+                task.sale_order_id.sudo().action_sale_leader_approved()
+        
+            case ProjectService.PRICING_TYPE:
+                self.validate_by_action(task, ProjectService.ACTION_APPROVE_QUOTATION_BY_PRICING)
+                task.sale_order_id.sudo().action_pricing_leader_approved()
+            case _:
+                return False
+
+        task.update_done_task()
+        return True
+    
+    def validate_by_action(self, task, action):
+        match action:            
+            case ProjectService.ACTION_REJECT_QUOTATION_BY_PRICING:
+                if not task.sale_order_id or task.sale_order_id.state != 'sale_leader_confirm':
+                    raise ValidationError(_("This quotation cannot be rejected in its current state."))
+                if not task.rejection_reason:
+                    raise ValidationError(_("Please provide a reason for rejection."))
+            
+            case ProjectService.ACTION_REJECT_QUOTATION_BY_SALE:
+                if not task.sale_order_id or task.sale_order_id.state != 'customer_confirm':
+                    raise ValidationError(_("This quotation cannot be rejected in its current state."))
+
+                if not task.rejection_reason:
+                    raise ValidationError(_("Please provide a reason for rejection."))
+            
+            case ProjectService.ACTION_APPROVE_QUOTATION_BY_PRICING:
+                if not task.sale_order_id or task.sale_order_id.state != 'sale_leader_confirm':
+                    raise ValidationError(_("This quotation cannot be approved in its current state."))
+            
+            case ProjectService.ACTION_APPROVE_QUOTATION_BY_SALE:
+                if not task.sale_order_id or task.sale_order_id.state != 'customer_confirm':
+                    raise ValidationError(_("This quotation cannot be approved in its current state."))
+
+            case _:
+                return

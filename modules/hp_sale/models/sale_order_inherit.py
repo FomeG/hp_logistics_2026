@@ -10,13 +10,13 @@ _logger: Logger = logging.getLogger(__name__)
 class SaleOrderInherrit(models.Model):
     _inherit = 'sale.order'
 
-    booking_ids = fields.Many2many(
-        'pricing.booking',
-        'sale_order_booking_rel',
-        'sale_order_id',
-        'booking_id',
-        string="Bookings"
-    )
+    # booking_ids = fields.Many2many(
+    #     'pricing.booking',
+    #     'sale_order_booking_rel',
+    #     'sale_order_id',
+    #     'booking_id',
+    #     string="Bookings"
+    # )
 
     state = fields.Selection(selection_add=[
         ('activated', 'Quotation Activated'),
@@ -37,7 +37,7 @@ class SaleOrderInherrit(models.Model):
         """Submit quotation for customer review after validation."""
         # Validate all pricing lines have bookings
         pricing_lines_without_price = self.order_line.filtered(
-            lambda line: line.product_type_filter == 'pricing' and not line.booking_id and not line.pricing_quotation_id
+            lambda line: line.product_type_filter == 'pricing' and not line.booking_id and not line.quotation_id
         )
 
         if pricing_lines_without_price:
@@ -84,7 +84,7 @@ class SaleOrderInherrit(models.Model):
     def get_sale_order_lines_missing_price(self):
         self.ensure_one()  # Make sure we're working on exactly one sale.order
         # Now safe to do single-record operations
-        return self.order_line.filtered(lambda l: not l.booking_id and not l.pricing_quotation_id)
+        return self.order_line.filtered(lambda l: not l.booking_id and not l.quotation_id)
 
     def get_sale_order_lines_with_booking(self):
         self.ensure_one()  # Make sure we're working on exactly one sale.order

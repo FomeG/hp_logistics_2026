@@ -4,17 +4,12 @@ from odoo.exceptions import ValidationError
 class ProductTemplate(models.Model):
     _inherit = "product.template"
 
-    # Add new product types while removing Odoo's default types
-    def _selection_type(self):
-        """ Remove Odoo's default types and only keep the custom ones. """
-        return [
+    type = fields.Selection(selection=[
             ('pricing', "Pricing"),
             ('trucking', "Trucking"),
             ('common', "Common"),
             ('custom', "Custom"),
-        ]
-
-    type = fields.Selection(selection=_selection_type, required=True, default='common')
+        ], required=True, default='common')
     
     complete_time = fields.Float(
         string="Thời gian hoàn thành (s)",
@@ -34,3 +29,9 @@ class ProductTemplate(models.Model):
         ('tiered', 'Tiered Pricing'),
     ], string='Price Type', default='common')
 
+    route_id = fields.Many2one('freight.purchase.route', string='Route')
+    booking_id = fields.Many2one(
+        'freight.purchase.booking',
+        string="Booking",
+        tracking=True
+    )

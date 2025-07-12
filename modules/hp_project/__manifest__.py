@@ -4,18 +4,18 @@
 {
     'name': 'HP Project',
     'version': '1.0',
-    'category': 'Hidden',
+    'category': 'HP',
     'description': """
 HP Project App
 ===================================================
 """,
-    'depends': ['base', 'web', 'mail', 'bus', 'project', 'sale', 'sale_project', 'sales_team', 'hp_pricing', 'hp_sale'],
+    'depends': ['base', 'web', 'mail', 'bus', 'project', 'sale', 'sale_project', 'sales_team', 'hp_freight_purchase', 'hp_sale', 'hp_components'],
     'data': [
         #data
         'data/project_default.xml',
 
         #security
-        'security/ir.model.access.csv',
+        # 'security/ir.model.access.csv',
 
         #view
         'views/project_task_form_views.xml',
@@ -28,5 +28,6 @@ HP Project App
         ],
     },
     'installable': True,
-    'application': False,
+    'application': True,
+    'auto_install': False,
 }

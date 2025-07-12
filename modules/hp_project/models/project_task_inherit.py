@@ -3,65 +3,51 @@ from odoo.exceptions import UserError, ValidationError
 from datetime import datetime
 import logging
 from odoo.addons.hp_components.services.task_service import TaskService
+from odoo.addons.hp_components.services.project_service import ProjectService
 
 _logger = logging.getLogger(__name__)
 
 class ProjectTaskInherit(models.Model):
     _inherit = 'project.task'
 
-    sale_order_id = fields.Many2one('sale.order', string='Sales Order', compute=False)
-    booking_id = fields.Many2one('pricing.booking', string='Booking')
-    region_id = fields.Many2one('pricing.region', string='Region')
-    pod_name_request = fields.Char('POD name request')
-    pod_id = fields.Many2one('pricing.pod', string="Port Of Discharge")
-    pol_name_request = fields.Char('POL name request')
-    pol_id = fields.Many2one('pricing.pol', string="Port Of Loading")
-    etd = fields.Date(string="Estimated time of departure")
-    currency_id = fields.Many2one('res.currency', string="Currency", default=lambda self: self.env.company.currency_id)
-    sale_price = fields.Monetary(string="Sale Price", currency_field='currency_id')
-    cost = fields.Monetary(string="Cost", currency_field='currency_id')
-    pricing_quotation_id = fields.Many2one('pricing.quotation', string='Pricing Quotation')
-    rejection_reason = fields.Text(string='Rejection Reason')
-
     start_time = fields.Datetime(string="Start Time", readonly=True)
     end_time = fields.Datetime(string="End Time", readonly=True)
-    
-    project_type = fields.Char(string="Project Type", compute="_compute_project_type", store=False)
-    is_quotation = fields.Boolean(compute='_compute_state_sale_order', store=False)
-    is_product_has_price = fields.Boolean(compute='_compute_product_has_price', store=False)
-    is_order_has_booking = fields.Boolean(compute='_compute_order_has_booking', store=False)
-    booking_info = fields.Text(string="Booking Info", compute="_compute_booking_info", store=False)
-    is_project_pricing = fields.Boolean(compute="_check_project_pricing", store=False)
-    is_done = fields.Boolean(string="Is Done", compute="_compute_is_done", store=False)
-    allowed_user_ids = fields.Many2many('res.users', compute='_compute_allowed_user_ids', store=False)
-    product_template_id = fields.Many2one('product.template', string='Product', compute='_compute_product_template_id', store=False)
 
-    sale_line_id = fields.Many2one(
-        'sale.order.line',
-        string='Sales Order Line',
-        store=True,
-        help="Related sale order line for this task"
-    )
+    # Request POD/POL
+    sale_order_id = fields.Many2one('sale.order', string='Sales Order')
+    pod_name_request = fields.Char('POD name request')
+    pod_id = fields.Many2one('freight.purchase.port', string="Port Of Discharge")
+    pol_name_request = fields.Char('POL name request')
+    pol_id = fields.Many2one('freight.purchase.booking', string="Port Of Loading")
+    region_pol_id = fields.Many2one('freight.purchase.region', string='Region POL')
+    region_pod_id = fields.Many2one('freight.purchase.region', string='Region POD')
+    container_type_id = fields.Many2one('container.type', string='Container Type (For this quotation)')
 
+    # Request price product
+    quotation_id = fields.Many2one('freight.purchase.quotation', string='Pricing Quotation')
+    booking_id = fields.Many2one('freight.purchase.booking', string='Booking')
+    etd = fields.Date(string="Estimated time of departure")
+    currency_id = fields.Many2one('res.currency', string="Currency", default=lambda self: self.env.company.currency_id)
+    cost = fields.Monetary(string="Cost", currency_field='currency_id')
+
+    # Asign booking
     approval_type = fields.Selection([
         ('sale_leader', 'Sales Leader Approval'),
         ('pricing_leader', 'Pricing Leader Approval')
     ], string="Approval Type")
-
-    allowed_region_ids = fields.Many2many('pricing.region', compute='_compute_allowed_region_ids')
-
-    volume_cont = fields.Selection([
-        ('20DC', '20DC'),
-        ('20RF', '20RF'),
-        ('20OT', '20OT'),
-        ('20HC', '20HC'),
-        ('40DC', '40DC'),
-        ('40HC', '40HC'),
-        ('40HQ', '40HQ'),
-        ('40RF', '40RF'),
-        ('40HCRF', '40HCRF'),
-        ('40OT', '40OT'),
-    ], string="Container Type (For this quotation)", default='20DC')
+    sale_line_id = fields.Many2one('sale.order.line', string='Sales Order Line')
+    
+    # Approve quotation
+    rejection_reason = fields.Text(string='Rejection Reason')
+    
+    # Computed
+    project_type = fields.Char(string="Project Type", compute="_compute_project_type", store=False)
+    product_template_id = fields.Many2one('product.template', string='Product', compute='_compute_product_template_id', store=False)
+    is_quotation = fields.Boolean(compute='_compute_state_sale_order', store=False)
+    booking_info = fields.Text(string="Booking Info", compute="_compute_booking_info", store=False)
+    is_project_pricing = fields.Boolean(compute="_check_project_pricing", store=False)
+    is_done = fields.Boolean(string="Is Done", compute="_compute_is_done", store=False)
+    allowed_user_ids = fields.Many2many('res.users', compute='_compute_allowed_user_ids', store=False)
 
     def write(self, vals):
         stage_obj = self.env['project.task.type']
@@ -85,49 +71,18 @@ class ProjectTaskInherit(models.Model):
         for task in self:
             if task.project_id:
                 sale_group_id = self.env.ref('sales_team.group_sale_salesman').id
-                pricing_group_id = self.env.ref('hp_pricing.group_hp_pricing_member').id
+                freight_purchase_group_id = self.env.ref('hp_freight_purchase.group_hp_freight_purchase_member').id
 
                 type = task.project_id.type
                 if type == 'approve_quotation':
-                    domain = [('groups_id', 'in', [sale_group_id, pricing_group_id])]
+                    domain = [('groups_id', 'in', [sale_group_id, freight_purchase_group_id])]
                 elif type in ('request_product', 'request_price', 'assign_booking'):
-                    domain = [('groups_id', 'in', [pricing_group_id])]
+                    domain = [('groups_id', 'in', [freight_purchase_group_id])]
                 else:
                     domain = [('active', '=', True), ('share', '=', False)]
             
             users = self.env['res.users'].sudo().search(domain)
             task.allowed_user_ids = users
-
-    @api.depends('project_type')
-    def _compute_allowed_region_ids(self):
-        for task in self:
-            if task.project_type == 'request_product':
-                # Check if current user is pricing lead or director
-                is_pricing_lead = self.env.user.has_group('hp_pricing.group_hp_pricing_lead')
-                is_pricing_director = self.env.user.has_group('hp_pricing.group_hp_pricing_director')
-
-                if is_pricing_lead or is_pricing_director:
-                    # Allow all regions for lead and director
-                    task.allowed_region_ids = self.env['pricing.region'].search([])
-                else:
-                    # Only allow regions where the current user is a member
-                    task.allowed_region_ids = self.env.user.region_id
-            else:
-                # For other task types, allow all regions
-                task.allowed_region_ids = self.env['pricing.region'].search([])
-
-    @api.constrains('user_ids', 'project_type')
-    def _check_user_region(self):
-        for task in self:
-            # Only validate for request_product tasks
-            if task.project_type == 'request_product':
-                for user in task.user_ids:
-                    if user.has_group('hp_pricing.group_hp_pricing_member') and not user.has_group(
-                            'hp_pricing.group_hp_pricing_lead') and not user.has_group(
-                            'hp_pricing.group_hp_pricing_director'):
-                        if not user.region_id:
-                            raise ValidationError(
-                                _("User '%s' is a pricing member but is not assigned to any region yet, please add him/her to a region before assigning.") % user.name)
 
     @api.depends('stage_id')
     def _compute_is_done(self):
@@ -140,8 +95,7 @@ class ProjectTaskInherit(models.Model):
         for task in self.sudo():
             if task.sale_line_id:
                 # Allow your custom product types
-                if task.sale_line_id.product_id.type not in ['pricing', 'trucking', 'common',
-                                                             'custom'] or task.sale_line_id.is_expense:
+                if task.sale_line_id.product_id.type not in ['pricing', 'trucking', 'common', 'custom'] or task.sale_line_id.is_expense:
                     raise ValidationError(_(
                         'You cannot link the order item %(order_id)s - %(product_id)s to this task because it is a re-invoiced expense.',
                         order_id=task.sale_line_id.order_id.name,
@@ -186,32 +140,19 @@ class ProjectTaskInherit(models.Model):
     def _compute_state_sale_order(self):
         for task in self:
             task.is_quotation = True if task.sale_order_id.state == 'draft' else False
-    
-    @api.depends('product_template_id', 'sale_order_id')
-    def _compute_product_has_price(self):
-        for task in self:
-            product = task.product_template_id
-            sale_order_line = task.sale_order_id.order_line.filtered(lambda line: line.product_id.id == product.product_variant_id.id)
-            pricing_quotation = task.pricing_quotation_id
-            task.is_product_has_price = True if sale_order_line and pricing_quotation and sale_order_line.booking_id and sale_order_line.base_price else False
-
-    @api.depends('sale_line_id', 'booking_id')
-    def _compute_order_has_booking(self):
-        for task in self:
-            task.is_order_has_booking = True if task.booking_id and task.sale_line_id.booking_id.id == task.booking_id.id else False
 
     @api.onchange('etd')
     def _onchange_etd_set_booking_domain(self):
         if self.etd:
             return {
                 'domain': {
-                    'booking_id': [('voyage_id.etd', '>=', self.etd)]
+                    'booking_id': [('etd', '>=', self.etd)]
                 }
             }
 
     @api.onchange('booking_id')
     def _onchange_booking_id(self):
-       self.etd = self.booking_id.voyage_id.etd
+       self.etd = self.booking_id.etd
 
     # Update done task
     def update_done_task(self, pod_id = None, pol_id = None):
@@ -274,9 +215,9 @@ class ProjectTaskInherit(models.Model):
         return {
                 'name': _('Create Pricing Quotation'),
                 'type': 'ir.actions.act_window',
-                'res_model': 'pricing.quotation',
+                'res_model': 'freight.purchase.quotation',
                 'view_mode': 'form',
-                'view_id': self.env.ref('hp_pricing.pricing_quotation_form_view').id,
+                'view_id': self.env.ref('hp_freight_purchase.freight_purchase_quotation_form_view').id,
                 'target': 'new',
                 'context': dict(self._context, **{
                     'default_project_task_id': self.id,
@@ -288,7 +229,7 @@ class ProjectTaskInherit(models.Model):
     def action_sale_leader_approve(self):
         self.ensure_one()
         task_service = TaskService(self.env)
-        result = task_service.handle_approve_quotation_by_type(self, task_service.SALE_TYPE)
+        result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_APPROVE_QUOTATION_BY_SALE)
         if (result):
             self.message_post(body=_("Quotation approved by sales leader."))
             return True
@@ -297,7 +238,7 @@ class ProjectTaskInherit(models.Model):
     def action_sale_leader_reject(self):
         self.ensure_one()
         task_service = TaskService(self.env)
-        result = task_service.handle_reject_quotation_by_type(self, task_service.SALE_TYPE)
+        result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_REJECT_QUOTATION_BY_SALE)
         if (result):
             self.message_post(body=_("Quotation rejected by sales leader and set back to Activated state. Reason: %s") % self.rejection_reason)
             return True
@@ -306,7 +247,7 @@ class ProjectTaskInherit(models.Model):
     def action_pricing_leader_approve(self):
         self.ensure_one()
         task_service = TaskService(self.env)
-        result = task_service.handle_approve_quotation_by_type(self, task_service.PRICING_TYPE)
+        result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_APPROVE_QUOTATION_BY_PRICING)
         if (result):
             self.message_post(body=_("Quotation approved by pricing leader."))
             return True
@@ -315,7 +256,7 @@ class ProjectTaskInherit(models.Model):
     def action_pricing_leader_reject(self):
         self.ensure_one()
         task_service = TaskService(self.env)
-        result = task_service.handle_reject_quotation_by_type(self, task_service.PRICING_TYPE)
+        result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_REJECT_QUOTATION_BY_PRICING)
         if (result):
             self.message_post(body=_("Quotation rejected by pricing leader. Reason: %s") % self.rejection_reason)
             return True
@@ -323,7 +264,8 @@ class ProjectTaskInherit(models.Model):
 
     def action_approve_pod_pol(self):
         self.ensure_one()
-        result = TaskService(self.env).handle_approve_pod_pol(self)
+        task_service = TaskService(self.env)
+        result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_APPROVE_POL_POL)
         if (result):
             self.message_post(body=_("Create POD/POL successfully: %s, %s") % (self.pod_name_request, self.pol_name_request))
             return True
@@ -331,8 +273,8 @@ class ProjectTaskInherit(models.Model):
 
     def action_approve_price(self):
         self.ensure_one()
-        result = TaskService(self.env).handle_approve_price(self)
-        _logger.info(f"sale_line_id: {self.sale_line_id.name}")
+        task_service = TaskService(self.env)
+        result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_APPROVE_PRICE)
         if (result):
             self.message_post(body=_("Approve price successfully with sale line: %s") % self.sale_line_id.name)
             return True
@@ -340,7 +282,8 @@ class ProjectTaskInherit(models.Model):
     
     def action_approve_booking(self):
         self.ensure_one()
-        result = TaskService(self.env).handle_approve_booking(self)
+        task_service = TaskService(self.env)
+        result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_APPROVE_BOOKING)
         if (result):
             self.message_post(body=_(
                 "Booking approved successfully. The booking %s has been assigned to %s and linked to the sales order %s."

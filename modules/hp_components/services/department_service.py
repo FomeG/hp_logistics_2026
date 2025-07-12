@@ -3,6 +3,9 @@ from odoo.addons.hp_employee.models.hr_department_inherit import HpDepartmentInh
 class DepartmentService:
     _name = 'custom_component.department.service'
 
+    DEPARTMENT_TYPE_SALE = 'sale'
+    DEPARTMENT_TYPE_PRICING = 'pricing'
+
     def __init__(self, env):
         self.env = env
 

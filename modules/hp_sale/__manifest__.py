@@ -9,7 +9,7 @@
     'category': 'HP/HP Logistic',
     'images': [],
     'depends': [
-        'mail', 'base', 'sale', 'product', 'sale_management', 'account', 'hp_pricing','component','component_event',
+        'mail', 'base', 'sale', 'product', 'sale_management', 'account','component','component_event',
     ],
     'data': [
         # data
@@ -28,7 +28,7 @@
         'views/change_menu_customer_views.xml',
         'views/inherit_form_create_customer_views.xml',
         'views/sale_order.xml',
-        'views/pricing_booking_form_views_inherit.xml',
+        # 'views/pricing_booking_form_views_inherit.xml',
 
         'views/sale_menus.xml',
 
