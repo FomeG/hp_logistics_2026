@@ -1,5 +1,5 @@
 class FreightPurchaseBookingInventoryService:
-    _name = "Freight Purchase Booking Inventory Service"
+    _name = "freight.purchase.booking.inventory.service"
     def __init__(self, env):
         self.env = env
 
