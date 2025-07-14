@@ -4,6 +4,7 @@ from odoo.api import ValuesType, Self
 from odoo.exceptions import ValidationError, UserError
 from datetime import date, datetime
 from odoo.exceptions import ValidationError
+from .freight_purchase_booking_inventory import FreightPurchaseBookingInventory
 from ..validators.booking_validator import BookingCreateValidator, BookingUpdateValidator
 from collections import defaultdict
 from odoo.addons.hp_freight_purchase.services.freight_purchase_booking_inventory_service import FreightPurchaseBookingInventoryService
@@ -80,6 +81,15 @@ class FreightPurchaseBooking(models.Model):
         string='Booking Inventories'
     )
     is_show_inventory = fields.Boolean(compute='_compute_is_show_inventory', store=False)
+    has_inventory = fields.Boolean(
+        compute='_compute_has_inventory',
+        store=False
+    )
+    inventory_summary = fields.Text(
+        compute='_compute_inventory_summary',
+        string="Container Inventory Summary",
+        store=False
+    )
 
     @api.onchange('booking_mode')
     def _onchange_booking_mode(self):
@@ -217,3 +227,23 @@ class FreightPurchaseBooking(models.Model):
     def _compute_is_show_inventory(self):
         for record in self:
             record.is_show_inventory = True if record.id and record.quotation_id.line_ids else False
+
+    @api.depends('booking_inventory_ids')
+    def _compute_has_inventory(self):
+        for record in self:
+            record.has_inventory = True if record and len(record.booking_inventory_ids) > 0 else False
+
+    @api.depends('booking_inventory_ids')
+    def _compute_inventory_summary(self):
+        for booking in self:
+            summary = defaultdict(int)
+
+            for line in booking.booking_inventory_ids:
+                qty = line.quantity or 0
+                if line.action in (FreightPurchaseBookingInventory.ACTION_IN, FreightPurchaseBookingInventory.ACTION_RETURN):
+                    summary[line.container_type_id.name] += qty
+                elif line.action == FreightPurchaseBookingInventory.ACTION_OUT:
+                    summary[line.container_type_id.name] -= qty
+
+            booking.inventory_summary = '\n'.join(f"{ct}: {qty}" for ct, qty in summary.items()) if summary else f"No inventory"
+

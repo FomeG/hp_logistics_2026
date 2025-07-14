@@ -30,6 +30,12 @@ class FreightPurchaseBookingInventory(models.Model):
         store=False
     )
 
+    str_inventory_booking_line = fields.Char(
+        string='Booking Line',
+        compute='_compute_inventory_booking_line',
+        store=False
+    )
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -45,3 +51,12 @@ class FreightPurchaseBookingInventory(models.Model):
                 rec.allow_container_type_ids = rec.booking_id.quotation_id.line_ids.mapped('container_type_id')
             else:
                 rec.allow_container_type_ids = False
+
+    def _compute_inventory_booking_line(self):
+        for rec in self:
+            if rec.booking_line_id and rec.booking_line_id.salesman_id:
+                rec.str_inventory_booking_line = rec.booking_line_id.salesman_id.name
+            elif rec.booking_line_id:
+                rec.str_inventory_booking_line = f"Booking Line #{rec.booking_line_id.id}"
+            else:
+                rec.str_inventory_booking_line = False
