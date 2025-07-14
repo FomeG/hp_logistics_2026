@@ -102,3 +102,16 @@ class SaleOrderInherrit(models.Model):
         return self.state == 'sent'
     def can_update_price(self):
         return self.state in ['draft','activated']
+
+    def action_create_route(self):
+        """Open wizard to collect Port/Route information"""
+        return {
+            'name': _('Create Port/Route Request'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'port.route.request.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_sale_order_id': self.id
+            }
+        }

@@ -17,16 +17,58 @@
                         class="o_list_button_add btn-link"/>
             </xpath>
 
-            <!-- Add freight purchase specific fields to order lines -->
+            <!-- Show these fields only if product_type_filter is 'pricing' -->
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="after">
+                 <field name="etd_sale" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
+                <field name="container_type_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"
+                       required="product_type_filter == 'pricing'"/>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="after">
+                <field name="etd_sale" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
+                <field name="container_type_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"
+                       required="product_type_filter == 'pricing'"/>
+            </xpath>
+
+            <!-- Add the filter as a column in the list view -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='sequence']" position="after">
+                 <field name="product_type_filter" widget="selection" class="ui-widget"/>
+            </xpath>
+
+            <xpath expr="//field[@name='product_type_filter']" position="attributes">
+                <attribute name="style">padding-left: 10px !important;</attribute>
+            </xpath>
+
+            <!-- Modify domain on product_template_id in list view -->
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="attributes">
+                <attribute name="domain">[('sale_ok', '=', True), ('type', '=', product_type_filter)]</attribute>
+            </xpath>
+
+            <!-- Modify domain on product_id in list view -->
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_id']" position="attributes">
+                <attribute name="domain">[('sale_ok', '=', True), ('product_tmpl_id.type', '=', product_type_filter)]</attribute>
+            </xpath>
+
+            <!-- Add filter to the form view in a better position -->
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_updatable']" position="after">
+                <field name="product_type_filter" widget="selection" class="ui-widget"/>
+            </xpath>
+
+            <!-- Modify domain on product_id in form view -->
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="attributes">
+                <attribute name="domain">[('sale_ok', '=', True), ('product_tmpl_id.type', '=', product_type_filter)]</attribute>
+            </xpath>
+
+            <!-- Show these fields only if product_type_filter is 'pricing' -->
             <xpath expr="//field[@name='order_line']/list//field[@name='product_uom_qty']" position="after">
-                <field name="freight_booking_id" optional="hide"/>
-                <field name="freight_quotation_id" optional="hide"/>
+                <field name="freight_booking_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
+                <field name="freight_quotation_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
             </xpath>
 
             <!-- Add freight purchase fields to form view of order lines -->
             <xpath expr="//field[@name='order_line']/form//field[@name='product_uom_qty']" position="after">
-                <field name="freight_booking_id"/>
-                <field name="freight_quotation_id"/>
+                <field name="freight_booking_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
+                <field name="freight_quotation_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
             </xpath>
 
         </field>

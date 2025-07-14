@@ -10,13 +10,15 @@ class PortRouteRequestWizard(models.TransientModel):
     _description = 'Port/Route Request Wizard'
 
     sale_order_id = fields.Many2one('sale.order', string='Sale Order', required=True)
+    # sale_order_line_id = fields.Many2one('sale.order.line', string='Sale Order Line')
     etd = fields.Date(string="ETD", required=True, default=fields.Date.today())
     pod_name_request = fields.Char('POD (Port of Discharge) name request', required=True)
     pol_name_request = fields.Char('POL (Port of Loading) name request', required=True)
     container_type_id = fields.Many2one(
         'container.type',
         string="Container Type (For this quotation)",
-        required=True
+        required=True,
+        default=lambda self: self.env['container.type'].search([('name', '=', '20DC')], limit=1)
     )
     notes = fields.Text('Additional Notes')
 
@@ -43,6 +45,7 @@ class PortRouteRequestWizard(models.TransientModel):
                     'pod_name_request': self.pod_name_request,
                     'pol_name_request': self.pol_name_request,
                     'container_type_id': self.container_type_id.id,
+                    # 'sale_order_line_id': self.sale_order_line_id.id if self.sale_order_line_id else False,
                     'notes': self.notes
                 }
             )
@@ -63,20 +66,3 @@ class PortRouteRequestWizard(models.TransientModel):
         except Exception as e:
             _logger.exception(f"Error creating port/route request task: {e}")
             raise UserError(_('Failed to create task. Please try again or contact support.'))
-
-    @api.model
-    def default_get(self, fields_list):
-        """Set default values from context"""
-        res = super().default_get(fields_list)
-        
-        # Get sale order from context
-        sale_order_id = self.env.context.get('default_sale_order_id')
-        if sale_order_id:
-            res['sale_order_id'] = sale_order_id
-            
-        # Get default container type
-        default_container = self.env['container.type'].search([('name', '=', '20DC')], limit=1)
-        if default_container:
-            res['container_type_id'] = default_container.id
-            
-        return res 

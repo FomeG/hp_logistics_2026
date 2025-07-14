@@ -85,6 +85,7 @@
                         invisible="state != 'pricing_leader_confirm' or (uid != create_uid and uid != user_id)"/>
             </xpath>
 
+
             <!-- Hide the Confirm button for sent state completely -->
             <xpath expr="//button[@name='action_confirm'][@id='action_confirm']" position="attributes">
                 <attribute name="invisible">1</attribute>
@@ -145,23 +146,23 @@
         </field>
     </record>
 
-    <template id="sale_order_portal_content_inherit_product_type" inherit_id="sale.sale_order_portal_content">
-        <!-- Add Product Type column header -->
-        <xpath expr="//table[@id='sales_order_table']/thead/tr/th[@id='product_name_header']" position="after">
-            <th class="text-start">Product Type</th>
-        </xpath>
+<!--    <template id="sale_order_portal_content_inherit_product_type" inherit_id="sale.sale_order_portal_content">-->
+<!--        &lt;!&ndash; Add Product Type column header &ndash;&gt;-->
+<!--        <xpath expr="//table[@id='sales_order_table']/thead/tr/th[@id='product_name_header']" position="after">-->
+<!--            <th class="text-start">Product Type</th>-->
+<!--        </xpath>-->
 
-        <!-- Add Product Type cell for product lines -->
-        <xpath expr="//t[@name='product_line_row']/td[@id='product_name']" position="after">
-            <td class="text-start">
-                <t t-if="line.product_type_filter == 'pricing'">Pricing</t>
-                <t t-elif="line.product_type_filter == 'trucking'">Trucking</t>
-                <t t-elif="line.product_type_filter == 'common'">Common</t>
-                <t t-elif="line.product_type_filter == 'custom'">Custom</t>
-                <t t-else=""><span t-field="line.product_type_filter"/></t>
-            </td>
-        </xpath>
-    </template>
+<!--        &lt;!&ndash; Add Product Type cell for product lines &ndash;&gt;-->
+<!--        <xpath expr="//t[@name='product_line_row']/td[@id='product_name']" position="after">-->
+<!--            <td class="text-start">-->
+<!--                <t t-if="line.product_type_filter == 'pricing'">Pricing</t>-->
+<!--                <t t-elif="line.product_type_filter == 'trucking'">Trucking</t>-->
+<!--                <t t-elif="line.product_type_filter == 'common'">Common</t>-->
+<!--                <t t-elif="line.product_type_filter == 'custom'">Custom</t>-->
+<!--                <t t-else=""><span t-field="line.product_type_filter"/></t>-->
+<!--            </td>-->
+<!--        </xpath>-->
+<!--    </template>-->
 
 
 </odoo>
