@@ -17,6 +17,7 @@ class IrAttachmentInherit(models.Model):
         ('co', 'Certificate of Origin'),
         ('other', 'Other')
     ], string='Document Type')
+    department = fields.Many2one(comodel_name='hp.department',string="Department")
 
     @api.model_create_multi
     def create(self, vals_list):
