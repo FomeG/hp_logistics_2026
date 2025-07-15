@@ -1,6 +1,8 @@
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError
 from odoo.addons.hp_components.services.task_service import TaskService
+from odoo.addons.hp_components.services.request_product_service import RequestProductService
+from odoo.addons.hp_components.services.project_service import ProjectService
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -28,26 +30,15 @@ class PortRouteRequestWizard(models.TransientModel):
         
         try:
             # Create task using TaskService
-            service = TaskService(self.env)
-            project = service.get_project_by_type(TaskService.PROJECT_TYPE_PRODUCT_REQUEST)
-            
-            if not project:
-                raise UserError(_('No project found for product requests. Please configure the project first.'))
+            request_product_service = RequestProductService(self.env)
             
             # Create task with port/route information
-            task = service.create_task_by_sale_order(
-                'pricing',
-                project.id, 
-                TaskService.TASK_TYPE_PRODUCT_REQUEST, 
+            task = request_product_service.create_task_request_product(
                 self.sale_order_id,
-                {
-                    'etd': self.etd,
-                    'pod_name_request': self.pod_name_request,
-                    'pol_name_request': self.pol_name_request,
-                    'container_type_id': self.container_type_id.id,
-                    # 'sale_order_line_id': self.sale_order_line_id.id if self.sale_order_line_id else False,
-                    'notes': self.notes
-                }
+                self.pod_name_request,
+                self.pol_name_request,
+                self.etd,
+                self.container_type_id
             )
             
             # Show success message

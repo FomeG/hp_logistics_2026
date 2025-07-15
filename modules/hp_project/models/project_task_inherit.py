@@ -14,7 +14,7 @@ class ProjectTaskInherit(models.Model):
     end_time = fields.Datetime(string="End Time", readonly=True)
 
     # Request POD/POL
-    sale_order_id = fields.Many2one('sale.order', string='Sales Order')
+    sale_order_id = fields.Many2one('sale.order', string='Sales Order', store=True)
     pod_name_request = fields.Char('POD name request')
     pod_id = fields.Many2one('freight.purchase.port', string="Port Of Discharge")
     pol_name_request = fields.Char('POL name request')
@@ -36,10 +36,10 @@ class ProjectTaskInherit(models.Model):
         ('pricing_leader', 'Pricing Leader Approval')
     ], string="Approval Type")
     sale_line_id = fields.Many2one('sale.order.line', string='Sales Order Line')
-    
+
     # Approve quotation
     rejection_reason = fields.Text(string='Rejection Reason')
-    
+
     # Computed
     project_type = fields.Char(string="Project Type", compute="_compute_project_type", store=False)
     product_template_id = fields.Many2one('product.template', string='Product', compute='_compute_product_template_id', store=False)
@@ -80,7 +80,7 @@ class ProjectTaskInherit(models.Model):
                     domain = [('groups_id', 'in', [freight_purchase_group_id])]
                 else:
                     domain = [('active', '=', True), ('share', '=', False)]
-            
+
             users = self.env['res.users'].sudo().search(domain)
             task.allowed_user_ids = users
 
@@ -110,7 +110,7 @@ class ProjectTaskInherit(models.Model):
                 task.product_template_id = sale_order_line.product_template_id.id
             else:
                 task.product_template_id = False
-    
+
     @api.depends('project_id')
     def _check_project_pricing(self):
         for task in self:
@@ -130,7 +130,7 @@ class ProjectTaskInherit(models.Model):
                 )
             else:
                 record.booking_info = ""
-    
+
     @api.depends('project_id', 'project_id.type')
     def _compute_project_type(self):
         for task in self:
@@ -196,7 +196,7 @@ class ProjectTaskInherit(models.Model):
             'context': {'create': False, 'update': False, 'delete': False},
             'flags': {'mode': 'readonly'},
         }
-    
+
     def action_show_product_detail(self):
         self.ensure_one()
         return {
@@ -209,7 +209,7 @@ class ProjectTaskInherit(models.Model):
             'context': {'create': False, 'update': False, 'delete': False},
             'flags': {'mode': 'readonly'},
         }
-    
+
     def action_pricing_quotation(self):
         self.ensure_one()
         return {
@@ -279,7 +279,7 @@ class ProjectTaskInherit(models.Model):
             self.message_post(body=_("Approve price successfully with sale line: %s") % self.sale_line_id.name)
             return True
         raise UserError('Approve price failed.')
-    
+
     def action_approve_booking(self):
         self.ensure_one()
         task_service = TaskService(self.env)

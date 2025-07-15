@@ -152,7 +152,10 @@ class SaleOrderLineInherit(models.Model):
                 )
                 
                 if matching_line:
-                    record.base_price = matching_line.price
+                    # Calculate average unit price from all matching quotation lines
+                    total_unit_price = sum(line.unit_price for line in matching_line)
+                    average_unit_price = total_unit_price / len(matching_line)
+                    record.base_price = average_unit_price
                 else:
                     raise UserError(_("No price found for container type %s in the selected quotation.") % record.container_type_id.name)
 

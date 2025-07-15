@@ -23,8 +23,10 @@ class RequestProductService(BaseTaskService):
     def create_task_request_product(self, sale_order, pod_name, pol_name, etd, container_type):
         project = self.project_service.get_project_by_type(ProjectService.PROJECT_TYPE_PRODUCT_REQUEST)
         leader = self.department_service.get_pricing_department_leader()
+        leader = leader if leader else self.env.user
+        _logger.info(f'Start creating task for {sale_order.id}')
         if project and leader:
-            self.env['project.task'].sudo().create({
+            task = self.env['project.task'].sudo().create({
                 'name': f'POD/POL Request for {sale_order.name}',
                 'project_id': project.id,
                 'sale_order_id': sale_order.id,
@@ -35,6 +37,7 @@ class RequestProductService(BaseTaskService):
                 'container_type_id': container_type.id,
                 'date_assign': datetime.now(),
             })
+            _logger.info(f'Created task for {task.sale_order_id.id}')
             return True
         return False
     

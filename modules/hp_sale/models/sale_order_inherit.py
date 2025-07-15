@@ -18,11 +18,16 @@ class SaleOrderInherrit(models.Model):
     #     string="Bookings"
     # )
 
-    state = fields.Selection(selection_add=[
+    state = fields.Selection([
+        ('draft', 'Quotation'),
         ('activated', 'Quotation Activated'),
         ('customer_confirm', 'Customer Confirmed'),
         ('sale_leader_confirm', 'Sales Leader Confirmed'),
         ('pricing_leader_confirm', 'Pricing Leader Confirmed'),
+        ('sent', 'Quotation Sent'),
+        ('sale', 'Sales Order'),
+        ('done', 'Locked'),
+        ('cancel', 'Cancelled'),
     ], string="Status", readonly=True, copy=False, index=True, tracking=3, default='draft')
 
     # When activate Quotation => check if some product is missing booking/price => make task and assgin to all users relating to the pod

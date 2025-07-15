@@ -71,6 +71,19 @@
                 <field name="freight_quotation_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
             </xpath>
 
+            <!-- Find the partner_id field and add the domain attribute -->
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="domain">[('user_id', '=', uid)]</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/list//field[@name='tax_id']" position="after">
+                 <field name="commission" width="120px"/>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="before">
+                 <field name="base_price" width="120px"/>
+            </xpath>
+
         </field>
     </record>
 
