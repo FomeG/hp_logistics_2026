@@ -36,9 +36,13 @@
                             <field name="teu_volume" />
                             <field name="note" />
                         </group>
+                        <group colspan="2">
+                            <field name="inventory_summary" readonly="1" widget="text" invisible="not is_show_inventory"/>
+                        </group>
+
                     </group>
                     <notebook>
-                        <page string="Booking Lines" invisible="not id">
+                        <page string="Booking Lines" invisible="not has_inventory">
                             <field name="line_ids" context="{'from_booking_form': True}">
                                 <list delete="false">
                                     <field name="pod_id" />
@@ -55,10 +59,10 @@
                         <page string="Inventory" invisible="not is_show_inventory">
                             <field name="booking_inventory_ids" context="{'from_booking_form': True}">
                                 <list edit="0" delete="0" create="1" readonly="1" no_open="1">
-                                    <field name="container_type_id" />
+                                    <field name="container_type_id"/>
                                     <field name="action" />
                                     <field name="quantity" />
-                                    <field name="booking_line_id" />
+                                    <field name="str_inventory_booking_line" />
                                     <field name="create_date" />
                                 </list>
                                 <form>
@@ -66,7 +70,9 @@
                                         <group>
                                             <field name="booking_id"
                                                 invisible="context.get('from_booking_form')" />
-                                            <field name="container_type_id" required="1" domain="[('id', 'in', allow_container_type_ids)]" />
+                                            <field name="container_type_id" required="1"
+                                                   domain="[('id', 'in', allow_container_type_ids)]"
+                                            />
                                             <field name="quantity" required="1" />
                                             <field name="action" readonly="1"/>
                                         </group>
