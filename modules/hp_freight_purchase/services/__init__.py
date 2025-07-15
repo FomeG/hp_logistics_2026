@@ -1,1 +1,2 @@
 from . import freight_purchase_booking_inventory_service
+from . import freight_purchase_booking_line_service
