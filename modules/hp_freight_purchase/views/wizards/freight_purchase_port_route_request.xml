@@ -3,8 +3,8 @@
 
     <!-- Create popup form for collecting Port/Route information -->
     <record id="view_create_port_route_request_wizard" model="ir.ui.view">
-        <field name="name">port.route.request.wizard.form</field>
-        <field name="model">port.route.request.wizard</field>
+        <field name="name">freight.purchase.port.route.request.wizard.form</field>
+        <field name="model">freight.purchase.port.route.request.wizard</field>
         <field name="arch" type="xml">
             <form string="Create Port/Route Request">
                 <group>

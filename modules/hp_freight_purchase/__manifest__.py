@@ -38,7 +38,7 @@
         'views/sale_order_inherit_views.xml',
 
         # wizard views
-        'views/wizards/port_route_request.xml',
+        'views/wizards/freight_purchase_port_route_request.xml',
 
         #menu
         'views/freight_purchase_menus.xml',
