@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hp_document_hp_document,hp_document.hp_document,model_hp_document_hp_document,base.group_user,1,1,1,1
