@@ -42,6 +42,7 @@
                             <field name="note" />
 
                             <field name="status" />
+                            <field name="remind_enabled" widget="boolean_toggle" invisible="not id"/>
                         </group>
                     </group>
                     <group string="Sale Order Information">

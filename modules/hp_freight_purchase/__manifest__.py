@@ -34,6 +34,7 @@
         'views/freight_purchase_quotation_line_views.xml',
         'views/freight_purchase_booking_views.xml',
         'views/freight_purchase_booking_line_views.xml',
+        'views/freight_purchase_remind_views.xml',
         'views/sale_order_line_selection_views.xml',
         'views/sale_order_inherit_views.xml',
 
@@ -42,6 +43,9 @@
 
         #menu
         'views/freight_purchase_menus.xml',
+
+        #data
+        'data/cron_job.xml',
     ],
     # 'demo': [
     #     'demo/container_type_demo.xml',

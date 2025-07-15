@@ -97,5 +97,15 @@
             action="freight_purchase_fee_line_action"
             parent="menu_freight_purchase_fee_menu"
             sequence="30" />
+
+        <menuitem id="menu_freight_purchase_setting"
+            name="Setting"
+            parent="menu_purchase_root"
+            sequence="40" />
+        <menuitem id="menu_freight_purchase_remind"
+            name="Remind"
+            action="freight_purchase_remind_action"
+            parent="menu_freight_purchase_setting"
+            sequence="10" />
     </data>
 </odoo>
