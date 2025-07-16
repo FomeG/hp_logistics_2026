@@ -2,7 +2,8 @@ from itertools import count
 
 from odoo.addons.component.core import Component
 from odoo.addons.sale.models.sale_order import SaleOrder
-from ..services.task_service import TaskService
+from ..services.request_price_service import RequestPriceService
+from ..services.project_service import ProjectService
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -30,19 +31,20 @@ class SaleOrderListener(Component):
 
     def _handle_quotation_activated(self,record: SaleOrder) -> None:
         project = False
-        service = TaskService(self.env)
+        service = RequestPriceService(self.env)
+        project_service = ProjectService(self.env)
         sale_order_lines_without_price = record.get_sale_order_lines_missing_price()
         _logger.info(f"sale_order_lines_without_price: {sale_order_lines_without_price}")
         if not sale_order_lines_without_price:
             return
         else:
             # case 1: request price if needed
-            project = service.get_project_by_type(TaskService.PROJECT_TYPE_PRICE_REQUEST)
+            project = project_service.get_project_by_type(ProjectService.PROJECT_TYPE_PRICE_REQUEST)
         _logger.info(f"project: {project}")
         if not project:
             return
         for sale_order_line in sale_order_lines_without_price:
-            service.create_task_by_sale_order_line(project.id, TaskService.TASK_TYPE_PRICE_REQUEST, sale_order_line)
+            service.create_request_price_task(sale_order_line)
 
     def _handle_quotation_confirmed(self,record: SaleOrder) -> None:
         project = False

@@ -24,9 +24,19 @@ class RequestProductService(BaseTaskService):
         project = self.project_service.get_project_by_type(ProjectService.PROJECT_TYPE_PRODUCT_REQUEST)
         leader = self.department_service.get_pricing_department_leader()
         leader = leader if leader else self.env.user
-        _logger.info(f'Start creating task for {sale_order.id}')
-        if project and leader:
-            task = self.env['project.task'].sudo().create({
+        _logger.info(f'Start creating task for sale_order_id: {sale_order.id}, sale_order_name: {sale_order.name}')
+        
+        if not project:
+            _logger.error(f'Project not found for type: {ProjectService.PROJECT_TYPE_PRODUCT_REQUEST}')
+            return False
+            
+        if not leader:
+            _logger.error('No leader found for pricing department')
+            return False
+            
+        try:
+            
+            task_vals = {
                 'name': f'POD/POL Request for {sale_order.name}',
                 'project_id': project.id,
                 'sale_order_id': sale_order.id,
@@ -36,10 +46,22 @@ class RequestProductService(BaseTaskService):
                 'pol_name_request': pol_name,
                 'container_type_id': container_type.id,
                 'date_assign': datetime.now(),
-            })
-            _logger.info(f'Created task for {task.sale_order_id.id}')
+            }
+            task = self.env['project.task'].sudo().create(task_vals)
+
+            # Try to force set sale_order_id if it's not set
+            if not task.sale_order_id:
+                _logger.info('Attempting to force set sale_order_id via write')
+                task.write({'sale_order_id': sale_order.id})
+                _logger.info(f'After write - Task sale_order_id: {task.sale_order_id}, sale_order_id.id: {task.sale_order_id.id if task.sale_order_id else "None"}')
+
+            _logger.info(f'Created task for sale_order: {task.sale_order_id.name if task.sale_order_id else "None"}')
+            
             return True
-        return False
+            
+        except Exception as e:
+            _logger.exception(f'Error creating task: {e}')
+            return False
     
     def handle_approve_product(self, task):
         self.validate_approve_product(task)

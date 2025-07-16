@@ -1,6 +1,7 @@
 from ..validators.booking_line_validator import BookingLineValidator
-from odoo import models, fields, api, exceptions
-from odoo.addons.hp_freight_purchase.services.freight_purchase_booking_inventory_service import FreightPurchaseBookingInventoryService
+from odoo import models, fields, api, exceptions, _
+from ..services.freight_purchase_booking_inventory_service import FreightPurchaseBookingInventoryService
+from ..services.freight_purchase_booking_line_service import FreightPurchaseBookingLineService
 
 class FreightPurchaseBookingLine(models.Model):
     _name = 'freight.purchase.booking.line'
@@ -64,6 +65,46 @@ class FreightPurchaseBookingLine(models.Model):
 
     # Computed invisible btn add sale line
     can_add_sale_line = fields.Boolean(compute='_compute_can_add_sale_line', store=False)
+
+    #remind
+    remind_id = fields.Many2one('freight.purchase.remind', string="Reminder")
+    reminder_count = fields.Integer(string='Reminder Sent', default=0)
+    remind_enabled = fields.Boolean(
+        string="Enable Reminder",
+        compute='_compute_remind_enabled',
+        inverse='_inverse_remind_enabled',
+        store=False,
+        default=True
+    )
+
+    @api.depends('remind_id.without_booking_line_ids')
+    def _compute_remind_enabled(self):
+        for line in self:
+            if line.remind_id:
+                line.remind_enabled = line not in line.remind_id.without_booking_line_ids
+            else:
+                line.remind_enabled = True
+
+    def _inverse_remind_enabled(self):
+        for line in self:
+            remind = line.remind_id
+            if not remind:
+                if not line.remind_enabled:
+                    remind = self.env['freight.purchase.remind'].search([
+                        ('type', '=', 'booking_line'),
+                        ('is_active', '=', True),
+                    ], limit=1)
+                    if not remind:
+                        raise exceptions.UserError("No active booking reminder configuration found.")
+                    line.remind_id = remind
+                else:
+                    continue
+
+            if line.remind_enabled:
+                remind.without_booking_line_ids = [(3, line.id)]
+            else:
+                if line not in remind.without_booking_line_ids:
+                    remind.without_booking_line_ids = [(4, line.id)]
     
     @api.depends('sale_order_line_ids', 'status')
     def _compute_can_add_sale_line(self):
@@ -219,3 +260,7 @@ class FreightPurchaseBookingLine(models.Model):
                     raise exceptions.ValidationError(
                         f"Total quantity must be less than or equal to {container_avaliable}."
                     )
+    
+    def _reservation_expiration_reminder(self):
+        service = FreightPurchaseBookingLineService(self.env)
+        service.reservation_expiration_reminder()

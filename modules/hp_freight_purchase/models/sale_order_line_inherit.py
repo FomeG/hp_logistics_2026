@@ -215,7 +215,7 @@ class SaleOrderLineInherit(models.Model):
         return {
             'name': _('Create Port/Route Request'),
             'type': 'ir.actions.act_window',
-            'res_model': 'port.route.request.wizard',
+            'res_model': 'freight.purchase.port.route.request.wizard',
             'view_mode': 'form',
             'target': 'new',
             # 'context': {

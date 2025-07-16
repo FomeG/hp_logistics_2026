@@ -89,12 +89,12 @@ class SaleOrderInherrit(models.Model):
     def get_sale_order_lines_missing_price(self):
         self.ensure_one()  # Make sure we're working on exactly one sale.order
         # Now safe to do single-record operations
-        return self.order_line.filtered(lambda l: not l.booking_id and not l.quotation_id)
+        return self.order_line.filtered(lambda l: not l.freight_booking_id and not l.freight_quotation_id)
 
     def get_sale_order_lines_with_booking(self):
         self.ensure_one()  # Make sure we're working on exactly one sale.order
         # Now safe to do single-record operations
-        return self.order_line.filtered(lambda l: l.booking_id and l.booking_id.booking_status != 'booked')
+        return self.order_line.filtered(lambda l: l.freight_booking_id and l.freight_booking_id.booking_status != 'booked')
     def is_cancelled(self):
         return self.state == 'cancel'
     def is_activated(self):
@@ -113,7 +113,7 @@ class SaleOrderInherrit(models.Model):
         return {
             'name': _('Create Port/Route Request'),
             'type': 'ir.actions.act_window',
-            'res_model': 'port.route.request.wizard',
+            'res_model': 'freight.purchase.port.route.request.wizard',
             'view_mode': 'form',
             'target': 'new',
             'context': {
