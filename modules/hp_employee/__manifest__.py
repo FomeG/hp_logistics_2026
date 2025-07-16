@@ -11,7 +11,7 @@
 HP Employee App
 ===================================================
 """,
-    'depends': ['base', 'hr'],
+    'depends': ['base', 'hr','hr_org_chart'],
     'data': [
         # 'data/demo_data.xml',
         'views/hidden_btn_new_views.xml',
