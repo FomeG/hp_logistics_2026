@@ -76,6 +76,19 @@ class FreightPurchaseBookingLine(models.Model):
         store=False,
         default=True
     )
+    name = fields.Char(
+        string="Name",
+        compute='_compute_name',
+        store=False
+    )
+
+    @api.depends('quotation_line_id')
+    def _compute_name(self):
+        for record in self:
+            if record.quotation_line_id:
+                record.name = f"Booking line of: {record.quotation_line_id.name}"
+            else:
+                record.name = ''
 
     @api.depends('remind_id.without_booking_line_ids')
     def _compute_remind_enabled(self):

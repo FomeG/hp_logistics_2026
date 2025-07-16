@@ -67,7 +67,7 @@ class FreightPurchaseBookingLineService:
             _logger.info('!!!!!!!!!!!!!!!!!')
 
             if expected_index == (total_remind - line.reminder_count) and hours_left > 0:
-                self.send_expiry_reminder(line)
+                self.send_expiry_reminder(line, expected_index)
                 line.reminder_count += 1
     
     def is_booking_line_has_pending_sale_order(self, booking_line):
@@ -77,7 +77,7 @@ class FreightPurchaseBookingLineService:
             )
         )
     
-    def send_expiry_reminder(self, booking_line):
+    def send_expiry_reminder(self, booking_line, hours_expired):
         creator = booking_line.create_uid
         if not creator:
             return
@@ -96,7 +96,7 @@ class FreightPurchaseBookingLineService:
 
         service._create_activity_by_type(
             activity_type_xml_id='mail.mail_activity_data_todo',
-            summary='Upcoming Booking Expiration',
+            summary=f"Approximately {hours_expired} hours left before this booking expires",
             note=desciption
         )
     
