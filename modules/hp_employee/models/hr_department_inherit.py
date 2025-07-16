@@ -75,11 +75,11 @@ class HpDepartmentInherit(models.Model):
         group_map = {
             self.ROLE_MANAGER: {
                 self.TYPE_SALE: 'sales_team.group_sale_salesman_all_leads',
-                self.TYPE_PRICING: 'hp_pricing.group_hp_pricing_lead',
+                self.TYPE_PRICING: 'hp_freight_purchase.group_hp_freight_purchase_lead',
             },
             self.ROLE_MEMBER: {
                 self.TYPE_SALE: 'sales_team.group_sale_salesman',
-                self.TYPE_PRICING: 'hp_pricing.group_hp_pricing_member',
+                self.TYPE_PRICING: 'hp_freight_purchase.group_hp_freight_purchase_member',
             }
         }
 

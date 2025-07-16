@@ -36,6 +36,11 @@ class FreightPurchaseBookingLineService:
         interval_hour = remind_booking_line.interval
         max_ahead_time = now + timedelta(hours=total_remind * interval_hour)
 
+        _logger.info('!!!!!!!!!!!!!!!!!')
+        _logger.info(now)
+        _logger.info(max_ahead_time)
+        _logger.info('!!!!!!!!!!!!!!!!!')
+
         domain = [
             ('reservation_expiration_date', '>', now),
             ('reservation_expiration_date', '<=', max_ahead_time),
@@ -66,7 +71,7 @@ class FreightPurchaseBookingLineService:
                 line.reminder_count += 1
     
     def is_booking_line_has_pending_sale_order(self, booking_line):
-        return bool(
+        return not booking_line.sale_order_line_ids or bool(
             booking_line.sale_order_line_ids.filtered(
                 lambda sol: sol.order_id.state in ('draft', 'activated')
             )
