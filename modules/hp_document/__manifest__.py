@@ -9,7 +9,6 @@
     'data': [
         # 'security/ir.model.access.csv',
         'views/hp_document_booking_document_views.xml',
-        'views/hp_department.xml',
     ],
     'installable': True,
     'application': True,
