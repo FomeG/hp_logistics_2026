@@ -1,9 +1,11 @@
 from itertools import count
 
+from odoo import fields
 from odoo.addons.component.core import Component
 from odoo.addons.sale.models.sale_order import SaleOrder
 from ..services.request_price_service import RequestPriceService
 from ..services.project_service import ProjectService
+from ..services.task_service import TaskService
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -19,7 +21,9 @@ class SaleOrderListener(Component):
         if record.is_activated():
             #todo: check old status != activated
             _logger.info("Creating price request task")
-            self._handle_quotation_activated(record)
+            # Skip if context flag is set to prevent duplicate price request tasks
+            if not self.env.context.get('skip_price_request_listener'):
+                self._handle_quotation_activated(record)
         elif record.is_cancelled():
             self._handle_quotation_cancelled(record)
         elif record.is_customer_confirmed():
@@ -43,8 +47,20 @@ class SaleOrderListener(Component):
         _logger.info(f"project: {project}")
         if not project:
             return
-        for sale_order_line in sale_order_lines_without_price:
-            service.create_request_price_task(sale_order_line)
+        
+        # Filter out lines that were created very recently (within the last few seconds)
+        # to avoid duplicate price request tasks for newly created lines
+        current_time = fields.Datetime.now()
+        recent_lines = sale_order_lines_without_price.filtered(
+            lambda line: line.create_date and 
+            (current_time - line.create_date).total_seconds() < 5
+        )
+        
+        # Only process lines that are not recently created
+        lines_to_process = sale_order_lines_without_price - recent_lines
+        
+        for sale_order_line in lines_to_process:
+            service.create_request_price_task(sale_order_line, sale_order_line.etd)
 
     def _handle_quotation_confirmed(self,record: SaleOrder) -> None:
         project = False

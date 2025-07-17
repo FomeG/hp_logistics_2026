@@ -66,10 +66,27 @@ class RequestProductService(BaseTaskService):
     def handle_approve_product(self, task):
         self.validate_approve_product(task)
 
+        # Check if ports exist with the same name first
         pol = self.create_port_by_name(task.pol_name_request, task.region_pol_id.id, True)
         pod = self.create_port_by_name(task.pod_name_request, task.region_pod_id.id, False)
-        route = self.create_route_by_pol_pod(pol, pod)
-        new_product = self.env['product.template'].sudo().search([('route_id', '=', route.id)], limit=1)
+        
+        # Find the route that was automatically created by the listener
+        route = self.env['freight.purchase.route'].sudo().search([
+            ('pol_id', '=', pol.id), 
+            ('pod_id', '=', pod.id)
+        ], limit=1)
+        
+        if not route:
+            raise ValidationError(f"Route not found for POL {pol.name} and POD {pod.name}. Please check if ports were created correctly.")
+        
+        # Find the product that was automatically created for this route
+        new_product = self.env['product.template'].sudo().search([
+            ('route_id', '=', route.id),
+            ('type', '=', 'pricing')
+        ], limit=1)
+        
+        if not new_product:
+            raise ValidationError(f"Product not found for route {route.name}. Please check if product was created correctly.")
 
         sale_order = task.sale_order_id
         new_sale_order_line = self.env['sale.order.line'].sudo().create({
@@ -83,7 +100,8 @@ class RequestProductService(BaseTaskService):
         })
 
         self.request_price_service.create_request_price_task(new_sale_order_line, task.etd)
-        sale_order.sudo().write({'state': 'activated'})
+        # Use context to prevent duplicate price request task creation
+        sale_order.sudo().with_context(skip_price_request_listener=True).write({'state': 'activated'})
         task.update_done_task(pod.id, pol.id)
         return True
 
@@ -103,15 +121,15 @@ class RequestProductService(BaseTaskService):
             })
         return port
     
-    def create_route_by_pol_pod(self, pol, pod):
-        route = self.env['freight.purchase.route'].sudo().search([('pod_id', '=', pod.id), ('pol_id', '=', pol.id)], limit=1)
-        if not route:
-            route = self.env['freight.purchase.route'].sudo().create({
-                'pol_id': pol.id,
-                'pod_id': pod.id,
-                'is_active': True,
-            })
-        return route
+    # def create_route_by_pol_pod(self, pol, pod):
+    #     route = self.env['freight.purchase.route'].sudo().search([('pod_id', '=', pod.id), ('pol_id', '=', pol.id)], limit=1)
+    #     if not route:
+    #         route = self.env['freight.purchase.route'].sudo().create({
+    #             'pol_id': pol.id,
+    #             'pod_id': pod.id,
+    #             'is_active': True,
+    #         })
+    #     return route
     
     def validate_approve_product(self, task):
         if not task.sale_order_id:

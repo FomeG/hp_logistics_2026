@@ -50,7 +50,8 @@ class TestFreightPurchaseBooking(TransactionCase):
         in_15_days = fields.Date.add(today, days=15)
         route = self.Route.create({
             'pol_id': pol.id,
-            'pod_id': pod.id
+            'pod_id': pod.id,
+            'is_active': True
         })
         quotation = self.Quotation.create({
             'name': 'QTN-001',

@@ -41,6 +41,7 @@ class FreightPurchasePortListener(Component):
                     route_pol_to_pod = Route.create({
                         'pol_id': port.id,
                         'pod_id': other_port.id,
+                        'is_active': True,
                     })
                     
                     # Create product template for this route
@@ -56,6 +57,7 @@ class FreightPurchasePortListener(Component):
                     route_pod_to_pol = Route.create({
                         'pol_id': other_port.id,
                         'pod_id': port.id,
+                        'is_active': True,
                     })
                     
                     # Create product template for this route
