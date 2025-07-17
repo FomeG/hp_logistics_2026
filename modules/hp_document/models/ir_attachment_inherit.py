@@ -17,6 +17,15 @@ class IrAttachmentInherit(models.Model):
         ('co', 'Certificate of Origin'),
         ('other', 'Other')
     ], string='Document Type')
+    department = fields.Char(string="Department",compute='_compute_department')
+
+    @api.depends('res_model')
+    def _compute_department(self):
+        mapping = {
+            'freight.purchase.booking': 'Pricing',
+        }
+        for rec in self:
+            rec.department = mapping.get(rec.res_model, '')
 
     @api.model_create_multi
     def create(self, vals_list):

@@ -7,8 +7,9 @@
     'version': '18.0.0.0.1',
     'depends': ['base','hp_freight_purchase'],
     'data': [
-        # 'security/ir.model.access.csv',
+        'security/ir.model.access.csv',
         'views/hp_document_booking_document_views.xml',
+        'views/hp_document_views.xml',
     ],
     'installable': True,
     'application': True,
