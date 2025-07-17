@@ -221,6 +221,8 @@ class ProjectTaskInherit(models.Model):
                 'target': 'new',
                 'context': dict(self._context, **{
                     'default_project_task_id': self.id,
+                    'default_route_id': self.product_template_id.route_id.id,
+                    'default_container_type_id': self.container_type_id.id,
             })
         }
     # ====== end action show form ======

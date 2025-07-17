@@ -29,6 +29,7 @@ class RequestPriceService(BaseTaskService):
                 'name': f'Request price for product: {sale_order_line.product_id.product_tmpl_id.name}',
                 'project_id': project.id,
                 'sale_order_id': sale_order_line.order_id.id,
+                'container_type_id': sale_order_line.container_type_id.id,
                 'sale_line_id': sale_order_line.id,
                 'user_ids': [leader.id],
                 'etd': etd,
@@ -40,35 +41,33 @@ class RequestPriceService(BaseTaskService):
             return True
         return False
 
-    def calculateMultiplierByContainerType(self, container_type):
-        # todo
+    def calculateBasePriceByContainerType(self, quotation, container_type):
+        matching_lines = quotation.line_ids.filtered(
+            lambda l: l.container_type_id.id == container_type.id
+        )
 
-        return 1
+        if not matching_lines:
+            raise ValidationError(
+                _("No quotation lines found for container type '%s'.") % container_type.name
+            )
+
+        return round(sum(matching_lines.mapped('cost')) / len(matching_lines), 2)
 
     def handle_approve_price(self, task):
         self.validate_approve_price(task)
 
         # Determine base price based on container type
-        multiplier = self.calculateMultiplierByContainerType(task.sale_line_id.container_type_id)
-        base_price = (task.booking_id.company_booking_price * multiplier) / task.booking_id.volume_total
-
-        # Find and update the matching sale order line
+        base_price = self.calculateBasePriceByContainerType(task.quotation_id, task.sale_line_id.container_type_id)
         if task.sale_line_id:
             task.sale_line_id.sudo().write({
-                'booking_id': task.booking_id.id,
+                # 'booking_id': task.booking_id.id,
                 'base_price': base_price,
-                'etd_sale': task.booking_id.etd,
+                # 'etd_sale': task.booking_id.etd,
             })
 
         task.update_done_task()
         return True
     
     def validate_approve_price(self, task):
-        if not task.booking_id:
-            raise ValidationError(_("Booking is required."))
         if not task.quotation_id:
             raise ValidationError(_("Pricing quotation is required."))
-        if not task.booking_id.line_ids:
-            raise ValidationError(_("Booking has no valid booking lines."))
-        if not task.sale_line_id.container_type_id:
-            raise ValidationError(_("Container type is required when Booking is selected."))

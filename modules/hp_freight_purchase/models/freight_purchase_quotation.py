@@ -80,6 +80,18 @@ class FreightPurchaseQuotation(models.Model):
         store=False
     )
 
+    container_type_id = fields.Many2one(
+        'container.type',
+        string='Container Type (context only)',
+        compute='_compute_container_type_id',
+        store=False
+    )
+
+    @api.depends_context('default_container_type_id')
+    def _compute_container_type_id(self):
+        for rec in self:
+            rec.container_type_id = self.env.context.get('default_container_type_id')
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -105,6 +117,12 @@ class FreightPurchaseQuotation(models.Model):
 
         # Compute code
         records = super().create(vals_list)
+
+        project_task_id = self._context.get('default_project_task_id')
+        if project_task_id:
+            project_task = self.env['project.task'].browse(project_task_id)
+            if project_task.exists():
+                project_task.quotation_id = records[0].id
 
         for record in records:
             if not record.code or record.code == '/':
@@ -156,3 +174,9 @@ class FreightPurchaseQuotation(models.Model):
             if record.available_from and record.available_to:
                 record.str_available = f"{record.available_from.strftime('%d-%m-%Y')} - {record.available_to.strftime('%d-%m-%Y')}"
     #todo require name + email
+
+    @api.onchange('route_id')
+    def _onchange_route_id(self):
+        ctx_default_route_id = self.env.context.get('default_route_id')
+        if ctx_default_route_id and self.route_id and self.route_id.id != ctx_default_route_id:
+            raise ValidationError('You can only use the predefined route for this quotation')

@@ -73,3 +73,10 @@ class FreightPurchaseQuotationLine(models.Model):
         for record in self:
             if record.cost:
                 record.price = record.cost
+
+    @api.onchange('container_type_id')
+    def _onchange_container_type_id(self):
+        for line in self:
+            default_ct_id = self.env.context.get('default_container_type_id')
+            if default_ct_id and line.container_type_id and line.container_type_id.id != default_ct_id:
+                raise exceptions.ValidationError('You can only select the container type passed from the quotation context')

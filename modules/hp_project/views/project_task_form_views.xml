@@ -67,7 +67,7 @@
                         </div>
                         <field name="pod_name_request" string="POD Name" />
                         <field name="pol_name_request" string="POL Name" />
-                        <field name="container_type_id" string="Container Type" />
+                        <field name="container_type_id" string="Container Type" readonly="1" />
                         <button name="action_approve_pod_pol"
                             type="object"
                             string="Approve POD/POL"
@@ -86,58 +86,50 @@
 
                 <!-- Group request price for product -->
                 <group string='Price' name="price_request_group" invisible="project_type != 'request_price'">
-                    <group>
-                        <label for="sale_order_id" />
-                        <div class="o_row">
-                            <field name="sale_order_id" string="Quotation"
-                                domain="[('state', '=', 'draft')]" readonly="1" />
-                            <button name="action_show_sale_order_detail"
-                                string="Show Detail"
-                                type="object"
-                                class="btn btn-link"
-                                invisible="not sale_order_id" />
-                        </div>
-                        <label for="product_template_id" />
-                        <div class="o_row">
-                            <field name="product_template_id" string="Product" readonly="1" />
-                            <button name="action_show_product_detail"
-                                string="Show Detail"
-                                type="object"
-                                class="btn btn-link"
-                                invisible="not product_template_id" />
-                        </div>
-                        <label for="quotation_id" />
-                        <div class="o_row">
-                            <field name="quotation_id"
-                                string="Pricing Quotation"
-                                help=""
-                                domain="[('create_uid', '=', uid)]"
-                                context="{'default_project_task_id': id}" />
-                            <button string="Create New"
-                                class="btn btn-link"
-                                type="object"
-                                name="action_pricing_quotation"
-                                invisible="quotation_id" />
-                        </div>
-                    </group>
-                    <group>
-                        <field name="etd" string="ETD" readonly="1" />
-                        <field name="booking_id" />
-                        <field name="cost"
-                            class="oe_inline"
-                            widget="monetary"
-                            options="{'currency_field': 'currency_id', 'field_digits': True}" />
-                    </group>
-                    <group>
-                        <button name="action_approve_price"
+                    <label for="sale_order_id" />
+                    <div class="o_row">
+                        <field name="sale_order_id" string="Quotation" readonly="1" />
+                        <button name="action_show_sale_order_detail"
+                            string="Show Detail"
                             type="object"
-                            string="Approve Price"
-                            class="btn btn-success"
-                            invisible="is_done" />
+                            class="btn btn-link"
+                            invisible="not sale_order_id" />
+                    </div>
+                    <label for="product_template_id" />
+                    <div class="o_row">
+                        <field name="product_template_id" string="Product" readonly="1" />
+                        <button name="action_show_product_detail"
+                            string="Show Detail"
+                            type="object"
+                            class="btn btn-link"
+                            invisible="not product_template_id" />
+                    </div>
+                    <field name="container_type_id" string="Container Type" readonly="1" />
+                    <field name="etd" string="ETD" />
+                    <label for="quotation_id" />
+                    <div class="o_row">
+                        <field name="quotation_id"
+                            string="Pricing Quotation"
+                            help=""
+                            domain="[('create_uid', '=', uid)]"
+                            context="{'default_project_task_id': id}"
+                            readonly="1"
+                        />
+                        <button string="Create New"
+                            class="btn btn-link"
+                            type="object"
+                            name="action_pricing_quotation"
+                            invisible="quotation_id" />
+                    </div>
 
-                        <h3 class="text-success" invisible="not is_done">
-                            <i class="fa fa-check" /> Approved Price </h3>
-                    </group>
+                    <button name="action_approve_price"
+                        type="object"
+                        string="Approve Price"
+                        class="btn btn-success"
+                        invisible="is_done" />
+
+                    <h3 class="text-success" invisible="not is_done">
+                        <i class="fa fa-check" /> Approved Price </h3>
                 </group>
 
                 <!-- Group assign booking -->

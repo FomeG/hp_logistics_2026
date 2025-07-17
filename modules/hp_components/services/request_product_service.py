@@ -66,8 +66,7 @@ class RequestProductService(BaseTaskService):
     def handle_approve_product(self, task):
         self.validate_approve_product(task)
 
-        # Check if ports exist with the same name first
-        pol = self.create_port_by_name(task.pol_name_request, task.region_pol_id.id, True)
+        pol = self.create_port_by_name(task.pol_name_request, task.region_pol_id.id, False)
         pod = self.create_port_by_name(task.pod_name_request, task.region_pod_id.id, False)
         
         # Find the route that was automatically created by the listener

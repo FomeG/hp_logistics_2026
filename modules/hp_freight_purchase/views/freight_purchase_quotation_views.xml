@@ -25,7 +25,8 @@
                     </group>
                     <notebook>
                         <page string="Container Rates">
-                            <field name="line_ids">
+                            <field name="line_ids"
+                                context="{'default_container_type_id': container_type_id}">
                                 <list>
                                     <field name="container_type_id" />
                                     <field name="cost" />
