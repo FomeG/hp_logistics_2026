@@ -1,0 +1,14 @@
+<odoo>
+    <data noupdate="1">
+        <record id="ir_cron_sync_document_to_s3" model="ir.cron">
+            <field name="name">Sync documents to S3</field>
+            <field name="model_id" ref="base.model_ir_attachment" />
+            <field name="state">code</field>
+            <field name="code">model.sync_document_to_s3()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+            <field name="nextcall" eval="(DateTime.now().replace(hour=0, minute=0, second=0, microsecond=0) + relativedelta(days=1) - relativedelta(hours=7)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+    </data>
+</odoo>

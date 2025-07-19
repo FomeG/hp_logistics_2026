@@ -1,4 +1,11 @@
 from odoo import models, fields, api
+from odoo.tools import config
+import boto3
+import os
+import ast
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class IrAttachmentInherit(models.Model):
@@ -18,6 +25,7 @@ class IrAttachmentInherit(models.Model):
         ('other', 'Other')
     ], string='Document Type')
     department = fields.Char(string="Department",compute='_compute_department')
+    s3_path = fields.Char(string="S3 Path", readonly=False, store=True)
 
     @api.depends('res_model')
     def _compute_department(self):
@@ -35,3 +43,57 @@ class IrAttachmentInherit(models.Model):
                 vals.setdefault('res_id', vals['booking_id'])
         return super().create(vals_list)
 
+    @api.model
+    def sync_document_to_s3(self):
+        @api.model
+        def sync_document_to_s3(self):
+            config_param = self.env['ir.config_parameter']
+            models_list = config_param.get_param('model.list')
+            model_list = ast.literal_eval(models_list) if models_list else []
+            if not model_list:
+                _logger.warning("No models found in config parameter 'model.list'.")
+                return
+            aws_access_key_id = config.get('s3.access.key.id')
+            aws_secret_access_key = config.get('s3.secret.access.key')
+            s3_bucket = config.get('s3.bucket')
+            region_name = config.get('s3.region.name')
+            try:
+                s3 = boto3.client(
+                    's3',
+                    aws_access_key_id=aws_access_key_id,
+                    aws_secret_access_key=aws_secret_access_key,
+                    region_name=region_name
+                )
+            except Exception as e:
+                _logger.exception(f"Error initializing S3 client: {e}")
+                return
+            attachments = self.env['ir.attachment'].search([
+                ('res_model', 'in', model_list),
+                ('type', '=', 'binary'),
+                ('store_fname', '!=', False),
+                ('s3_path', '=', False)
+            ])
+            files_path_odoo = []
+            filestore_path = config.filestore(self.env.cr.dbname)
+            for attachment in attachments:
+                try:
+                    filename = attachment.name
+                    ext = os.path.splitext(filename)[1]
+                    s3_key = f"hp_document/{attachment.store_fname}{ext}"
+                    s3_path_aws = f"https://d85r39ril3sob.cloudfront.net/{s3_key}"
+                    file_path = os.path.join(filestore_path, attachment.store_fname)
+                    s3.upload_file(file_path, s3_bucket, s3_key)
+                    attachment.write({'s3_path': s3_path_aws})
+                    files_path_odoo.append(file_path)
+                except Exception as e:
+                    _logger.exception(f"Error uploading file for attachment ID {attachment.id}: {e}")
+                    continue
+            self._remove_filestore_path(files_path_odoo)
+
+    def _remove_filestore_path(self,files_path_odoo):
+        for file_path in files_path_odoo:
+            try:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+            except Exception as e:
+                _logger.warning(f"Get error when remove file {file_path}: {e}")

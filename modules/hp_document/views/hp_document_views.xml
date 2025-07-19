@@ -19,6 +19,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='mimetype']" position="after">
                 <field name="document_type"/>
+                <field name="s3_path"/>
             </xpath>
         </field>
     </record>
