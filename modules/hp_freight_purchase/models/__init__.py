@@ -13,8 +13,6 @@ from . import freight_purchase_quotation
 from . import freight_purchase_quotation_line
 from . import freight_purchase_quotation_fee
 from . import freight_purchase_quotation_line_fee
-from . import freight_purchase_booking_fee
-from . import freight_purchase_booking_line_fee
 from . import freight_purchase_booking
 from . import freight_purchase_booking_line
 from . import freight_purchase_booking_fee

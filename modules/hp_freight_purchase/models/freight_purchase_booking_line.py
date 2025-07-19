@@ -254,18 +254,24 @@ class FreightPurchaseBookingLine(models.Model):
                     except Exception as e:
                         raise exceptions.ValidationError("A system error occurred while creating the quotation line.")
 
-            booking_lines = super().create(vals_list)
-            
-            return booking_lines
+            return super().create(vals_list)
         except exceptions.ValidationError:
             raise
         except Exception as e:
             raise exceptions.ValidationError("An unexpected error occurred. Please try again or contact support.")
 
     def write(self, vals):
-        result = super().write(vals)
-        
-        return result
+        for record in self:
+            if record.status == 'cancel':
+                raise exceptions.UserError("You cannot update booking line that is in 'Cancelled' status.")
+
+        if 'status' in vals and len(self) == 1:
+            ctx = dict(self.env.context)
+            ctx['old_status'] = self.status
+            return super(FreightPurchaseBookingLine, self.with_context(ctx)).write(vals)
+
+        return super().write(vals)
+
 
     @api.constrains('booking_id', 'container_type_id', 'quantity')
     def _check_quantity_against_quotation(self):

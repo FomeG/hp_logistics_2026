@@ -167,9 +167,7 @@ class FreightPurchaseBooking(models.Model):
                 else:
                     vals['name'] = False  # Leave empty if not enough info
 
-        bookings = super().create(vals_list)
-        
-        return bookings
+        return super().create(vals_list)
 
     def write(self, vals):
         for record in self:
