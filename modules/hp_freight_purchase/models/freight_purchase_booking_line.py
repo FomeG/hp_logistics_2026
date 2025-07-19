@@ -2,6 +2,7 @@ from ..validators.booking_line_validator import BookingLineValidator
 from odoo import models, fields, api, exceptions, _
 from ..services.freight_purchase_booking_inventory_service import FreightPurchaseBookingInventoryService
 from ..services.freight_purchase_booking_line_service import FreightPurchaseBookingLineService
+from odoo.exceptions import UserError
 
 class FreightPurchaseBookingLine(models.Model):
     _name = 'freight.purchase.booking.line'
@@ -65,6 +66,13 @@ class FreightPurchaseBookingLine(models.Model):
 
     # Computed invisible btn add sale line
     can_add_sale_line = fields.Boolean(compute='_compute_can_add_sale_line', store=False)
+
+    # Fee-related fields
+    fee_line_ids = fields.One2many(
+        comodel_name="freight.purchase.booking.line.fee",
+        inverse_name="booking_line_id",
+        string="Fee Lines"
+    )
 
     #remind
     remind_id = fields.Many2one('freight.purchase.remind', string="Reminder")
@@ -246,34 +254,31 @@ class FreightPurchaseBookingLine(models.Model):
                     except Exception as e:
                         raise exceptions.ValidationError("A system error occurred while creating the quotation line.")
 
-            return super().create(vals_list)
+            booking_lines = super().create(vals_list)
+            
+            return booking_lines
         except exceptions.ValidationError:
             raise
         except Exception as e:
             raise exceptions.ValidationError("An unexpected error occurred. Please try again or contact support.")
-    
+
     def write(self, vals):
-        for record in self:
-            if record.status == 'cancel':
-                raise exceptions.UserError("You cannot update booking line that is in 'Cancelled' status.")
-
-        if 'status' in vals and len(self) == 1:
-            ctx = dict(self.env.context)
-            ctx['old_status'] = self.status
-            return super(FreightPurchaseBookingLine, self.with_context(ctx)).write(vals)
-
-        return super().write(vals)
+        result = super().write(vals)
+        
+        return result
 
     @api.constrains('booking_id', 'container_type_id', 'quantity')
     def _check_quantity_against_quotation(self):
         for line in self:
             if line.booking_id and line.container_type_id and line.quantity:
-                container_avaliable = FreightPurchaseBookingInventoryService(self.env).count_quantity_container_available_in_booking(line.booking_id.id, line.container_type_id.id)
+                container_avaliable = FreightPurchaseBookingInventoryService(
+                    self.env).count_quantity_container_available_in_booking(line.booking_id.id,
+                                                                            line.container_type_id.id)
                 if line.quantity > container_avaliable:
                     raise exceptions.ValidationError(
                         f"Total quantity must be less than or equal to {container_avaliable}."
                     )
-    
-    def _reservation_expiration_reminder(self):
+
+def _reservation_expiration_reminder(self):
         service = FreightPurchaseBookingLineService(self.env)
         service.reservation_expiration_reminder()

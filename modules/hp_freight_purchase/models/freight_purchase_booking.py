@@ -8,6 +8,10 @@ from .freight_purchase_booking_inventory import FreightPurchaseBookingInventory
 from ..validators.booking_validator import BookingCreateValidator, BookingUpdateValidator
 from collections import defaultdict
 from odoo.addons.hp_freight_purchase.services.freight_purchase_booking_inventory_service import FreightPurchaseBookingInventoryService
+from ..services.freight_purchase_quotation_service import FreightPurchaseQuotationService
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class FreightPurchaseBooking(models.Model):
 
@@ -91,6 +95,23 @@ class FreightPurchaseBooking(models.Model):
         store=False
     )
 
+    # Fee-related fields
+    fee_ids = fields.One2many(
+        comodel_name="freight.purchase.booking.fee",
+        inverse_name="booking_id",
+        string="Common Fees"
+    )
+    has_fees = fields.Boolean(
+        compute='_compute_has_fees',
+        store=False,
+        string="Has Fees"
+    )
+    can_apply_fees = fields.Boolean(
+        compute='_compute_can_apply_fees',
+        store=False,
+        string="Can Apply Fees"
+    )
+
     @api.onchange('booking_mode')
     def _onchange_booking_mode(self):
         for record in self:
@@ -146,7 +167,9 @@ class FreightPurchaseBooking(models.Model):
                 else:
                     vals['name'] = False  # Leave empty if not enough info
 
-        return super().create(vals_list)
+        bookings = super().create(vals_list)
+        
+        return bookings
 
     def write(self, vals):
         for record in self:
@@ -247,3 +270,50 @@ class FreightPurchaseBooking(models.Model):
 
             booking.inventory_summary = '\n'.join(f"{ct}: {qty}" for ct, qty in summary.items()) if summary else f"No inventory"
 
+    @api.depends('fee_ids')
+    def _compute_has_fees(self):
+        for record in self:
+            record.has_fees = len(record.fee_ids) > 0
+
+    @api.depends('has_fees', 'has_inventory', 'quotation_id', 'line_ids')
+    def _compute_can_apply_fees(self):
+        for record in self:
+            # Can apply fees if: has quotation with fees (always show button for better UX)
+            has_quotation_fees = (
+                record.quotation_id and 
+                (len(record.quotation_id.fee_ids) > 0 or 
+                 any(len(line.fee_line_ids) > 0 for line in record.quotation_id.line_ids))
+            )
+
+            _logger.info(f"common quotation fee: {len(record.quotation_id.fee_ids)}")
+            _logger.info(f"specific quotation fee: {any(len(line.fee_line_ids) > 0 for line in record.quotation_id.line_ids)}")
+            
+            record.can_apply_fees = has_quotation_fees
+
+    def action_apply_fees_from_quotation(self):
+        """Apply fees from quotation to booking"""
+        try:
+            service = FreightPurchaseQuotationService(self.env)
+            result = service.apply_fees_from_quotation_to_booking(self)
+            
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Success' if result['type'] == 'success' else 'Warning',
+                    'message': result['message'],
+                    'type': result['type'],
+                    'sticky': False,
+                }
+            }
+        except Exception as e:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Error',
+                    'message': str(e),
+                    'type': 'danger',
+                    'sticky': True,
+                }
+            }

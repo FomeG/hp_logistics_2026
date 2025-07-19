@@ -2,6 +2,7 @@ from datetime import timedelta
 from odoo import fields
 from odoo.addons.component.core import Component
 from ..services.freight_purchase_booking_inventory_service import FreightPurchaseBookingInventoryService
+from ..services.freight_purchase_quotation_service import FreightPurchaseQuotationService
 from ..models.freight_purchase_booking_inventory import FreightPurchaseBookingInventory
 
 import logging
@@ -28,6 +29,7 @@ class FreightPurchaseBookingLineListener(Component):
                     record.write({
                         'reservation_expiration_date': False
                     })
+
     def on_record_write(self, record, fields=None):
         if 'status' in fields:
             old_status = record.env.context.get('old_status')
@@ -38,6 +40,14 @@ class FreightPurchaseBookingLineListener(Component):
                 action = FreightPurchaseBookingInventory.ACTION_RETURN
 
             service.create_inventory_by_booking_line(record, action)
+        
+        # Auto-trigger quotation line creation from fees if conditions are met
+        quotation_service = FreightPurchaseQuotationService(self.env)
+        if (record.fee_line_ids and 
+            not record.quotation_line_id and 
+            record.booking_id.quotation_id):
+            quotation_service.auto_create_quotation_line_from_booking_line_fees(record)
+        
         return
 
     def on_record_create(self, record, fields=None):
@@ -45,6 +55,13 @@ class FreightPurchaseBookingLineListener(Component):
         service = FreightPurchaseBookingInventoryService(self.env)
         if status in {'available', 'reserved', 'allocated', 'shipped'}:
             action = FreightPurchaseBookingInventory.ACTION_OUT
-            service.create_inventory_by_booking_line(record, action) 
+            service.create_inventory_by_booking_line(record, action)
+
+        # Auto-trigger quotation line creation from fees for booking lines without quotation line
+        quotation_service = FreightPurchaseQuotationService(self.env)
+        if (record.fee_line_ids and 
+            not record.quotation_line_id and 
+            record.booking_id.quotation_id):
+            quotation_service.auto_create_quotation_line_from_booking_line_fees(record)
 
         return

@@ -1,3 +1,4 @@
 from . import freight_purchase_booking_inventory_service
 from . import freight_purchase_port_route_request_service
 from . import freight_purchase_booking_line_service
+from . import freight_purchase_quotation_service

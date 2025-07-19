@@ -6,6 +6,13 @@
         <field name="model">freight.purchase.booking</field>
         <field name="arch" type="xml">
             <form class="oe_form_configuration">
+                <header>
+                    <button name="action_apply_fees_from_quotation" 
+                            string="Apply Fees from Quotation" 
+                            type="object" 
+                            class="btn-primary"
+                            invisible="not can_apply_fees"/>
+                </header>
                 <sheet>
                     <group>
                         <group>
@@ -78,6 +85,15 @@
                                         </group>
                                     </sheet>
                                 </form>
+                            </field>
+                        </page>
+                        <page string="Common Fees" invisible="not has_fees">
+                            <field name="fee_ids">
+                                <list editable="bottom">
+                                    <field name="fee_type_id"/>
+                                    <field name="amount"/>
+                                    <field name="note" />
+                                </list>
                             </field>
                         </page>
                     </notebook>
