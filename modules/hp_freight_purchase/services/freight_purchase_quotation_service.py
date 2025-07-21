@@ -15,7 +15,8 @@ class FreightPurchaseQuotationService:
         if not booking:
             return
         
-        if not (booking.booking_mode == 'without_quotation' and booking.has_fees and not booking.quotation_id):
+        # Create quotation for bookings without quotation (even if no fees initially)
+        if not (booking.booking_mode == 'without_quotation' and not booking.quotation_id):
             return
         
         # Create quotation with same route and shipping line as booking
@@ -67,6 +68,60 @@ class FreightPurchaseQuotationService:
         
         _logger.info(f"Auto-created quotation {quotation.name} from booking {booking.name} fees")
         return quotation
+
+    def sync_booking_fee_to_quotation(self, booking_fee):
+        """Sync a booking fee to its quotation (bidirectional sync)"""
+        if not booking_fee or not booking_fee.booking_id.quotation_id:
+            return
+        
+        # Check if quotation fee already exists
+        existing_quotation_fee = self.env['freight.purchase.quotation.fee'].search([
+            ('quotation_id', '=', booking_fee.booking_id.quotation_id.id),
+            ('fee_type_id', '=', booking_fee.fee_type_id.id),
+        ], limit=1)
+        
+        if existing_quotation_fee:
+            # Update existing
+            existing_quotation_fee.write({
+                'amount': booking_fee.amount,
+                'note': booking_fee.note,
+            })
+            _logger.info(f"Updated quotation fee {existing_quotation_fee.id} from booking fee {booking_fee.id}")
+        else:
+            # Create new
+            self.env['freight.purchase.quotation.fee'].create({
+                'quotation_id': booking_fee.booking_id.quotation_id.id,
+                'fee_type_id': booking_fee.fee_type_id.id,
+                'amount': booking_fee.amount,
+                'note': booking_fee.note,
+            })
+            _logger.info(f"Created quotation fee from booking fee {booking_fee.id}")
+
+    def sync_booking_line_fee_to_quotation(self, booking_line_fee):
+        """Sync a booking line fee to its quotation line (bidirectional sync)"""
+        if not booking_line_fee or not booking_line_fee.booking_line_id.quotation_line_id:
+            return
+        
+        # Check if quotation line fee already exists
+        existing_quotation_line_fee = self.env['freight.purchase.quotation.line.fee'].search([
+            ('quotation_line_id', '=', booking_line_fee.booking_line_id.quotation_line_id.id),
+            ('fee_line_id', '=', booking_line_fee.fee_line_id.id),
+        ], limit=1)
+        
+        if existing_quotation_line_fee:
+            # Update existing
+            existing_quotation_line_fee.write({
+                'amount': booking_line_fee.amount,
+            })
+            _logger.info(f"Updated quotation line fee {existing_quotation_line_fee.id} from booking line fee {booking_line_fee.id}")
+        else:
+            # Create new
+            self.env['freight.purchase.quotation.line.fee'].create({
+                'quotation_line_id': booking_line_fee.booking_line_id.quotation_line_id.id,
+                'fee_line_id': booking_line_fee.fee_line_id.id,
+                'amount': booking_line_fee.amount,
+            })
+            _logger.info(f"Created quotation line fee from booking line fee {booking_line_fee.id}")
 
     def auto_create_quotation_line_from_booking_line_fees(self, booking_line):
         """Auto-create quotation line from booking line fees (internal method)"""

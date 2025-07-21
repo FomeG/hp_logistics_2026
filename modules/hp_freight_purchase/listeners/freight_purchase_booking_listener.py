@@ -10,22 +10,22 @@ class FreightPurchaseBookingListener(Component):
     _apply_on = ['freight.purchase.booking']
 
     def on_record_create(self, record, fields=None):
-        """Auto-trigger quotation creation from fees for bookings without quotation"""
+        """Auto-trigger quotation creation for bookings without quotation"""
         quotation_service = FreightPurchaseQuotationService(self.env)
         
+        # Create quotation for bookings without quotation (even if no fees initially)
         if (record.booking_mode == 'without_quotation' and 
-            record.has_fees and 
             not record.quotation_id):
             quotation_service.auto_create_quotation_from_booking_fees(record)
         
         return
 
     def on_record_write(self, record, fields=None):
-        """Auto-trigger quotation creation from fees if conditions are met"""
+        """Auto-trigger quotation creation if conditions are met"""
         quotation_service = FreightPurchaseQuotationService(self.env)
         
+        # Create quotation for bookings without quotation (even if no fees initially)
         if (record.booking_mode == 'without_quotation' and 
-            record.has_fees and 
             not record.quotation_id):
             quotation_service.auto_create_quotation_from_booking_fees(record)
         

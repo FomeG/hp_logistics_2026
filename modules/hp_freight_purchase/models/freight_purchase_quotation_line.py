@@ -1,5 +1,6 @@
 from odoo import models, fields, api, exceptions
 from ..validators.quotation_line_validator import QuotationLineValidator
+from ..services.freight_purchase_quotation_service import FreightPurchaseQuotationService
 import logging
 _logger = logging.getLogger(__name__)
 class FreightPurchaseQuotationLine(models.Model):
@@ -56,12 +57,30 @@ class FreightPurchaseQuotationLine(models.Model):
             if not booking.exists():
                 errors.append(f"Booking #{booking_id} doesn't exist.")
 
+            # Handle bookings without quotation
+            if not booking.quotation_id:
+                if booking.booking_mode == 'without_quotation':
+                    # Create quotation automatically for bookings without quotation
+                    quotation_service = FreightPurchaseQuotationService(self.env)
+                    quotation_service.auto_create_quotation_from_booking_fees(booking)
+                    
+                    if not booking.quotation_id:
+                        errors.append("Failed to create quotation for booking without quotation")
+                else:
+                    errors.append("Booking must have a quotation to create quotation lines")
+
             if errors:
                 raise exceptions.ValidationError("\n".join([f"• {e}" for e in errors]))
 
-            validated['quotation_id'] = booking.quotation_id.id
+            # Create quotation line with only relevant fields
+            quotation_line_vals = {
+                'quotation_id': booking.quotation_id.id,
+                'container_type_id': validated.get('container_type_id'),
+                'cost': validated.get('cost'),
+                'price': validated.get('price'),
+            }
 
-            return self.create(validated)
+            return self.create(quotation_line_vals)
         except exceptions.ValidationError:
             raise  # Re-raise validation errors
         except Exception as e:

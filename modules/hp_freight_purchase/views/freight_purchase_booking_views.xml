@@ -60,7 +60,29 @@
                                     <field name="teu_volume" />
                                     <field name="reserved_by_id" />
                                     <field name="status" />
+                                    <field name="fee_line_ids" widget="many2many_tags"
+                                           options="{'no_create_edit': True}"
+                                           string="Fees"/>
                                 </list>
+                                <form>
+                                    <group>
+                                        <field name="booking_id" invisible="context.get('from_booking_form')" />
+                                        <field name="quotation_line_id" groups="base.group_system"/>
+                                        <field name="container_type_id" />
+                                        <field name="quantity" />
+                                        <field name="unit_price" />
+                                        <field name="price" />
+                                        <field name="status" />
+                                    </group>
+                                    <group string="Fees">
+                                        <field name="fee_line_ids" invisible="not id">
+                                            <list editable="bottom">
+                                                <field name="fee_line_id"/>
+                                                <field name="amount"/>
+                                            </list>
+                                        </field>
+                                    </group>
+                                </form>
                             </field>
                         </page>
                         <page string="Inventory" invisible="not is_show_inventory">

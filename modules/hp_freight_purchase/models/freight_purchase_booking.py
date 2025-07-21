@@ -243,11 +243,18 @@ class FreightPurchaseBooking(models.Model):
             record.total_booking_lines = "0 Booking Line(s)"
             if record.line_ids:
                 record.total_booking_lines = f"{len(record.line_ids)} Booking Line(s)"
-    
-    @api.depends('quotation_id')
+
+    @api.depends('quotation_id', 'booking_mode')
     def _compute_is_show_inventory(self):
         for record in self:
-            record.is_show_inventory = True if record.id and record.quotation_id.line_ids else False
+            if not record.id:
+                record.is_show_inventory = False
+            elif record.booking_mode == 'with_quotation':
+                record.is_show_inventory = bool(record.quotation_id and record.quotation_id.line_ids)
+            elif record.booking_mode == 'without_quotation' and record.id and record.quotation_id:
+                record.is_show_inventory = True
+            else:
+                record.is_show_inventory = False
 
     @api.depends('booking_inventory_ids')
     def _compute_has_inventory(self):

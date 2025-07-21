@@ -44,11 +44,17 @@ class FreightPurchaseBookingInventory(models.Model):
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super().create(vals_list)
     
-    @api.depends('booking_id.quotation_id.line_ids.container_type_id')
+    @api.depends('booking_id.quotation_id.line_ids.container_type_id', 'booking_id.booking_mode')
     def _compute_allow_container_type_ids(self):
         for rec in self:
-            if rec.booking_id and rec.booking_id.quotation_id:
+            if not rec.booking_id or not rec.booking_id.quotation_id:
+                rec.allow_container_type_ids = False
+            elif rec.booking_id.booking_mode == 'with_quotation':
+                # Original logic: Only allow container types from quotation lines
                 rec.allow_container_type_ids = rec.booking_id.quotation_id.line_ids.mapped('container_type_id')
+            elif rec.booking_id.booking_mode == 'without_quotation':
+                # New logic: Allow all container types (no restriction)
+                rec.allow_container_type_ids = self.env['container.type'].search([])
             else:
                 rec.allow_container_type_ids = False
 
