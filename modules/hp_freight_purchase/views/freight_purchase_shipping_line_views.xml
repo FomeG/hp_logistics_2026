@@ -4,33 +4,29 @@
     <record id="freight_purchase_shipping_line_form_view" model="ir.ui.view">
         <field name="name">freight.purchase.shipping.line.form</field>
         <field name="model">res.partner</field>
-        <field name="inherit_id" ref="base.view_partner_form"/>
-        <field name="priority" eval="37"/>
+        <field name="priority" eval="1"/>
         <field name="arch" type="xml">
-            <!-- Add custom section for shipping line -->
-            <xpath expr="//form/sheet" position="replace">
-                <sheet>
-                    <group>
-                        <field name="name" string="Shipping Line Name" placeholder="e.g. Global Shipping Co." class="oe_form_field" required="1"/>
-                        <field name="email" string="Shipping Line Email" widget="email" placeholder="e.g. contact@shippingline.com" class="oe_form_field" required="1"/>
-                        <field name="is_shipping_line" value="1" invisible="1" />
-                        <notebook invisible="not id">
-                            <page string="Quotations" invisible="not quotation_ids">
-                                <field name="quotation_ids"
-                                       context="{'list_view_ref': 'hp_freight_purchase.freight_purchase_quotation_short_list_view'}"
-                                       readonly="1"
-                                />
-                            </page>
-                            <page string="Bookings" invisible="not booking_ids">
-                                <field name="booking_ids"
-                                       context="{'list_view_ref': 'hp_freight_purchase.freight_purchase_booking_short_list_view'}"
-                                       options="{'no_create': True, 'no_edit': True}" readonly="1"
-                                />
-                            </page>
-                        </notebook>
-                    </group>
-                </sheet>
-            </xpath>
+        <form>
+                <group>
+                    <field name="name" string="Shipping Line Name" placeholder="e.g. Global Shipping Co." class="oe_form_field" required="1"/>
+                    <field name="email" string="Shipping Line Email" widget="email" placeholder="e.g. contact@shippingline.com" class="oe_form_field" required="1"/>
+                    <field name="is_shipping_line" value="1" invisible="1" />
+                    <notebook invisible="not id">
+                        <page string="Quotations" invisible="not quotation_ids">
+                            <field name="quotation_ids"
+                                   context="{'list_view_ref': 'hp_freight_purchase.freight_purchase_quotation_short_list_view'}"
+                                   readonly="1"
+                            />
+                        </page>
+                        <page string="Bookings" invisible="not booking_ids">
+                            <field name="booking_ids"
+                                   context="{'list_view_ref': 'hp_freight_purchase.freight_purchase_booking_short_list_view'}"
+                                   options="{'no_create': True, 'no_edit': True}" readonly="1"
+                            />
+                        </page>
+                    </notebook>
+                </group>
+            </form>
         </field>
     </record>
 
