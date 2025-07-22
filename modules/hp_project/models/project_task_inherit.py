@@ -31,10 +31,6 @@ class ProjectTaskInherit(models.Model):
     cost = fields.Monetary(string="Cost", currency_field='currency_id')
 
     # Asign booking
-    approval_type = fields.Selection([
-        ('sale_leader', 'Sales Leader Approval'),
-        ('pricing_leader', 'Pricing Leader Approval')
-    ], string="Approval Type")
     sale_line_id = fields.Many2one('sale.order.line', string='Sales Order Line')
 
     # Approve quotation
@@ -44,7 +40,6 @@ class ProjectTaskInherit(models.Model):
     project_type = fields.Char(string="Project Type", compute="_compute_project_type", store=False)
     product_template_id = fields.Many2one('product.template', string='Product', compute='_compute_product_template_id', store=False)
     is_quotation = fields.Boolean(compute='_compute_state_sale_order', store=False)
-    booking_info = fields.Text(string="Booking Info", compute="_compute_booking_info", store=False)
     is_project_pricing = fields.Boolean(compute="_check_project_pricing", store=False)
     is_done = fields.Boolean(string="Is Done", compute="_compute_is_done", store=False)
     allowed_user_ids = fields.Many2many('res.users', compute='_compute_allowed_user_ids', store=False)
@@ -115,21 +110,6 @@ class ProjectTaskInherit(models.Model):
     def _check_project_pricing(self):
         for task in self:
             task.is_project_pricing = True if task.project_id.type in task.project_id.PROTECTED_TYPE else False
-
-    @api.depends('booking_id')
-    def _compute_booking_info(self):
-        for record in self:
-            if record.booking_id:
-                record.booking_info = _("Voyage Name: %s\nPrice: %s\nContainer (qty-type): %s - %s, %s - %s") % (
-                    record.booking_id.voyage_id.display_name or '',
-                    record.booking_id.booking_price or '',
-                    record.booking_id.volume_quantity_1 or '',
-                    record.booking_id.volume_cont_1 or '',
-                    record.booking_id.volume_quantity_2 or '',
-                    record.booking_id.volume_cont_2 or '',
-                )
-            else:
-                record.booking_info = ""
 
     @api.depends('project_id', 'project_id.type')
     def _compute_project_type(self):
@@ -210,24 +190,86 @@ class ProjectTaskInherit(models.Model):
             'flags': {'mode': 'readonly'},
         }
 
-    def action_pricing_quotation(self):
+    def action_pricing_quotation_detail(self):
         self.ensure_one()
         return {
-                'name': _('Create Pricing Quotation'),
-                'type': 'ir.actions.act_window',
-                'res_model': 'freight.purchase.quotation',
-                'view_mode': 'form',
-                'view_id': self.env.ref('hp_freight_purchase.freight_purchase_quotation_form_view').id,
-                'target': 'new',
-                'context': dict(self._context, **{
-                    'default_project_task_id': self.id,
-                    'default_route_id': self.product_template_id.route_id.id,
-                    'default_container_type_id': self.container_type_id.id,
+            'name': _('Pricing Quotation Detail'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'freight.purchase.quotation',
+            'view_mode': 'form',
+            'res_id': self.quotation_id.id,
+            'target': 'new',
+            'context': {'create': False, 'update': False, 'delete': False},
+            'flags': {'mode': 'readonly'},
+        }
+
+    def action_create_pricing_quotation(self):
+        self.ensure_one()
+        return {
+            'name': _('Create Pricing Quotation'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'freight.purchase.quotation',
+            'view_mode': 'form',
+            'view_id': self.env.ref('hp_freight_purchase.freight_purchase_quotation_form_view').id,
+            'target': 'new',
+            'context': dict(self._context, **{
+                'default_project_task_id': self.id,
+                'default_route_id': self.product_template_id.route_id.id,
+                'default_container_type_id': self.container_type_id.id,
             })
+        }
+
+    def action_create_pricing_booking(self):
+        self.ensure_one()
+        return {
+            'name': _('Create Pricing Booking'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'freight.purchase.booking',
+            'view_mode': 'form',
+            'view_id': self.env.ref('hp_freight_purchase.freight_purchase_booking_form_view').id,
+            'target': 'new',
+            'context': dict(self._context, **{
+                'default_project_task_id': self.id,
+                'default_quotation_id': self.quotation_id.id,
+            })
+        }
+
+    def action_show_pricing_booking(self):
+        self.ensure_one()
+        return {
+            'name': _('Pricing Booking Detail'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'freight.purchase.booking',
+            'view_mode': 'form',
+            'res_id': self.booking_id.id,
+            'target': 'new',
+            'context': {'create': False, 'update': False, 'delete': False},
+            'flags': {'mode': 'readonly'},
         }
     # ====== end action show form ======
 
     # ====== start action approve reject ======
+    # 1. create sale order line by pol, pod
+    def action_approve_pod_pol(self):
+        self.ensure_one()
+        task_service = TaskService(self.env)
+        result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_APPROVE_POL_POL)
+        if (result):
+            self.message_post(body=_("Create POD/POL successfully: %s, %s") % (self.pod_name_request, self.pol_name_request))
+            return True
+        raise UserError('Create POD/POL failed.')
+
+    # 2. Approve price to sale order line
+    def action_approve_price(self):
+        self.ensure_one()
+        task_service = TaskService(self.env)
+        result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_APPROVE_PRICE)
+        if (result):
+            self.message_post(body=_("Approve price successfully with sale line: %s") % self.sale_line_id.name)
+            return True
+        raise UserError('Approve price failed.')
+    
+    # 3. sale leader approve/reject
     def action_sale_leader_approve(self):
         self.ensure_one()
         task_service = TaskService(self.env)
@@ -246,52 +288,26 @@ class ProjectTaskInherit(models.Model):
             return True
         raise UserError('Reject quotation failed.')
 
-    def action_pricing_leader_approve(self):
+    # 4. pricing leader assign booking to sale order line
+    def action_pricing_assign_booking(self):
         self.ensure_one()
         task_service = TaskService(self.env)
-        result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_APPROVE_QUOTATION_BY_PRICING)
-        if (result):
-            self.message_post(body=_("Quotation approved by pricing leader."))
-            return True
-        raise UserError('Approve quotation failed.')
-
-    def action_pricing_leader_reject(self):
-        self.ensure_one()
-        task_service = TaskService(self.env)
-        result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_REJECT_QUOTATION_BY_PRICING)
-        if (result):
-            self.message_post(body=_("Quotation rejected by pricing leader. Reason: %s") % self.rejection_reason)
-            return True
-        raise UserError('Reject quotation failed.')
-
-    def action_approve_pod_pol(self):
-        self.ensure_one()
-        task_service = TaskService(self.env)
-        result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_APPROVE_POL_POL)
-        if (result):
-            self.message_post(body=_("Create POD/POL successfully: %s, %s") % (self.pod_name_request, self.pol_name_request))
-            return True
-        raise UserError('Create POD/POL failed.')
-
-    def action_approve_price(self):
-        self.ensure_one()
-        task_service = TaskService(self.env)
-        result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_APPROVE_PRICE)
-        if (result):
-            self.message_post(body=_("Approve price successfully with sale line: %s") % self.sale_line_id.name)
-            return True
-        raise UserError('Approve price failed.')
-
-    def action_approve_booking(self):
-        self.ensure_one()
-        task_service = TaskService(self.env)
-        result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_APPROVE_BOOKING)
+        result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_ASSIGN_BOOKING)
         if (result):
             self.message_post(body=_(
                 "Booking approved successfully. The booking %s has been assigned to %s and linked to the sales order %s."
-            ) % (self.booking_id.booking_no, self.sale_line_id.name, self.sale_order_id.name))
+            ) % (self.booking_id.name, self.sale_line_id.name, self.sale_order_id.name))
             return True
         raise UserError('Approve booking failed.')
+    
+    # def action_pricing_reject(self):
+    #     self.ensure_one()
+    #     task_service = TaskService(self.env)
+    #     result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_REJECT_QUOTATION_BY_PRICING)
+    #     if (result):
+    #         self.message_post(body=_("Quotation rejected by pricing leader. Reason: %s") % self.rejection_reason)
+    #         return True
+    #     raise UserError('Reject quotation failed.')
     # ====== end action approve reject ======
 
     def sale_order(self):

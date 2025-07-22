@@ -117,3 +117,34 @@ class FreightPurchaseBookingLineService:
             summary='Your booking line has been cancelled',
             note=''
         )
+
+    def create_booking_line_by_task(self, task, booking_id):
+        sale_order_line = task.sale_line_id
+        container_type = task.container_type_id
+        quotation_lines = task.quotation_id.line_ids.filtered(
+            lambda line: line.container_type_id.id == container_type.id
+        )
+
+        if not quotation_lines:
+            return False
+
+        quotation_line = quotation_lines[0]
+        self.env['freight.purchase.booking.inventory'].create({
+            'booking_id': booking_id,
+            'container_type_id': container_type.id,
+            'quantity': int(sale_order_line.product_uom_qty),
+            'action': 'in',
+        })
+
+        booking_line = self.env['freight.purchase.booking.line'].sudo().create({
+            'booking_id': booking_id,
+            'quotation_line_id': quotation_line.id,
+            'quantity': int(sale_order_line.product_uom_qty),
+            'unit_price': quotation_line.price,
+        })
+
+        sale_order_line.sudo().write({
+            'booking_line_id': booking_line.id
+        })
+
+        return booking_line

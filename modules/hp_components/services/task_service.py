@@ -46,21 +46,15 @@ class TaskService:
             
             case ProjectService.ACTION_APPROVE_PRICE:
                 self.request_price_service.handle_approve_price(record)
-
-            case ProjectService.ACTION_APPROVE_BOOKING:
-                self.assign_booking_service.handle_approve_booking(record)
             
             case ProjectService.ACTION_APPROVE_QUOTATION_BY_SALE:
-                self.approve_quotation_service.handle_approve_quotation_by_type(record, ProjectService.SALE_TYPE)
-            
-            case ProjectService.ACTION_APPROVE_QUOTATION_BY_PRICING:
-                self.approve_quotation_service.handle_approve_quotation_by_type(record, ProjectService.PRICING_TYPE)
-            
-            case ProjectService.ACTION_REJECT_QUOTATION_BY_SALE:
-                self.approve_quotation_service.handle_reject_quotation_by_type(record, ProjectService.SALE_TYPE)
+                self.approve_quotation_service.handle_approve_quotation_by_sale(record)
 
-            case ProjectService.ACTION_REJECT_QUOTATION_BY_PRICING:
-                self.approve_quotation_service.handle_reject_quotation_by_type(record, ProjectService.PRICING_TYPE)
+            case ProjectService.ACTION_REJECT_QUOTATION_BY_SALE:
+                self.approve_quotation_service.handle_reject_quotation_by_sale(record)
+            
+            case ProjectService.ACTION_ASSIGN_BOOKING:
+                self.assign_booking_service.handle_assign_booking(record)
 
             case _:
                 return False

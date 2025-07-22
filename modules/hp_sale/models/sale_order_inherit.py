@@ -2,21 +2,13 @@ from logging import Logger
 
 from odoo import models, fields, _, api
 from odoo.exceptions import UserError, ValidationError
+from odoo.addons.hp_components.services.sale_order_service import SaleOrderService
 import logging
-from odoo.addons.hp_employee.models.hr_department_inherit import HpDepartmentInherit
 
 _logger: Logger = logging.getLogger(__name__)
 
 class SaleOrderInherrit(models.Model):
     _inherit = 'sale.order'
-
-    # booking_ids = fields.Many2many(
-    #     'pricing.booking',
-    #     'sale_order_booking_rel',
-    #     'sale_order_id',
-    #     'booking_id',
-    #     string="Bookings"
-    # )
 
     state = fields.Selection([
         ('draft', 'Quotation'),
@@ -40,27 +32,7 @@ class SaleOrderInherrit(models.Model):
     # When customer confirmed => click button to change state and create task for sale leader to confirm
     def action_customer_confirm(self):
         """Submit quotation for customer review after validation."""
-        # Validate all pricing lines have bookings
-        pricing_lines_without_price = self.order_line.filtered(
-            lambda line: line.product_type_filter == 'pricing' and not line.booking_id and not line.quotation_id
-        )
-
-        if pricing_lines_without_price:
-            product_names = ", ".join(line.product_id.name for line in pricing_lines_without_price)
-            raise ValidationError(_(
-                "Cannot proceed to customer confirmation. The following products need a booking assignment: %s"
-            ) % product_names)
-
-        for line in self.order_line:
-            if line.price_unit < line.base_price:
-                raise ValidationError(_(
-                    "The Price unit can not less than Base price"
-                ))
-
-        # Set state to customer_confirm
-        self.write({'state': 'customer_confirm'})
-
-        return True
+        return SaleOrderService(self.env).hande_customer_confirm(self)
 
     def action_sale_leader_approved(self):
         """Move to pricing leader confirmation after sales manager approves."""
@@ -90,6 +62,10 @@ class SaleOrderInherrit(models.Model):
         self.ensure_one()  # Make sure we're working on exactly one sale.order
         # Now safe to do single-record operations
         return self.order_line.filtered(lambda l: not l.freight_booking_id and not l.freight_quotation_id)
+    
+    def get_sale_order_lines_missing_booking(self):
+        self.ensure_one()
+        return self.order_line.filtered(lambda l: not l.freight_booking_id)
 
     def get_sale_order_lines_with_booking(self):
         self.ensure_one()  # Make sure we're working on exactly one sale.order

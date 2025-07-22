@@ -60,9 +60,9 @@ class RequestPriceService(BaseTaskService):
         base_price = self.calculateBasePriceByContainerType(task.quotation_id, task.sale_line_id.container_type_id)
         if task.sale_line_id:
             task.sale_line_id.sudo().write({
-                # 'booking_id': task.booking_id.id,
+                'freight_quotation_id': task.quotation_id.id,
                 'base_price': base_price,
-                # 'etd_sale': task.booking_id.etd,
+                'price_unit': base_price,
             })
 
         task.update_done_task()

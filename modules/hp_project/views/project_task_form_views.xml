@@ -88,7 +88,7 @@
                 <group string='Price' name="price_request_group" invisible="project_type != 'request_price'">
                     <label for="sale_order_id" />
                     <div class="o_row">
-                        <field name="sale_order_id" string="Quotation" readonly="1" />
+                        <field name="sale_order_id" string="Sale Quotation" readonly="1" />
                         <button name="action_show_sale_order_detail"
                             string="Show Detail"
                             type="object"
@@ -118,8 +118,14 @@
                         <button string="Create New"
                             class="btn btn-link"
                             type="object"
-                            name="action_pricing_quotation"
+                            name="action_create_pricing_quotation"
                             invisible="quotation_id" />
+
+                        <button name="action_pricing_quotation_detail"
+                            string="Show Detail"
+                            type="object"
+                            class="btn btn-link"
+                            invisible="not quotation_id" />
                     </div>
 
                     <button name="action_approve_price"
@@ -132,12 +138,41 @@
                         <i class="fa fa-check" /> Approved Price </h3>
                 </group>
 
-                <!-- Group assign booking -->
+                <!-- Group for Approval Tasks for Sale Leader -->
+                <group string='Quotation Approval' name="quotation_approval_group" invisible="project_type != 'approve_quotation'">
+                    <label for="sale_order_id" />
+                    <div class="o_row">
+                        <field name="sale_order_id" string="Sale Quotation" readonly="1" />
+                        <button name="action_show_sale_order_detail"
+                            string="Show Detail"
+                            type="object"
+                            class="btn btn-link"
+                            invisible="not sale_order_id" />
+                    </div>
+                    <field name="rejection_reason" placeholder="Enter reason if not approving..."
+                        invisible="is_done" />
+                    <div>
+                        <button name="action_sale_leader_approve"
+                            type="object"
+                            string="Approve"
+                            class="btn btn-success p-2"
+                            invisible="is_done" />
+                        <button name="action_sale_leader_reject"
+                            type="object"
+                            string="Reject"
+                            class="btn btn-danger p-2"
+                            invisible="is_done" />
+                        <h3 class="text-success"
+                            invisible="not is_done">
+                            <i class="fa fa-check" /> Approved Quotation </h3>
+                    </div>
+                </group>
+
+                <!-- Group assign booking for Pricing Leader-->
                 <group string='Assign Booking' name="assign_booking_group" invisible="project_type != 'assign_booking'">
                     <label for="sale_order_id" />
                     <div class="o_row">
-                        <field name="sale_order_id" string="Quotation"
-                            domain="[('state', '!=', 'draft')]" readonly="1" />
+                        <field name="sale_order_id" string="Sale Quotation" readonly="1" />
                         <button name="action_show_sale_order_detail"
                             string="Show Detail"
                             type="object"
@@ -153,65 +188,47 @@
                             class="btn btn-link"
                             invisible="not sale_line_id" />
                     </div>
-                    <field name="booking_id" readonly="is_done" />
-                    <field name="booking_info" invisible="not booking_id" />
-
-                    <button name="action_approve_booking"
-                        type="object"
-                        string="Approve Booking"
-                        class="btn btn-success"
-                        invisible="is_done" />
-
-                    <h3 class="text-success"
-                        invisible="not is_done">
-                        <i class="fa fa-check" /> Approved Booking </h3>
-                </group>
-
-                <!-- Group for Approval Tasks (for both Sale Leader and Pricing Leader) -->
-                <group string='Quotation Approval' name="quotation_approval_group"
-                    invisible="project_type != 'approve_quotation'">
-                    <field name="approval_type" invisible="1" />
-                    <group col="4">
-                        <field name="sale_order_id" string="Quotation" readonly="1" />
-                        <button name="action_show_sale_order_detail"
+                    <field name="container_type_id" string="Container Type" readonly="1" />
+                    <label for="quotation_id" />
+                    <div class="o_row">
+                        <field name="quotation_id" string="Pricing Quotation" readonly="1" />
+                        <button name="action_pricing_quotation_detail"
                             string="Show Detail"
                             type="object"
                             class="btn btn-link"
-                            invisible="not sale_order_id" />
-                    </group>
-                    <field name="rejection_reason" placeholder="Enter reason if not approving..."
-                        required="0" />
+                            invisible="not quotation_id" />
+                    </div>
+                    <label for="booking_id" />
+                    <div class="o_row">
+                        <field name="booking_id"
+                            string="Pricing Booking"
+                            help=""
+                            context="{'default_project_task_id': id}"
+                            readonly="1"
+                        />
+                        <button string="Create New"
+                            class="btn btn-link"
+                            type="object"
+                            name="action_create_pricing_booking"
+                            invisible="booking_id" />
 
-                    <!-- Sales Leader Buttons -->
-                    <group invisible="approval_type != 'sale_leader'">
-                        <button name="action_sale_leader_approve"
+                        <button string="Show Detail"
+                            class="btn btn-link"
+                            type="object"
+                            name="action_show_pricing_booking"
+                            invisible="not booking_id" />
+                        
+                    </div>
+                    <div>
+                        <button name="action_pricing_assign_booking"
                             type="object"
                             string="Approve"
                             class="btn btn-success"
                             invisible="is_done" />
-                        <button name="action_sale_leader_reject"
-                            type="object"
-                            string="Reject"
-                            class="btn btn-danger"
-                            invisible="is_done" />
-                    </group>
-
-                    <!-- Pricing Leader Buttons -->
-                    <group invisible="approval_type != 'pricing_leader'">
-                        <button name="action_pricing_leader_approve"
-                            type="object"
-                            string="Approve"
-                            class="btn btn-success"
-                            invisible="is_done" />
-                        <button name="action_pricing_leader_reject"
-                            type="object"
-                            string="Reject"
-                            class="btn btn-danger"
-                            invisible="is_done" />
-
-                        <h3 class="text-success" invisible="not is_done">
-                            <i class="fa fa-check" /> Decision Completed </h3>
-                    </group>
+                        <h3 class="text-success"
+                            invisible="not is_done">
+                            <i class="fa fa-check" /> Assigned Booking </h3>
+                    </div>
                 </group>
             </xpath>
         </field>

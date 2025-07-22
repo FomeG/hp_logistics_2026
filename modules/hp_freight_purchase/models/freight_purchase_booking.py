@@ -166,8 +166,18 @@ class FreightPurchaseBooking(models.Model):
                     vals['name'] = f"Booking - {shipping_name} - {route_name} - {etd_str}"
                 else:
                     vals['name'] = False  # Leave empty if not enough info
+            
+            records = super().create(vals_list)
+            project_task_id = self._context.get('default_project_task_id')
+            if project_task_id:
+                project_task = self.env['project.task'].browse(project_task_id)
+                if project_task.exists():
+                    booking = records[0]
+                    booking_line = FreightPurchaseBookingLineService(self.env).create_booking_line_by_task(project_task, booking.id)
+                    if booking_line:
+                        project_task.booking_id = records[0].id
 
-        return super().create(vals_list)
+        return records
 
     def write(self, vals):
         for record in self:
@@ -322,3 +332,10 @@ class FreightPurchaseBooking(models.Model):
                     'sticky': True,
                 }
             }
+    # handel context from task
+    @api.onchange('quotation_id')
+    def _onchange_quotation_id(self):
+        for line in self:
+            default_id = self.env.context.get('default_quotation_id')
+            if default_id and line.quotation_id and line.quotation_id.id != default_id:
+                raise ValidationError('You can only select the quotation passed from the quotation context')
