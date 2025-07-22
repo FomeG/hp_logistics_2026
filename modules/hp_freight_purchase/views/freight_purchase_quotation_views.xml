@@ -38,7 +38,8 @@
                                 </list>
                                 <form>
                                     <group>
-                                        <field name="container_type_id" />
+                                        <field name="container_type_id"
+                                            domain="[('id', 'not in', parent.used_container_type_ids)]" />
                                         <field name="cost"/>
                                         <field name="price" />
                                     </group>
