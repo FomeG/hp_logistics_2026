@@ -42,6 +42,10 @@ class FreightPurchaseFeeType(models.Model):
 
     def write(self, vals):
         current_record = self if isinstance(self, type(self)) else self[0]
+        new_direction = vals.get('direction', current_record.direction)
+        new_is_common = vals.get('is_common', current_record.is_common)
+        if new_direction == 'n/a' and not new_is_common:
+            raise ValidationError("Cannot select direction is 'n/a' when Is Common is uncheck.")
         validated, errors = FeeValidator.validate_fee_type(vals, self.env,'write',record=current_record)
         if errors:
             raise ValidationError("\n".join([f"• {e}" for e in errors]))
