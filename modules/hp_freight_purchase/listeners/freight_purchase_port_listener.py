@@ -37,7 +37,7 @@ class FreightPurchasePortListener(Component):
                     ('pod_id', '=', other_port.id)
                 ], limit=1)
                 
-                if not route_pol_to_pod:
+                if not route_pol_to_pod and port.is_local != other_port.is_local:
                     route_pol_to_pod = Route.create({
                         'pol_id': port.id,
                         'pod_id': other_port.id,
@@ -53,7 +53,7 @@ class FreightPurchasePortListener(Component):
                     ('pod_id', '=', port.id)
                 ], limit=1)
                 
-                if not route_pod_to_pol:
+                if not route_pod_to_pol and port.is_local != other_port.is_local:
                     route_pod_to_pol = Route.create({
                         'pol_id': other_port.id,
                         'pod_id': port.id,
