@@ -33,7 +33,9 @@ class FreightPurchaseRoute(models.Model):
         required=True,
         compute='_compute_direction',
         default='export',
+        inverse='_inverse_direction',
     )
+    direction_manual = fields.Boolean(string="Manual Direction", default=False)
     is_active = fields.Boolean(
         string='Is Active',
         default=True,
@@ -68,9 +70,15 @@ class FreightPurchaseRoute(models.Model):
             else:
                 route.total_quotations = "0 Quotation(s)"
 
+    def _inverse_direction(self):
+        for rec in self:
+            rec.direction_manual = True
+
     @api.depends('pol_id.is_local', 'pod_id.is_local')
     def _compute_direction(self):
         for rec in self:
+            if rec.direction_manual:
+                continue
             rec.direction = False
             if rec.pod_id.is_local:
                 rec.direction = 'import'
