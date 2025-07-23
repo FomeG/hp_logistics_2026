@@ -13,3 +13,5 @@ from . import quotation_validator
 from . import booking_validator
 from . import booking_inventory_validator
 from . import route_validator
+from . import booking_fee_validator
+from . import quotation_fee_validator
