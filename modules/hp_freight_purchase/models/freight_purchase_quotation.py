@@ -87,6 +87,17 @@ class FreightPurchaseQuotation(models.Model):
         store=False
     )
 
+    used_container_type_ids = fields.Many2many(
+        'container.type',
+        compute='_compute_used_container_type_ids',
+        store=False
+    )
+    
+    @api.depends('line_ids.container_type_id')
+    def _compute_used_container_type_ids(self):
+        for record in self:
+            record.used_container_type_ids = record.line_ids.mapped('container_type_id')
+
     @api.depends_context('default_container_type_id')
     def _compute_container_type_id(self):
         for rec in self:

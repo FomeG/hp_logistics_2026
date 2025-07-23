@@ -8,7 +8,9 @@
                 <sheet>
                     <group col="2">
                         <field name="quotation_id" widget="many2one_new_tab" />
-                        <field name="container_type_id" widget="many2one_new_tab" />
+                        <field name="container_type_id"
+                            domain="[('id', 'not in', quotation_used_container_type_ids)]"
+                            widget="many2one_new_tab" />
                         <field name="cost"/>
                         <field name="price"/>
                     </group>

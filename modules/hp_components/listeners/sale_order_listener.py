@@ -6,6 +6,9 @@ from odoo.addons.sale.models.sale_order import SaleOrder
 from ..services.request_price_service import RequestPriceService
 from ..services.project_service import ProjectService
 from ..services.task_service import TaskService
+from ..services.approve_quotation_service import ApproveQuotationService
+from ..services.assign_booking_service import AssignBookingService
+from odoo import exceptions
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -82,19 +85,14 @@ class SaleOrderListener(Component):
         if record.is_cancelled():
             TaskService(self.env).cancel_tasks_by_sale_order(record)
 
-    def _handle_quotation_customer_confirmed(self,record: SaleOrder) -> None:
-        _logger.info("_handle_quotation_customer_confirmed {record}")
-        service = TaskService(self.env)
-        project = service.get_project_by_type(TaskService.PROJECT_TYPE_APPROVE_QUOTATION)
-        if not project:
-            return
-        service.create_task_by_sale_order('sale', project.id, TaskService.TASK_TYPE_APPROVE_QUOTATION, record)
+    def  _handle_quotation_customer_confirmed(self, record: SaleOrder) -> None:
+        _logger.info(f"_handle_quotation_customer_confirmed {record}")
+        service = ApproveQuotationService(self.env)
+        service.create_approve_quotation_task(record)
 
     def _handle_quotation_sale_leader_confirmed(self,record: SaleOrder) -> None:
         _logger.info(f"_handle_quotation_sale_leader_confirmed {record}")
-        service = TaskService(self.env)
-        project = service.get_project_by_type(TaskService.PROJECT_TYPE_APPROVE_QUOTATION)
-        _logger.info(f"project: {project}")
-        if not project:
-            return
-        service.create_task_by_sale_order('pricing', project.id, TaskService.TASK_TYPE_APPROVE_QUOTATION, record)
+        service = AssignBookingService(self.env)
+        sale_order_lines_without_booking = record.get_sale_order_lines_missing_booking()
+        for sale_order_line in sale_order_lines_without_booking:
+            service.create_assign_booking_task(sale_order_line)

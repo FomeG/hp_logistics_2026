@@ -285,6 +285,6 @@ class FreightPurchaseBookingLine(models.Model):
                         f"Total quantity must be less than or equal to {container_avaliable}."
                     )
 
-def _reservation_expiration_reminder(self):
+    def _reservation_expiration_reminder(self):
         service = FreightPurchaseBookingLineService(self.env)
         service.reservation_expiration_reminder()

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <record id="freight_purchase_port_form_view" model="ir.ui.view">
+    <record id="freight_purchase_remind_form_view" model="ir.ui.view">
         <field name="name">freight.purchase.remind.form</field>
         <field name="model">freight.purchase.remind</field>
         <field name="arch" type="xml">

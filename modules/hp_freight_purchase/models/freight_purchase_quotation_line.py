@@ -36,6 +36,11 @@ class FreightPurchaseQuotationLine(models.Model):
         inverse_name="quotation_line_id",
         string="Fee Lines"
     )
+    quotation_used_container_type_ids = fields.Many2many(
+        'container.type',
+        compute='_compute_quotation_used_container_types',
+        store=False
+    )
 
     @api.depends('quotation_id', 'container_type_id')
     def _compute_name(self):
@@ -99,3 +104,15 @@ class FreightPurchaseQuotationLine(models.Model):
             default_ct_id = self.env.context.get('default_container_type_id')
             if default_ct_id and line.container_type_id and line.container_type_id.id != default_ct_id:
                 raise exceptions.ValidationError('You can only select the container type passed from the quotation context')
+    
+    @api.depends('quotation_id.line_ids.container_type_id')
+    def _compute_quotation_used_container_types(self):
+        for record in self:
+            if record.quotation_id:
+                # Lấy các container type đã sử dụng, trừ chính record hiện tại
+                used_types = record.quotation_id.line_ids.filtered(
+                    lambda x: x.id != record.id
+                ).mapped('container_type_id')
+                record.quotation_used_container_type_ids = used_types
+            else:
+                record.quotation_used_container_type_ids = False

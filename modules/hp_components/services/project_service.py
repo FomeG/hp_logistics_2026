@@ -9,14 +9,11 @@ class ProjectService:
 
     ACTION_APPROVE_POL_POL = 'approve_pod_pol'
     ACTION_APPROVE_PRICE = 'approve_price'
-    ACTION_APPROVE_BOOKING = 'approve_booking'
+    ACTION_ASSIGN_BOOKING = 'assign_booking'
     ACTION_REJECT_QUOTATION_BY_PRICING = 'reject_quotation_by_pricing'
     ACTION_REJECT_QUOTATION_BY_SALE = 'reject_quotation_by_sale'
     ACTION_APPROVE_QUOTATION_BY_PRICING = 'approve_quotation_by_pricing'
     ACTION_APPROVE_QUOTATION_BY_SALE = 'approve_quotation_by_sale'
-
-    SALE_TYPE = 'sale'
-    PRICING_TYPE = 'pricing'
 
     def __init__(self, env):
         self.env = env
