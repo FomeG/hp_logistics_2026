@@ -66,12 +66,12 @@ class RequestProductService(BaseTaskService):
     def handle_approve_product(self, task):
         self.validate_approve_product(task)
 
-        pol = self.create_port_by_name(task.pol_name_request, task.region_pol_id.id, False)
-        pod = self.create_port_by_name(task.pod_name_request, task.region_pod_id.id, False)
+        pol = self.create_port_by_name(task.pol_name_request, task.region_pol_id.id, task.pol_is_local)
+        pod = self.create_port_by_name(task.pod_name_request, task.region_pod_id.id, task.pod_is_local)
         
         # Find the route that was automatically created by the listener
         route = self.env['freight.purchase.route'].sudo().search([
-            ('pol_id', '=', pol.id), 
+            ('pol_id', '=', pol.id),
             ('pod_id', '=', pod.id)
         ], limit=1)
         
@@ -106,9 +106,7 @@ class RequestProductService(BaseTaskService):
 
     def create_port_by_name(self, port_name, region_id, is_local):
         domain = [
-            ('name', 'ilike', port_name),
-            ('region_id', '=', region_id),
-            ('is_local', '=', is_local),
+            ('name', 'ilike', port_name)
         ]
         port = self.env['freight.purchase.port'].sudo().search(domain, limit=1)
         if not port:
@@ -119,16 +117,6 @@ class RequestProductService(BaseTaskService):
                 'is_active': True,
             })
         return port
-    
-    # def create_route_by_pol_pod(self, pol, pod):
-    #     route = self.env['freight.purchase.route'].sudo().search([('pod_id', '=', pod.id), ('pol_id', '=', pol.id)], limit=1)
-    #     if not route:
-    #         route = self.env['freight.purchase.route'].sudo().create({
-    #             'pol_id': pol.id,
-    #             'pod_id': pod.id,
-    #             'is_active': True,
-    #         })
-    #     return route
     
     def validate_approve_product(self, task):
         if not task.sale_order_id:
@@ -143,3 +131,10 @@ class RequestProductService(BaseTaskService):
             raise ValidationError(_("Region POL is required."))
         if not task.container_type_id:
             raise ValidationError(_("Container type is required."))
+        if task.pod_is_local == task.pol_is_local:
+            raise ValidationError(_("POL and POD cannot both be local or both be non-local"))
+        
+        route_name = f"{task.pod_name_request} → {task.pol_name_request}"
+        route = self.env['freight.purchase.route'].sudo().search([('name', '=', route_name)], limit=1)
+        if route:
+            raise ValidationError(_("Route '%s' already exists.") % route_name)

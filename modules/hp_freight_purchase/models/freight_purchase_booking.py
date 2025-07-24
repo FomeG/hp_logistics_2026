@@ -7,8 +7,9 @@ from odoo.exceptions import ValidationError
 from .freight_purchase_booking_inventory import FreightPurchaseBookingInventory
 from ..validators.booking_validator import BookingCreateValidator, BookingUpdateValidator
 from collections import defaultdict
-from odoo.addons.hp_freight_purchase.services.freight_purchase_booking_inventory_service import FreightPurchaseBookingInventoryService
+from ..services.freight_purchase_booking_inventory_service import FreightPurchaseBookingInventoryService
 from ..services.freight_purchase_quotation_service import FreightPurchaseQuotationService
+from ..services.freight_purchase_booking_line_service import FreightPurchaseBookingLineService
 import logging
 
 _logger = logging.getLogger(__name__)

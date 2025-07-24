@@ -17,21 +17,23 @@ class ProjectTaskInherit(models.Model):
     sale_order_id = fields.Many2one('sale.order', string='Sales Order', store=True)
     pod_name_request = fields.Char('POD name request')
     pod_id = fields.Many2one('freight.purchase.port', string="Port Of Discharge")
+    pod_is_local = fields.Boolean('Is Local (POD)', required=True, default=True)
     pol_name_request = fields.Char('POL name request')
     pol_id = fields.Many2one('freight.purchase.port', string="Port Of Loading")
+    pol_is_local = fields.Boolean('Is Local (POD)', required=True)
     region_pol_id = fields.Many2one('freight.purchase.region', string='Region POL')
     region_pod_id = fields.Many2one('freight.purchase.region', string='Region POD')
     container_type_id = fields.Many2one('container.type', string='Container Type (For this quotation)')
 
     # Request price product
     quotation_id = fields.Many2one('freight.purchase.quotation', string='Pricing Quotation')
-    booking_id = fields.Many2one('freight.purchase.booking', string='Booking')
     etd = fields.Date(string="Estimated time of departure")
     currency_id = fields.Many2one('res.currency', string="Currency", default=lambda self: self.env.company.currency_id)
     cost = fields.Monetary(string="Cost", currency_field='currency_id')
 
     # Asign booking
     sale_line_id = fields.Many2one('sale.order.line', string='Sales Order Line')
+    booking_id = fields.Many2one('freight.purchase.booking', string='Booking')
 
     # Approve quotation
     rejection_reason = fields.Text(string='Rejection Reason')
@@ -44,7 +46,15 @@ class ProjectTaskInherit(models.Model):
     is_done = fields.Boolean(string="Is Done", compute="_compute_is_done", store=False)
     allowed_user_ids = fields.Many2many('res.users', compute='_compute_allowed_user_ids', store=False)
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        fields_to_clean = ['pod_name_request', 'pol_name_request']
+        for vals in vals_list:
+            self._normalize_whitespace_fields(vals, fields_to_clean)
+        return super().create(vals_list)
+
     def write(self, vals):
+        vals = self._normalize_whitespace_fields(vals, ['pod_name_request', 'pol_name_request'])
         stage_obj = self.env['project.task.type']
         new_stage_id = vals.get('stage_id', False)
         for task in self:
@@ -60,6 +70,13 @@ class ProjectTaskInherit(models.Model):
                     vals['end_time'] = datetime.now()
 
         return super().write(vals)
+    
+    def _normalize_whitespace_fields(self, vals, fields_to_clean):
+        for field in fields_to_clean:
+            value = vals.get(field)
+            if isinstance(value, str):
+                vals[field] = ' '.join(value.split())
+        return vals
 
     @api.depends('project_id')
     def _compute_allowed_user_ids(self):
@@ -299,15 +316,7 @@ class ProjectTaskInherit(models.Model):
             ) % (self.booking_id.name, self.sale_line_id.name, self.sale_order_id.name))
             return True
         raise UserError('Approve booking failed.')
-    
-    # def action_pricing_reject(self):
-    #     self.ensure_one()
-    #     task_service = TaskService(self.env)
-    #     result = task_service.handle_by_action(self, ProjectService(self.env).ACTION_REJECT_QUOTATION_BY_PRICING)
-    #     if (result):
-    #         self.message_post(body=_("Quotation rejected by pricing leader. Reason: %s") % self.rejection_reason)
-    #         return True
-    #     raise UserError('Reject quotation failed.')
+
     # ====== end action approve reject ======
 
     def sale_order(self):

@@ -71,3 +71,11 @@ class RequestPriceService(BaseTaskService):
     def validate_approve_price(self, task):
         if not task.quotation_id:
             raise ValidationError(_("Pricing quotation is required."))
+
+        quotation_line = task.quotation_id.line_ids.filtered(
+            lambda line: line.container_type_id.id == task.container_type_id.id
+        )
+        if not quotation_line:
+            raise ValidationError(_(
+                "No quotation line found for container type '%s' in this task."
+            ) % (task.container_type_id.name or "N/A"))

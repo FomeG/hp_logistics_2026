@@ -20,14 +20,22 @@ class PortRouteRequestService:
             if not self._validate_wizard_data(wizard):
                 raise UserError(_('Please fill in all required fields before creating the task.'))
             
+            # Check route exist
+            pod_name = ' '.join(wizard.pod_name_request.split())
+            pol_name = ' '.join(wizard.pol_name_request.split())
+            route_name = f"{pod_name} → {pol_name}"
+            route = self.env['freight.purchase.route'].sudo().search([('name', '=', route_name)], limit=1)
+            if route:
+                raise UserError(_("Route '%s' already exists.") % route_name)
+
             # Create task using RequestProductService
             request_product_service = RequestProductService(self.env)
             
             # Create task with port/route information
             task_created = request_product_service.create_task_request_product(
                 wizard.sale_order_id,
-                wizard.pod_name_request,
-                wizard.pol_name_request,
+                pod_name,
+                pol_name,
                 wizard.etd,
                 wizard.container_type_id
             )

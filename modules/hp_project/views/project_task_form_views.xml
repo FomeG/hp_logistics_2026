@@ -66,8 +66,9 @@
                                 invisible="not sale_order_id" />
                         </div>
                         <field name="pod_name_request" string="POD Name" />
+                        <field name="pod_is_local" string="POD Is Local"/>
                         <field name="pol_name_request" string="POL Name" />
-                        <field name="container_type_id" string="Container Type" readonly="1" />
+                        <field name="pol_is_local" string="POD Is Local" />
                         <button name="action_approve_pod_pol"
                             type="object"
                             string="Approve POD/POL"
@@ -79,6 +80,7 @@
                         <field name="etd" string="ETD" />
                         <field name="region_pod_id" string="Region POD" />
                         <field name="region_pol_id" string="Region POL" />
+                        <field name="container_type_id" string="Container Type" readonly="1" />
                     </group>
                     <h3 class="text-success" invisible="not is_done">
                         <i class="fa fa-check" />Approved POD/POL </h3>
