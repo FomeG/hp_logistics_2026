@@ -14,6 +14,12 @@
         'data/cron_job.xml',
         'data/data_config.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'hp_document/static/src/js/file_preview_client_action.js',
+            'hp_document/static/src/xml/file_preview_template.xml',
+        ],
+    },
     'installable': True,
     'application': True,
 }
