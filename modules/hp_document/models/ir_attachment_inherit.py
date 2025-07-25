@@ -100,22 +100,17 @@ class IrAttachmentInherit(models.Model):
 
     def action_view_attachment_popup(self):
         self.ensure_one()
-        # Prefer S3 path if available, else use Odoo's web/content
+        # Use a URL action that opens in a popup window
         file_url = self.s3_path or ('/web/content/%s' % self.id)
-        # Use a custom client action to show the file in a modal (iframe/embed)
         return {
-            'type': 'ir.actions.client',
-            'tag': 'hp_document_file_preview',
-            'params': {
-                'file_url': file_url,
-                'mimetype': self.mimetype,
-                'name': self.name,
-            }
+            'type': 'ir.actions.act_url',
+            'url': file_url,
+            'target': 'new',
         }
 
     def action_download_attachment(self):
         self.ensure_one()
-        # Prefer S3 path if available, else use Odoo's web/content
+        # For download, use the download parameter
         url = self.s3_path or ('/web/content/%s?download=true' % self.id)
         return {
             'type': 'ir.actions.act_url',
