@@ -42,11 +42,11 @@ class SaleOrderListener(Component):
         project_service = ProjectService(self.env)
         sale_order_lines_without_price = record.get_sale_order_lines_missing_price()
         _logger.info(f"sale_order_lines_without_price: {sale_order_lines_without_price}")
+
         if not sale_order_lines_without_price:
             return
-        else:
-            # case 1: request price if needed
-            project = project_service.get_project_by_type(ProjectService.PROJECT_TYPE_PRICE_REQUEST)
+        
+        project = project_service.get_project_by_type(ProjectService.PROJECT_TYPE_PRICE_REQUEST)
         _logger.info(f"project: {project}")
         if not project:
             return
@@ -63,7 +63,7 @@ class SaleOrderListener(Component):
         lines_to_process = sale_order_lines_without_price - recent_lines
         
         for sale_order_line in lines_to_process:
-            service.create_request_price_task(sale_order_line, sale_order_line.etd)
+            service.create_request_price_task(sale_order_line, sale_order_line.etd_sale)
 
     def _handle_quotation_confirmed(self,record: SaleOrder) -> None:
         project = False

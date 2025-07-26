@@ -75,7 +75,15 @@ class AssignBookingService(BaseTaskService):
             'freight_booking_id': task.booking_id.id,
             'booking_line_id': booking_line.id,
         })
-        task.sale_order_id.sudo().action_pricing_leader_approved()
+
+        all_lines_assigned_booking = all(
+            line.freight_booking_id and line.booking_line_id
+            for line in task.sale_order_id.order_line
+        )
+
+        if all_lines_assigned_booking:
+            task.sale_order_id.sudo().action_pricing_leader_approved()
+
         task.update_done_task()
         return True
     
