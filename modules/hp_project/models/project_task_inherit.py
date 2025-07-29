@@ -322,3 +322,10 @@ class ProjectTaskInherit(models.Model):
     def sale_order(self):
         self.ensure_one()
         return self.sale_order_id or (self.sale_line_id and self.sale_line_id.sale_order_id)
+    
+    def _handle_project_task_created(self):
+        TaskService(self.env).notify_task_open(self)
+
+    def _handle_project_task_updated(self):
+        if self.stage_id and self.stage_id.name.lower() == 'done':
+            TaskService(self.env).notify_task_done(self)
