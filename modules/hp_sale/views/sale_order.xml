@@ -14,12 +14,12 @@
 
             <!-- Also make the entire field readonly when not in draft or activated state -->
             <xpath expr="//field[@name='order_line']" position="attributes">
-                <attribute name="readonly">state not in ['draft', 'activated']</attribute>
+                <attribute name="readonly">state not in ['draft', 'pricing_leader_confirm']</attribute>
             </xpath>
 
             <!-- Update the original readonlycondition to include your custom states -->
             <xpath expr="//field[@name='order_line']" position="attributes">
-                <attribute name="readonly">state not in ['draft', 'activated'] or locked</attribute>
+                <attribute name="readonly">state not in ['draft', 'pricing_leader_confirm'] or locked</attribute>
             </xpath>
 
             <!-- Modify the statusbar -->
@@ -59,7 +59,7 @@
             <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email_primary']" position="replace">
                 <button name="action_activate_quotation" id="action_activate_quotation"
                         string="Activate" type="object" data-hotkey="g"
-                        invisible="state != 'draft'" class="btn-primary"
+                        invisible="state != 'draft' or not id" class="btn-primary"
                         context="{'validate_analytic': True}"/>
             </xpath>
 

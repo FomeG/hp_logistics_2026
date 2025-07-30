@@ -30,6 +30,7 @@ class SaleOrderLineInherit(models.Model):
     etd_sale = fields.Date(string="ETD Sale", help="Estimated Time of Departure for this Sale Order Line")
     base_price = fields.Float(string="Base Price", default=0.0)
     commission = fields.Float(string="Commission (%)", default=0.0)
+    active = fields.Boolean(string="Active", default=True, track_visibility='onchange')
 
     product_type_filter = fields.Selection([
         ('pricing', "Pricing"),
@@ -37,6 +38,12 @@ class SaleOrderLineInherit(models.Model):
         ('common', "Common"),
         ('custom', "Custom"),
     ], string="Product Type (Filter)", default='common')
+
+    def unlink(self):
+        for line in self:
+            if line.order_id.state == 'pricing_leader_confirm':
+                raise UserError("Cannot delete confirmed order lines. Please set them as inactive.")
+        return super().unlink()
 
     def _get_freight_quotation_domain_lambda(self):
         """Calculate domain for freight_quotation_id field using lambda approach"""

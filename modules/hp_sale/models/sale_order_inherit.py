@@ -25,6 +25,17 @@ class SaleOrderInherrit(models.Model):
     # When activate Quotation => check if some product is missing booking/price => make task and assgin to all users relating to the pod
     def action_activate_quotation(self):
         """Submit quotation for customer review."""
+        self.ensure_one()
+        if not self.order_line:
+            raise ValidationError(_("You cannot activate a quotation without any order lines."))
+
+        for line in self.order_line:
+            if line.product_template_id.type == 'pricing':
+                if not line.container_type_id:
+                    raise ValidationError(_("Sale order line: '%s' requires a container type.") % line.product_template_id.name)
+                if not line.etd_sale:
+                    raise ValidationError(_("Sale order line: '%s' requires a etd sale.") % line.product_template_id.name)
+
         self.write({'state': 'activated'})
 
         return True
