@@ -91,6 +91,7 @@ class FreightPurchaseRoute(models.Model):
             validated, errors = RouteCreateValidator.validate(vals, self.env)
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
+            self._check_pol_pod(vals.get('pol_id'), vals.get('pod_id'))
         return super().create(vals_list)
     
     def write(self, vals):
@@ -98,6 +99,18 @@ class FreightPurchaseRoute(models.Model):
             validated, errors = RouteUpdateValidator.validate(vals, self.env)
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
+            pol_id = vals.get('pol_id', self.pol_id.id)
+            pod_id = vals.get('pod_id', self.pod_id.id)
+            self._check_pol_pod(pol_id, pod_id)
         return super().write(vals)
 
 
+    def _check_pol_pod(self, pol_id, pod_id):
+        pol = self.env['freight.purchase.port'].browse(pol_id)
+        pod = self.env['freight.purchase.port'].browse(pod_id)
+        
+        if pol.is_local == pod.is_local:
+            raise ValidationError(
+                f"Route from {pol.name} to {pod.name} is invalid: "
+                f"POL and POD cannot both be local or both be non-local."
+            )
