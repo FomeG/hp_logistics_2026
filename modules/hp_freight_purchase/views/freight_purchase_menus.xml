@@ -1,111 +1,129 @@
 <odoo>
     <data noupdate="0">
-        <menuitem id="menu_purchase_root"
+        <menuitem id="menu_freight_purchase_root"
             name="Freight Purchase"
-            groups=""
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="40" />
 
         <!-- Purchase menus -->
         <menuitem id="menu_base_team"
             name="Bases"
-            parent="menu_purchase_root"
+            parent="menu_freight_purchase_root"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="10" />
 
         <menuitem id="menu_freight_purchase_shipping_line"
             name="Shipping Lines"
             action="freight_purchase_shipping_line_action"
             parent="menu_base_team"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="10" />
 
         <menuitem id="menu_freight_purchase_vessel"
             name="Vessels"
             action="freight_purchase_vessel_action"
             parent="menu_base_team"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="20" />
 
         <menuitem id="menu_freight_purchase_region"
             name="Regions"
             action="freight_purchase_region_action"
             parent="menu_base_team"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="30" />
 
         <menuitem id="menu_freight_purchase_port"
             name="Ports"
             action="freight_purchase_port_action"
             parent="menu_base_team"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="40" />
 
         <menuitem id="menu_freight_purchase_route"
             name="Routes"
             action="freight_purchase_route_action"
             parent="menu_base_team"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="50" />
 
         <menuitem id="menu_freight_purchase_container_type"
             name="Container Types"
             action="freight_purchase_container_type_action"
             parent="menu_base_team"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="60" />
 
         <!-- Purchase menus -->
         <menuitem id="menu_purchase_team"
             name="Purchase"
-            parent="menu_purchase_root"
+            parent="menu_freight_purchase_root"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="20" />
 
         <menuitem id="menu_freight_purchase_quotation"
             name="Quotations"
             action="freight_purchase_quotation_action"
             parent="menu_purchase_team"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="10" />
 
         <menuitem id="menu_freight_purchase_quotation_line"
             name="Quotation Lines"
             action="freight_purchase_quotation_line_action"
             parent="menu_purchase_team"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="20" />
 
         <menuitem id="menu_freight_purchase_booking"
             name="Bookings"
             action="freight_purchase_booking_action"
             parent="menu_purchase_team"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="30" />
 
         <menuitem id="freight_purchase_booking_line"
             name="Booking Lines"
             action="freight_purchase_booking_line_action"
             parent="menu_purchase_team"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="40" />
 
         <!-- fee -->
         <menuitem id="menu_freight_purchase_fee_menu"
             name="Fee Management"
-            parent="menu_purchase_root"
+            parent="menu_freight_purchase_root"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="30" />
         <menuitem id="menu_freight_purchase_fee_type"
             name="Fee Type"
             action="freight_purchase_fee_type_action"
             parent="menu_freight_purchase_fee_menu"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="10" />
         <menuitem id="menu_freight_purchase_fee"
             name="Fee"
             action="freight_purchase_fee_action"
             parent="menu_freight_purchase_fee_menu"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="20" />
         <menuitem id="menu_freight_purchase_fee_line"
             name="Fee Line"
             action="freight_purchase_fee_line_action"
             parent="menu_freight_purchase_fee_menu"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="30" />
 
         <menuitem id="menu_freight_purchase_setting"
             name="Setting"
-            parent="menu_purchase_root"
+            parent="menu_freight_purchase_root"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="40" />
         <menuitem id="menu_freight_purchase_remind"
             name="Remind"
             action="freight_purchase_remind_action"
             parent="menu_freight_purchase_setting"
+            groups="hp_freight_purchase.group_hp_freight_purchase_member"
             sequence="10" />
     </data>
 </odoo>
