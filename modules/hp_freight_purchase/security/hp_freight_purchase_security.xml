@@ -36,5 +36,247 @@
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]" />
         </record>
 
+        <!-- Record Rules for Members - Only access records they created -->
+        
+        <!-- Freight Purchase Fee - Member Rule -->
+        <record id="rule_freight_purchase_fee_member" model="ir.rule">
+            <field name="name">Freight Purchase Fee - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_fee"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Fee Line - Member Rule -->
+        <record id="rule_freight_purchase_fee_line_member" model="ir.rule">
+            <field name="name">Freight Purchase Fee Line - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_fee_line"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Fee Type - Member Rule -->
+        <record id="rule_freight_purchase_fee_type_member" model="ir.rule">
+            <field name="name">Freight Purchase Fee Type - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_fee_type"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Region - Member Rule -->
+        <record id="rule_freight_purchase_region_member" model="ir.rule">
+            <field name="name">Freight Purchase Region - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_region"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Port - Member Rule -->
+        <record id="rule_freight_purchase_port_member" model="ir.rule">
+            <field name="name">Freight Purchase Port - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_port"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Route - Member Rule -->
+        <record id="rule_freight_purchase_route_member" model="ir.rule">
+            <field name="name">Freight Purchase Route - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_route"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Vessel - Member Rule -->
+        <record id="rule_freight_purchase_vessel_member" model="ir.rule">
+            <field name="name">Freight Purchase Vessel - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_vessel"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Container Type - Member Rule -->
+        <record id="rule_container_type_member" model="ir.rule">
+            <field name="name">Container Type - Member Access</field>
+            <field name="model_id" ref="model_container_type"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Quotation - Member Rule -->
+        <record id="rule_freight_purchase_quotation_member" model="ir.rule">
+            <field name="name">Freight Purchase Quotation - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_quotation"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Quotation Line - Member Rule -->
+        <record id="rule_freight_purchase_quotation_line_member" model="ir.rule">
+            <field name="name">Freight Purchase Quotation Line - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_quotation_line"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Quotation Fee - Member Rule -->
+        <record id="rule_freight_purchase_quotation_fee_member" model="ir.rule">
+            <field name="name">Freight Purchase Quotation Fee - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_quotation_fee"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Quotation Line Fee - Member Rule -->
+        <record id="rule_freight_purchase_quotation_line_fee_member" model="ir.rule">
+            <field name="name">Freight Purchase Quotation Line Fee - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_quotation_line_fee"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Booking - Member Rule -->
+        <record id="rule_freight_purchase_booking_member" model="ir.rule">
+            <field name="name">Freight Purchase Booking - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_booking"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Booking Line - Member Rule -->
+        <record id="rule_freight_purchase_booking_line_member" model="ir.rule">
+            <field name="name">Freight Purchase Booking Line - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_booking_line"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Booking Fee - Member Rule -->
+        <record id="rule_freight_purchase_booking_fee_member" model="ir.rule">
+            <field name="name">Freight Purchase Booking Fee - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_booking_fee"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Booking Line Fee - Member Rule -->
+        <record id="rule_freight_purchase_booking_line_fee_member" model="ir.rule">
+            <field name="name">Freight Purchase Booking Line Fee - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_booking_line_fee"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Booking Inventory - Member Rule -->
+        <record id="rule_freight_purchase_booking_inventory_member" model="ir.rule">
+            <field name="name">Freight Purchase Booking Inventory - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_booking_inventory"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Freight Purchase Remind - Member Rule -->
+        <record id="rule_freight_purchase_remind_member" model="ir.rule">
+            <field name="name">Freight Purchase Remind - Member Access</field>
+            <field name="model_id" ref="model_freight_purchase_remind"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Existing rules for backward compatibility -->
+        <record id="sale_order_line_rule_pricing_director" model="ir.rule">
+            <field name="name">Pricing Director Sales Order Line Access</field>
+            <field name="model_id" ref="sale.model_sale_order_line"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hp_freight_purchase.group_hp_freight_purchase_director'))]"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+            <field name="perm_read" eval="1"/>
+        </record>
+
+        <record id="rule_product_variant_access_all_for_pricing" model="ir.rule">
+            <field name="name">All Product Variants - Pricing Access</field>
+            <field name="model_id" ref="product.model_product_product"/>
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="groups" eval="[(4, ref('hp_freight_purchase.group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+            <field name="global" eval="False"/>
+        </record>
+
     </data>
 </odoo>
