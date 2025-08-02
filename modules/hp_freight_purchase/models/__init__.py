@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from . import container_type
+from . import sale_order_inherit
 from . import res_partner_inherit
 from . import freight_purchase_vessel
 from . import freight_purchase_region
