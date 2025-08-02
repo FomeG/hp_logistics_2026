@@ -3,6 +3,7 @@ from logging import Logger
 from odoo import models, fields, _, api
 from odoo.exceptions import UserError, ValidationError
 from odoo.addons.hp_components.services.sale_order_service import SaleOrderService
+from ...hp_components.services.task_service import TaskService
 import logging
 
 _logger: Logger = logging.getLogger(__name__)
@@ -107,3 +108,18 @@ class SaleOrderInherrit(models.Model):
                 'default_sale_order_id': self.id
             }
         }
+    
+    def _handle_quotation_activated(self):
+        TaskService(self.env)._handle_task_with_quotation_activated(self)
+
+    def _handle_quotation_cancelled(self):
+        TaskService(self.env)._handle_task_with_quotation_cancelled(self)
+
+    def _handle_quotation_customer_confirmed(self):
+        TaskService(self.env)._handle_task_with_quotation_customer_confirmed(self)
+
+    def _handle_quotation_sale_leader_confirmed(self):
+        TaskService(self.env)._handle_task_with_quotation_sale_leader_confirmed(self)
+
+    def _handle_quotation_confirmed(self):
+        return
