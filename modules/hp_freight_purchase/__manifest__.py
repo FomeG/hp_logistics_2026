@@ -46,6 +46,7 @@
 
         #data
         'data/cron_job.xml',
+        'data/partner_main_type_data.xml'
     ],
     # 'demo': [
     #     'demo/container_type_demo.xml',
