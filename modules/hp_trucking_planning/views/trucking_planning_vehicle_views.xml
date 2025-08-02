@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_vehicle_tree" model="ir.ui.view">
+        <field name="name">vehicle.tree</field>
+        <field name="model">trucking_planning.vehicle</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="type"/>
+                <field name="engine_type"/>
+                <field name="is_rented"/>
+                <field name="registration_date"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_vehicle_form" model="ir.ui.view">
+        <field name="name">vehicle.form</field>
+        <field name="model">trucking_planning.vehicle</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="type"/>
+                        <field name="engine_type"/>
+                        <field name="registration_date"/>
+                        <field name="is_rented"/>
+                    </group>
+                    <group string="Fuel Rates">
+                        <field name="fuel_rate_inferior_20" readonly="1"/>
+                        <field name="fuel_rate_superior_20" readonly="1"/>
+                        <field name="fuel_rate_mix" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_vehicle" model="ir.actions.act_window">
+        <field name="name">Vehicles</field>
+        <field name="res_model">trucking_planning.vehicle</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

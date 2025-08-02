@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_route_tree" model="ir.ui.view">
+        <field name="name">route.tree</field>
+        <field name="model">trucking_planning.route</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="from_location_id"/>
+                <field name="to_location_id"/>
+                <field name="distance_km"/>
+                <field name="total_cost"/>
+            </list>
+        </field>
+    </record>
+    <record id="view_route_form" model="ir.ui.view">
+        <field name="name">route.form</field>
+        <field name="model">trucking_planning.route</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="from_location_id"/>
+                        <field name="from_state_id" readonly="1"/>
+                        <field name="to_location_id"/>
+                        <field name="to_state_id" readonly="1"/>
+                        <field name="extra_fuel" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="distance_km"/>
+                        <field name="road_fee"/>
+                        <field name="trip_salary"/>
+                        <field name="ticket_fee"/>
+                        <field name="total_cost" readonly="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_route" model="ir.actions.act_window">
+        <field name="name">Routes</field>
+        <field name="res_model">trucking_planning.route</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

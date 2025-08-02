@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_shipping_line_user,trucking.shipping_line.user,model_trucking_planning_shipping_line,base.group_user,1,1,1,0
+access_shipping_line_manager,trucking.shipping_line.manager,model_trucking_planning_shipping_line,base.group_system,1,1,1,1
+access_location_user,trucking.location.user,model_trucking_planning_location,base.group_user,1,1,1,0
+access_location_manager,trucking.location.manager,model_trucking_planning_location,base.group_system,1,1,1,1
+access_route_user,trucking.route.user,model_trucking_planning_route,base.group_user,1,1,1,0
+access_route_manager,trucking.route.manager,model_trucking_planning_route,base.group_system,1,1,1,1
+access_client_user,trucking.client.user,model_trucking_planning_client,base.group_user,1,1,1,0
+access_client_manager,trucking.client.manager,model_trucking_planning_client,base.group_system,1,1,1,1
+access_vehicle_user,trucking.vehicle.user,model_trucking_planning_vehicle,base.group_user,1,1,1,0
+access_vehicle_manager,trucking.vehicle.manager,model_trucking_planning_vehicle,base.group_system,1,1,1,1
+access_driver_user,trucking.driver.user,model_trucking_planning_driver,base.group_user,1,1,1,0
+access_driver_manager,trucking.driver.manager,model_trucking_planning_driver,base.group_system,1,1,1,1
+access_plan_user,trucking.plan.user,model_trucking_planning_plan,base.group_user,1,1,1,0
+access_plan_manager,trucking.plan.manager,model_trucking_planning_plan,base.group_system,1,1,1,1
