@@ -6,7 +6,6 @@ class Route(models.Model):
     _description = "Route"
 
     name = fields.Char(
-        required=True,
         compute='_compute_name',
         store=True,
     )
@@ -62,6 +61,6 @@ class Route(models.Model):
     def _compute_name(self):
         for route in self:
             if route.from_location_id and route.to_location_id:
-                route.name = f"{route.from_location_id.name} → {route.to_location_id.name}"
+                route.name = f"{route.from_location_id.name} - {route.to_location_id.name}"
             else:
                 route.name = "New Route"
