@@ -9,3 +9,9 @@ class SaleOrderInherit(models.Model):
         string='Booking',
         readonly=True,
     )
+
+    direction = fields.Selection([
+        ('import', 'Import'),
+        ('export', 'Export'),
+        ('N/A', 'N/A'),
+    ], string="Direction", required=True, tracking=True)
