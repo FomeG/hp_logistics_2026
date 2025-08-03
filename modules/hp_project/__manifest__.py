@@ -9,13 +9,13 @@
 HP Project App
 ===================================================
 """,
-    'depends': ['base', 'web', 'mail', 'bus', 'project', 'sale', 'sale_project', 'sales_team', 'hp_freight_purchase', 'hp_sale', 'hp_components'],
+    'depends': ['base', 'web', 'mail', 'bus', 'project', 'sale', 'sale_project', 'sales_team', 'hp_freight_purchase', 'hp_sale', 'hp_components', 'product'],
     'data': [
         #data
         'data/project_default.xml',
 
         #security
-        # 'security/ir.model.access.csv',
+        'security/ir.model.access.csv',
 
         #view
         'views/project_task_form_views.xml',
