@@ -495,4 +495,29 @@
         </record>
 
     </data>
+    <!-- Res Partner (Shipping Lines) - Member Rule -->
+    <record id="rule_res_partner_shipping_line_member" model="ir.rule">
+        <field name="name">Res Partner (Shipping Lines) - Member Access</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="domain_force">[('create_uid', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <!-- Res Partner (Shipping Lines) - Leader+ Override Rule -->
+    <record id="rule_res_partner_shipping_line_leader_plus" model="ir.rule">
+        <field name="name">Res Partner (Shipping Lines) - Leader+ Access All</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="groups" eval="[(4, ref('group_hp_freight_purchase_lead'))]"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
+
+
 </odoo>
