@@ -1,7 +1,8 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from ..validators.booking_fee_validator import BookingFeeValidator
-
+import logging
+_logger = logging.getLogger(__name__)
 
 class FreightPurchaseBookingFee(models.Model):
     _name = "freight.purchase.booking.fee"
@@ -33,7 +34,7 @@ class FreightPurchaseBookingFee(models.Model):
 
     def write(self, vals):
         for record in self:
-            validated, errors = BookingFeeValidator.validate(vals, self.env, mode='write', current_id=record.id)
+            validated, errors = BookingFeeValidator.validate(vals, self.env, mode='write', record=record)
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super().write(vals) 

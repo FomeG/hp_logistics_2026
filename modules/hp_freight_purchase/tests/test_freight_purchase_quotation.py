@@ -11,9 +11,15 @@ class TestFreightPurchaseQuotation(TransactionCase):
         self.Route = self.env['freight.purchase.route']
         self.Quotation = self.env['freight.purchase.quotation']
         self.QuotationLine = self.env['freight.purchase.quotation.line']
+        
+        # Get shipping line type by code instead of XML reference
+        shipping_line_type = self.env['partner.main.type'].search([
+            ('code', '=', 'shipping_line')
+        ], limit=1)
+        
         self.ShippingLine = self.env['res.partner'].create({
             'name': 'Test Shipping Line',
-            'is_shipping_line': True
+            'partner_main_type_id': shipping_line_type.id if shipping_line_type else False
         })
         self.RegionRec = self.Region.create({
             'name': 'North America',

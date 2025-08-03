@@ -37,7 +37,7 @@
                                 widget="many2one_new_tab" />
                             <field name="quotation_shipping_line_id"
                                 required="not id and booking_mode == 'without_quotation'"
-                                domain="[('is_shipping_line', '=', True)]" widget="many2one_new_tab" />
+                                domain="[('partner_main_type_id.code', '=', 'shipping_line')]" widget="many2one_new_tab" />
                         </group>
                         <group>
                             <field name="teu_volume" />

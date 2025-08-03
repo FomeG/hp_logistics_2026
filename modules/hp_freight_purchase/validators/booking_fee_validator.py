@@ -5,7 +5,7 @@ class BookingFeeValidator(FreightValidator):
     """Validates freight purchase booking fee creation and updates"""
     
     @classmethod
-    def validate(cls, data, env, mode='create', current_id=None):
+    def validate(cls, data, env, mode='create', record=None):
         field_rules = {
             'booking_id': {
                 'label': 'Booking',
@@ -25,13 +25,14 @@ class BookingFeeValidator(FreightValidator):
                 'min_value': 0,
                 'required': True,
             },
-            'note': {
-                'label': 'Note',
-                'type': str,
-            },
+            # 'note': {
+            #     'label': 'Note',
+            #     'type': str,
+            #     'required': False,
+            # },
         }
         errors = []
-        validated = cls._validate(field_rules, data, env, errors, mode, current_id)
+        validated = cls._validate(field_rules, data, env, errors, mode, record)
         
         # Custom validation: Check if fee type is common
         if validated.get('fee_type_id'):
@@ -45,8 +46,8 @@ class BookingFeeValidator(FreightValidator):
                 ('booking_id', '=', validated['booking_id']),
                 ('fee_type_id', '=', validated['fee_type_id'])
             ]
-            if mode == 'write' and current_id:
-                domain.append(('id', '!=', current_id))
+            if mode == 'write' and record:
+                domain.append(('id', '!=', record.id))
             
             existing = env['freight.purchase.booking.fee'].sudo().search(domain, limit=1)
             if existing:
@@ -69,7 +70,11 @@ class BookingFeeValidator(FreightValidator):
         if not booking.quotation_id:
             return True  # Allow if no quotation (will be validated when quotation is created)
         
-        # Check if there are any available fees for this fee type, shipping line, and direction
+        # For common fee types, they are always available regardless of existing fee records
+        if fee_type.is_common:
+            return True
+            
+        # For non-common fee types, check if there are any available fees for this fee type, shipping line, and direction
         available_fees = env['freight.purchase.fee'].sudo().search([
             ('fee_type_id', '=', fee_type.id),
             ('shipping_line_id', '=', booking.quotation_id.shipping_line_id.id),
@@ -87,7 +92,7 @@ class BookingLineFeeValidator(FreightValidator):
     """Validates freight purchase booking line fee creation and updates"""
     
     @classmethod
-    def validate(cls, data, env, mode='create', current_id=None):
+    def validate(cls, data, env, mode='create', record=None):
         field_rules = {
             'booking_line_id': {
                 'label': 'Booking Line',
@@ -109,7 +114,7 @@ class BookingLineFeeValidator(FreightValidator):
             },
         }
         errors = []
-        validated = cls._validate(field_rules, data, env, errors, mode, current_id)
+        validated = cls._validate(field_rules, data, env, errors, mode, record)
         
         # Custom validation: Check if fee line is available for the booking line's context
         if validated.get('booking_line_id') and validated.get('fee_line_id'):
@@ -125,8 +130,8 @@ class BookingLineFeeValidator(FreightValidator):
                 ('booking_line_id', '=', validated['booking_line_id']),
                 ('fee_line_id', '=', validated['fee_line_id'])
             ]
-            if mode == 'write' and current_id:
-                domain.append(('id', '!=', current_id))
+            if mode == 'write' and record:
+                domain.append(('id', '!=', record.id))
             
             existing = env['freight.purchase.booking.line.fee'].sudo().search(domain, limit=1)
             if existing:

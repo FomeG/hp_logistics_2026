@@ -6,9 +6,6 @@ class ResPartnerInherit(models.Model):
     _inherit = 'res.partner'
     _order = 'create_date desc'
 
-
-    is_shipping_line = fields.Boolean(string='Is a Shipping Line', default=False)
-
     booking_ids = fields.One2many('freight.purchase.booking', 'shipping_line_id', string='Bookings')
     quotation_ids = fields.One2many('freight.purchase.quotation', 'shipping_line_id', string='Quotations')
 
@@ -18,22 +15,37 @@ class ResPartnerInherit(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            is_shipping_line = vals.get('is_shipping_line', False)
-            if is_shipping_line:
+            if self._is_shipping_line_partner(vals):
                 validated, errors = ShippingLineCreateValidator.validate(vals, self.env)
                 if errors:
                     raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super().create(vals_list)
-    
+
     def write(self, vals):
         for record in self:
-            is_shipping_line = vals.get('is_shipping_line', record.is_shipping_line)
-            if is_shipping_line:
+            if self._is_shipping_line_partner(vals, record):
                 validated, errors = ShippingLineUpdateValidator.validate(vals, self.env)
                 if errors:
                     raise ValidationError("\n".join([f"• {e}" for e in errors]))
 
         return super().write(vals)
+
+    def _is_shipping_line_partner(self, vals, record=None):
+        """Check if the partner is a shipping line based on partner_main_type_id"""
+        if record:
+            # For write operation, check if the partner is becoming a shipping line
+            partner_main_type_id = vals.get('partner_main_type_id', record.partner_main_type_id.id)
+        else:
+            # For create operation, check the vals
+            partner_main_type_id = vals.get('partner_main_type_id')
+
+        if partner_main_type_id:
+            # Search for shipping line type by code instead of using env.ref
+            shipping_line_type = self.env['partner.main.type'].search([
+                ('code', '=', 'shipping_line')
+            ], limit=1)
+            return shipping_line_type and partner_main_type_id == shipping_line_type.id
+        return False
 
     @api.depends('booking_ids')
     def _compute_total_booking(self):

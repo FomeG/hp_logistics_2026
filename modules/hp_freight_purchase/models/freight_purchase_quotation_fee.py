@@ -33,7 +33,7 @@ class FreightPurchaseQuotationFee(models.Model):
 
     def write(self, vals):
         for record in self:
-            validated, errors = QuotationFeeValidator.validate(vals, self.env, mode='write', current_id=record.id)
+            validated, errors = QuotationFeeValidator.validate(vals, self.env, mode='write', record=record)
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super().write(vals)

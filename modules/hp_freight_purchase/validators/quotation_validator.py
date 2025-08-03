@@ -16,7 +16,7 @@ class QuotationCreateValidator(FreightValidator):
                 'label': f"Shipping Line",
                 'type': int,
                 'exists': 'res.partner',
-                'domain': [('is_shipping_line', '=', True)],
+                'domain': [('partner_main_type_id.code', '=', 'shipping_line')],
                 'required': True,
             },
             'available_from': {

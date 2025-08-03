@@ -29,6 +29,15 @@ class FreightPurchaseFeeType(models.Model):
         required=True
     )
 
+    @api.constrains('is_common', 'direction')
+    def _check_common_direction_consistency(self):
+        """Ensure common fee types have direction='n/a' and non-common fee types don't have direction='n/a'"""
+        for record in self:
+            if record.is_common and record.direction != 'n/a':
+                raise ValidationError("Common fee types must have direction 'N/A'")
+            if not record.is_common and record.direction == 'n/a':
+                raise ValidationError("Non-common fee types cannot have direction 'N/A'")
+
     @api.model_create_multi
     def create(self, vals_list):
         validated_list = []
@@ -36,7 +45,10 @@ class FreightPurchaseFeeType(models.Model):
             validated, errors = FeeValidator.validate_fee_type(vals, self.env)
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
-            vals['name'] = f"{vals['name']} ({vals['direction'] or validated['direction'] or ''})"
+            # Ensure common fee types have direction='n/a'
+            if validated.get('is_common'):
+                validated['direction'] = 'n/a'
+            vals['name'] = f"{vals['name']} ({validated.get('direction') or vals.get('direction') or ''})"
             validated_list.append(vals)
         return super().create(validated_list)
 
@@ -49,7 +61,8 @@ class FreightPurchaseFeeType(models.Model):
         validated, errors = FeeValidator.validate_fee_type(vals, self.env,'write',record=current_record)
         if errors:
             raise ValidationError("\n".join([f"• {e}" for e in errors]))
-        if 'is_common' in validated.keys() and validated['is_common']:
+        # Ensure common fee types always have direction='n/a'
+        if new_is_common:
             vals['direction'] = 'n/a'
         return super().write(vals)
 

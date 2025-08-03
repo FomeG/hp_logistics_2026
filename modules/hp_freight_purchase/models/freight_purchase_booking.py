@@ -75,7 +75,7 @@ class FreightPurchaseBooking(models.Model):
 
     # Temporary fields for quotation creation
     quotation_route_id = fields.Many2one('freight.purchase.route',string='Tempo Route',store=False)
-    quotation_shipping_line_id = fields.Many2one('res.partner',string="Shipping line", domain="[('is_shipping_line', '=', True)]", store=False)
+    quotation_shipping_line_id = fields.Many2one('res.partner',string="Shipping line", domain="[('partner_main_type_id.code', '=', 'shipping_line')]", store=False)
 
     total_booking_lines = fields.Char(string="Total Booking Lines", compute='_compute_total_booking_lines', store=False)
 

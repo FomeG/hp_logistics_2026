@@ -32,12 +32,15 @@ class FreightPurchaseQuotationService:
         
         # Copy common fees from booking to quotation
         for booking_fee in booking.fee_ids:
-            self.env['freight.purchase.quotation.fee'].create({
+            # Filter out None and empty values for optional fields
+            fee_vals = {
                 'quotation_id': quotation.id,
                 'fee_type_id': booking_fee.fee_type_id.id,
                 'amount': booking_fee.amount,
-                'note': booking_fee.note,
-            })
+            }
+            if booking_fee.note and booking_fee.note.strip():
+                fee_vals['note'] = booking_fee.note
+            self.env['freight.purchase.quotation.fee'].create(fee_vals)
         
         # Create quotation lines for each booking line and copy fees
         for booking_line in booking.line_ids:
@@ -82,19 +85,23 @@ class FreightPurchaseQuotationService:
         
         if existing_quotation_fee:
             # Update existing
-            existing_quotation_fee.write({
+            update_vals = {
                 'amount': booking_fee.amount,
-                'note': booking_fee.note,
-            })
+            }
+            if booking_fee.note and booking_fee.note.strip():
+                update_vals['note'] = booking_fee.note
+            existing_quotation_fee.write(update_vals)
             _logger.info(f"Updated quotation fee {existing_quotation_fee.id} from booking fee {booking_fee.id}")
         else:
             # Create new
-            self.env['freight.purchase.quotation.fee'].create({
+            fee_vals = {
                 'quotation_id': booking_fee.booking_id.quotation_id.id,
                 'fee_type_id': booking_fee.fee_type_id.id,
                 'amount': booking_fee.amount,
-                'note': booking_fee.note,
-            })
+            }
+            if booking_fee.note and booking_fee.note.strip():
+                fee_vals['note'] = booking_fee.note
+            self.env['freight.purchase.quotation.fee'].create(fee_vals)
             _logger.info(f"Created quotation fee from booking fee {booking_fee.id}")
 
     def sync_booking_line_fee_to_quotation(self, booking_line_fee):
@@ -182,13 +189,17 @@ class FreightPurchaseQuotationService:
         
         # Copy common fees from quotation to booking (always)
         common_fees_count = 0
+        _logger.info(f"for quotation_fee in booking.quotation_id.fee_ids...")
         for quotation_fee in booking.quotation_id.fee_ids:
-            self.env['freight.purchase.booking.fee'].create({
+            # Filter out None and empty values for optional fields
+            fee_vals = {
                 'booking_id': booking.id,
                 'fee_type_id': quotation_fee.fee_type_id.id,
                 'amount': quotation_fee.amount,
-                'note': quotation_fee.note,
-            })
+            }
+            if quotation_fee.note and quotation_fee.note.strip():
+                fee_vals['note'] = quotation_fee.note
+            self.env['freight.purchase.booking.fee'].create(fee_vals)
             common_fees_count += 1
         
         # Copy container-specific fees from quotation lines to booking lines (only if booking lines exist)

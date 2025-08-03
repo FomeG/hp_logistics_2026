@@ -29,9 +29,15 @@ class TestFreightPurchaseBookingLineListener(TransactionComponentCase):
             'name': '20GP',
             'teu': 20.0,
         })
+        
+        # Get shipping line type by code instead of XML reference
+        shipping_line_type = self.env['partner.main.type'].search([
+            ('code', '=', 'shipping_line')
+        ], limit=1)
+        
         shippingLine = self.env['res.partner'].create({
             'name': 'Test Shipping Line',
-            'is_shipping_line': True
+            'partner_main_type_id': shipping_line_type.id if shipping_line_type else False
         })
         self.vesselRec = self.Vessel.create({
             'name': 'Sea Titan'

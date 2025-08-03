@@ -15,7 +15,7 @@ class FreightPurchaseFee(models.Model):
     )
     shipping_line_id = fields.Many2one(
         comodel_name='res.partner',
-        domain="[('is_shipping_line', '=', True)]",
+        domain="[('partner_main_type_id.code', '=', 'shipping_line')]",
         required=True,
         index=True,
     )

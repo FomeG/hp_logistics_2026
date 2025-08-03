@@ -61,14 +61,32 @@ class FreightPurchaseBookingLineFee(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            validated, errors = BookingLineFeeValidator.validate(vals, self.env, mode='create')
+            # Filter out None values for optional fields to avoid type validation errors
+            filtered_vals = {}
+            for k, v in vals.items():
+                if k in ['booking_line_id', 'fee_line_id', 'amount']:
+                    # Always include required fields
+                    filtered_vals[k] = v
+                elif v is not None:
+                    # Only include optional fields if they have a value
+                    filtered_vals[k] = v
+            validated, errors = BookingLineFeeValidator.validate(filtered_vals, self.env, mode='create')
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super().create(vals_list)
 
     def write(self, vals):
         for record in self:
-            validated, errors = BookingLineFeeValidator.validate(vals, self.env, mode='write', current_id=record.id)
+            # Filter out None values for optional fields to avoid type validation errors
+            filtered_vals = {}
+            for k, v in vals.items():
+                if k in ['booking_line_id', 'fee_line_id', 'amount']:
+                    # Always include required fields
+                    filtered_vals[k] = v
+                elif v is not None:
+                    # Only include optional fields if they have a value
+                    filtered_vals[k] = v
+            validated, errors = BookingLineFeeValidator.validate(filtered_vals, self.env, mode='write', record=record)
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super().write(vals) 

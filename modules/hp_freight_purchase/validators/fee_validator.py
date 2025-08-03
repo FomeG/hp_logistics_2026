@@ -44,7 +44,7 @@ class FeeValidator(FreightValidator):
                 'label': 'Shipping Line',
                 'type': int,
                 'exists': 'res.partner',
-                'domain': [('is_shipping_line', '=', True)],
+                'domain': [('partner_main_type_id.code', '=', 'shipping_line')],
                 'required': True,
             },
             'fee_type_id': {
@@ -141,7 +141,7 @@ class FeeCreateValidator(FreightValidator):
                 'label': 'Shipping Line',
                 'type': int,
                 'exists': 'res.partner',
-                'domain': [('is_shipping_line', '=', True)],
+                'domain': [('partner_main_type_id.code', '=', 'shipping_line')],
                 'required': True,
             },
             'fee_type_id': {
@@ -160,11 +160,11 @@ class FeeCreateValidator(FreightValidator):
                 'type': str,
                 'required': False,
             },
-            'note': {
-                'label': 'Note',
-                'type': str,
-                'required': False,
-            },
+            # 'note': {
+            #     'label': 'Note',
+            #     'type': str,
+            #     'required': False,
+            # },
         }
         errors = []
         validated = cls._validate(field_rules, data, env, errors)
@@ -192,7 +192,7 @@ class FeeUpdateValidator(FreightValidator):
                 'label': 'Shipping Line',
                 'type': int,
                 'exists': 'res.partner',
-                'domain': [('is_shipping_line', '=', True)],
+                'domain': [('partner_main_type_id.code', '=', 'shipping_line')],
             },
             'fee_type_id': {
                 'label': 'Fee Type',

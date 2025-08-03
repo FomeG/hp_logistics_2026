@@ -8,6 +8,9 @@
     "license": "LGPL-3",
     'depends': ['base', 'mail', 'sale','hp_components', 'hp_sale','hp_employee'],
     'data': [
+        #data - must be loaded first
+        'data/partner_main_type_data.xml',
+        
         #data demo
         'demo/container_type_demo.xml',
         #'demo/fee_demo.xml',
@@ -46,7 +49,6 @@
 
         #data
         'data/cron_job.xml',
-        'data/partner_main_type_data.xml'
     ],
     # 'demo': [
     #     'demo/container_type_demo.xml',
@@ -62,6 +64,6 @@
         ],
     },
     'installable': True,
-    'application': True,
+    'application': True
 }
 
