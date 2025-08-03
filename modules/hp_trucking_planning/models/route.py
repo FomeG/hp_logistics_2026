@@ -60,5 +60,8 @@ class Route(models.Model):
 
     @api.depends('from_location_id', 'to_location_id')
     def _compute_name(self):
-        for r in self:
-            r.name = f"{r.from_location_id.name} → {r.from_state_id.name}"
+        for route in self:
+            if route.from_location_id and route.to_location_id:
+                route.name = f"{route.from_location_id.name} → {route.to_location_id.name}"
+            else:
+                route.name = "New Route"
