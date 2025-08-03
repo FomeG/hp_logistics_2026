@@ -40,9 +40,21 @@
                 <attribute name="style">padding-left: 10px !important;</attribute>
             </xpath>
 
+            <xpath expr="//group/field[@name='partner_shipping_id']" position="after">
+                <field name="direction" />
+            </xpath>
+
             <!-- Modify domain on product_template_id in list view -->
             <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="attributes">
-                <attribute name="domain">[('sale_ok', '=', True), ('type', '=', product_type_filter)]</attribute>
+                <attribute name="domain">
+                    [
+                        ('sale_ok', '=', True),
+                        ('type', '=', product_type_filter),
+                        '|',
+                        ('type', '!=', 'pricing'),
+                        ('route_id.direction', '=', parent.direction)
+                    ]
+                </attribute>
             </xpath>
 
             <!-- Modify domain on product_id in list view -->
@@ -113,7 +125,7 @@
             </xpath>
             <xpath expr="//field[@name='order_line']/list/control/button[@name='action_add_from_catalog']" position="replace">
 
-            </xpath>            
+            </xpath>
         </field>
     </record>
 

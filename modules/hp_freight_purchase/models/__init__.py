@@ -23,3 +23,4 @@ from . import freight_purchase_booking_inventory
 from . import product_template_inherit
 from . import wizards
 from . import freight_purchase_remind
+from . import sale_order_inherit

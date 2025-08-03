@@ -34,6 +34,7 @@ class FreightPurchaseRoute(models.Model):
         compute='_compute_direction',
         default='export',
         inverse='_inverse_direction',
+        store=True
     )
     direction_manual = fields.Boolean(string="Manual Direction", default=False)
     is_active = fields.Boolean(
@@ -84,6 +85,8 @@ class FreightPurchaseRoute(models.Model):
                 rec.direction = 'import'
             elif rec.pol_id.is_local:
                 rec.direction = 'export'
+            else:
+                rec.direction = 'N/A'
 
     @api.model_create_multi
     def create(self, vals_list):
