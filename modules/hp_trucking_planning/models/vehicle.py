@@ -43,7 +43,7 @@ class Vehicle(models.Model):
         string='Is rented',
         default=False,
     )
-
+    @api.depends('type')
     def _compute_fuel_rate_inferior_20(self):
         for vehicle in self:
             vehicle.fuel_rate_inferior_20 = 0.0
@@ -51,7 +51,7 @@ class Vehicle(models.Model):
                 vehicle.fuel_rate_inferior_20 = 0.35
                 if  vehicle.engine_type == 'small':
                     vehicle.fuel_rate_inferior_20 = 0.32
-
+    @api.depends('type')
     def _compute_fuel_rate_superior_20(self):
         for vehicle in self:
             vehicle.fuel_rate_superior_20 = 0.0
@@ -59,7 +59,7 @@ class Vehicle(models.Model):
                 vehicle.fuel_rate_superior_20 = 0.38
                 if  vehicle.engine_type == 'small':
                     vehicle.fuel_rate_superior_20 = 0.35
-
+    @api.depends('type')
     def _compute_fuel_rate_mix(self):
         for vehicle in self:
             vehicle.fuel_rate_mix = 0.0
