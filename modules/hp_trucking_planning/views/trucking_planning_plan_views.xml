@@ -1,95 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <record id="view_plan_tree" model="ir.ui.view">
-        <field name="name">plan.tree</field>
+        <field name="name">trucking_planning.plan.tree</field>
         <field name="model">trucking_planning.plan</field>
         <field name="arch" type="xml">
-            <list>
-                <field name="code"/>
+            <list string="Plans">
+                <field name="name" string="Reference" readonly="1"/>
                 <field name="date"/>
-                <field name="client_id"/>
-                <field name="tax_number" />
+                <field name="vehicle_id"/>
                 <field name="status"/>
-                <field name="booking"/>
-                <field name="plan_type"/>
-                <field name="container_type"/>
-                <field name="container_size"/>
-                <field name="shipping_line_id"/>
-                <field name="actual_source_location_id"/>
-                <field name="container_pickup"/>
-                <field name="goods_pickup_delivery"/>
-                <field name="contact_phone"/>
-                <field name="container_delivery"/>
-                <field name="actual_destination_location_id"/>
-                <field name="driver_id" />
-                <field name="truck_id" />
-                <field name="trailer_id" />
-                <field name="is_rented"/>
-                <field name="note"/>
-                <field name="weight_class"/>
-                <field name="fuel_liters"/>
-                <field name="plan_total_cost"/>
             </list>
         </field>
     </record>
+
     <record id="view_plan_form" model="ir.ui.view">
-        <field name="name">plan.form</field>
+        <field name="name">trucking_planning.plan.form</field>
         <field name="model">trucking_planning.plan</field>
         <field name="arch" type="xml">
-            <form>
+            <form string="Plan">
                 <sheet>
-                    <group>
-                        <field name="code"/>
-                        <field name="date"/>
-                        <field name="status"/>
-                        <field name="client_id"/>
-                        <field name="shipping_line_id"/>
-                        <field name="tax_number" readonly="1"/>
-                        <field name="booking"/>
-                    </group>
-                    <notebook>
-                        <page string="Container Info">
-                            <group>
-                                <field name="container_number"/>
-                                <field name="seal_number"/>
-                                <field name="container_type"/>
-                                <field name="container_size"/>
-                                <field name="plan_type"/>
-                                <field name="weight_class"/>
-                            </group>
-                        </page>
-                        <page string="Route / Locations">
-                            <group>
-                                <field name="route_id"/>
-                                <field name="actual_source_location_id" readonly="1"/>
-                                <field name="actual_destination_location_id" readonly="1"/>
-                            </group>
-                            <group>
-                                <field name="container_pickup"/>
-                                <field name="goods_pickup_delivery"/>
-                                <field name="contact_phone" readonly="1"/>
-                                <field name="container_delivery"/>
-                            </group>
-                        </page>
-                        <page string="Driver/Vehicle">
-                            <group>
-                                <field name="driver_id"/>
-                                <field name="truck_id" readonly="1"/>
-                                <field name="trailer_id" readonly="1"/>
-                                <field name="is_rented" readonly="1"/>
-                                <field name="contract_number"/>
-                            </group>
-                            <group>
-                                <field name="fuel_liters" readonly="1"/>
-                                <field name="plan_total_cost" readonly="1"/>
-                            </group>
-                        </page>
-                        <page string="Notes">
-                            <field name="note"/>
-                        </page>
-                    </notebook>
+                        <group>
+                            <field name="name" string="Reference" readonly="True"/>
+                        </group>
+                        <group>
+                            <field name="date" required="1"/>
+                            <field name="vehicle_id"/>
+                            <field name="status"/>
+                        </group>
+                        <notebook>
+                            <page string="Trips">
+                                <field name="plan_line_ids">
+                                    <list delete="false">
+                                        <field name="code" />
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
                 </sheet>
             </form>
+        </field>
+    </record>
+
+    <record id="view_plan_search" model="ir.ui.view">
+        <field name="name">trucking_planning.plan.search</field>
+        <field name="model">trucking_planning.plan</field>
+        <field name="arch" type="xml">
+            <search string="Plan Search">
+                <field name="name" string="Reference"/>
+                <field name="vehicle_id"/>
+                <filter string="Draft" name="draft" domain="[('status','=','draft')]"/>
+                <filter string="Active" name="active" domain="[('status','=','active')]"/>
+                <filter string="Pending" name="pending" domain="[('status','=','pending')]"/>
+                <filter string="Cancelled" name="cancelled" domain="[('status','=','cancelled')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
+                    <filter string="Vehicle" name="group_by_vehicle" context="{'group_by':'vehicle_id'}"/>
+                    <filter string="Date" name="group_by_date" context="{'group_by':'date'}"/>
+                </group>
+            </search>
         </field>
     </record>
 
@@ -97,6 +65,6 @@
         <field name="name">Plans</field>
         <field name="res_model">trucking_planning.plan</field>
         <field name="view_mode">list,form</field>
-        <field name="context">{'default_status': 'checking'}</field>
+        <field name="context">{'default_status': 'active'}</field>
     </record>
 </odoo>

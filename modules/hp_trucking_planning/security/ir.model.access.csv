@@ -13,3 +13,7 @@ access_driver_user,trucking.driver.user,model_trucking_planning_driver,base.grou
 access_driver_manager,trucking.driver.manager,model_trucking_planning_driver,base.group_system,1,1,1,1
 access_plan_user,trucking.plan.user,model_trucking_planning_plan,base.group_user,1,1,1,0
 access_plan_manager,trucking.plan.manager,model_trucking_planning_plan,base.group_system,1,1,1,1
+access_plan_line_user,trucking.plan_line.user,model_trucking_planning_plan_line,base.group_user,1,1,1,0
+access_plan_line_manager,trucking.plan_line.manager,model_trucking_planning_plan_line,base.group_system,1,1,1,1
+access_vehicle_driver_history_user,trucking.vehicle_driver_history.user,model_trucking_planning_vehicle_driver_history,base.group_user,1,1,1,0
+access_vehicle_driver_history_manager,trucking.vehicle_driver_history.manager,model_trucking_planning_vehicle_driver_history,base.group_system,1,1,1,1

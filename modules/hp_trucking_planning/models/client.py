@@ -19,9 +19,10 @@ class Client(models.Model):
         comodel_name='trucking_planning.route',
         string='Routes'
     )
-    plan_ids = fields.One2many(
-        comodel_name='trucking_planning.plan',
+    plan_line_ids = fields.One2many(
+        comodel_name='trucking_planning.plan.line',
         inverse_name='client_id',
+        string='Trips'
     )
     _sql_constraints = [
         ('unique_tax', 'UNIQUE(tax_number)','Tax Number must be unique!'),
