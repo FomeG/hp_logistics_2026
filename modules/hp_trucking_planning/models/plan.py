@@ -20,6 +20,10 @@ class Plan(models.Model):
         required=True,
         index=True,
     )
+    driver_id = fields.Many2one(
+        related='vehicle_id.primary_driver_id',
+        store=False,
+    )
     status = fields.Selection([
         ('active', 'Active'),
         ('draft', 'Draft'),

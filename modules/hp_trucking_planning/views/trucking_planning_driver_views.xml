@@ -23,10 +23,11 @@
                         <field name="cccd"/>
                         <field name="license_number"/>
                         <field name="contract_date"/>
+                        <field name="notes"/>
                     </group>
-                    <notebook>
+                    <notebook invisible="not id">
                         <page string="Trips">
-                            <field name="plan_line_ids">
+                            <field name="plan_line_ids" readonly="1">
                                 <list>
                                     <field name="code"/>
                                     <field name="date"/>
@@ -42,9 +43,6 @@
                                     <field name="create_date"/>
                                 </list>
                             </field>
-                        </page>
-                        <page string="Notes">
-                            <field name="notes"/>
                         </page>
                     </notebook>
                 </sheet>

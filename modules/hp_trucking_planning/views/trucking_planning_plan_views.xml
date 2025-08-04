@@ -8,6 +8,7 @@
                 <field name="name" string="Reference" readonly="1"/>
                 <field name="date"/>
                 <field name="vehicle_id"/>
+                <field name="driver_id" />
                 <field name="status"/>
             </list>
         </field>
@@ -25,13 +26,35 @@
                         <group>
                             <field name="date" required="1"/>
                             <field name="vehicle_id"/>
+                            <field name="driver_id" />
                             <field name="status"/>
                         </group>
                         <notebook>
-                            <page string="Trips">
-                                <field name="plan_line_ids">
+                            <page string="Trips" invisible="not id">
+                                <field name="plan_line_ids" readonly="True">
                                     <list delete="false">
                                         <field name="code" />
+                                        <field name="client_id"/>
+                                        <field name="status"/>
+                                        <field name="booking"/>
+                                        <field name="plan_type"/>
+                                        <field name="container_type"/>
+                                        <field name="container_size"/>
+                                        <field name="shipping_line_id"/>
+                                        <field name="actual_source_location_id"/>
+                                        <field name="container_pickup"/>
+                                        <field name="goods_pickup_delivery"/>
+                                        <field name="contact_phone"/>
+                                        <field name="container_delivery"/>
+                                        <field name="actual_destination_location_id"/>
+                                        <field name="driver_id" />
+                                        <field name="truck_id" />
+                                        <field name="trailer_id" />
+                                        <field name="is_rented"/>
+                                        <field name="note"/>
+                                        <field name="weight_class"/>
+                                        <field name="fuel_liters"/>
+                                        <field name="total_cost"/>
                                     </list>
                                 </field>
                             </page>
@@ -46,8 +69,8 @@
         <field name="model">trucking_planning.plan</field>
         <field name="arch" type="xml">
             <search string="Plan Search">
-                <field name="name" string="Reference"/>
                 <field name="vehicle_id"/>
+                <field name="name" string="Reference"/>
                 <filter string="Draft" name="draft" domain="[('status','=','draft')]"/>
                 <filter string="Active" name="active" domain="[('status','=','active')]"/>
                 <filter string="Pending" name="pending" domain="[('status','=','pending')]"/>

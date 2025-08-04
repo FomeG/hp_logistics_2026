@@ -101,16 +101,18 @@ class PlanLine(models.Model):
         comodel_name="trucking_planning.location",
         required=True,
     )
-    driver_id = fields.Many2one(
-        comodel_name="trucking_planning.driver",
-        related='plan_id.vehicle_id.primary_driver_id',
-    )
     truck_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle',
         domain=[('type','=','truck')],
         related='plan_id.vehicle_id',
         readonly=True,
         store=True,
+    )
+    driver_id = fields.Many2one(
+        comodel_name="trucking_planning.driver",
+        default=lambda self: self._get_default_driver(),
+        domain="[('active', '=', True)]",
+        index=True,
     )
     trailer_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle',
@@ -132,13 +134,17 @@ class PlanLine(models.Model):
     ],
         required=True,
     )
+    extra_charge = fields.Float()
+    extra_fuel = fields.Float()
     fuel_liters = fields.Float(
         compute='_compute_fuel_liters',
         store=True,
         string="Số lít dầu"
     )
-    plan_total_cost = fields.Float(
-        related='route_id.total_cost',
+    total_cost = fields.Float(
+        compute='_compute_total_cost',
+        store=True,
+        readonly=True,
     )
     _sql_constraints = [
         ('unique_booking','Unique(booking)','Booking number is unique!'),
@@ -158,7 +164,7 @@ class PlanLine(models.Model):
                 rec.actual_source_location_id = False
                 rec.actual_destination_location_id = False
 
-    @api.depends('route_id', 'truck_id', 'weight_class')
+    @api.depends('route_id', 'truck_id', 'weight_class','extra_fuel')
     def _compute_fuel_liters(self):
         for rec in self:
             if rec.route_id and rec.truck_id:
@@ -170,6 +176,25 @@ class PlanLine(models.Model):
                 distance = rec.route_id.distance_km
                 if rec.route_id.extra_fuel:
                     distance = rec.route_id.distance_km + 40
-                rec.fuel_liters = distance * fuel_rate * 2
+                rec.fuel_liters = distance * fuel_rate * 2 + rec.extra_fuel
             else:
                 rec.fuel_liters = 0.0
+
+    @api.depends('route_id','extra_charge')
+    def _compute_total_cost(self):
+        for rec in self:
+            rec.total_cost = rec.route_id.total_cost + rec.extra_charge
+
+    @api.model
+    def _get_default_driver(self):
+        plan_id = self.env.context.get('default_plan_id')
+        if plan_id:
+            plan = self.env['trucking_planning.plan'].browse(plan_id)
+            if plan.vehicle_id and plan.vehicle_id.primary_driver_id:
+                return plan.vehicle_id.primary_driver_id.id
+        return False
+
+    @api.onchange('plan_id')
+    def _onchange_plan_id(self):
+        if self.plan_id and self.plan_id.vehicle_id and self._origin.plan_id != self.plan_id:
+            self.driver_id = self.plan_id.vehicle_id.primary_driver_id
