@@ -40,19 +40,19 @@ class Vehicle(models.Model):
     )
     fuel_rate_inferior_20 = fields.Float(
         compute='_compute_fuel_rates',
-        default=3.2,
+        default=0.0,
         store=True,
         string='Light',
     )
     fuel_rate_superior_20 = fields.Float(
         compute='_compute_fuel_rates',
-        default=3.5,
+        default=0.0,
         store=True,
         string='Heavy',
     )
     fuel_rate_mix = fields.Float(
         compute='_compute_fuel_rates',
-        default=3.8,
+        default=0.0,
         store=True,
         string='Mix',
     )
@@ -91,10 +91,10 @@ class Vehicle(models.Model):
                 continue
 
             if vehicle.engine_type == 'small':
-                vehicle.fuel_rate_inferior_20 = 3.2
-                vehicle.fuel_rate_superior_20 = 3.5
-                vehicle.fuel_rate_mix = 3.8
+                vehicle.fuel_rate_inferior_20 = 0.32
+                vehicle.fuel_rate_superior_20 = 0.35
+                vehicle.fuel_rate_mix = 0.38
             else:  # big engine
-                vehicle.fuel_rate_inferior_20 = 3.5
-                vehicle.fuel_rate_superior_20 = 3.8
-                vehicle.fuel_rate_mix = 4.2
+                vehicle.fuel_rate_inferior_20 = 0.35
+                vehicle.fuel_rate_superior_20 = 0.38
+                vehicle.fuel_rate_mix = 0.42
