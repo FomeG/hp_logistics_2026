@@ -11,7 +11,7 @@
                 <field name="trailer_id" string="Assigned Trailer" invisible="type == 'trailer'"/>
                 <field name="primary_driver_id" string="Driver" invisible="type == 'trailer'"/>
                 <field name="fuel_rate_inferior_20" string="Light" invisible="type == 'trailer'"/>
-                <field name="fuel_rate_superior_20" string="Light" invisible="type == 'trailer'"/>
+                <field name="fuel_rate_superior_20" string="Heavy" invisible="type == 'trailer'"/>
                 <field name="fuel_rate_mix" string="Kẹp" invisible="type == 'trailer'"/>
                 <field name="is_rented" string="Rented"/>
                 <field name="registration_date" string="Reg. Date"/>
