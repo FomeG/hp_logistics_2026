@@ -119,15 +119,15 @@ class PlanLine(models.Model):
     )
     truck_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle',
-        domain=[('type','=','truck')],
         related='plan_id.vehicle_id',
         readonly=True,
         store=True,
+        index=True,
     )
     driver_id = fields.Many2one(
         comodel_name="trucking_planning.driver",
-        default=lambda self: self._get_default_driver(),
-        domain="[('active', '=', True)]",
+        related='truck_id.primary_driver_id',
+        readonly=True,
         index=True,
     )
     trailer_id = fields.Many2one(
@@ -210,16 +210,7 @@ class PlanLine(models.Model):
         for rec in self:
             rec.total_cost = rec.route_id.total_cost + rec.extra_charge
 
-    @api.model
-    def _get_default_driver(self):
-        plan_id = self.env.context.get('default_plan_id')
-        if plan_id:
-            plan = self.env['trucking_planning.plan'].browse(plan_id)
-            if plan.vehicle_id and plan.vehicle_id.primary_driver_id:
-                return plan.vehicle_id.primary_driver_id.id
-        return False
-
     @api.onchange('plan_id')
     def _onchange_plan_id(self):
         if self.plan_id and self.plan_id.vehicle_id and self._origin.plan_id != self.plan_id:
-            self.driver_id = self.plan_id.vehicle_id.primary_driver_id
+            self.truck_id = self.plan_id.vehicle_id
