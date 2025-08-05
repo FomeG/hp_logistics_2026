@@ -48,7 +48,13 @@ class Plan(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             if vals.get('name', '/') == '/':
-                seq = self.env['ir.sequence'].next_by_code('trucking_planning.plan') or '/'
-                vals['name'] = DepartmentService(self.env).buil_name_trucking_plan(seq)
+                user = self.env.user
+                rule = self.env['trucking_planning.plan.prefix.rule'].search([
+                    ('user_ids', 'in', [user.id]),
+                ], limit=1)
+                prefix = rule.name if rule else 'PLAN'
+                today = fields.Date.today().strftime('%Y%m%d')
+                seq_number = self.env['ir.sequence'].next_by_code('trucking_planning.plan')
+                vals['name'] = f"{prefix}/{today}/{seq_number}"
         return super().create(vals_list)
 
