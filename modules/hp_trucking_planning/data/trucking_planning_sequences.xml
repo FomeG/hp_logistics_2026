@@ -1,0 +1,14 @@
+<odoo>
+  <data noupdate="1">
+    <!-- Sequence for Trucking Plans -->
+    <record id="seq_trucking_planning_plan" model="ir.sequence">
+      <field name="name">Trucking Plan Reference</field>
+      <field name="code">trucking_planning.plan</field>  <!-- Matches the model name -->
+      <field name="prefix">PLAN/%(year)s%(month)s%(day)s/</field>
+      <field name="padding">4</field>
+      <field name="number_next">1</field>
+      <field name="implementation">no_gap</field>
+      <field name="use_date_range">False</field>
+    </record>
+  </data>
+</odoo>

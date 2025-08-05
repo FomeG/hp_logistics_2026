@@ -29,7 +29,7 @@
                         <field name="contact_phone"/>
                     </group>
                     <group>
-                        <field name="state_id" domain="[('country_id.code', '=', 'VN')]"/>
+                        <field name="state_id" domain="[('country_id.code', '=', 'VN')]" options="{'no_create': True, 'no_edit': True}" />
                     </group>
                 </sheet>
             </form>

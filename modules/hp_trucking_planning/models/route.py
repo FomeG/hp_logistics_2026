@@ -33,19 +33,24 @@ class Route(models.Model):
 
     road_fee = fields.Float(
         required=True,
+        string='Road Fee',
     )
     trip_salary = fields.Float(
         required=True,
+        string='Trip Salary',
     )
     total_cost = fields.Float(
         compute='_compute_total_cost',
         readonly=True,
+        string='Total Cost',
     )
     ticket_fee = fields.Float(
         required=True,
+        string='Ticket Fee',
     )
     distance_km = fields.Float(
         required=True,
+        string='Distance KM',
     )
 
     def _compute_total_cost(self):

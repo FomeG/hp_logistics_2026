@@ -1,5 +1,3 @@
-from email.policy import default
-
 from odoo import models, fields, api
 
 
@@ -11,30 +9,52 @@ class Vehicle(models.Model):
     type = fields.Selection([
         ('truck', 'Truck'),
         ('trailer', 'Trailer'),
-    ], default='truck')
+    ],
+        default='truck',
+        index=True,
+        required=True
+    )
     name = fields.Char(
         string='Số xe',
         required=True,
     )
-    #applied only for truck
     engine_type = fields.Selection([
         ('small','Small'),
         ('big','Big'),
     ],default='small')
+
+    trailer_id = fields.Many2one(
+        comodel_name='trucking_planning.vehicle',
+        string='Trailer',
+        domain=[
+            ('active', '=', True),
+            ('type','=','trailer'),
+        ],
+        index=True,
+    )
+
+    primary_driver_id = fields.Many2one(
+        comodel_name='trucking_planning.driver',
+        domain="[('active', '=', True)]",
+        index=True,
+    )
     fuel_rate_inferior_20 = fields.Float(
-        compute='_compute_fuel_rate_inferior_20',
+        compute='_compute_fuel_rates',
         default=0.0,
         store=True,
+        string='Light',
     )
     fuel_rate_superior_20 = fields.Float(
-        compute='_compute_fuel_rate_superior_20',
+        compute='_compute_fuel_rates',
         default=0.0,
         store=True,
+        string='Heavy',
     )
     fuel_rate_mix = fields.Float(
-        compute='_compute_fuel_rate_mix',
+        compute='_compute_fuel_rates',
         default=0.0,
         store=True,
+        string='Mix',
     )
     registration_date = fields.Date(
         string='Registration Date',
@@ -43,27 +63,38 @@ class Vehicle(models.Model):
         string='Is rented',
         default=False,
     )
-    @api.depends('type')
-    def _compute_fuel_rate_inferior_20(self):
+    active = fields.Boolean(
+        default=True,
+    )
+    plan_ids = fields.One2many(
+        comodel_name='trucking_planning.plan',
+        string='Plans',
+        inverse_name='vehicle_id',
+    )
+    plan_line_ids = fields.One2many(
+        comodel_name='trucking_planning.plan.line',
+        string='Trips',
+        inverse_name='truck_id',
+    )
+    vehicle_driver_history_ids = fields.One2many(
+        comodel_name='trucking_planning.vehicle.driver.history',
+        inverse_name='vehicle_id',
+    )
+
+    @api.depends('type', 'engine_type')
+    def _compute_fuel_rates(self):
         for vehicle in self:
-            vehicle.fuel_rate_inferior_20 = 0.0
-            if vehicle.type == 'truck':
+            if vehicle.type != 'truck':
+                vehicle.fuel_rate_inferior_20 = 0.0
+                vehicle.fuel_rate_superior_20 = 0.0
+                vehicle.fuel_rate_mix = 0.0
+                continue
+
+            if vehicle.engine_type == 'small':
+                vehicle.fuel_rate_inferior_20 = 0.32
+                vehicle.fuel_rate_superior_20 = 0.35
+                vehicle.fuel_rate_mix = 0.38
+            else:  # big engine
                 vehicle.fuel_rate_inferior_20 = 0.35
-                if  vehicle.engine_type == 'small':
-                    vehicle.fuel_rate_inferior_20 = 0.32
-    @api.depends('type')
-    def _compute_fuel_rate_superior_20(self):
-        for vehicle in self:
-            vehicle.fuel_rate_superior_20 = 0.0
-            if vehicle.type == 'truck':
                 vehicle.fuel_rate_superior_20 = 0.38
-                if  vehicle.engine_type == 'small':
-                    vehicle.fuel_rate_superior_20 = 0.35
-    @api.depends('type','engine_type')
-    def _compute_fuel_rate_mix(self):
-        for vehicle in self:
-            vehicle.fuel_rate_mix = 0.0
-            if vehicle.type == 'truck':
                 vehicle.fuel_rate_mix = 0.42
-                if  vehicle.engine_type == 'small':
-                    vehicle.fuel_rate_mix = 0.38

@@ -18,11 +18,11 @@
         <!-- Locations -->
         <menuitem id="menu_location" name="Locations" parent="menu_trucking_master_data" action="action_location"/>
 
-        <!-- Routes -->
-        <menuitem id="menu_route" name="Routes" parent="menu_trucking_master_data" action="action_route"/>
-
         <!-- Clients -->
         <menuitem id="menu_client" name="Clients" parent="menu_trucking_master_data" action="action_client"/>
+
+        <!-- Routes -->
+        <menuitem id="menu_route" name="Routes" parent="menu_trucking_master_data" action="action_route"/>
 
         <!-- Vehicles -->
         <menuitem id="menu_vehicle" name="Vehicles" parent="menu_trucking_master_data" action="action_vehicle"/>
@@ -32,5 +32,7 @@
 
         <!-- Plans -->
         <menuitem id="menu_plan" name="Plans" parent="menu_trucking_operations" action="action_plan"/>
+        <!-- Trips -->
+        <menuitem id="menu_trip" name="Trips" parent="menu_trucking_operations" action="action_trip"/>
     </data>
 </odoo>

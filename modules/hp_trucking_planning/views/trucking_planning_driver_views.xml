@@ -8,8 +8,6 @@
                 <field name="name"/>
                 <field name="phone_number"/>
                 <field name="license_number"/>
-                <field name="truck_id"/>
-                <field name="trailer_id"/>
             </list>
         </field>
     </record>
@@ -25,26 +23,26 @@
                         <field name="cccd"/>
                         <field name="license_number"/>
                         <field name="contract_date"/>
+                        <field name="notes"/>
                     </group>
-                    <group>
-                        <field name="truck_id" domain="[('type', '=', 'truck')]"/>
-                        <field name="truck_registration_date"/>
-                        <field name="trailer_id" domain="[('type', '=', 'trailer')]"/>
-                        <field name="trailer_registration_date"/>
-                    </group>
-                    <notebook>
-                        <page string="Plans">
-                            <field name="plan_ids">
+                    <notebook invisible="not id">
+                        <page string="Trips">
+                            <field name="plan_line_ids" readonly="1">
                                 <list>
                                     <field name="code"/>
                                     <field name="date"/>
                                     <field name="route_id"/>
-                                    <field name="container_number"/>
                                 </list>
                             </field>
                         </page>
-                        <page string="Notes">
-                            <field name="notes"/>
+                        <page string="Vehicles">
+                            <field name="vehicle_driver_history_ids" readonly="True">
+                                <list>
+                                    <field name="vehicle_id"/>
+                                    <field name="action"/>
+                                    <field name="create_date"/>
+                                </list>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>
