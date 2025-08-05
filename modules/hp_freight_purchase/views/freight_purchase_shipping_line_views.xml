@@ -8,41 +8,25 @@
         <field name="priority">1</field>
         <field name="arch" type="xml">
             <form string="Shipping Line">
-                <sheet>
-                    <group>
-                        <field name="name" required="1" />
-                        <field name="email" required="1" />
-                        <field name="partner_main_type_id" invisible="1" />
-                    </group>
-                    <notebook>
-                        <page string="Bookings" name="bookings">
-                            <field name="booking_ids" readonly="1">
-                                <list>
-                                    <field name="code" />
-                                    <field name="quotation_id" />
-                                    <field name="route_id" />
-                                    <field name="vessel_id" />
-                                    <field name="etd" />
-                                    <field name="teu_volume" />
-                                    <field name="status" />
-                                    <field name="create_date" />
-                                </list>
-                            </field>
+                <group>
+                    <field name="name" string="Shipping Line Name" placeholder="e.g. Global Shipping Co." class="oe_form_field" required="1"/>
+                    <field name="email" string="Shipping Line Email" widget="email" placeholder="e.g. contact@shippingline.com" class="oe_form_field" required="1"/>
+                    <field name="partner_main_type_id" invisible="1" />
+                    <notebook invisible="not id">
+                        <page string="Quotations" invisible="not quotation_ids">
+                            <field name="quotation_ids"
+                                   context="{'list_view_ref': 'hp_freight_purchase.freight_purchase_quotation_short_list_view'}"
+                                   readonly="1"
+                            />
                         </page>
-                        <page string="Quotations" name="quotations">
-                            <field name="quotation_ids" readonly="1">
-                                <list>
-                                    <field name="route_id" />
-                                    <field name="available_from" string="From"/>
-                                    <field name="available_to" string="Until" />
-                                    <field name="is_active" string="Active" />
-                                    <field name="create_date" />
-                                </list>
-                            </field>
+                        <page string="Bookings" invisible="not booking_ids">
+                            <field name="booking_ids"
+                                   context="{'list_view_ref': 'hp_freight_purchase.freight_purchase_booking_short_list_view'}"
+                                   options="{'no_create': True, 'no_edit': True}" readonly="1"
+                            />
                         </page>
                     </notebook>
-                </sheet>
-                <chatter />
+                </group>
             </form>
         </field>
     </record>
