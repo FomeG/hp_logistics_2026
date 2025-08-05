@@ -4,30 +4,37 @@ from odoo import models, fields
 class Driver(models.Model):
     _name = 'trucking_planning.driver'
     _description = 'Driver'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(
         string='Name',
-        required=True
+        required=True,
+        tracking=True,
     )
     phone_number = fields.Char(
         string='Phone Number',
+        tracking=True,
     )
     cccd = fields.Char(
         string='CCCD',
         required=True,
+        tracking=True,
     )
     license_number = fields.Char(
         required=True,
         string='License Number',
+        tracking=True,
     )
     contract_date = fields.Date(
         string='Contract Date',
+        tracking=True,
     )
     notes = fields.Text(
         string='Notes',
     )
     active = fields.Boolean(
         default=True,
+        tracking=True,
     )
     plan_line_ids = fields.One2many(
         comodel_name='trucking_planning.plan.line',

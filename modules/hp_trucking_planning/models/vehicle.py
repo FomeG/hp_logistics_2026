@@ -4,7 +4,7 @@ from odoo import models, fields, api
 class Vehicle(models.Model):
     _name = 'trucking_planning.vehicle'
     _description = 'Trucking Planning Vehicle'
-    _inherit = ['unique.normalized.name.mixin']
+    _inherit = ['unique.normalized.name.mixin', 'mail.thread', 'mail.activity.mixin']
 
     type = fields.Selection([
         ('truck', 'Truck'),
@@ -12,16 +12,19 @@ class Vehicle(models.Model):
     ],
         default='truck',
         index=True,
-        required=True
+        required=True,
+        string="Type",
+        tracking=True,
     )
     name = fields.Char(
-        string='Số xe',
+        string='Number',
         required=True,
+        tracking=True,
     )
     engine_type = fields.Selection([
         ('small','Small'),
         ('big','Big'),
-    ],default='small')
+    ],default='small', string="Engine Type", tracking=True)
 
     trailer_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle',
@@ -43,28 +46,34 @@ class Vehicle(models.Model):
         default=0.0,
         store=True,
         string='Light',
+        tracking=True,
     )
     fuel_rate_superior_20 = fields.Float(
         compute='_compute_fuel_rates',
         default=0.0,
         store=True,
         string='Heavy',
+        tracking=True,
     )
     fuel_rate_mix = fields.Float(
         compute='_compute_fuel_rates',
         default=0.0,
         store=True,
         string='Mix',
+        tracking=True,
     )
     registration_date = fields.Date(
         string='Registration Date',
+        tracking=True,
     )
     is_rented = fields.Boolean(
         string='Is rented',
         default=False,
+        tracking=True,
     )
     active = fields.Boolean(
         default=True,
+        tracking=True,
     )
     plan_ids = fields.One2many(
         comodel_name='trucking_planning.plan',

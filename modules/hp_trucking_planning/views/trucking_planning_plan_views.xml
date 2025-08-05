@@ -10,6 +10,7 @@
                 <field name="vehicle_id"/>
                 <field name="driver_id" />
                 <field name="status"/>
+                <field name="create_date" groups="base.group_system" />
             </list>
         </field>
     </record>
@@ -25,7 +26,7 @@
                         </group>
                         <group>
                             <field name="date" required="1"/>
-                            <field name="vehicle_id"/>
+                            <field name="vehicle_id" required="1" />
                             <field name="driver_id" />
                             <field name="status"/>
                         </group>
@@ -51,7 +52,6 @@
                                         <field name="truck_id" />
                                         <field name="trailer_id" />
                                         <field name="is_rented"/>
-                                        <field name="note"/>
                                         <field name="weight_class"/>
                                         <field name="fuel_liters"/>
                                         <field name="total_cost"/>
@@ -60,6 +60,7 @@
                             </page>
                         </notebook>
                 </sheet>
+                <chatter />
             </form>
         </field>
     </record>

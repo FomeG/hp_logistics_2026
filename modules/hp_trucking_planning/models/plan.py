@@ -3,21 +3,23 @@ from odoo import models, fields, api
 class Plan(models.Model):
     _name = 'trucking_planning.plan'
     _description = 'Plan'
-    _inherit = ['unique.code.mixin']
+    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin']
     _order = 'date asc'
 
     name = fields.Char(
+        string="Name",
         readonly=True,
+        tracking=True,
     )
     date = fields.Date(
-        string='Ngày đóng trả hàng',
+        string='Return Shipment Date',
         required=True,
         index=True,
+        tracking=True,
     )
     vehicle_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle',
         domain="[('type', '=', 'truck')]",
-        required=True,
         index=True,
     )
     driver_id = fields.Many2one(
@@ -25,12 +27,15 @@ class Plan(models.Model):
         store=False,
     )
     status = fields.Selection([
-        ('active', 'Active'),
-        ('draft', 'Draft'),
-        ('pending', 'Pending'),
-        ('cancelled', 'Cancelled'),
-        ],default='active',
-        required=True
+            ('active', 'Active'),
+            ('draft', 'Draft'),
+            ('pending', 'Pending'),
+            ('cancelled', 'Cancelled'),
+        ],
+        default='active',
+        required=True,
+        string="Status",
+        tracking=True,
     )
     plan_line_ids = fields.One2many(
         comodel_name='trucking_planning.plan.line',

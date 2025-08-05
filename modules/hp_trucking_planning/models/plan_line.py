@@ -4,30 +4,36 @@ from odoo import models, api, fields
 class PlanLine(models.Model):
     _name = 'trucking_planning.plan.line'
     _description = 'Plan Line'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'date asc'
+
     plan_id = fields.Many2one(
         comodel_name='trucking_planning.plan',
         string='Plan',
         required=True,
     )
     code = fields.Char(
-        string='Job number',
-        required=True
+        string='Job Number',
+        required=True,
+        tracking=True,
     )
     date = fields.Date(
         required=True,
         related='plan_id.date',
         readonly=True,
-        string='Ngày đóng trả hàng',
+        string='Return Shipment Date',
+        tracking=True,
     )
     status = fields.Selection([
-        ('hpl_reject','HPL từ chối'),
-        ('client_cancel','KH huỷ'),
-        ('checking','Đang kiểm tra thông tin'),
-        ('transfer','Chuyển điều động'),
-        ('rented','Thuê ngoài')
+            ('hpl_reject','HPL Reject'),
+            ('client_cancel','Client Cancel'),
+            ('checking','Checking'),
+            ('transfer','Transfer'),
+            ('rented','Rented')
         ],
-        string='Status'
+        string='Status',
+        required=True,
+        tracking=True,
     )
     client_id = fields.Many2one(
         comodel_name='trucking_planning.client',
@@ -39,27 +45,34 @@ class PlanLine(models.Model):
         readonly=True,
         string='Tax number',
         store=True,
+        tracking=True,
     )
     booking = fields.Char(
+        string="Booking",
         required=True,
+        tracking=True,
     )
     container_number = fields.Char(
+        string="Container Number",
         required=True,
+        tracking=True,
     )
     seal_number = fields.Char(
+        string="Seal Number",
         required=True,
+        tracking=True,
     )
     container_type = fields.Selection([
-        ('dry','Khô'),
-        ('cool','Lạnh'),
+        ('dry','Dry'),
+        ('cool','Cool'),
         ('ot','OT'),
-        ('FT','ft')
-    ],required=True)
+        ('ft','FT')
+    ], string="Container Type", required=True, tracking=True)
 
     container_size = fields.Selection([
         ('20','20'),
         ('40','40')
-    ],required=True)
+    ], string="Container Size", required=True, tracking=True)
     shipping_line_id = fields.Many2one(
         comodel_name='trucking_planning.shipping_line',
         required=True,
@@ -67,7 +80,7 @@ class PlanLine(models.Model):
     plan_type = fields.Selection([
         ('export','Export'),
         ('import','Import'),
-    ],required=True)
+    ], string="Plan Type", required=True, tracking=True)
 
     route_id = fields.Many2one(
         comodel_name='trucking_planning.route', required=True
@@ -78,6 +91,7 @@ class PlanLine(models.Model):
         string='From Location',
         store=True,
         readonly=True,
+        tracking=True,
     )
     actual_destination_location_id = fields.Many2one(
         comodel_name='trucking_planning.location',
@@ -85,6 +99,7 @@ class PlanLine(models.Model):
         string = 'To Location',
         store=True,
         readonly=True,
+        tracking=True,
     )
     container_pickup = fields.Many2one(
         comodel_name="trucking_planning.location",
@@ -95,6 +110,7 @@ class PlanLine(models.Model):
         required=True,
     )
     contact_phone = fields.Char(
+        string="Contact Phone",
         related='goods_pickup_delivery.contact_phone',
     )
     container_delivery = fields.Many2one(
@@ -123,28 +139,37 @@ class PlanLine(models.Model):
     )
     is_rented = fields.Boolean(
         related='truck_id.is_rented',
-        string="Is Rented"
+        string="Is Rented",
+        tracking=True,
     )
-    contract_number = fields.Char()
-    note = fields.Text()
+    contract_number = fields.Char(
+        string="Contact Number",
+        tracking=True,
+    )
+    note = fields.Text(string="Note")
     weight_class = fields.Selection([
         ('inferior_20', '<20T'),
         ('superior_20', '>20T'),
         ('mix', 'Mix')
     ],
         required=True,
+        string="Weight Class",
+        tracking=True,
     )
-    extra_charge = fields.Float()
-    extra_fuel = fields.Float()
+    extra_charge = fields.Float(string="Extra Charge", tracking=True)
+    extra_fuel = fields.Float(string="Extra Fuel", tracking=True)
     fuel_liters = fields.Float(
         compute='_compute_fuel_liters',
         store=True,
-        string="Số lít dầu"
+        string="Fuel Liters",
+        tracking=True,
     )
     total_cost = fields.Float(
+        string="Total Cost",
         compute='_compute_total_cost',
         store=True,
         readonly=True,
+        tracking=True,
     )
     _sql_constraints = [
         ('unique_booking','Unique(booking)','Booking number is unique!'),

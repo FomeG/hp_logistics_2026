@@ -57,9 +57,21 @@
         </field>
     </record>
 
+    <record id="hp_trucking_planning_vehicle_form_search" model="ir.ui.view">
+        <field name="name">trucking.planning.vehicle.search</field>
+        <field name="model">trucking_planning.vehicle</field>
+        <field name="arch" type="xml">
+            <search string="List Vehicles">
+                <field name="name" />
+                <field name="type" />
+            </search>
+        </field>
+    </record>
+
     <record id="action_vehicle" model="ir.actions.act_window">
         <field name="name">Vehicles</field>
         <field name="res_model">trucking_planning.vehicle</field>
+        <field name="search_view_id" ref="hp_trucking_planning_vehicle_form_search" />
         <field name="view_mode">list,form</field>
         <field name="context">{'default_type': 'truck'}</field>
         <field name="domain">[('active', '=', True)]</field>
