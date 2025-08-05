@@ -54,12 +54,10 @@ class PlanLine(models.Model):
     )
     container_number = fields.Char(
         string="Container Number",
-        required=True,
         tracking=True,
     )
     seal_number = fields.Char(
         string="Seal Number",
-        required=True,
         tracking=True,
     )
     container_type = fields.Selection([
