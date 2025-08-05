@@ -9,6 +9,7 @@
     "license": "LGPL-3",
     'depends': ['base','hp_components'],
     'data': [
+        'security/hp_trucking_planning_security.xml',
         'security/ir.model.access.csv',
         'data/trucking_planning_sequences.xml',
 

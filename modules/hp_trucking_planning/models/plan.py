@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from ...hp_components.services.department_service import DepartmentService
 
 class Plan(models.Model):
     _name = 'trucking_planning.plan'
@@ -48,6 +49,6 @@ class Plan(models.Model):
         for vals in vals_list:
             if vals.get('name', '/') == '/':
                 seq = self.env['ir.sequence'].next_by_code('trucking_planning.plan') or '/'
-                vals['name'] = seq
+                vals['name'] = DepartmentService(self.env).buil_name_trucking_plan(seq)
         return super().create(vals_list)
 
