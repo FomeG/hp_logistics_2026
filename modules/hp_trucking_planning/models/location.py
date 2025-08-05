@@ -10,6 +10,7 @@ class Location(models.Model):
         ('container_pickup', 'Container Pickup'),
         ('goods_pickup_delivery', 'Goods Pickup/Delivery'),
         ('container_delivery', 'Container Delivery'),
+        ('route_point', 'Route Point'),
         ('port', 'Port'),
         ('warehouse', 'Warehouse'),
         ('factory', 'Factory'),

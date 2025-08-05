@@ -6,10 +6,14 @@
         <field name="arch" type="xml">
             <list>
                 <field name="name"/>
-                <field name="from_location_id"/>
-                <field name="to_location_id"/>
+                <field name="from_location_id" groups="base.group_system"/>
+                <field name="to_location_id" groups="base.group_system"/>
                 <field name="distance_km"/>
+                <field name="road_fee"/>
+                <field name="ticket_fee"/>
+                <field name="trip_salary"/>
                 <field name="total_cost"/>
+                <field name="extra_fuel" />
                 <field name="create_date" groups="base.group_system" />
             </list>
         </field>
