@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 
 
 class Location(models.Model):
@@ -53,3 +54,9 @@ class Location(models.Model):
         if country:
             res['country_id'] = country.id
         return res
+
+    @api.constrains('type', 'state_id')
+    def _check_state_required_for_route_point(self):
+        for record in self:
+            if record.type == 'route_point' and not record.state_id:
+                raise ValidationError("Province is required for Route Point locations.")
