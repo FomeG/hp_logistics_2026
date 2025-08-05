@@ -43,7 +43,11 @@ class Location(models.Model):
     state_id = fields.Many2one(
         comodel_name="res.country.state",
         string='Province',
-        domain="[('country_id.code', '=', 'VN')]",
+        domain="""[
+               '&',
+               ('country_id.code', '=', 'VN'),
+               ('name_unaccent', 'ilike', unaccent(%(user_input)s))
+           ]""",
         index=True,
     )
 
