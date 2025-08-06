@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 
 
 class Route(models.Model):
@@ -64,7 +65,7 @@ class Route(models.Model):
         tracking=True,
     )
 
-
+    @api.depends('road_fee','trip_salary')
     def _compute_total_cost(self):
         for route in self:
             route.total_cost = route.road_fee + route.trip_salary
@@ -81,19 +82,28 @@ class Route(models.Model):
                 route.name = f"{route.from_location_id.name} - {route.to_location_id.name}"
             else:
                 route.name = "New Route"
-    _sql_constraints = [
-        # Prevent duplicate routes in either direction
-        ('no_duplicate_routes',
-         "CHECK (from_location_id < to_location_id)",
-         "A route between these locations already exists (in either direction)"),
 
+    @api.constrains('from_location_id', 'to_location_id')
+    def _check_unique_route_pair(self):
+        for route in self:
+            if route.from_location_id == route.to_location_id:
+                raise ValidationError("Origin and destination must be different.")
+            existing_route = self.search([
+                ('id', '!=', route.id),
+                '|',
+                '&', ('from_location_id', '=', route.from_location_id.id),
+                ('to_location_id', '=', route.to_location_id.id),
+                '&', ('from_location_id', '=', route.to_location_id.id),
+                ('to_location_id', '=', route.from_location_id.id),
+            ])
+            if existing_route:
+                raise ValidationError(
+                    f"A route between {route.from_location_id.name} and "
+                    f"{route.to_location_id.name} already exists."
+                )
+    _sql_constraints = [
         # Prevent from and to being the same
         ('from_different_to',
          "CHECK (from_location_id != to_location_id)",
          "Origin and destination must be different"),
-
-        # Create a unique index on the sorted pair
-        ('unique_route_pair',
-         "UNIQUE (LEAST(from_location_id, to_location_id), GREATEST(from_location_id, to_location_id))",
-         "A route between these locations already exists"),
     ]
