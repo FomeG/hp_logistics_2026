@@ -1,27 +1,40 @@
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 
 
 class Location(models.Model):
     _name = 'trucking_planning.location'
     _description = 'Location'
-    _inherit = ['unique.code.mixin', 'unique.normalized.name.mixin']
+    _inherit = ['unique.code.mixin', 'unique.normalized.name.mixin', 'mail.thread', 'mail.activity.mixin']
+
     type = fields.Selection([
         ('container_pickup', 'Container Pickup'),
         ('goods_pickup_delivery', 'Goods Pickup/Delivery'),
         ('container_delivery', 'Container Delivery'),
+        ('route_point', 'Route Point'),
         ('port', 'Port'),
         ('warehouse', 'Warehouse'),
         ('factory', 'Factory'),
         ('other', 'Other')
-    ])
+    ], required=True, tracking=True)
     name = fields.Char(
+        string="Name",
         required=True,
+        tracking=True,
     )
     extra_fuel = fields.Boolean(
+        string="Extra Fuel",
         default=False,
+        tracking=True,
     )
-    address = fields.Char()
-    contact_phone = fields.Char()
+    address = fields.Char(
+        string="Address",
+        tracking=True,
+    )
+    contact_phone = fields.Char(
+        string="Contact Phone",
+        tracking=True,
+    )
     country_id = fields.Many2one(
         'res.country',
         string='Country',
@@ -29,8 +42,12 @@ class Location(models.Model):
     )
     state_id = fields.Many2one(
         comodel_name="res.country.state",
-        string='Tỉnh',
-        domain="[('country_id.code', '=', 'VN')]",
+        string='Province',
+        domain="""[
+               '&',
+               ('country_id.code', '=', 'VN'),
+               ('name_unaccent', 'ilike', unaccent(%(user_input)s))
+           ]""",
         index=True,
     )
 
@@ -41,3 +58,9 @@ class Location(models.Model):
         if country:
             res['country_id'] = country.id
         return res
+
+    @api.constrains('type', 'state_id')
+    def _check_state_required_for_route_point(self):
+        for record in self:
+            if record.type == 'route_point' and not record.state_id:
+                raise ValidationError("Province is required for Route Point locations.")

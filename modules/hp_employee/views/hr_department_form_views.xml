@@ -6,7 +6,11 @@
         <field name="inherit_id" ref="hr.view_department_form" />
         <field name="arch" type="xml">
             <xpath expr="//group/group/field[@name='name']" position="after">
-                <field name="department_type" />
+                <field name="department_type" readonly="id > 0"/>
+                <field name="department_area"
+                    invisible="department_type != 'trucking'"
+                    required="department_type == 'trucking'"
+                    readonly="id > 0" />
             </xpath>
             <xpath expr="//group/group/field[@name='manager_id']" position="attributes">
                 <attribute name="required">1</attribute>

@@ -6,6 +6,7 @@
         <field name="arch" type="xml">
             <list>
                 <field name="name"/>
+                <field name="create_date" groups="base.group_system" />
             </list>
         </field>
     </record>
@@ -19,12 +20,25 @@
                         <field name="name"/>
                     </group>
                 </sheet>
+                <chatter />
             </form>
         </field>
     </record>
+
+    <record id="hp_trucking_planning_shipping_line_form_search" model="ir.ui.view">
+        <field name="name">trucking.planning.client.search</field>
+        <field name="model">trucking_planning.shipping_line</field>
+        <field name="arch" type="xml">
+            <search string="List Shipping Lines">
+                <field name="name" />
+            </search>
+        </field>
+    </record>
+
     <record id="action_shipping_line" model="ir.actions.act_window">
         <field name="name">Shipping Lines</field>
         <field name="res_model">trucking_planning.shipping_line</field>
+        <field name="search_view_id" ref="hp_trucking_planning_shipping_line_form_search" />
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

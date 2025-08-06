@@ -10,6 +10,8 @@
                 <field name="vehicle_id"/>
                 <field name="driver_id" />
                 <field name="status"/>
+                <field name="total_trips" string="Trips" />
+                <field name="create_date" groups="base.group_system" />
             </list>
         </field>
     </record>
@@ -29,30 +31,25 @@
                             <field name="driver_id" />
                             <field name="status"/>
                         </group>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_trips"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-truck">
+                                <field name="total_trips" widget="statinfo" string="Trips"/>
+                            </button>
+                        </div>
                         <notebook>
                             <page string="Trips" invisible="not id">
                                 <field name="plan_line_ids" readonly="True">
                                     <list delete="false">
-                                        <field name="code" />
+                                        <field name="code" string="Job" />
                                         <field name="client_id"/>
                                         <field name="status"/>
-                                        <field name="booking"/>
-                                        <field name="plan_type"/>
-                                        <field name="container_type"/>
-                                        <field name="container_size"/>
-                                        <field name="shipping_line_id"/>
-                                        <field name="actual_source_location_id"/>
-                                        <field name="container_pickup"/>
-                                        <field name="goods_pickup_delivery"/>
-                                        <field name="contact_phone"/>
-                                        <field name="container_delivery"/>
-                                        <field name="actual_destination_location_id"/>
-                                        <field name="driver_id" />
-                                        <field name="truck_id" />
-                                        <field name="trailer_id" />
-                                        <field name="is_rented"/>
-                                        <field name="note"/>
-                                        <field name="weight_class"/>
+                                        <field name="plan_type" string="Direction"/>
+                                        <field name="actual_source_location_id" string="From"/>
+                                        <field name="actual_destination_location_id" string="To"/>
+                                        <field name="weight_class" string="Weight"/>
                                         <field name="fuel_liters"/>
                                         <field name="total_cost"/>
                                     </list>
@@ -60,6 +57,7 @@
                             </page>
                         </notebook>
                 </sheet>
+                <chatter />
             </form>
         </field>
     </record>

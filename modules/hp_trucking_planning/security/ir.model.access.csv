@@ -17,3 +17,4 @@ access_plan_line_user,trucking.plan_line.user,model_trucking_planning_plan_line,
 access_plan_line_manager,trucking.plan_line.manager,model_trucking_planning_plan_line,base.group_system,1,1,1,1
 access_vehicle_driver_history_user,trucking.vehicle_driver_history.user,model_trucking_planning_vehicle_driver_history,base.group_user,1,1,1,0
 access_vehicle_driver_history_manager,trucking.vehicle_driver_history.manager,model_trucking_planning_vehicle_driver_history,base.group_system,1,1,1,1
+access_plan_prefix_rule_manager,trucking.plan_prefix_rule.manager,model_trucking_planning_plan_prefix_rule,base.group_system,1,1,1,1

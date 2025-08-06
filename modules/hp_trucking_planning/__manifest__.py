@@ -9,6 +9,7 @@
     "license": "LGPL-3",
     'depends': ['base','hp_components'],
     'data': [
+        'security/hp_trucking_planning_security.xml',
         'security/ir.model.access.csv',
         'data/trucking_planning_sequences.xml',
 
@@ -20,6 +21,7 @@
         'views/trucking_planning_driver_views.xml',
         'views/trucking_planning_plan_views.xml',
         'views/trucking_planning_plan_line_views.xml',
+        'views/trucking_planning_plan_prefix_rule_views.xml',
         'views/trucking_planning_menu.xml',
     ],
     'installable': True,
