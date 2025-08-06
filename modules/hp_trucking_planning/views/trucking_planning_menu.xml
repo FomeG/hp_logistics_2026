@@ -3,14 +3,21 @@
         <!-- Main Menu -->
         <menuitem id="menu_trucking_root" name="Trucking Planning" sequence="10"/>
 
-        <!-- Master Data Submenu -->
-        <menuitem id="menu_trucking_master_data" name="Master Data" parent="menu_trucking_root" sequence="20"/>
-
         <!-- Operations Submenu -->
-        <menuitem id="menu_trucking_operations" name="Operations" parent="menu_trucking_root" sequence="30"/>
+        <menuitem id="menu_trucking_operations" name="Operations" parent="menu_trucking_root" sequence="20"/>
 
-                <!-- Configuration Submenu -->
+        <!-- Master Data Submenu -->
+        <menuitem id="menu_trucking_master_data" name="Master Data" parent="menu_trucking_root" sequence="30"/>
+
+        <!-- Configuration Submenu -->
         <menuitem id="menu_trucking_config" name="Configuration" parent="menu_trucking_root" sequence="40" groups="base.group_user"/>
+
+        <!-- Trips -->
+        <menuitem id="menu_trip" name="Trips" parent="menu_trucking_operations" action="action_trip"/>
+
+        <!-- Plans -->
+        <menuitem id="menu_plan" name="Plans" parent="menu_trucking_operations" action="action_plan"/>
+
 
         <!-- Shipping Lines -->
         <menuitem id="menu_shipping_line" name="Shipping Lines" parent="menu_trucking_master_data" action="action_shipping_line"/>
@@ -29,11 +36,6 @@
 
         <!-- Drivers -->
         <menuitem id="menu_driver" name="Drivers" parent="menu_trucking_master_data" action="action_driver"/>
-
-        <!-- Plans -->
-        <menuitem id="menu_plan" name="Plans" parent="menu_trucking_operations" action="action_plan"/>
-        <!-- Trips -->
-        <menuitem id="menu_trip" name="Trips" parent="menu_trucking_operations" action="action_trip"/>
 
         <menuitem id="menu_plan_prefix_rule" name="Prefix Rules" parent="menu_trucking_config" action="action_plan_prefix_rule"/>
     </data>
