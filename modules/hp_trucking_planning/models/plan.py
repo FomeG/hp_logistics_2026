@@ -68,3 +68,19 @@ class Plan(models.Model):
             record.total_trips = "0 Trip(s)"
             if record.plan_line_ids:
                 record.total_trips = f"{len(record.plan_line_ids)} Trip(s)"
+
+    def action_view_trips(self):
+        self.ensure_one()
+        return {
+            'name': 'Trips',
+            'res_model': 'trucking_planning.plan.line',
+            'view_mode': 'list,form',
+            'domain': [('plan_id', '=', self.id)],
+            'context': {
+                'default_plan_id': self.id,
+            },
+            'type': 'ir.actions.act_window',
+            'target': 'current',
+        }
+
+
