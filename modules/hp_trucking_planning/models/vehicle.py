@@ -1,5 +1,5 @@
 from odoo import models, fields, api
-
+import re
 
 class Vehicle(models.Model):
     _name = 'trucking_planning.vehicle'
@@ -107,3 +107,16 @@ class Vehicle(models.Model):
                 vehicle.fuel_rate_inferior_20 = 0.35
                 vehicle.fuel_rate_superior_20 = 0.38
                 vehicle.fuel_rate_mix = 0.42
+
+    def create(self, vals):
+        if vals.get('name'):
+            vals['name'] = self._clean_license_plate(vals['name'])
+        return super().create(vals)
+
+    def write(self, vals):
+        if vals.get('name'):
+            vals['name'] = self._clean_license_plate(vals['name'])
+        return super().write(vals)
+
+    def _clean_license_plate(self, plate):
+        return re.sub(r'[^A-Za-z0-9-]', '', plate)

@@ -25,9 +25,6 @@
         <field name="model">trucking_planning.vehicle</field>
         <field name="arch" type="xml">
             <form string="Vehicle">
-                <header>
-                    <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
-                </header>
                 <sheet>
                     <group>
                         <group string="Basic Information">
