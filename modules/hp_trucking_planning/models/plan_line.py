@@ -158,6 +158,9 @@ class PlanLine(models.Model):
     )
     extra_charge = fields.Float(string="Extra Charge", tracking=True)
     extra_fuel = fields.Float(string="Extra Fuel", tracking=True)
+    freeway = fields.Boolean(
+        default=False,
+    )
     fuel_liters = fields.Float(
         compute='_compute_fuel_liters',
         store=True,
