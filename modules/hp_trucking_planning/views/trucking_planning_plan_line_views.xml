@@ -13,23 +13,11 @@
                     <field name="status"/>
                     <field name="booking"/>
                     <field name="plan_type"/>
-                    <field name="container_type"/>
-                    <field name="container_size"/>
                     <field name="shipping_line_id"/>
-                    <field name="actual_source_location_id"/>
-                    <field name="freeway" />
-                    <field name="container_pickup"/>
-                    <field name="goods_pickup_delivery"/>
-                    <field name="contact_phone"/>
-                    <field name="container_delivery"/>
-                    <field name="actual_destination_location_id"/>
-                    <field name="driver_id" string="Driver" />
-                    <field name="truck_id" />
-                    <field name="trailer_id" />
-                    <field name="is_rented"/>
-                    <field name="note"/>
-                    <field name="fuel_liters"/>
-                    <field name="total_cost"/>
+                    <field name="route_info"/>
+                    <field name="container_info"/>
+                    <field name="location_info" />
+                    <field name="driver_info" />
                 </list>
             </field>
         </record>
@@ -61,6 +49,8 @@
                                     <field name="actual_source_location_id" readonly="1"/>
                                     <field name="actual_destination_location_id" readonly="1"/>
                                     <field name="freeway" />
+                                    <field name="plan_type"/>
+                                    <field name="weight_class"/>
                                 </group>
                                 <group>
                                     <field name="driver_id"/>
@@ -92,8 +82,6 @@
                                     <field name="seal_number"/>
                                     <field name="container_type"/>
                                     <field name="container_size"/>
-                                    <field name="plan_type"/>
-                                    <field name="weight_class"/>
                                 </group>
                             </page>
                             <page string="Notes">
@@ -104,7 +92,28 @@
                 </form>
             </field>
         </record>
+        <record id="view_plan_line_search" model="ir.ui.view">
+            <field name="name">plan_line.search</field>
+            <field name="model">trucking_planning.plan.line</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="code"/>
+                    <field name="client_id"/>
+                    <field name="booking" />
+                    <field name="status"/>
+                    <field name="driver_id"/>
+                    <field name="truck_id"/>
+                    <filter string="Freeway Trips" name="freeway" domain="[('freeway','=',True)]"/>
 
+                    <group expand="0" string="Group By">
+                        <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
+                        <filter string="Client" name="group_by_client" context="{'group_by':'client_id'}"/>
+                        <filter string="Driver" name="group_by_driver" context="{'group_by':'driver_id'}"/>
+                        <filter string="Date" name="group_by_date" context="{'group_by':'date:day'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
         <record id="action_trip" model="ir.actions.act_window">
             <field name="name">Trips</field>
             <field name="res_model">trucking_planning.plan.line</field>
