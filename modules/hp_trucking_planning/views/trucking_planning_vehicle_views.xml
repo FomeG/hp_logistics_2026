@@ -20,6 +20,21 @@
         </field>
     </record>
 
+    <record id="view_popup_plannin_vehicle_list" model="ir.ui.view">
+        <field name="name">trucking_planning.vehicle.list.popup</field>
+        <field name="model">trucking_planning.vehicle</field>
+        <field name="arch" type="xml">
+            <list string="Vehicles">
+                <field name="name" string="License Plate" />
+                <field name="type" string="Vehicle Type" />
+                <field name="engine_type" string="Engine Size" invisible="type == 'trailer'" />
+                <field name="primary_driver_id" string="Driver" invisible="type == 'trailer'" />
+                <field name="total_plan_in_month"/>
+                <field name="is_rented" string="Rented" />
+            </list>
+        </field>
+    </record>
+
     <record id="view_vehicle_form" model="ir.ui.view">
         <field name="name">trucking_planning.vehicle.form</field>
         <field name="model">trucking_planning.vehicle</field>
@@ -50,6 +65,7 @@
                         <field name="fuel_rate_mix" string="Kẹp" readonly="True"/>
                     </group>
                 </sheet>
+                <chatter />
             </form>
         </field>
     </record>
@@ -61,6 +77,10 @@
             <search string="List Vehicles">
                 <field name="name" />
                 <field name="type" />
+
+                <filter name="available_date_of_plan"
+                    string="Available on Selected Date"
+                    domain="[('is_available_on_date', '=', True)]" />
             </search>
         </field>
     </record>

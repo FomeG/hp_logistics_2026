@@ -7,7 +7,7 @@
     'category': 'HP',
     'version': '18.0.0.0.2',
     "license": "LGPL-3",
-    'depends': ['base','hp_components'],
+    'depends': ['base','hp_components', 'queue_job'],
     'data': [
         'security/hp_trucking_planning_security.xml',
         'security/ir.model.access.csv',
