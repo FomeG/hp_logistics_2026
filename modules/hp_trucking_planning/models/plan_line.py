@@ -26,6 +26,18 @@ class PlanLine(models.Model):
         string='Return Shipment Date',
         tracking=True,
     )
+    plan_month = fields.Integer(
+        string='Plan Month',
+        compute='_compute_plan_month_year',
+        store=True,
+        readonly=True,
+    )
+    plan_year = fields.Integer(
+        string='Plan Year',
+        compute='_compute_plan_month_year',
+        store=True,
+        readonly=True,
+    )
     status = fields.Selection([
             ('hpl_reject','HPL Reject'),
             ('client_cancel','Client Cancel'),
@@ -193,6 +205,16 @@ class PlanLine(models.Model):
     _sql_constraints = [
         ('unique_booking','Unique(booking)','Booking number is unique!'),
     ]
+
+    @api.depends('plan_id.date')
+    def _compute_plan_month_year(self):
+        for record in self:
+            if record.plan_id.date:
+                record.plan_month = record.plan_id.date.month
+                record.plan_year = record.plan_id.date.year
+            else:
+                record.plan_month = False
+                record.plan_year = False
 
     @api.depends('plan_type', 'route_id')
     def _compute_actual_locations(self):

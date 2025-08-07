@@ -106,6 +106,8 @@
                     <field name="status"/>
                     <field name="driver_id"/>
                     <field name="truck_id"/>
+                    <field name="plan_month" />
+                    <field name="plan_year" />
                     <filter string="Freeway Trips" name="freeway" domain="[('freeway','=',True)]"/>
 
                     <group expand="0" string="Group By">
@@ -113,6 +115,8 @@
                         <filter string="Client" name="group_by_client" context="{'group_by':'client_id'}"/>
                         <filter string="Driver" name="group_by_driver" context="{'group_by':'driver_id'}"/>
                         <filter string="Date" name="group_by_date" context="{'group_by':'date:day'}"/>
+                        <filter string="Month" name="plan_month" context="{'group_by': 'plan_month'}" />
+                        <filter string="Year" name="plan_year" context="{'group_by': 'plan_year'}" />
                     </group>
                 </search>
             </field>

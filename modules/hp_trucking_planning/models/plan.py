@@ -19,6 +19,18 @@ class Plan(models.Model):
         index=True,
         tracking=True,
     )
+    month = fields.Integer(
+        string='Month',
+        compute='_compute_month_year',
+        store=True,
+        readonly=True,
+    )
+    year = fields.Integer(
+        string='Year',
+        compute='_compute_month_year',
+        store=True,
+        readonly=True,
+    )
     vehicle_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle',
         domain="[('type', '=', 'truck')]",
@@ -48,6 +60,16 @@ class Plan(models.Model):
         compute='_compute_total_trips',
         store=False
     )
+
+    @api.depends('date')
+    def _compute_month_year(self):
+        for record in self:
+            if record.date:
+                record.month = record.date.month
+                record.year = record.date.year
+            else:
+                record.month = False
+                record.year = False
 
     @api.model_create_multi
     def create(self, vals_list):

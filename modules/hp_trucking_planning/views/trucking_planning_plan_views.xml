@@ -78,6 +78,9 @@
             <search string="Plan Search">
                 <field name="vehicle_id"/>
                 <field name="name" string="Reference"/>
+                <field name="month" string="Month" />
+                <field name="year" string="Year" />
+
                 <filter string="Draft" name="draft" domain="[('status','=','draft')]"/>
                 <filter string="Active" name="active" domain="[('status','=','active')]"/>
                 <filter string="Pending" name="pending" domain="[('status','=','pending')]"/>
@@ -86,6 +89,8 @@
                     <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
                     <filter string="Vehicle" name="group_by_vehicle" context="{'group_by':'vehicle_id'}"/>
                     <filter string="Date" name="group_by_date" context="{'group_by':'date'}"/>
+                    <filter string="Month" name="month" context="{'group_by': 'month'}" />
+                    <filter string="Year" name="year" context="{'group_by': 'year'}" />
                 </group>
             </search>
         </field>
