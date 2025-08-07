@@ -29,6 +29,7 @@
                             <field name="date" required="1"/>
                             <field name="vehicle_id"
                                 invisible="not date"
+                                widget="many2one_new_tab"
                                 context="{
                                     'list_view_ref': 'hp_trucking_planning.view_popup_plannin_vehicle_list',
                                     'search_view_ref': 'hp_trucking_planning.hp_trucking_planning_vehicle_form_search',
@@ -36,7 +37,7 @@
                                     'check_date': date,
                                 }" />
 
-                            <field name="driver_id" />
+                            <field name="driver_id" widget="many2one_new_tab" />
                             <field name="status"/>
                         </group>
                         <div class="oe_button_box" name="button_box">
