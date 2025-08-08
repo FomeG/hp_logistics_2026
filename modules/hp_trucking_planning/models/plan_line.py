@@ -797,3 +797,8 @@ Biển số rơ mooc, sơmi rơmooc:""")
     def _compute_driver_info(self):
         for trip in self:
             trip.driver_info = f"{trip.driver_id.name},{trip.truck_id.name}"
+
+    @api.onchange('route_id')
+    def _on_route_change(self):
+        for trip in self:
+            trip.plan_type = trip.route_id.direction

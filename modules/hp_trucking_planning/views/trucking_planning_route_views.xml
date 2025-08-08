@@ -32,6 +32,7 @@
                         <field name="from_state_id" readonly="1" widget="many2one_new_tab" />
                         <field name="to_location_id" widget="many2one_new_tab" />
                         <field name="to_state_id" readonly="1" widget="many2one_new_tab" />
+                        <field name="direction" />
                         <field name="extra_fuel" readonly="1"/>
                     </group>
                     <group>

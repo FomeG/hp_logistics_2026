@@ -64,6 +64,10 @@ class Route(models.Model):
         string='Distance KM',
         tracking=True,
     )
+    direction = fields.Selection([
+        ('export','Export'),
+        ('import','Import'),
+    ],default='export',)
 
     @api.depends('road_fee','trip_salary')
     def _compute_total_cost(self):
