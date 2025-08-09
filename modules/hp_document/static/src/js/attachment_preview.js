@@ -1,32 +1,30 @@
 /** @odoo-module **/
-import {registry} from "@web/core/registry";
-import {Component, useState} from "@odoo/owl";
-import {FileInput} from "@web/core/file_input/file_input";
-import {standardFieldProps} from "@web/views/fields/standard_field_props";
-import {useService} from "@web/core/utils/hooks";
-import {useX2ManyCrud} from "@web/views/fields/relational_utils";
 
-/**
- * The HPDocumentAttachmentPreview component is designed to manage the preview and handling
- * of attachment files in the hp_document module. It allows users to view and download files
- * with a modern UI using Fancybox for previews.
- */
-export class HPDocumentAttachmentPreview extends Component {
-    static template = 'hp_document.AttachmentPreview'
+import { registry } from "@web/core/registry";
+import { Component, useState } from "@odoo/owl";
+import { FileInput } from "@web/core/file_input/file_input";
+import { standardFieldProps } from "@web/views/fields/standard_field_props";
+import { useService } from "@web/core/utils/hooks";
+import { useX2ManyCrud } from "@web/views/fields/relational_utils";
+
+class HPDocumentAttachmentPreview extends Component {
+    static template = "hp_document.AttachmentPreview";
+
     static components = {
         FileInput,
     };
+
     static props = {
         ...standardFieldProps,
-        acceptedFileExtensions: {type: String, optional: true},
-        className: {type: String, optional: true},
-        numberOfFiles: {type: Number, optional: true},
+        acceptedFileExtensions: { type: String, optional: true },
+        className: { type: String, optional: true },
+        numberOfFiles: { type: Number, optional: true },
     };
 
     setup() {
         this.orm = useService("orm");
         this.notification = useService("notification");
-        this.operations = useX2ManyCrud(() => this.props.value, true);
+        this.operations = useX2ManyCrud(() => this.props.value, true); // Already handles fetch
         this.state = useState({
             flag: false,
         });
@@ -66,18 +64,15 @@ export class HPDocumentAttachmentPreview extends Component {
     }
 
     async onFileRemove(deleteId) {
-        const record = this.props.value.records.find((record) => record.data.id === deleteId);
+        const record = this.props.value.records.find(
+            (record) => record.data.id === deleteId
+        );
         this.operations.removeRecord(record);
     }
 }
 
-HPDocumentAttachmentPreview.supportedTypes = ["many2many"];
-HPDocumentAttachmentPreview.fieldsToFetch = {
-    name: {
-        type: 'char'
-    },
-    mimetype: {
-        type: 'char'
-    },
-}
-registry.category("fields").add("hp_document_attachment_preview", HPDocumentAttachmentPreview) 
+// ✅ Correct registry without `fieldsToFetch`
+registry.category("fields").add("hp_document_attachment_preview", {
+    component: HPDocumentAttachmentPreview,
+    supportedTypes: ["many2many"],
+});
