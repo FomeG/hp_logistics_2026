@@ -26,6 +26,18 @@ class PlanLine(models.Model):
         string='Return Shipment Date',
         tracking=True,
     )
+    plan_month = fields.Integer(
+        string='Plan Month',
+        compute='_compute_plan_month_year',
+        store=True,
+        readonly=True,
+    )
+    plan_year = fields.Integer(
+        string='Plan Year',
+        compute='_compute_plan_month_year',
+        store=True,
+        readonly=True,
+    )
     status = fields.Selection([
             ('hpl_reject','HPL Reject'),
             ('client_cancel','Client Cancel'),
@@ -40,7 +52,6 @@ class PlanLine(models.Model):
     client_id = fields.Many2one(
         comodel_name='trucking_planning.client',
         required=True,
-        inverse_name='plan_line_ids',
     )
     tax_number = fields.Char(
         related='client_id.tax_number',
@@ -158,6 +169,9 @@ class PlanLine(models.Model):
     )
     extra_charge = fields.Float(string="Extra Charge", tracking=True)
     extra_fuel = fields.Float(string="Extra Fuel", tracking=True)
+    freeway = fields.Boolean(
+        default=False,
+    )
     fuel_liters = fields.Float(
         compute='_compute_fuel_liters',
         store=True,
@@ -171,13 +185,38 @@ class PlanLine(models.Model):
         readonly=True,
         tracking=True,
     )
-
+    route_info = fields.Text(
+        compute='_compute_route_info',
+        store=False,
+    )
+    container_info = fields.Char(
+        compute='_compute_container_info',
+        store=False,
+    )
+    location_info = fields.Text(
+        compute='_compute_location_info',
+        store=False,
+    )
+    driver_info = fields.Text(
+        compute='_compute_driver_info',
+        store=False,
+    )
 
 
 
     _sql_constraints = [
         ('unique_booking','Unique(booking)','Booking number is unique!'),
     ]
+
+    @api.depends('plan_id.date')
+    def _compute_plan_month_year(self):
+        for record in self:
+            if record.plan_id.date:
+                record.plan_month = record.plan_id.date.month
+                record.plan_year = record.plan_id.date.year
+            else:
+                record.plan_month = False
+                record.plan_year = False
 
     @api.depends('plan_type', 'route_id')
     def _compute_actual_locations(self):
@@ -760,3 +799,26 @@ class PlanLine(models.Model):
 #         sig_cells[2].add_paragraph()
 #
 #         return doc
+
+    def _compute_route_info(self):
+        for trip in self:
+            freeway_text = '(freeway)' if trip.freeway else ''
+            trip.route_info = f"{trip.actual_source_location_id.name} - {trip.actual_destination_location_id.name} {freeway_text}"
+
+    def _compute_container_info(self):
+        for trip in self:
+            trip.container_info = f"{trip.container_type},{trip.container_size}"
+
+    def _compute_location_info(self):
+        for trip in self:
+            contact_info = f"({trip.contact_phone})" if trip.contact_phone else ""
+            trip.location_info = f"{trip.container_pickup.name},{trip.goods_pickup_delivery.name} {contact_info},{trip.container_delivery.name}"
+
+    def _compute_driver_info(self):
+        for trip in self:
+            trip.driver_info = f"{trip.driver_id.name},{trip.truck_id.name}"
+
+    @api.onchange('route_id')
+    def _on_route_change(self):
+        for trip in self:
+            trip.plan_type = trip.route_id.direction

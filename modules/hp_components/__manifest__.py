@@ -8,6 +8,11 @@
     "license": "LGPL-3",
     'depends': ['base','project','sale','mail','component','component_event', 'queue_job'],
     'data': [],
+    'assets': {
+        'web.assets_backend': [
+            'hp_components/static/src/js/many2one_new_tab.js',
+        ],
+    },
     'installable': True,
     'application': False,
 }

@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 from ...hp_components.services.department_service import DepartmentService
+from ..services.planning_service import planning_service
 
 class Plan(models.Model):
     _name = 'trucking_planning.plan'
@@ -17,6 +18,18 @@ class Plan(models.Model):
         required=True,
         index=True,
         tracking=True,
+    )
+    month = fields.Integer(
+        string='Month',
+        compute='_compute_month_year',
+        store=True,
+        readonly=True,
+    )
+    year = fields.Integer(
+        string='Year',
+        compute='_compute_month_year',
+        store=True,
+        readonly=True,
     )
     vehicle_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle',
@@ -48,19 +61,53 @@ class Plan(models.Model):
         store=False
     )
 
+    @api.depends('date')
+    def _compute_month_year(self):
+        for record in self:
+            if record.date:
+                record.month = record.date.month
+                record.year = record.date.year
+            else:
+                record.month = False
+                record.year = False
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             if vals.get('name', '/') == '/':
                 user = self.env.user
-                rule = self.env['trucking_planning.plan.prefix.rule'].search([
+                branch = self.env['trucking_planning.branch'].search([
                     ('user_ids', 'in', [user.id]),
                 ], limit=1)
-                prefix = rule.name if rule else 'PLAN'
+                prefix = branch.plan_prefix if branch else 'PLAN'
                 today = fields.Date.today().strftime('%Y%m%d')
                 seq_number = self.env['ir.sequence'].next_by_code('trucking_planning.plan')
                 vals['name'] = f"{prefix}/{today}/{seq_number}"
-        return super().create(vals_list)
+
+        records = super().create(vals_list)
+        for record in records:
+            if record.vehicle_id and record.date:
+                record.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
+                    vehicle_id=record.vehicle_id.id,
+                    date_plan=record.date,
+                    exclude_plan_id=record.id
+                )
+    
+        return records
+    
+    def write(self, vals):
+        result = super().write(vals)
+
+        if 'vehicle_id' in vals or 'date' in vals:
+            for record in self:
+                if record.vehicle_id and record.date:
+                    record.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
+                        vehicle_id=record.vehicle_id.id,
+                        date_plan=record.date,
+                        exclude_plan_id=record.id
+                    )
+    
+        return result
 
     @api.depends('plan_line_ids')
     def _compute_total_trips(self):
@@ -83,4 +130,5 @@ class Plan(models.Model):
             'target': 'current',
         }
 
-
+    def remove_vehicle_driver_of_plan_and_plan_line(self, vehicle_id, date_plan, exclude_plan_id):
+        planning_service(self.env).remove_vehicle_driver_by_vehicle_and_date_plan(vehicle_id, date_plan, exclude_plan_id)

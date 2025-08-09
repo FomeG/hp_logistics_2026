@@ -30,8 +30,8 @@
                             <field name="route_ids" mode="kanban,form,tree">
                                 <list>
                                     <field name="name"/>
-                                    <field name="from_location_id"/>
-                                    <field name="to_location_id"/>
+                                    <field name="from_location_id" widget="many2one_new_tab" />
+                                    <field name="to_location_id" widget="many2one_new_tab" />
                                     <field name="distance_km"/>
                                 </list>
                             </field>

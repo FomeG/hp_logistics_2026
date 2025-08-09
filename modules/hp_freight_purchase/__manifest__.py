@@ -59,9 +59,7 @@
     #     'demo/vessels_demo.xml',
     # ],
     'assets': {
-        'web.assets_backend': [
-            'hp_freight_purchase/static/src/js/many2one_new_tab.js',
-        ],
+        'web.assets_backend': [],
     },
     'installable': True,
     'application': True

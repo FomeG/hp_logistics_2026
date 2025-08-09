@@ -28,10 +28,11 @@
                         <field name="name" placeholder="Enter route name"/>
                     </group>
                     <group>
-                        <field name="from_location_id"/>
-                        <field name="from_state_id" readonly="1"/>
-                        <field name="to_location_id"/>
-                        <field name="to_state_id" readonly="1"/>
+                        <field name="from_location_id" widget="many2one_new_tab" />
+                        <field name="from_state_id" readonly="1" widget="many2one_new_tab" />
+                        <field name="to_location_id" widget="many2one_new_tab" />
+                        <field name="to_state_id" readonly="1" widget="many2one_new_tab" />
+                        <field name="direction" />
                         <field name="extra_fuel" readonly="1"/>
                     </group>
                     <group>
@@ -42,6 +43,7 @@
                         <field name="total_cost" readonly="1"/>
                     </group>
                 </sheet>
+                <chatter />
             </form>
         </field>
     </record>

@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 import re
+import calendar
 
 class Vehicle(models.Model):
     _name = 'trucking_planning.vehicle'
@@ -89,6 +90,49 @@ class Vehicle(models.Model):
         comodel_name='trucking_planning.vehicle.driver.history',
         inverse_name='vehicle_id',
     )
+    branch_id = fields.Many2one(
+        comodel_name='trucking_planning.branch',
+        index=True,
+    )
+    total_plan_in_month = fields.Integer(string="Total Plan In Month", compute='_compute_total_plan_in_month', store=False)
+    is_available_on_date = fields.Boolean(
+        string='Available on Date Plan',
+        compute='_compute_is_available_on_date',
+        search='_search_is_available_on_date'
+    )
+    
+    @api.depends('plan_ids.date')
+    def _compute_total_plan_in_month(self):
+        today = fields.Date.today()
+        month_start = today.replace(day=1)
+        last_day = calendar.monthrange(today.year, today.month)[1]
+        month_end = today.replace(day=last_day)
+
+        plan = self.env['trucking_planning.plan']
+
+        for rec in self:
+            rec.total_plan_in_month = plan.search_count([
+                ('vehicle_id', '=', rec.id),
+                ('date', '>=', month_start),
+                ('date', '<=', month_end),
+            ])
+
+    @api.depends('plan_ids', 'plan_ids.date')
+    def _compute_is_available_on_date(self):
+        check_date = self.env.context.get('check_date', fields.Date.today())
+        for vehicle in self:
+            vehicle.is_available_on_date = not any(
+                plan.date == check_date for plan in vehicle.plan_ids
+            )
+    
+    def _search_is_available_on_date(self, operator, value):
+        check_date = self.env.context.get('check_date', fields.Date.today())
+        busy_vehicle_ids = self.env['trucking_planning.plan'].search([
+            ('date', '=', check_date)
+        ]).mapped('vehicle_id.id')
+
+        return [('id', 'not in', busy_vehicle_ids)]
+    
 
     @api.depends('type', 'engine_type')
     def _compute_fuel_rates(self):
@@ -108,10 +152,12 @@ class Vehicle(models.Model):
                 vehicle.fuel_rate_superior_20 = 0.38
                 vehicle.fuel_rate_mix = 0.42
 
-    def create(self, vals):
-        if vals.get('name'):
-            vals['name'] = self._clean_license_plate(vals['name'])
-        return super().create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('name'):
+                vals['name'] = self._clean_license_plate(vals['name'])
+        return super().create(vals_list)
 
     def write(self, vals):
         if vals.get('name'):
