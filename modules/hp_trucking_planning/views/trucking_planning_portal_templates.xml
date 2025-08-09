@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="portal_trip_template" name="Trip Order Portal" inherit_id="portal.portal_sidebar" primary="True">
+        <xpath expr="//div[hasclass('o_portal_sidebar')]" position="inside">
+            <t t-set="o_portal_fullwidth_alert" groups="base.group_user">
+                <!-- Uses backend_url provided in rendering values -->
+                <t t-call="portal.portal_back_in_edit_mode"/>
+            </t>
+
+            <div class="row o_portal_sale_sidebar">
+                <!-- Sidebar -->
+                <t t-call="portal.portal_record_sidebar" id="trip_order_portal_sidebar">
+                    <t t-set="classes" t-value="'col-lg-4 col-xxl-3 d-print-none'"/>
+
+                    <t t-set="title">
+                        <h2 t-field="trip_order.code" class="mb-0 text-break"/>
+                    </t>
+                    <t t-set="entries">
+                        <div class="d-flex flex-column gap-4 mt-3">
+                            <div class="d-flex flex-column gap-2" id="trip_order_sidebar_button">
+                                <div class="o_download_pdf d-flex gap-2 flex-lg-column flex-xl-row flex-wrap">
+                                    <a class="btn btn-light o_print_btn o_portal_invoice_print flex-grow-1" t-att-href="trip_order.get_portal_url(report_type='pdf')" id="print_trip_report" title="View Details" role="button" target="_blank"><i class="fa fa-print me-1"/>View Details</a>
+                                </div>
+                            </div>
+
+                            <div class="navspy flex-grow-1 ps-0" t-ignore="true" role="complementary">
+                                <ul class="nav flex-column bs-sidenav"></ul>
+                            </div>
+
+                            <div t-if="trip_order.driver_id">
+                                <h6><small class="text-muted">Driver</small></h6>
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <div class="fw-bold"><span t-field="trip_order.driver_id.name"/></div>
+                                        <small class="text-muted" t-if="trip_order.driver_id.phone_number"><span t-field="trip_order.driver_id.phone_number"/></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+
+                <!-- Page content -->
+                <div id="trip_content" class="col-12 col-lg-8 col-xxl-9 mt-5 mt-lg-0">
+                    <div class="o_portal_sale_sidebar_content">
+                        <!-- Header Section - Moved from top header -->
+                        <div class="row mb-4">
+                            <!-- Left: Business Information -->
+                            <div class="col-6">
+                                <div class="text-start">
+                                    <strong>1. Thông tin về đơn vị kinh doanh</strong><br/>
+                                    <strong>Đơn vị vận tải: CHI NHÁNH CÔNG TY CP TIẾP VẬN HP TẠI TP. HẢI PHÒNG</strong><br/>
+                                    <strong>Địa chỉ: Room 202A, Dau Khi Hotel, 441 Da Nang Street, Hai An, Hai Phong, Vietnam</strong><br/>
+                                    <strong>Tel: +84 225 3556133 Fax: +84 225 3556132</strong>
+                                </div>
+                            </div>
+                            <!-- Right: National Motto -->
+                            <div class="col-6">
+                                <div class="text-center">
+                                    <div>CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+                                    <div><u>Độc lập - Tự do - Hạnh phúc</u></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Document Title -->
+                        <div class="text-center mb-4">
+                            <h2><strong>GIẤY VẬN TẢI</strong></h2>
+                            <p class="small">(Ban hành kèm theo Thông tư số: 63/2014/TT-BGTVT ngày 07 tháng 11 năm 2014 của Bộ trưởng Bộ giao thông vận tải)</p>
+                        </div>
+
+                        <!-- Document Info - Now includes driver information -->
+                        <div class="row mb-4">
+                            <div class="col-4">
+                                <strong>2. Thông tin về người lái xe</strong><br/>
+                                Tên tài xế: <strong><span t-field="trip_order.driver_id.name"/></strong><br/>
+                                Số điện thoại liên hệ: <strong><span t-field="trip_order.driver_id.phone_number"/></strong>
+                            </div>
+                            <div class="col-4">
+                                <strong>Số Xe: <span t-field="trip_order.truck_id.name"/></strong>
+                            </div>
+                            <div class="col-4 text-end">
+                                <strong>Số: <span t-field="trip_order.code"/></strong><br/>
+                                <strong>Ngày đóng/trả hàng: <span t-field="trip_order.date" t-options='{"widget": "date"}'/></strong>
+                            </div>
+                        </div>
+
+                        <!-- Main Three-Column Table -->
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th class="text-center"><strong>Hàng Đi</strong></th>
+                                    <th class="text-center"><strong>Hàng Về</strong></th>
+                                    <th class="text-center"><strong>Cấp Phép</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <!-- Left Column: Hàng Đi -->
+                                    <td class="align-top">
+                                        <div class="mb-3">
+                                            <strong>Số booking HPL: <span t-field="trip_order.booking"/></strong>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <strong>3. Thông tin về người thuê vận tải</strong><br/>
+                                            Tên người thuê vận chuyển: <strong><span t-field="trip_order.client_id.name"/></strong><br/>
+                                            Địa chỉ: <strong>N/A</strong>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <strong>4. Thông tin về hợp đồng vận tải</strong><br/>
+                                            Số hợp đồng: <span t-field="trip_order.contract_number"/><br/>
+                                            Số bill/booking: <strong><span t-field="trip_order.booking"/></strong><br/>
+                                            Số cont: <strong><span t-field="trip_order.container_number"/></strong><br/>
+                                            Số seal: <span t-field="trip_order.seal_number"/><br/>
+                                            Loại cont: <span t-field="trip_order.container_type"/><br/>
+                                            Kích thước: <strong><span t-field="trip_order.container_size"/></strong>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <strong>5. Thông tin về chuyến đi</strong><br/>
+                                            Tuyến vận chuyển: <span t-field="trip_order.route_id.name"/><br/>
+                                            Điểm xếp hàng: <span t-field="trip_order.container_pickup.name"/><br/>
+                                            Điểm giao hàng: <span t-field="trip_order.container_delivery.name"/><br/>
+                                            Nơi trả vỏ: <span t-field="trip_order.container_pickup.name"/><br/>
+                                            Thời gian vận chuyển dự kiến:<br/>
+                                            Bắt đầu từ: <strong><span t-field="trip_order.date" t-options='{"widget": "date"}'/></strong> đến: <strong><span t-field="trip_order.date" t-options='{"widget": "date"}'/></strong><br/>
+                                            Tổng số km dự kiến: <strong><span t-field="trip_order.route_id.distance_km"/></strong><br/>
+                                            Liên hệ: <strong><span t-field="trip_order.contact_phone"/></strong>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <strong>6. Thông tin về hàng hóa</strong><br/>
+                                            Tên hàng hóa: <span t-field="trip_order.note"/><br/>
+                                            Khối lượng hàng hóa (<strong>tấn</strong>): <strong>28.00</strong><br/>
+                                            Cắt máng: 
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <strong>7. Thông tin về rơ mooc, sơ mi ro mooc</strong><br/>
+                                            Biển số rơ mooc, sơmi rơmooc: <strong><span t-field="trip_order.trailer_id.name"/></strong>
+                                        </div>
+                                    </td>
+
+                                    <!-- Middle Column: Hàng Về -->
+                                    <td class="align-top">
+                                        <div class="mb-3">
+                                            <strong>Số booking HPL:</strong>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <strong>3. Thông tin về người thuê vận tải</strong><br/>
+                                            Tên người thuê vận chuyển:<br/>
+                                            Địa chỉ:
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <strong>4. Thông tin về hợp đồng vận tải</strong><br/>
+                                            Số hợp đồng:<br/>
+                                            Số bill/booking:<br/>
+                                            Số cont:<br/>
+                                            Số seal:<br/>
+                                            Loại cont:<br/>
+                                            Kích thước:
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <strong>5. Thông tin về chuyến đi</strong><br/>
+                                            Tuyến vận chuyển:<br/>
+                                            Điểm xếp hàng:<br/>
+                                            Điểm giao hàng:<br/>
+                                            Nơi trả vỏ:<br/>
+                                            Thời gian vận chuyển dự kiến:<br/>
+                                            Bắt đầu từ: đến<br/>
+                                            Tổng số km dự kiến: <strong>0.00</strong><br/>
+                                            Liên hệ:
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <strong>6. Thông tin về hàng hóa</strong><br/>
+                                            Tên hàng hóa:<br/>
+                                            Khối lượng hàng hóa (<strong>tấn</strong>): <strong>0.00</strong><br/>
+                                            Cắt máng:
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <strong>7. Thông tin về rơ mooc, sơ mi ro mooc</strong><br/>
+                                            Biển số rơ mooc, sơmi rơmooc:
+                                        </div>
+                                    </td>
+
+                                    <!-- Right Column: Cấp Phép -->
+                                    <td class="align-top">
+                                        <div class="mb-3">
+                                            <strong>Nhiên Liệu - (LÍT DIZEL)</strong><br/>
+                                            Tồn trước (lít): <strong>0</strong><br/>
+                                            Được lĩnh (lít): <strong>70</strong><br/>
+                                            Tổng cộng (lít): <strong><span t-field="trip_order.fuel_liters"/></strong>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <strong>TIỀN CHI PHÍ -(ĐỒNG)</strong><br/>
+                                            Vé cầu đường: <strong>392,000</strong><br/>
+                                            Chi phí khác: <strong>0</strong><br/>
+                                            Đi đường: <strong>400,000</strong><br/>
+                                            Tổng Cộng: <strong><span t-field="trip_order.total_cost"/></strong>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <br/><br/><br/><br/><br/><br/>
+                                            Nâng hàng/vỏ: <strong>0</strong><br/>
+                                            Hạ vỏ/hàng: <strong>0</strong><br/>
+                                            Tổng cộng: <strong>0</strong><br/>
+                                            Tổng Tiền: <strong><span t-field="trip_order.total_cost"/></strong>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Loading/Unloading Section -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h5><strong>8. Phần dành cho người xếp, dỡ hàng hóa lên, xuống xe ghi</strong></h5>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>Thông tin về xếp hàng lên xe</strong><br/>
+                                - Xếp lần 1: Địa điểm<br/>
+                                Khối lượng hàng: <strong>(tấn) thời gian:</strong><br/>
+                                Xác nhận của người xếp hàng:<br/><br/>
+                                - Xếp lần 2: Địa điểm<br/>
+                                Khối lượng hàng: <strong>(tấn) thời gian:</strong><br/>
+                                Xác nhận của người xếp hàng:
+                            </div>
+                            <div class="col-6">
+                                <strong>Thông tin về dỡ hàng xuống xe</strong><br/>
+                                - Dỡ lần 1: Địa điểm<br/>
+                                Khối lượng hàng: <strong>(tấn) thời gian:</strong><br/>
+                                Xác nhận của người dỡ hàng:<br/><br/>
+                                - Dỡ lần 2: Địa điểm<br/>
+                                Khối lượng hàng: <strong>(tấn) thời gian:</strong><br/>
+                                Xác nhận của người dỡ hàng:
+                            </div>
+                        </div>
+
+                        <!-- Signature Section -->
+                        <div class="row mt-4">
+                            <div class="col-4 text-center">
+                                <strong>NHÂN VIÊN LÀM LỆNH</strong><br/><br/><br/><br/><br/>
+                            </div>
+                            <div class="col-4 text-center">
+                                <strong>LÁI XE NHẬN LỆNH</strong><br/><br/><br/><br/><br/>
+                            </div>
+                            <div class="col-4 text-center">
+                                <strong>T/L GIÁM ĐỐC CÔNG TY</strong><br/><br/><br/><br/><br/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- chatter -->
+                    <hr/>
+                    <div id="trip_order_communication">
+                        <h3>Communication history</h3>
+                        <t t-call="portal.message_thread">
+                            <t t-set="object" t-value="trip_order"/>
+                        </t>
+                    </div>
+                </div><!-- // #trip_content -->
+            </div>
+        </xpath>
+    </template>
+</odoo> 

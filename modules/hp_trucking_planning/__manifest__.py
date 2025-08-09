@@ -7,7 +7,7 @@
     'category': 'HP',
     'version': '18.0.0.0.2',
     "license": "LGPL-3",
-    'depends': ['base','hp_components'],
+    'depends': ['base','hp_components', 'portal'],
     'data': [
         'security/hp_trucking_planning_security.xml',
         'security/ir.model.access.csv',
@@ -23,6 +23,9 @@
         'views/trucking_planning_plan_line_views.xml',
         'views/trucking_planning_plan_prefix_rule_views.xml',
         'views/trucking_planning_menu.xml',
+        'views/trucking_planning_portal_templates.xml',
+        'report/ir_actions_report.xml',
+        'report/trip_order_templates.xml',
     ],
     'installable': True,
     'application': True,
