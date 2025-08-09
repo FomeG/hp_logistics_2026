@@ -25,19 +25,11 @@ class DepartmentService:
     
     def get_sale_department_leader(self):
         return self._get_department_leader_by_type(HpDepartmentInherit.TYPE_SALE)
-    
-    def buil_name_trucking_plan(self, plan_name):
-        current_user = self.env.user
-        employee = self.env['hr.employee'].sudo().search([('user_id', '=', current_user.id)], limit=1)
-        if not employee or not employee.department_id or employee.department_id.department_type != self.DEPARTMENT_TYPE_TRUCKING:
-            return plan_name
-        
-        department_area = employee.department_id.department_area
-        if not department_area:
-            return plan_name
 
-        area_upper = department_area.upper()
-        new_name = plan_name.replace('PLAN', area_upper)
+    def get_user_by_department_type(self, department_type):
+        employees = self.env['hr.employee'].sudo().search([
+            ('department_id.department_type', '=', department_type),
+            ('user_id', '!=', False),
+        ])
 
-        return new_name
-        
+        return employees.mapped('user_id')

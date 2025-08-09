@@ -9,6 +9,7 @@
                 <field name="name"/>
                 <field name="tax_number"/>
                 <field name="phone" />
+                <field name="assign_user_id" />
                 <field name="create_date" groups="base.group_system" />
             </list>
         </field>
@@ -24,6 +25,7 @@
                         <field name="name"/>
                         <field name="tax_number"/>
                         <field name="phone" />
+                        <field name="assign_user_id" domain="[('id', 'in', allow_assign_user_ids)]" />
                     </group>
                     <notebook>
                         <page string="Routes">

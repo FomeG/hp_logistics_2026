@@ -8,15 +8,10 @@ class HpDepartmentInherit(models.Model):
     TYPE_PRICING = 'pricing'
     TYPE_TRUCKING = 'trucking'
 
-    TRUCKING_AREA_HN = 'hn'
-    TRUCKING_AREA_HP = 'hp'
-    TRUCKING_AREA_SG = 'sg'
-
     ROLE_MANAGER = 'manager'
     ROLE_MEMBER = 'member'
 
     ARRAY_TYPE = [TYPE_SALE, TYPE_PRICING, TYPE_TRUCKING]
-    ARRAY_AREA = [TRUCKING_AREA_HN, TRUCKING_AREA_HP, TRUCKING_AREA_SG]
 
     department_type = fields.Selection([
         (TYPE_SALE, 'Sale'),
@@ -24,49 +19,21 @@ class HpDepartmentInherit(models.Model):
         (TYPE_TRUCKING, 'Trucking'),
     ], string='Department Type', required=True)
 
-    department_area = fields.Selection([
-        (TRUCKING_AREA_HN, 'Hà Nội'),
-        (TRUCKING_AREA_HP, 'Hải Phòng'),
-        (TRUCKING_AREA_SG, 'Sài Gòn'),
-    ], string='Department Area')
-
     @api.model
     def can_create_department(self):
-        array_type_only_one = [self.TYPE_SALE, self.TYPE_PRICING]
-        sale_pricing_count = self.sudo().search_count([
-            ('department_type', 'in', array_type_only_one)
-        ])
-        
-        trucking_count = self.sudo().search_count([
-            ('department_type', '=', self.TYPE_TRUCKING)
-        ])
+        count = self.sudo().search_count([('department_type', 'in', self.ARRAY_TYPE)])
+        return count < len(self.ARRAY_TYPE)
 
-        return sale_pricing_count < len(array_type_only_one) or trucking_count < len(self.ARRAY_AREA)
 
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             dept_type = vals.get('department_type')
-            dept_area = vals.get('department_area')
+            if dept_type:
+                existing = self.sudo().search([('department_type', '=', dept_type)], limit=1)
+                if existing:
+                    raise ValidationError(f"Department with type '{dept_type}' already exists.")
 
-            domain = [('department_type', '=', dept_type)]
-
-            if dept_type == self.TYPE_TRUCKING:
-                if not dept_area:
-                    raise ValidationError("Department area is required for trucking departments.")
-                domain.append(('department_area', '=', dept_area))
-
-            existing = self.sudo().search(domain, limit=1)
-            if existing:
-                if dept_type == self.TYPE_TRUCKING:
-                    raise ValidationError(
-                        f"A department with type 'Trucking' and area '{dept_area}' already exists."
-                    )
-                else:
-                    raise ValidationError(
-                        f"A department with type '{dept_type.capitalize()}' already exists."
-                    )
-                
         departments = super().create(vals_list)
         for department in departments:
             manager = department.manager_id

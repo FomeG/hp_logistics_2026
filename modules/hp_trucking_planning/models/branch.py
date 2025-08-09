@@ -1,5 +1,5 @@
 from odoo import models, fields, api
-
+from ...hp_components.services.department_service import DepartmentService
 
 class Branch(models.Model):
     _name = 'trucking_planning.branch'
@@ -51,10 +51,6 @@ class Branch(models.Model):
 
     @api.depends('name')
     def _compute_allow_user_ids(self):
-        employees = self.env['hr.employee'].sudo().search([
-            ('department_id.department_type', '=', 'trucking'),
-            ('user_id', '!=', False),
-        ])
-
+        service = DepartmentService(self.env)
         for rec in self:
-            rec.allow_user_ids = employees.mapped('user_id')
+            rec.allow_user_ids = service.get_user_by_department_type('trucking')
