@@ -76,10 +76,10 @@ class Plan(models.Model):
         for vals in vals_list:
             if vals.get('name', '/') == '/':
                 user = self.env.user
-                rule = self.env['trucking_planning.plan.prefix.rule'].search([
+                branch = self.env['trucking_planning.branch'].search([
                     ('user_ids', 'in', [user.id]),
                 ], limit=1)
-                prefix = rule.name if rule else 'PLAN'
+                prefix = branch.plan_prefix if branch else 'PLAN'
                 today = fields.Date.today().strftime('%Y%m%d')
                 seq_number = self.env['ir.sequence'].next_by_code('trucking_planning.plan')
                 vals['name'] = f"{prefix}/{today}/{seq_number}"

@@ -21,7 +21,7 @@
         'views/trucking_planning_driver_views.xml',
         'views/trucking_planning_plan_views.xml',
         'views/trucking_planning_plan_line_views.xml',
-        'views/trucking_planning_plan_prefix_rule_views.xml',
+        'views/trucking_planning_branch_views.xml',
         'views/trucking_planning_menu.xml',
     ],
     'installable': True,

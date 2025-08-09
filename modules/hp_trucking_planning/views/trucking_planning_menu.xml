@@ -10,7 +10,7 @@
         <menuitem id="menu_trucking_master_data" name="Master Data" parent="menu_trucking_root" sequence="30"/>
 
         <!-- Configuration Submenu -->
-        <menuitem id="menu_trucking_config" name="Configuration" parent="menu_trucking_root" sequence="40" groups="base.group_user"/>
+        <!-- <menuitem id="menu_trucking_config" name="Configuration" parent="menu_trucking_root" sequence="40" groups="base.group_user"/> -->
 
         <!-- Trips -->
         <menuitem id="menu_trip" name="Trips" parent="menu_trucking_operations" action="action_trip"/>
@@ -37,6 +37,7 @@
         <!-- Drivers -->
         <menuitem id="menu_driver" name="Drivers" parent="menu_trucking_master_data" action="action_driver"/>
 
-        <menuitem id="menu_plan_prefix_rule" name="Prefix Rules" parent="menu_trucking_config" action="action_plan_prefix_rule"/>
+        <!-- Branchs -->
+        <menuitem id="menu_branch" name="Branchs" parent="menu_trucking_master_data" action="action_branch"/>
     </data>
 </odoo>

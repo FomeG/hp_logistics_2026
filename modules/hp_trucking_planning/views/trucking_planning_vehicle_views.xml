@@ -59,6 +59,8 @@
                             <field name="primary_driver_id" string="Driver"
                                 domain="[('active', '=', True)]"
                                 widget="many2one_new_tab" />
+                            <field name="branch_id" string="Branch"
+                                widget="many2one_new_tab" />
                         </group>
                     </group>
                     <group string="Fuel Consumption Rates" invisible="type == 'trailer'">

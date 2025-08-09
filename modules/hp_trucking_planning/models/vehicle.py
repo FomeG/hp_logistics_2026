@@ -90,6 +90,10 @@ class Vehicle(models.Model):
         comodel_name='trucking_planning.vehicle.driver.history',
         inverse_name='vehicle_id',
     )
+    branch_id = fields.Many2one(
+        comodel_name='trucking_planning.branch',
+        index=True,
+    )
     total_plan_in_month = fields.Integer(string="Total Plan In Month", compute='_compute_total_plan_in_month', store=False)
     is_available_on_date = fields.Boolean(
         string='Available on Date Plan',

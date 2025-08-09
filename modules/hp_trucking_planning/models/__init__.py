@@ -9,4 +9,4 @@ from . import shipping_line
 from . import plan
 from . import plan_line
 from . import vehicle_driver_history
-from . import plan_prefix_rule
+from . import branch
