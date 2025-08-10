@@ -25,7 +25,7 @@
                         <field name="name"/>
                         <field name="tax_number"/>
                         <field name="phone" />
-                        <field name="assign_user_id" domain="[('id', 'in', allow_assign_user_ids)]" />
+                        <field name="assign_user_id" />
                     </group>
                     <notebook>
                         <page string="Routes">

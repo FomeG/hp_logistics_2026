@@ -2,6 +2,9 @@ from odoo import models, fields, api
 import re
 import calendar
 
+import logging
+logger = logging.getLogger(__name__)
+
 class Vehicle(models.Model):
     _name = 'trucking_planning.vehicle'
     _description = 'Trucking Planning Vehicle'
@@ -30,10 +33,7 @@ class Vehicle(models.Model):
     trailer_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle',
         string='Trailer',
-        domain=[
-            ('active', '=', True),
-            ('type','=','trailer'),
-        ],
+        domain=lambda self: self._get_trailer_domain(),
         index=True,
     )
 
@@ -100,6 +100,10 @@ class Vehicle(models.Model):
         compute='_compute_is_available_on_date',
         search='_search_is_available_on_date'
     )
+
+    _sql_constraints = [
+        ('unique_trailer_assignment', 'unique(trailer_id)', 'This trailer is already assigned to another vehicle.'),
+    ]
     
     @api.depends('plan_ids.date')
     def _compute_total_plan_in_month(self):
@@ -166,3 +170,15 @@ class Vehicle(models.Model):
 
     def _clean_license_plate(self, plate):
         return re.sub(r'[^A-Za-z0-9-]', '', plate)
+    
+    @api.model
+    def _get_trailer_domain(self):
+        assigned_trailer_ids = self.search([
+            ('trailer_id', '!=', False)
+        ]).mapped('trailer_id.id')
+
+        return [
+            ('active', '=', True),
+            ('type', '=', 'trailer'),
+            ('id', 'not in', assigned_trailer_ids)
+        ]
