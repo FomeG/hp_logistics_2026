@@ -32,19 +32,17 @@ class Client(models.Model):
     assign_user_id = fields.Many2one(
         comodel_name='res.users',
         string='Assign User',
-        default=lambda self: self.env.user
-    )
-    allow_assign_user_ids = fields.Many2many(
-        comodel_name='res.users',
-        compute='_compute_allow_assign_user_ids',
-        store=False
+        default=lambda self: self.env.user,
+        domain=lambda self: self._get_asssign_user_domain(),
     )
     _sql_constraints = [
         ('unique_tax', 'UNIQUE(tax_number)','Tax Number must be unique!'),
     ]
 
-    @api.depends('name')
-    def _compute_allow_assign_user_ids(self):
-        service = DepartmentService(self.env)
-        for rec in self:
-            rec.allow_assign_user_ids = service.get_user_by_department_type('trucking')
+    @api.model
+    def _get_asssign_user_domain(self):
+        allow_assign_users = DepartmentService(self.env).get_user_by_department_type('trucking')
+
+        return [
+            ('id', 'in', allow_assign_users.ids),
+        ]

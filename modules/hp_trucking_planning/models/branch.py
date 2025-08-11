@@ -19,6 +19,7 @@ class Branch(models.Model):
     user_ids = fields.Many2many(
         comodel_name='res.users',
         string="User",
+        domain=lambda self: self._get_user_domain(),
     )
     vehicle_ids = fields.One2many(
         comodel_name='trucking_planning.vehicle',
@@ -28,12 +29,7 @@ class Branch(models.Model):
 
     total_users =  fields.Integer(string="Total Users", compute="_compute_total_user", store=False)
     total_vehicles =  fields.Integer(string="Total vehicles", compute="_compute_total_vehicle", store=False)
-    allow_user_ids = fields.Many2many(
-        comodel_name='res.users',
-        compute='_compute_allow_user_ids',
-        store=False
-    )
-    
+
     _sql_constraints = [
         ('unique_plan_prefix', 'UNIQUE(plan_prefix)','Plan prefix must be unique!'),
     ]
@@ -49,8 +45,10 @@ class Branch(models.Model):
         for rec in self:
             rec.total_vehicles = len(rec.vehicle_ids)
 
-    @api.depends('name')
-    def _compute_allow_user_ids(self):
-        service = DepartmentService(self.env)
-        for rec in self:
-            rec.allow_user_ids = service.get_user_by_department_type('trucking')
+    @api.model
+    def _get_user_domain(self):
+        allow_users = DepartmentService(self.env).get_user_by_department_type('trucking')
+
+        return [
+            ('id', 'in', allow_users.ids),
+        ]

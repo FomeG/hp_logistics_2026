@@ -54,7 +54,6 @@
                         </group>
                         <group string="Assignment" invisible="type == 'trailer'">
                             <field name="trailer_id" string="Assigned Trailer"
-                                domain="[('active', '=', True), ('type', '=', 'trailer')]"
                                 widget="many2one_new_tab" />
                             <field name="primary_driver_id" string="Driver"
                                 domain="[('active', '=', True)]"
