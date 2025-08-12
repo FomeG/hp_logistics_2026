@@ -22,6 +22,7 @@
             <form>
                 <sheet>
                     <group>
+                        <field name="code" />
                         <field name="name"/>
                         <field name="tax_number"/>
                         <field name="phone" />

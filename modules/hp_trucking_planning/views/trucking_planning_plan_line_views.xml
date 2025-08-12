@@ -90,7 +90,16 @@
                                 </group>
                             </page>
                             <page string="Notes">
-                                <field name="note"/>
+                                <group>
+                                    <field name="note"/>
+                                </group>
+                            </page>
+                            <page string="Goods Info">
+                                <group>
+                                    <field name="goods_name"/>
+                                    <field name="goods_weight"/>
+                                    <field name="goods_cut_off"/>
+                                </group>
                             </page>
                         </notebook>
                     </sheet>

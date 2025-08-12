@@ -6,6 +6,11 @@ class Client(models.Model):
     _description = 'Client'
     _inherit = ['unique.code.mixin', 'unique.normalized.name.mixin', 'mail.thread', 'mail.activity.mixin']
 
+    code = fields.Char(
+        string= 'Client Code',
+        required=True,
+        tracing=True
+    )
     name = fields.Char(
         string="Name",
         required=True,
