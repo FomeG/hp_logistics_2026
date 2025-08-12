@@ -33,7 +33,7 @@ class Plan(models.Model):
     )
     vehicle_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle',
-        domain="[('type', '=', 'truck')]",
+        domain=lambda self: self._get_vehicle_avaliable(),
         index=True,
     )
     driver_id = fields.Many2one(
@@ -60,6 +60,20 @@ class Plan(models.Model):
         compute='_compute_total_trips',
         store=False
     )
+
+    @api.model
+    def _get_vehicle_avaliable(self):
+        domain = [
+            ('type', '=', 'truck'),
+        ]
+
+        branches = self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])])
+        if branches:
+            domain.append(('branch_id', 'in', [False] + branches.ids))
+        else:
+            domain.append(('branch_id', '=', False))
+
+        return domain
 
     @api.depends('date')
     def _compute_month_year(self):
