@@ -315,43 +315,6 @@ class PlanLine(models.Model):
             'target': 'self',
         }
 
-    def action_export_trip_docx(self):
-        """Export trip data to DOCX format matching the transport document"""
-        try:
-            from docx import Document
-            from docx.shared import Inches, Pt
-            from docx.enum.text import WD_ALIGN_PARAGRAPH
-            from docx.enum.table import WD_TABLE_ALIGNMENT
-        except ImportError:
-            raise UserError("python-docx library is required. Please install it using: pip install python-docx")
-
-        # Generate the DOCX file
-        doc = self._generate_trip_docx()
-
-        # Save document to memory
-        import io
-        doc_io = io.BytesIO()
-        doc.save(doc_io)
-        doc_io.seek(0)
-
-        # Create attachment
-        filename = f"GiayVanTai_{self.driver_id.name if self.driver_id else 'Bùi Văn Thắng'}_{self.date.strftime('%d/%m/%Y') if self.date else '22/08/2025'}.docx"
-        attachment = self.env['ir.attachment'].create({
-            'name': filename,
-            'type': 'binary',
-            'datas': base64.b64encode(doc_io.read()),
-            'res_model': self._name,
-            'res_id': self.id,
-            'mimetype': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        })
-
-        # Return download action
-        return {
-            'type': 'ir.actions.act_url',
-            'url': f'/web/content/{attachment.id}?download=true',
-            'target': 'self',
-        }
-
     def _generate_trip_docx(self):
         from docx import Document
         from docx.shared import Inches, Pt
