@@ -610,7 +610,8 @@ class PlanLine(models.Model):
         bold_run = para5_content.add_run({self.goods_weight or ' '})
         bold_run.bold = True
         para5_content.add_run("\nCắt máng (Cut off): ")
-        bold_run = para5_content.add_run({self.goods_cut_off or ' '})
+        cut_off_str = self.goods_cut_off.strftime('%d/%m/%Y %H:%M') if self.goods_cut_off else ' '
+        bold_run = para5_content.add_run(f"{cut_off_str}")
         bold_run.bold = True
 
         # detail_cells[0].add_paragraph()
