@@ -80,10 +80,9 @@ class FreightPurchaseRoute(models.Model):
         for rec in self:
             if rec.direction_manual:
                 continue
-            rec.direction = False
-            if rec.pod_id.is_local:
+            if rec.pod_id and rec.pod_id.is_local:
                 rec.direction = 'import'
-            elif rec.pol_id.is_local:
+            elif rec.pol_id and rec.pol_id.is_local:
                 rec.direction = 'export'
             else:
                 rec.direction = 'N/A'
