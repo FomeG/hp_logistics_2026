@@ -1,7 +1,7 @@
 from odoo import models, api, fields
 from odoo.exceptions import UserError
 import base64
-
+import math
 
 class PlanLine(models.Model):
     _name = 'trucking_planning.plan.line'
@@ -16,7 +16,6 @@ class PlanLine(models.Model):
     )
     code = fields.Char(
         string='Job Number',
-        required=True,
         tracking=True,
     )
     date = fields.Date(
@@ -185,6 +184,17 @@ class PlanLine(models.Model):
         readonly=True,
         tracking=True,
     )
+    #goods info
+    goods_name = fields.Char(
+        string="Goods Name",
+    )
+    goods_weight = fields.Float(
+        string="Goods Weight",
+    )
+    goods_cut_off = fields.Datetime(
+        string="Cut Off",
+    )
+
     route_info = fields.Text(
         compute='_compute_route_info',
         store=False,
@@ -244,7 +254,7 @@ class PlanLine(models.Model):
                 distance = rec.route_id.distance_km
                 if rec.route_id.extra_fuel:
                     distance = rec.route_id.distance_km + 40
-                rec.fuel_liters = distance * fuel_rate * 2 + rec.extra_fuel
+                rec.fuel_liters = math.ceil(distance * fuel_rate * 2) + rec.extra_fuel
             else:
                 rec.fuel_liters = 0.0
 
@@ -297,45 +307,10 @@ class PlanLine(models.Model):
         doc.save(doc_io)
         doc_io.seek(0)
 
+        if not self.driver_id:
+            raise UserError("No driver id specified")
         # Create attachment
-        filename = f"GiayVanTai_{self.driver_id.name if self.driver_id else 'Bùi Văn Thắng'}_{self.date.strftime('%d/%m/%Y') if self.date else '22/08/2025'}.docx"
-        attachment = self.env['ir.attachment'].create({
-            'name': filename,
-            'type': 'binary',
-            'datas': base64.b64encode(doc_io.read()),
-            'res_model': self._name,
-            'res_id': self.id,
-            'mimetype': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        })
-
-        # Return download action
-        return {
-            'type': 'ir.actions.act_url',
-            'url': f'/web/content/{attachment.id}?download=true',
-            'target': 'self',
-        }
-
-    def action_export_trip_docx(self):
-        """Export trip data to DOCX format matching the transport document"""
-        try:
-            from docx import Document
-            from docx.shared import Inches, Pt
-            from docx.enum.text import WD_ALIGN_PARAGRAPH
-            from docx.enum.table import WD_TABLE_ALIGNMENT
-        except ImportError:
-            raise UserError("python-docx library is required. Please install it using: pip install python-docx")
-
-        # Generate the DOCX file
-        doc = self._generate_trip_docx()
-
-        # Save document to memory
-        import io
-        doc_io = io.BytesIO()
-        doc.save(doc_io)
-        doc_io.seek(0)
-
-        # Create attachment
-        filename = f"GiayVanTai_{self.driver_id.name if self.driver_id else 'Bùi Văn Thắng'}_{self.date.strftime('%d/%m/%Y') if self.date else '22/08/2025'}.docx"
+        filename = f"GiayVanTai_{self.driver_id.name if self.driver_id else 'N/A'}_{self.date.strftime('%d/%m/%Y') if self.date else fields.Date.today().strftime('%d/%m/%Y') }.docx"
         attachment = self.env['ir.attachment'].create({
             'name': filename,
             'type': 'binary',
@@ -445,7 +420,7 @@ class PlanLine(models.Model):
         bold_run = driver_para.add_run(f"{self.driver_id.name if self.driver_id else 'Bùi Văn Thắng'}")
         bold_run.bold = True
         driver_para.add_run("\nSố điện thoại liên hệ: ")
-        bold_run = driver_para.add_run(f"{getattr(self.driver_id, 'phone_number', '0358636726')}")
+        bold_run = driver_para.add_run(f"{getattr(self.driver_id, 'phone_number', 'N/A')}")
         bold_run.bold = True
 
         # Merge 2nd and 3rd columns for the first row
@@ -479,7 +454,11 @@ class PlanLine(models.Model):
         vehicle_cell.add_paragraph()
         vehicle_para = vehicle_cell.add_paragraph()
         vehicle_para.add_run("Số Xe: ")
-        bold_run = vehicle_para.add_run(f"{self.truck_id.name if self.truck_id and self.truck_id.name else '80A0332348'}")
+        bold_run = vehicle_para.add_run(f"{self.truck_id.name if self.truck_id and self.truck_id.name else ' '}")
+        bold_run.bold = True
+        vehicle_para.add_run("    ")
+        vehicle_para.add_run("\nSố Rơ mooc: ")
+        bold_run = vehicle_para.add_run(f"{self.truck_id.trailer_id.name if self.truck_id and self.truck_id.trailer_id else ' '}")
         bold_run.bold = True
 
         info_cell = info_table.cell(1, 2)
@@ -489,17 +468,17 @@ class PlanLine(models.Model):
             p.getparent().remove(p)
         info_para = info_cell.add_paragraph()
         info_para.add_run("Số: ")
-        bold_run = info_para.add_run(f"{self.code or '656564564645'}")
+        bold_run = info_para.add_run(f"{self.code or ' '}")
         bold_run.bold = True
         info_para.add_run("    ")
         info_para.add_run("\nNgày đóng/trả hàng: ")
-        bold_run = info_para.add_run(f"{self.date.strftime('%d/%m/%Y') if self.date else '22/08/2025'}")
+        bold_run = info_para.add_run(f"{self.date.strftime('%d/%m/%Y') if self.date else ' '}")
         bold_run.bold = True
 
         # doc.add_paragraph()  # Spacer
 
         # Main Table
-        main_table = doc.add_table(rows=4, cols=3)
+        main_table = doc.add_table(rows=2, cols=3)
         main_table.style = 'Table Grid'
         main_table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
@@ -538,7 +517,7 @@ class PlanLine(models.Model):
 
         # Add booking info
         para1 = detail_cells[0].add_paragraph()
-        title_run = para1.add_run(f"Số booking HPL: {self.booking or '3233234323232'}")
+        title_run = para1.add_run(f"Số booking HPL: {self.booking or 'N/A'}")
         title_run.bold = True
         title_run.underline = True
         # Add top padding to the inbound cell
@@ -552,10 +531,10 @@ class PlanLine(models.Model):
 
         para2_content = detail_cells[0].add_paragraph()
         para2_content.add_run("Tên người thuê vận chuyển: ")
-        bold_run = para2_content.add_run(f"{self.client_id.name or 'Samsung'}")
+        bold_run = para2_content.add_run(f"{self.client_id.name or 'N/A'}")
         bold_run.bold = True
         para2_content.add_run("\nĐịa chỉ: ")
-        bold_run = para2_content.add_run(f"{getattr(self.client_id, 'address', 'Số nhà 14C, ngõ 69/14, phố Trung Liệt, Phường Trung Liệt, Quận Đống Đa, TP Hà Nội')}")
+        bold_run = para2_content.add_run(f"{getattr(self.client_id, 'address', '')}")
         bold_run.bold = True
 
         # Add contract info with bold title
@@ -566,19 +545,19 @@ class PlanLine(models.Model):
 
         para3_content = detail_cells[0].add_paragraph()
         para3_content.add_run("Số hợp đồng: ")
-        bold_run = para3_content.add_run(f"{self.contract_number or '75645435435435'}")
+        bold_run = para3_content.add_run("")
         bold_run.bold = True
         para3_content.add_run("\nSố bill/booking: ")
-        bold_run = para3_content.add_run(f"{self.booking or '3233234323232'}")
+        bold_run = para3_content.add_run(f"{self.booking or ' '}")
         bold_run.bold = True
         para3_content.add_run("\nSố cont: ")
-        bold_run = para3_content.add_run(f"{self.container_number or '4343433'}")
+        bold_run = para3_content.add_run(f"{self.container_number or ' '}")
         bold_run.bold = True
         para3_content.add_run("\nSố seal: ")
-        bold_run = para3_content.add_run(f"{self.seal_number or '3232532432'}")
+        bold_run = para3_content.add_run(f"{self.seal_number or ' '}")
         bold_run.bold = True
         para3_content.add_run("\nLoại cont: ")
-        bold_run = para3_content.add_run(f"{dict(self._fields['container_type'].selection).get(self.container_type, 'Khô')}")
+        bold_run = para3_content.add_run(f"{dict(self._fields['container_type'].selection).get(self.container_type, '')}")
         bold_run.bold = True
         para3_content.add_run("\nKích thước: ")
         bold_run = para3_content.add_run(f"{self.container_size or '40'}")
@@ -592,29 +571,29 @@ class PlanLine(models.Model):
 
         para4_content = detail_cells[0].add_paragraph()
         para4_content.add_run("Tuyến vận chuyển: ")
-        bold_run = para4_content.add_run(f"{self.route_id.name or 'Cảng Lạch Huyện - Cảng Lạch Huyện'}")
+        bold_run = para4_content.add_run(f"{self.route_id.name or ' '}")
         bold_run.bold = True
         para4_content.add_run("\nĐiểm xếp hàng: ")
-        bold_run = para4_content.add_run(f"{self.container_pickup.name or 'Cảng Lạch Huyện'}")
+        bold_run = para4_content.add_run(f"{self.container_pickup.name or ' '}")
         bold_run.bold = True
         para4_content.add_run("\nĐiểm giao hàng: ")
-        bold_run = para4_content.add_run(f"{self.container_delivery.name or 'Cảng Lạch Huyện'}")
+        bold_run = para4_content.add_run(f"{self.container_delivery.name or ' '}")
         bold_run.bold = True
         para4_content.add_run("\nNơi trả vỏ: ")
-        bold_run = para4_content.add_run(f"{self.container_pickup.name or 'Cảng Lạch Huyện'}")
+        bold_run = para4_content.add_run(f"{self.container_pickup.name or ' '}")
         bold_run.bold = True
         para4_content.add_run("\nThời gian vận chuyển dự kiến:")
         para4_content.add_run("\nBắt đầu từ: ")
-        bold_run = para4_content.add_run(f"{self.date.strftime('%d/%m/%Y') if self.date else '22/08/2025'}")
+        bold_run = para4_content.add_run(" ")
         bold_run.bold = True
-        para4_content.add_run(" đến: ")
-        bold_run = para4_content.add_run(f"{self.date.strftime('%d/%m/%Y') if self.date else '22/08/2025'}")
+        para4_content.add_run("\nđến: ")
+        bold_run = para4_content.add_run(" ")
         bold_run.bold = True
         para4_content.add_run("\nTổng số km dự kiến: ")
-        bold_run = para4_content.add_run("200.00")
+        bold_run = para4_content.add_run(f"{self.route_id.distance_km}")
         bold_run.bold = True
         para4_content.add_run("\nLiên hệ: ")
-        bold_run = para4_content.add_run(f"{self.contact_phone or '0933423223'}")
+        bold_run = para4_content.add_run(f"{self.goods_pickup_delivery.contact_phone or ' '}")
         bold_run.bold = True
 
         # Add goods info with bold title
@@ -625,20 +604,25 @@ class PlanLine(models.Model):
 
         para5_content = detail_cells[0].add_paragraph()
         para5_content.add_run("Tên hàng hóa: ")
-        para5_content.add_run("\nKhối lượng hàng hóa (tấn): ")
-        bold_run = para5_content.add_run("28.00")
+        bold_run = para5_content.add_run({self.goods_weight or ' '})
         bold_run.bold = True
-        para5_content.add_run("\nCắt máng: ")
+        para5_content.add_run("\nKhối lượng hàng hóa (tấn): ")
+        bold_run = para5_content.add_run({self.goods_weight or ' '})
+        bold_run.bold = True
+        para5_content.add_run("\nCắt máng (Cut off): ")
+        cut_off_str = self.goods_cut_off.strftime('%d/%m/%Y %H:%M') if self.goods_cut_off else ' '
+        bold_run = para5_content.add_run(f"{cut_off_str}")
+        bold_run.bold = True
 
         # detail_cells[0].add_paragraph()
-        para6 = detail_cells[0].add_paragraph()
-        title_run = para6.add_run("7. Thông tin về rơ mooc, sơ mi ro mooc")
-        title_run.bold = True
-
-        para6_content = detail_cells[0].add_paragraph()
-        para6_content.add_run("Biển số rơ mooc, sơmi rơmooc: ")
-        bold_run = para6_content.add_run(f"{self.trailer_id.name or '15R13049'}")
-        bold_run.bold = True
+        #para6 = detail_cells[0].add_paragraph()
+        # title_run = para6.add_run("7. Thông tin về rơ mooc, sơ mi ro mooc")
+        # title_run.bold = True
+        #
+        # para6_content = detail_cells[0].add_paragraph()
+        # para6_content.add_run("Biển số rơ mooc, sơmi rơmooc: ")
+        # bold_run = para6_content.add_run(f"{self.trailer_id.name or '15R13049'}")
+        # bold_run.bold = True
 
         # Hàng Về (Inbound - blank template)
         # Clear cell and add content properly
@@ -649,7 +633,7 @@ class PlanLine(models.Model):
 
         # Add booking info
         para1_inbound = detail_cells[1].add_paragraph()
-        title_run = para1_inbound.add_run(f"Số booking HPL: {self.booking or '3233234323232'}")
+        title_run = para1_inbound.add_run(f"Số booking HPL: ")
         title_run.bold = True
         title_run.underline = True
         # Add top padding to the inbound cell
@@ -659,12 +643,8 @@ class PlanLine(models.Model):
         para2_inbound = detail_cells[1].add_paragraph()
         title_run = para2_inbound.add_run("3. Thông tin về người thuê vận tải")
         title_run.bold = True
-
         para2_inbound_content = detail_cells[1].add_paragraph()
-        para2_inbound_content.add_run("""
-Tên người thuê vận chuyển:
-Địa chỉ:""")
-
+        para2_inbound_content.add_run("Tên người thuê vận chuyển:\nĐịa chỉ:")
         # Add contract info with bold title
         # detail_cells[1].add_paragraph()
         para3_inbound = detail_cells[1].add_paragraph()
@@ -691,7 +671,8 @@ Tên người thuê vận chuyển:
         para4_inbound_content.add_run("\nĐiểm giao hàng:")
         para4_inbound_content.add_run("\nNơi trả vỏ:")
         para4_inbound_content.add_run("\nThời gian vận chuyển dự kiến:")
-        para4_inbound_content.add_run("\nBắt đầu từ: đến:")
+        para4_inbound_content.add_run("\nBắt đầu từ: ")
+        para4_inbound_content.add_run("\nđến: ")
         para4_inbound_content.add_run("\nTổng số km dự kiến: ")
         bold_run = para4_inbound_content.add_run("0.00")
         bold_run.bold = True
@@ -706,18 +687,16 @@ Tên người thuê vận chuyển:
         para5_content = detail_cells[1].add_paragraph()
         para5_content.add_run("Tên hàng hóa:")
         para5_content.add_run("\nKhối lượng hàng hóa (tấn): ")
-        bold_run = para5_content.add_run("0.00")
-        bold_run.bold = True
-        para5_content.add_run("\nCắt máng:")
+        para5_content.add_run("\nCắt máng(Cut off):")
 
         # detail_cells[1].add_paragraph()
         para6_inbound = detail_cells[1].add_paragraph()
-        title_run = para6_inbound.add_run("7. Thông tin về rơ mooc, sơ mi ro mooc")
-        title_run.bold = True
-
-        para6_content = detail_cells[1].add_paragraph()
-        para6_content.add_run("""
-Biển số rơ mooc, sơmi rơmooc:""")
+#         title_run = para6_inbound.add_run("7. Thông tin về rơ mooc, sơ mi ro mooc")
+#         title_run.bold = True
+#
+#         para6_content = detail_cells[1].add_paragraph()
+#         para6_content.add_run("""
+# Biển số rơ mooc, sơmi rơmooc:""")
 
         # Cấp Phép (Right side)
         # Clear cell and add content properly
@@ -734,34 +713,33 @@ Biển số rơ mooc, sơmi rơmooc:""")
         detail_cells[2].add_paragraph()
         para1_permit_content = detail_cells[2].add_paragraph()
         para1_permit_content.add_run("Tồn trước (lít): ")
-        bold_run = para1_permit_content.add_run("0")
+        bold_run = para1_permit_content.add_run(" ")
         bold_run.bold = True
         para1_permit_content.add_run("\nĐược lĩnh (lít): ")
-        bold_run = para1_permit_content.add_run("70")
+        bold_run = para1_permit_content.add_run(f"{self.fuel_liters or ''}")
         bold_run.bold = True
         para1_permit_content.add_run("\nTổng cộng (lít): ")
-        bold_run = para1_permit_content.add_run(f"{self.fuel_liters or 5098.0}")
+        bold_run = para1_permit_content.add_run(" ")
         bold_run.bold = True
 
         # Add cost info
         detail_cells[2].add_paragraph()
+        detail_cells[2].add_paragraph()
         para2_permit = detail_cells[2].add_paragraph()
         title_run = para2_permit.add_run(f"TIỀN CHI PHÍ - (ĐỒNG)")
         title_run.bold = True
-
-        detail_cells[2].add_paragraph()
         para2_permit_content = detail_cells[2].add_paragraph()
         para2_permit_content.add_run("Vé cầu đường: ")
-        bold_run = para2_permit_content.add_run("392,000")
+        bold_run = para2_permit_content.add_run(f"{self.route_id.road_fee or ''}")
         bold_run.bold = True
         para2_permit_content.add_run("\nChi phí khác: ")
-        bold_run = para2_permit_content.add_run("0")
+        bold_run = para2_permit_content.add_run(f"{self.extra_charge or '' }")
         bold_run.bold = True
         para2_permit_content.add_run("\nĐi đường: ")
-        bold_run = para2_permit_content.add_run("400,000")
+        bold_run = para2_permit_content.add_run("")
         bold_run.bold = True
         para2_permit_content.add_run("\nTổng Cộng: ")
-        bold_run = para2_permit_content.add_run(f"{self.total_cost or 5650000:,.0f}")
+        bold_run = para2_permit_content.add_run("")
         bold_run.bold = True
 
         # Add loading/unloading info
@@ -771,85 +749,85 @@ Biển số rơ mooc, sơmi rơmooc:""")
         detail_cells[2].add_paragraph()
         para3_permit = detail_cells[2].add_paragraph()
         para3_permit.add_run("Nâng hàng/vỏ: ")
-        bold_run = para3_permit.add_run("0")
+        bold_run = para3_permit.add_run(" ")
         bold_run.bold = True
         para3_permit.add_run("\nHạ vỏ/hàng: ")
-        bold_run = para3_permit.add_run("0")
+        bold_run = para3_permit.add_run(" ")
         bold_run.bold = True
         para3_permit.add_run("\nTổng cộng: ")
-        bold_run = para3_permit.add_run("0")
+        bold_run = para3_permit.add_run(" ")
         bold_run.bold = True
         para3_permit.add_run("\nTổng Tiền: ")
-        bold_run = para3_permit.add_run(f"{self.total_cost or 5650000:,.0f}")
+        bold_run = para3_permit.add_run(" ")
         bold_run.bold = True
 
         # Merge cells in main_table for the loader section
-        main_table.cell(2, 0).merge(main_table.cell(2, 1)).merge(main_table.cell(2, 2))
-        title_cell = main_table.cell(2, 0)
-        # Clear all paragraphs first
-        for paragraph in title_cell.paragraphs:
-            p = paragraph._element
-            p.getparent().remove(p)
-        # Add top padding to the cell
-        title_cell._tc.get_or_add_tcPr().append(parse_xml(r'<w:tcMar xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
-        para_loader = title_cell.add_paragraph()
-        title_run = para_loader.add_run("8. Phần dành cho người xếp, dỡ hàng hóa lên, xuống xe ghi")
-        title_run.bold = True
-        # Add top padding to the cell (not the paragraph)
-        title_cell._tc.get_or_add_tcPr().append(parse_xml(r'<w:tcMar xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
-
-
-        loader_cells = main_table.rows[3].cells
-        # Clear cells and add content properly
-        # Clear all paragraphs first
-        for paragraph in loader_cells[0].paragraphs:
-            p = paragraph._element
-            p.getparent().remove(p)
-        for paragraph in loader_cells[1].paragraphs:
-            p = paragraph._element
-            p.getparent().remove(p)
-
-        # Loading info (left cell)
-        para1_loader = loader_cells[0].add_paragraph()
-        title_run = para1_loader.add_run("Thông tin về xếp hàng lên xe")
-        title_run.bold = True
-
-        para2_loader = loader_cells[0].add_paragraph()
-        para2_loader.add_run("Xếp lần 1: Địa điểm")
-        para2_loader.add_run("\nKhối lượng hàng:     ")
-        bold_run = para2_loader.add_run("(tấn) thời gian:")
-        bold_run.bold = True
-        para2_loader.add_run("\nXác nhận của người xếp hàng:")
-        loader_cells[0].add_paragraph()
-        loader_cells[0].add_paragraph()
-
-        para3_loader = loader_cells[0].add_paragraph()
-        para3_loader.add_run("Xếp lần 2 Địa điểm")
-        para3_loader.add_run("\nKhối lượng hàng:     ")
-        bold_run = para3_loader.add_run("(tấn) thời gian:")
-        bold_run.bold = True
-        para3_loader.add_run("\nXác nhận của người xếp hàng:")
-        loader_cells[0].add_paragraph()
-
-        # Unloading info (right cell)
-        para1_unloader = loader_cells[1].add_paragraph()
-        title_run = para1_unloader.add_run("Thông tin về dỡ hàng xuống xe")
-        title_run.bold = True
+        # main_table.cell(2, 0).merge(main_table.cell(2, 1)).merge(main_table.cell(2, 2))
+        # title_cell = main_table.cell(2, 0)
+        # # Clear all paragraphs first
+        # for paragraph in title_cell.paragraphs:
+        #     p = paragraph._element
+        #     p.getparent().remove(p)
+        # # Add top padding to the cell
+        # title_cell._tc.get_or_add_tcPr().append(parse_xml(r'<w:tcMar xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
+        # para_loader = title_cell.add_paragraph()
+        # title_run = para_loader.add_run("8. Phần dành cho người xếp, dỡ hàng hóa lên, xuống xe ghi")
+        # title_run.bold = True
+        # # Add top padding to the cell (not the paragraph)
+        # title_cell._tc.get_or_add_tcPr().append(parse_xml(r'<w:tcMar xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
+        #
+        #
+        # loader_cells = main_table.rows[3].cells
+        # # Clear cells and add content properly
+        # # Clear all paragraphs first
+        # for paragraph in loader_cells[0].paragraphs:
+        #     p = paragraph._element
+        #     p.getparent().remove(p)
+        # for paragraph in loader_cells[1].paragraphs:
+        #     p = paragraph._element
+        #     p.getparent().remove(p)
+        #
+        # # Loading info (left cell)
+        # para1_loader = loader_cells[0].add_paragraph()
+        # title_run = para1_loader.add_run("Thông tin về xếp hàng lên xe")
+        # title_run.bold = True
+        #
+        # para2_loader = loader_cells[0].add_paragraph()
+        # para2_loader.add_run("Xếp lần 1: Địa điểm")
+        # para2_loader.add_run("\nKhối lượng hàng:     ")
+        # bold_run = para2_loader.add_run("(tấn) thời gian:")
+        # bold_run.bold = True
+        # para2_loader.add_run("\nXác nhận của người xếp hàng:")
+        # loader_cells[0].add_paragraph()
+        # loader_cells[0].add_paragraph()
+        #
+        # para3_loader = loader_cells[0].add_paragraph()
+        # para3_loader.add_run("Xếp lần 2 Địa điểm")
+        # para3_loader.add_run("\nKhối lượng hàng:     ")
+        # bold_run = para3_loader.add_run("(tấn) thời gian:")
+        # bold_run.bold = True
+        # para3_loader.add_run("\nXác nhận của người xếp hàng:")
+        # loader_cells[0].add_paragraph()
+        #
+        # # Unloading info (right cell)
+        # para1_unloader = loader_cells[1].add_paragraph()
+        # title_run = para1_unloader.add_run("Thông tin về dỡ hàng xuống xe")
+        # title_run.bold = True
+        # # loader_cells[1].add_paragraph()
+        # para2_unloader = loader_cells[1].add_paragraph()
+        # para2_unloader.add_run("Dỡ lần 1: Địa điểm")
+        # para2_unloader.add_run("\nKhối lượng hàng:     ")
+        # bold_run = para2_unloader.add_run("(tấn) thời gian:")
+        # bold_run.bold = True
+        # para2_unloader.add_run("\nXác nhận của người dỡ hàng:")
         # loader_cells[1].add_paragraph()
-        para2_unloader = loader_cells[1].add_paragraph()
-        para2_unloader.add_run("Dỡ lần 1: Địa điểm")
-        para2_unloader.add_run("\nKhối lượng hàng:     ")
-        bold_run = para2_unloader.add_run("(tấn) thời gian:")
-        bold_run.bold = True
-        para2_unloader.add_run("\nXác nhận của người dỡ hàng:")
-        loader_cells[1].add_paragraph()
-        loader_cells[1].add_paragraph()
-        para3_unloader = loader_cells[1].add_paragraph()
-        para3_unloader.add_run("Dỡ lần 2 Địa điểm")
-        para3_unloader.add_run("\nKhối lượng hàng:     ")
-        bold_run = para3_unloader.add_run("(tấn) thời gian:")
-        bold_run.bold = True
-        para3_unloader.add_run("\nXác nhận của người dỡ hàng:")
+        # loader_cells[1].add_paragraph()
+        # para3_unloader = loader_cells[1].add_paragraph()
+        # para3_unloader.add_run("Dỡ lần 2 Địa điểm")
+        # para3_unloader.add_run("\nKhối lượng hàng:     ")
+        # bold_run = para3_unloader.add_run("(tấn) thời gian:")
+        # bold_run.bold = True
+        # para3_unloader.add_run("\nXác nhận của người dỡ hàng:")
 
         # Signature table
         sig_table = doc.add_table(rows=1, cols=3)

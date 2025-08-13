@@ -93,6 +93,7 @@ class Vehicle(models.Model):
     branch_id = fields.Many2one(
         comodel_name='trucking_planning.branch',
         index=True,
+        default=lambda self: self._get_default_branch(),
     )
     total_plan_in_month = fields.Integer(string="Total Plan In Month", compute='_compute_total_plan_in_month', store=False)
     is_available_on_date = fields.Boolean(
@@ -182,3 +183,7 @@ class Vehicle(models.Model):
             ('type', '=', 'trailer'),
             ('id', 'not in', assigned_trailer_ids)
         ]
+    
+    @api.model
+    def _get_default_branch(self):
+        return self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])], limit=1)

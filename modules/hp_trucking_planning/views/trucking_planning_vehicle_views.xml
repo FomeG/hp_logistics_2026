@@ -16,6 +16,7 @@
                 <field name="is_rented" string="Rented"/>
                 <field name="registration_date" string="Reg. Date"/>
                 <field name="active" invisible="1"/>
+                <field name="branch_id" groups="base.group_user" />
             </list>
         </field>
     </record>
