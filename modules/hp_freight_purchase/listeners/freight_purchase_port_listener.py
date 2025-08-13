@@ -22,7 +22,7 @@ class FreightPurchasePortListener(Component):
     def _create_routes_and_products(self, port):
         """
         Create routes and product templates for the new port with all existing ports.
-        Migrated from port model logic.
+        Optimized with bulk creation for better performance.
         """
         try:
             other_ports = self.env['freight.purchase.port'].search([
@@ -32,55 +32,59 @@ class FreightPurchasePortListener(Component):
             
             Route = self.env['freight.purchase.route']
             
+            # Prepare all route data for bulk creation
+            route_vals_list = []
+            
             for other_port in other_ports:
-                # Create route from this port to other port (as POL -> POD)
-                route_pol_to_pod = Route.search([
+                # Check if routes already exist to avoid duplicates
+                existing_route_pol_to_pod = Route.search([
                     ('pol_id', '=', port.id),
                     ('pod_id', '=', other_port.id)
                 ], limit=1)
                 
-                if not route_pol_to_pod and port.is_local != other_port.is_local:
-                    # Determine direction based on port is_local values
+                existing_route_pod_to_pol = Route.search([
+                    ('pol_id', '=', other_port.id),
+                    ('pod_id', '=', port.id)
+                ], limit=1)
+                
+                # Only create routes if they don't exist and ports have different is_local values
+                if not existing_route_pol_to_pod and port.is_local != other_port.is_local:
+                    # Determine direction for route from this port to other port
                     direction = 'N/A'
                     if other_port.is_local:  # POD is local
                         direction = 'import'
                     elif port.is_local:  # POL is local
                         direction = 'export'
                     
-                    route_pol_to_pod = Route.create({
+                    route_vals_list.append({
                         'pol_id': port.id,
                         'pod_id': other_port.id,
                         'is_active': True,
                         'direction': direction,
                     })
-                    
-                    # Create product template for this route
-                    self._create_product_template(route_pol_to_pod)
-                    
                 
-                # Create route from other port to this port (as POL -> POD)
-                route_pod_to_pol = Route.search([
-                    ('pol_id', '=', other_port.id),
-                    ('pod_id', '=', port.id)
-                ], limit=1)
-                
-                if not route_pod_to_pol and port.is_local != other_port.is_local:
-                    # Determine direction based on port is_local values
+                if not existing_route_pod_to_pol and port.is_local != other_port.is_local:
+                    # Determine direction for route from other port to this port
                     direction = 'N/A'
                     if port.is_local:  # POD is local
                         direction = 'import'
                     elif other_port.is_local:  # POL is local
                         direction = 'export'
                     
-                    route_pod_to_pol = Route.create({
+                    route_vals_list.append({
                         'pol_id': other_port.id,
                         'pod_id': port.id,
                         'is_active': True,
                         'direction': direction,
                     })
-                    
-                    # Create product template for this route
-                    self._create_product_template(route_pod_to_pol)
+            
+            # Bulk create all routes at once
+            if route_vals_list:
+                created_routes = Route.create(route_vals_list)
+                
+                # Create product templates for all created routes
+                for route in created_routes:
+                    self._create_product_template(route)
                     
         except Exception as e:
             _logger.exception(f"Error creating routes and products for port {port.name}: {e}")
