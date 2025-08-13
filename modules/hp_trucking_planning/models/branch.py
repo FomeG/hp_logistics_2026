@@ -52,3 +52,28 @@ class Branch(models.Model):
         return [
             ('id', 'in', allow_users.ids),
         ]
+
+    @api.model
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        group = self.env.ref('hp_trucking_planning.group_hp_trucking_planning_member')
+        for record in records:
+            if record.user_ids:
+                group.sudo().write({'users': [(4, user.id) for user in record.user_ids]})
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'user_ids' in vals:
+            group = self.env.ref('hp_trucking_planning.group_hp_trucking_planning_member')
+            for record in self:
+                if record.user_ids:
+                    group.sudo().write({'users': [(4, user.id) for user in record.user_ids]})
+        return res
+
+    def unlink(self):
+        group = self.env.ref('hp_trucking_planning.group_hp_trucking_planning_member')
+        for record in self:
+            if record.user_ids:
+                group.sudo().write({'users': [(3, user.id) for user in record.user_ids]})
+        return super().unlink()
