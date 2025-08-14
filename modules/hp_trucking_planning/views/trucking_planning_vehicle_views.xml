@@ -16,7 +16,7 @@
                 <field name="is_rented" string="Rented"/>
                 <field name="registration_date" string="Reg. Date"/>
                 <field name="active" invisible="1"/>
-                <field name="branch_id" groups="base.group_user" />
+                <field name="branch_id" groups="base.group_user" options="{'no_create': True, 'no_quick_create': True}" />
             </list>
         </field>
     </record>
@@ -60,7 +60,8 @@
                                 domain="[('active', '=', True)]"
                                 widget="many2one_new_tab" />
                             <field name="branch_id" string="Branch"
-                                widget="many2one_new_tab" />
+                                widget="many2one_new_tab"
+                                options="{'no_create': True, 'no_quick_create': True}" />
                         </group>
                     </group>
                     <group string="Fuel Consumption Rates" invisible="type == 'trailer'">
