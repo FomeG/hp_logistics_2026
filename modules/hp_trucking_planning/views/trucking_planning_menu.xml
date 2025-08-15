@@ -48,5 +48,10 @@
                   parent="menu_trucking_import_tools"
                   action="action_import_client_wizard"
                   sequence="10"/>
+        <menuitem id="menu_import_vehicle_driver"
+                  name="Import Vehicle and Driver"
+                  parent="menu_trucking_import_tools"
+                  action="action_import_vehicle_driver_wizard"
+                  sequence="20"/>
     </data>
 </odoo>

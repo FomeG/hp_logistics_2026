@@ -24,3 +24,4 @@ access_trucking_planning_branch_director,trucking.branch.director,model_trucking
 access_res_user_member,trucking.user.member,base.model_res_users,group_hp_trucking_planning_member,1,0,0,0
 
 aceess_import_client_wizard_manager,trucking.import_client_wizard.manager,model_trucking_planning_import_client_wizard,base.group_system,1,1,1,1
+access_import_vehicle_driver_wizard_manager,trucking.import_vehicle_driver_wizard.manager,model_trucking_planning_import_vehicle_driver_wizard,base.group_system,1,1,1,1

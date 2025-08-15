@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Import Vehicle and Driver Wizard Form View -->
+    <record id="view_import_vehicle_driver_wizard_form" model="ir.ui.view">
+        <field name="name">trucking_planning.import_vehicle_driver_wizard.form</field>
+        <field name="model">trucking_planning.import_vehicle_driver_wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Vehicle and Driver">
+                <sheet>
+                    <div class="oe_title mb-3">
+                        <h1>
+                            <i class="fa fa-upload text-primary"/> Import Vehicle and Driver từ Excel
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Cấu hình Import" class="col-md-6">
+                            <field name="branch_id"
+                                   placeholder="Chọn chi nhánh..."
+                                   options="{'no_create': True, 'no_quick_create': True}"/>
+                        </group>
+                        <group string="File Upload" class="col-md-6">
+                            <field name="file" filename="file_name"/>
+                            <field name="file_name" invisible="1"/>
+                            <field name="sheet_name" placeholder="Enter sheet name to import"/>
+                            <field name="available_sheets" readonly="1"/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        <h4 class="alert-heading">Hướng dẫn Import</h4>
+                        <p>File Excel cần có các cột sau:</p>
+                        <ul>
+                            <li><strong>Mã xe:</strong> Mã số xe</li>
+                            <li><strong>Biển số:</strong> Biển số xe (bắt buộc)</li>
+                            <li><strong>số mooc:</strong> Số mooc/trailer</li>
+                            <li><strong>Họ tên lái xe:</strong> Tên đầy đủ của lái xe</li>
+                            <li><strong>điện thoại:</strong> Số điện thoại lái xe</li>
+                            <li><strong>loại máy:</strong> "máy bé" hoặc "máy to"</li>
+                        </ul>
+                        <p><strong>Lưu ý:</strong> Dòng đầu tiên phải là header chứa tên các cột.</p>
+                        <p><strong>⚠️ Quan trọng:</strong> Lái xe được import với CCCD và License Number tạm thời. Vui lòng cập nhật thủ công sau khi import.</p>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_import"
+                            type="object"
+                            string="Import"
+                            class="btn-primary"/>
+                    <button string="Đóng" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_import_vehicle_driver_wizard" model="ir.actions.act_window">
+        <field name="name">Import Vehicle and Driver</field>
+        <field name="res_model">trucking_planning.import_vehicle_driver_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_import_vehicle_driver_wizard_form"/>
+    </record>
+
+</odoo> 
