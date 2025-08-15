@@ -4,7 +4,7 @@ from ...hp_components.services.department_service import DepartmentService
 class Client(models.Model):
     _name = 'trucking_planning.client'
     _description = 'Client'
-    _inherit = ['unique.code.mixin', 'unique.normalized.name.mixin', 'mail.thread', 'mail.activity.mixin']
+    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin']
 
     code = fields.Char(
         string= 'Client Code',
@@ -18,6 +18,10 @@ class Client(models.Model):
     )
     phone = fields.Char(
         string="Phone",
+        tracking=True,
+    )
+    address = fields.Char(
+        string="Address",
         tracking=True,
     )
     tax_number = fields.Char(
@@ -39,6 +43,12 @@ class Client(models.Model):
         string='Assign User',
         default=lambda self: self.env.user,
         domain=lambda self: self._get_asssign_user_domain(),
+    )
+    branch_id = fields.Many2one(
+        comodel_name='trucking_planning.branch',
+        index=True,
+        string='Branch',
+        tracking=True,
     )
     _sql_constraints = [
         ('unique_tax', 'UNIQUE(tax_number)','Tax Number must be unique!'),

@@ -12,6 +12,8 @@
         'security/hp_trucking_planning_security.xml',
         'security/ir.model.access.csv',
         'data/trucking_planning_sequences.xml',
+        #wizards
+        'views/wizards/import_client_wizard.xml',
 
         'views/trucking_planning_shipping_line_views.xml',
         'views/trucking_planning_vehicle_views.xml',

@@ -9,7 +9,9 @@
                 <field name="name"/>
                 <field name="tax_number"/>
                 <field name="phone" />
+                <field name="address"/>
                 <field name="assign_user_id" />
+                <field name="branch_id" groups="base.group_user" options="{'no_create': True, 'no_quick_create': True}" />
                 <field name="create_date" groups="base.group_system" />
             </list>
         </field>
@@ -26,7 +28,11 @@
                         <field name="name"/>
                         <field name="tax_number"/>
                         <field name="phone" />
+                        <field name="address"/>
                         <field name="assign_user_id" />
+                        <field name="branch_id" string="Branch"
+                                widget="many2one_new_tab"
+                                options="{'no_create': True, 'no_quick_create': True}" />
                     </group>
                     <notebook>
                         <page string="Routes">
