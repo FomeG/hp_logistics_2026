@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Import Client Wizard Form View -->
+    <record id="view_import_client_wizard_form" model="ir.ui.view">
+        <field name="name">trucking_planning.import_client_wizard.form</field>
+        <field name="model">trucking_planning.import_client_wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Client">
+                <sheet>
+                    <div class="oe_title mb-3">
+                        <h1>
+                            <i class="fa fa-upload text-primary"/> Import Client từ Excel
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Cấu hình Import" class="col-md-6">
+                            <field name="branch_id"
+                                   placeholder="Chọn chi nhánh..."
+                                   options="{'no_create': True, 'no_quick_create': True}"/>
+                            <field name="assign_user_id"
+                                   placeholder="Chọn user được assign..."
+                                   options="{'no_create': True, 'no_quick_create': True}"/>
+                        </group>
+                        <group string="File Upload" class="col-md-6">
+                            <field name="file" filename="file_name"/>
+                            <field name="file_name" invisible="1"/>
+                            <field name="sheet_name" placeholder="Enter sheet name to import"/>
+                            <field name="available_sheets" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_import"
+                            type="object"
+                            string="Import"
+                            class="btn-primary"/>
+                    <button string="Đóng" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_download_client_template" model="ir.actions.act_url">
+        <field name="name">Download Client Template</field>
+        <field name="url">/hp_trucking_planning/static/xlsx/import_client_excel_template.xlsx</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="action_import_client_wizard" model="ir.actions.act_window">
+        <field name="name">Import Client</field>
+        <field name="res_model">trucking_planning.import_client_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_import_client_wizard_form"/>
+    </record>
+
+</odoo>
