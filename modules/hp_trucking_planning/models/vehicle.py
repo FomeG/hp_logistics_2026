@@ -76,16 +76,16 @@ class Vehicle(models.Model):
         default=True,
         tracking=True,
     )
-    plan_ids = fields.One2many(
-        comodel_name='trucking_planning.plan',
-        string='Plans',
-        inverse_name='vehicle_id',
-    )
-    plan_line_ids = fields.One2many(
-        comodel_name='trucking_planning.plan.line',
-        string='Trips',
-        inverse_name='truck_id',
-    )
+    # plan_ids = fields.One2many(
+    #     comodel_name='trucking_planning.plan',
+    #     string='Plans',
+    #     inverse_name='vehicle_id',
+    # )
+    # plan_line_ids = fields.One2many(
+    #     comodel_name='trucking_planning.plan.line',
+    #     string='Trips',
+    #     inverse_name='truck_id',
+    # )
     vehicle_driver_history_ids = fields.One2many(
         comodel_name='trucking_planning.vehicle.driver.history',
         inverse_name='vehicle_id',
@@ -95,40 +95,40 @@ class Vehicle(models.Model):
         index=True,
         default=lambda self: self._get_default_branch(),
     )
-    total_plan_in_month = fields.Integer(string="Total Plan In Month", compute='_compute_total_plan_in_month', store=False)
-    is_available_on_date = fields.Boolean(
-        string='Available on Date Plan',
-        compute='_compute_is_available_on_date',
-        search='_search_is_available_on_date'
-    )
+    # total_plan_in_month = fields.Integer(string="Total Plan In Month", compute='_compute_total_plan_in_month', store=False)
+    # is_available_on_date = fields.Boolean(
+    #     string='Available on Date Plan',
+    #     compute='_compute_is_available_on_date',
+    #     search='_search_is_available_on_date'
+    # )
 
     _sql_constraints = [
         ('unique_trailer_assignment', 'unique(trailer_id)', 'This trailer is already assigned to another vehicle.'),
     ]
     
-    @api.depends('plan_ids.date')
-    def _compute_total_plan_in_month(self):
-        today = fields.Date.today()
-        month_start = today.replace(day=1)
-        last_day = calendar.monthrange(today.year, today.month)[1]
-        month_end = today.replace(day=last_day)
+    # @api.depends('plan_ids.date')
+    # def _compute_total_plan_in_month(self):
+    #     today = fields.Date.today()
+    #     month_start = today.replace(day=1)
+    #     last_day = calendar.monthrange(today.year, today.month)[1]
+    #     month_end = today.replace(day=last_day)
+    #
+    #     trip = self.env['trucking_planning.trip']
+    #
+    #     for rec in self:
+    #         rec.total_plan_in_month = trip.search_count([
+    #             ('vehicle_id', '=', rec.id),
+    #             ('date', '>=', month_start),
+    #             ('date', '<=', month_end),
+    #         ])
 
-        plan = self.env['trucking_planning.plan']
-
-        for rec in self:
-            rec.total_plan_in_month = plan.search_count([
-                ('vehicle_id', '=', rec.id),
-                ('date', '>=', month_start),
-                ('date', '<=', month_end),
-            ])
-
-    @api.depends('plan_ids', 'plan_ids.date')
-    def _compute_is_available_on_date(self):
-        check_date = self.env.context.get('check_date', fields.Date.today())
-        for vehicle in self:
-            vehicle.is_available_on_date = not any(
-                plan.date == check_date for plan in vehicle.plan_ids
-            )
+    # @api.depends('plan_ids', 'plan_ids.date')
+    # def _compute_is_available_on_date(self):
+    #     check_date = self.env.context.get('check_date', fields.Date.today())
+    #     for vehicle in self:
+    #         vehicle.is_available_on_date = not any(
+    #             plan.date == check_date for plan in vehicle.plan_ids
+    #         )
     
     def _search_is_available_on_date(self, operator, value):
         check_date = self.env.context.get('check_date', fields.Date.today())
