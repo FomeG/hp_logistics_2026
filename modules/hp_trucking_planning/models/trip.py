@@ -8,7 +8,8 @@ import math
 class Trip(models.Model):
     _name = 'trucking_planning.trip'
     _description = 'Trip'
-    _inherit = ['unique.code.mixin','mail.thread', 'mail.activity.mixin']
+    _inherit = ['unique.code.mixin','mail.thread', 'mail.activity.mixin', 'portal.mixin']
+
 
     plan_line_id = fields.Many2one(
         comodel_name='trucking_planning.plan.line',
@@ -119,18 +120,18 @@ class Trip(models.Model):
         string="Cut Off",
     )
 
-    route_info = fields.Text(
-        compute='_compute_route_info',
-        store=False,
-    )
+    # route_info = fields.Text(
+    #     compute='_compute_route_info',
+    #     store=False,
+    # )
     container_info = fields.Char(
         compute='_compute_container_info',
         store=False,
     )
-    location_info = fields.Text(
-        compute='_compute_location_info',
-        store=False,
-    )
+    # location_info = fields.Text(
+    #     compute='_compute_location_info',
+    #     store=False,
+    # )
     driver_info = fields.Text(
         compute='_compute_driver_info',
         store=False,
@@ -140,29 +141,29 @@ class Trip(models.Model):
         ('unique_booking', 'Unique(booking)', 'Booking number is unique!'),
     ]
 
-    @api.depends('plan_id.date')
-    def _compute_plan_month_year(self):
-        for record in self:
-            if record.plan_id.date:
-                record.plan_month = record.plan_id.date.month
-                record.plan_year = record.plan_id.date.year
-            else:
-                record.plan_month = False
-                record.plan_year = False
-
-    @api.depends('plan_type', 'route_id')
-    def _compute_actual_locations(self):
-        for rec in self:
-            if rec.route_id:
-                if rec.plan_type == 'export':
-                    rec.actual_source_location_id = rec.route_id.from_location_id
-                    rec.actual_destination_location_id = rec.route_id.to_location_id
-                else:  # import
-                    rec.actual_source_location_id = rec.route_id.to_location_id
-                    rec.actual_destination_location_id = rec.route_id.from_location_id
-            else:
-                rec.actual_source_location_id = False
-                rec.actual_destination_location_id = False
+    # @api.depends('plan_id.date')
+    # def _compute_plan_month_year(self):
+    #     for record in self:
+    #         if record.plan_id.date:
+    #             record.plan_month = record.plan_id.date.month
+    #             record.plan_year = record.plan_id.date.year
+    #         else:
+    #             record.plan_month = False
+    #             record.plan_year = False
+    #
+    # @api.depends('plan_type', 'route_id')
+    # def _compute_actual_locations(self):
+    #     for rec in self:
+    #         if rec.route_id:
+    #             if rec.plan_type == 'export':
+    #                 rec.actual_source_location_id = rec.route_id.from_location_id
+    #                 rec.actual_destination_location_id = rec.route_id.to_location_id
+    #             else:  # import
+    #                 rec.actual_source_location_id = rec.route_id.to_location_id
+    #                 rec.actual_destination_location_id = rec.route_id.from_location_id
+    #         else:
+    #             rec.actual_source_location_id = False
+    #             rec.actual_destination_location_id = False
 
     @api.depends('plan_line_id.route_id', 'truck_id', 'weight_class', 'extra_fuel')
     def _compute_fuel_liters(self):
@@ -225,7 +226,10 @@ class Trip(models.Model):
         if not self.driver_id:
             raise UserError("No driver id specified")
         # Create attachment
-        filename = f"GiayVanTai_{self.driver_id.name if self.driver_id else 'N/A'}_{self.date.strftime('%d/%m/%Y') if self.date else fields.Date.today().strftime('%d/%m/%Y')}.docx"
+        driver_name = self.driver_id.name if self.driver_id else 'N/A'
+        trip_date = self.plan_line_id.plan_id.date if self.plan_line_id and self.plan_line_id.plan_id else fields.Date.today()
+        filename = f"GiayVanTai_{driver_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
+        # filename = f"GiayVanTai_{self.driver_id.name if self.driver_id else 'N/A'}_{self.date.strftime('%d/%m/%Y') if self.date else fields.Date.today().strftime('%d/%m/%Y')}.docx"
         attachment = self.env['ir.attachment'].create({
             'name': filename,
             'type': 'binary',
@@ -391,7 +395,10 @@ class Trip(models.Model):
         bold_run.bold = True
         info_para.add_run("    ")
         info_para.add_run("\nNgày đóng/trả hàng: ")
-        bold_run = info_para.add_run(f"{self.date.strftime('%d/%m/%Y') if self.date else ' '}")
+        trip_date = self.plan_line_id.plan_id.date if self.plan_line_id and self.plan_line_id.plan_id else fields.Date.today()
+        bold_run = info_para.add_run(f"{trip_date.strftime('%d/%m/%Y')}")
+        # bold_run = info_para.add_run(f"{self.date.strftime('%d/%m/%Y') if self.date else ' '}")
+
         bold_run.bold = True
 
         # doc.add_paragraph()  # Spacer
@@ -436,7 +443,9 @@ class Trip(models.Model):
 
         # Add booking info
         para1 = detail_cells[0].add_paragraph()
-        title_run = para1.add_run(f"Số booking HPL: {self.booking or 'N/A'}")
+        booking_no = self.plan_line_id.plan_id.booking_bill_no if self.plan_line_id and self.plan_line_id.plan_id else 'N/A'
+        title_run = para1.add_run(f"Số booking HPL: {booking_no}")
+        # title_run = para1.add_run(f"Số booking HPL: {self.booking or 'N/A'}")
         title_run.bold = True
         title_run.underline = True
         # Add top padding to the inbound cell
@@ -450,10 +459,16 @@ class Trip(models.Model):
 
         para2_content = detail_cells[0].add_paragraph()
         para2_content.add_run("Tên người thuê vận chuyển: ")
-        bold_run = para2_content.add_run(f"{self.client_id.name or 'N/A'}")
+        client_name = self.plan_line_id.client_id.name if self.plan_line_id and self.plan_line_id.client_id else 'N/A'
+        bold_run = para2_content.add_run(f"{client_name}")
+        # bold_run = para2_content.add_run(f"{self.client_id.name or 'N/A'}")
         bold_run.bold = True
         para2_content.add_run("\nĐịa chỉ: ")
-        bold_run = para2_content.add_run(f"{getattr(self.client_id, 'address', '')}")
+        client_address = getattr(self.plan_line_id.client_id, 'address',
+                                 '') if self.plan_line_id and self.plan_line_id.client_id else ''
+        bold_run = para2_content.add_run(f"{client_address}")
+        # para2_content.add_run("\nĐịa chỉ: ")
+        # bold_run = para2_content.add_run(f"{getattr(self.client_id, 'address', '')}")
         bold_run.bold = True
 
         # Add contract info with bold title
@@ -467,7 +482,8 @@ class Trip(models.Model):
         bold_run = para3_content.add_run("")
         bold_run.bold = True
         para3_content.add_run("\nSố bill/booking: ")
-        bold_run = para3_content.add_run(f"{self.booking or ' '}")
+        # bold_run = para3_content.add_run(f"{self.booking or ' '}")
+        bold_run = para3_content.add_run(f"{booking_no}")
         bold_run.bold = True
         para3_content.add_run("\nSố cont: ")
         bold_run = para3_content.add_run(f"{self.container_number or ' '}")
@@ -491,29 +507,41 @@ class Trip(models.Model):
 
         para4_content = detail_cells[0].add_paragraph()
         para4_content.add_run("Tuyến vận chuyển: ")
-        bold_run = para4_content.add_run(f"{self.route_id.name or ' '}")
+        route_name = self.plan_line_id.route_id.name if self.plan_line_id and self.plan_line_id.route_id else ' '
+        bold_run = para4_content.add_run(f"{route_name}")
+        # bold_run = para4_content.add_run(f"{self.route_id.name or ' '}")
         bold_run.bold = True
         para4_content.add_run("\nĐiểm xếp hàng: ")
-        bold_run = para4_content.add_run(f"{self.container_pickup.name or ' '}")
+        source_location = self.plan_line_id.actual_source_location_id.name if self.plan_line_id and self.plan_line_id.actual_source_location_id else ' '
+        bold_run = para4_content.add_run(f"{source_location}")
+        # bold_run = para4_content.add_run(f"{self.container_pickup.name or ' '}")
         bold_run.bold = True
         para4_content.add_run("\nĐiểm giao hàng: ")
-        bold_run = para4_content.add_run(f"{self.container_delivery.name or ' '}")
+        dest_location = self.plan_line_id.actual_destination_location_id.name if self.plan_line_id and self.plan_line_id.actual_destination_location_id else ' '
+        bold_run = para4_content.add_run(f"{dest_location}")
+        # bold_run = para4_content.add_run(f"{self.container_delivery.name or ' '}")
         bold_run.bold = True
         para4_content.add_run("\nNơi trả vỏ: ")
-        bold_run = para4_content.add_run(f"{self.container_pickup.name or ' '}")
+        bold_run = para4_content.add_run(f"{source_location}")
+        # bold_run = para4_content.add_run(f"{self.container_pickup.name or ' '}")
         bold_run.bold = True
         para4_content.add_run("\nThời gian vận chuyển dự kiến:")
         para4_content.add_run("\nBắt đầu từ: ")
-        bold_run = para4_content.add_run(" ")
+        # bold_run = para4_content.add_run(" ")
+        bold_run = para4_content.add_run(f"{trip_date.strftime('%d/%m/%Y')}")
         bold_run.bold = True
         para4_content.add_run("\nđến: ")
-        bold_run = para4_content.add_run(" ")
+        bold_run = para4_content.add_run(f"{trip_date.strftime('%d/%m/%Y')}")
+        # bold_run = para4_content.add_run(" ")
         bold_run.bold = True
         para4_content.add_run("\nTổng số km dự kiến: ")
-        bold_run = para4_content.add_run(f"{self.route_id.distance_km}")
+        distance = self.plan_line_id.route_id.distance_km if self.plan_line_id and self.plan_line_id.route_id else 0
+        bold_run = para4_content.add_run(f"{distance}")
+        # bold_run = para4_content.add_run(f"{self.route_id.distance_km}")
         bold_run.bold = True
         para4_content.add_run("\nLiên hệ: ")
-        bold_run = para4_content.add_run(f"{self.goods_pickup_delivery.contact_phone or ' '}")
+        bold_run = para4_content.add_run(" ")
+        # bold_run = para4_content.add_run(f"{self.goods_pickup_delivery.contact_phone or ' '}")
         bold_run.bold = True
 
         # Add goods info with bold title
@@ -524,7 +552,8 @@ class Trip(models.Model):
 
         para5_content = detail_cells[0].add_paragraph()
         para5_content.add_run("Tên hàng hóa: ")
-        bold_run = para5_content.add_run({self.goods_weight or ' '})
+        bold_run = para5_content.add_run(f"{self.goods_name or ' '}")
+        # bold_run = para5_content.add_run({self.goods_weight or ' '})
         bold_run.bold = True
         para5_content.add_run("\nKhối lượng hàng hóa (tấn): ")
         bold_run = para5_content.add_run({self.goods_weight or ' '})
@@ -650,8 +679,11 @@ class Trip(models.Model):
         title_run = para2_permit.add_run(f"TIỀN CHI PHÍ - (ĐỒNG)")
         title_run.bold = True
         para2_permit_content = detail_cells[2].add_paragraph()
+        road_fee = getattr(self.plan_line_id.route_id, 'road_fee',
+                           0) if self.plan_line_id and self.plan_line_id.route_id else 0
         para2_permit_content.add_run("Vé cầu đường: ")
-        bold_run = para2_permit_content.add_run(f"{self.route_id.road_fee or ''}")
+        bold_run = para2_permit_content.add_run(f"{road_fee}")
+        # bold_run = para2_permit_content.add_run(f"{self.route_id.road_fee or ''}")
         bold_run.bold = True
         para2_permit_content.add_run("\nChi phí khác: ")
         bold_run = para2_permit_content.add_run(f"{self.extra_charge or ''}")
@@ -660,7 +692,8 @@ class Trip(models.Model):
         bold_run = para2_permit_content.add_run("")
         bold_run.bold = True
         para2_permit_content.add_run("\nTổng Cộng: ")
-        bold_run = para2_permit_content.add_run("")
+        bold_run = para2_permit_content.add_run(f"{self.total_cost or 0}")
+        # bold_run = para2_permit_content.add_run("")
         bold_run.bold = True
 
         # Add loading/unloading info
@@ -679,7 +712,8 @@ class Trip(models.Model):
         bold_run = para3_permit.add_run(" ")
         bold_run.bold = True
         para3_permit.add_run("\nTổng Tiền: ")
-        bold_run = para3_permit.add_run(" ")
+        bold_run = para3_permit.add_run(f"{self.total_cost or 0}")
+        # bold_run = para3_permit.add_run(" ")
         bold_run.bold = True
 
         # Merge cells in main_table for the loader section
@@ -808,10 +842,10 @@ class Trip(models.Model):
 
         return doc
 
-    def _compute_route_info(self):
-        for trip in self:
-            freeway_text = '(freeway)' if trip.freeway else ''
-            trip.route_info = f"{trip.actual_source_location_id.name} - {trip.actual_destination_location_id.name} {freeway_text}"
+    # def _compute_route_info(self):
+    #     for trip in self:
+    #         freeway_text = '(freeway)' if trip.freeway else ''
+    #         trip.route_info = f"{trip.actual_source_location_id.name} - {trip.actual_destination_location_id.name} {freeway_text}"
 
     def _compute_container_info(self):
         for trip in self:

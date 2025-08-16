@@ -30,7 +30,7 @@
                 <field name="type" string="Vehicle Type" />
                 <field name="engine_type" string="Engine Size" invisible="type == 'trailer'" />
                 <field name="primary_driver_id" string="Driver" invisible="type == 'trailer'" />
-                <field name="total_plan_in_month"/>
+<!--                <field name="total_plan_in_month"/>-->
                 <field name="is_rented" string="Rented" />
             </list>
         </field>
@@ -83,9 +83,9 @@
                 <field name="name" />
                 <field name="type" />
 
-                <filter name="available_date_of_plan"
-                    string="Available on Selected Date"
-                    domain="[('is_available_on_date', '=', True)]" />
+<!--                <filter name="available_date_of_plan"-->
+<!--                    string="Available on Selected Date"-->
+<!--                    domain="[('is_available_on_date', '=', True)]" />-->
             </search>
         </field>
     </record>

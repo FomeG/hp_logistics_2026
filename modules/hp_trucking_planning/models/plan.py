@@ -125,27 +125,27 @@ class Plan(models.Model):
                 vals['name'] = f"{prefix}/{today}/{seq_number}"
 
         records = super().create(vals_list)
-        for record in records:
-            if record.vehicle_id and record.date:
-                record.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
-                    vehicle_id=record.vehicle_id.id,
-                    date_plan=record.date,
-                    exclude_plan_id=record.id
-                )
+        # for record in records:
+        #     if record.vehicle_id and record.date:
+        #         record.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
+        #             vehicle_id=record.vehicle_id.id,
+        #             date_plan=record.date,
+        #             exclude_plan_id=record.id
+        #         )
     
         return records
     
     def write(self, vals):
         result = super().write(vals)
 
-        if 'vehicle_id' in vals or 'date' in vals:
-            for record in self:
-                if record.vehicle_id and record.date:
-                    record.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
-                        vehicle_id=record.vehicle_id.id,
-                        date_plan=record.date,
-                        exclude_plan_id=record.id
-                    )
+        # if 'vehicle_id' in vals or 'date' in vals:
+        #     for record in self:
+        #         if record.vehicle_id and record.date:
+        #             record.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
+        #                 vehicle_id=record.vehicle_id.id,
+        #                 date_plan=record.date,
+        #                 exclude_plan_id=record.id
+        #             )
     
         return result
 

@@ -20,7 +20,7 @@ class TruckingPortal(CustomerPortal):
         **kw
     ):
         try:
-            trip_sudo = self._document_check_access('trucking_planning.plan.line', trip_id, access_token=access_token)
+            trip_sudo = self._document_check_access('trucking_planning.trip', trip_id, access_token=access_token)
         except (AccessError, MissingError):
             return request.redirect('/my')
 

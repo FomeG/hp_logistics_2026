@@ -26,10 +26,11 @@
                         <field name="cccd"/>
                         <field name="license_number"/>
                         <field name="contract_date"/>
+                        <field name="active"/>
                         <field name="notes"/>
                     </group>
                     <notebook invisible="not id">
-                        <page string="Trips">
+                        <!-- <page string="Trips">
                             <field name="plan_line_ids" readonly="1">
                                 <list>
                                     <field name="code"/>
@@ -37,7 +38,7 @@
                                     <field name="route_id"/>
                                 </list>
                             </field>
-                        </page>
+                        </page> -->
                         <page string="Vehicles">
                             <field name="vehicle_driver_history_ids" readonly="True">
                                 <list>
@@ -64,6 +65,9 @@
                 <field name="cccd" />
                 <field name="license_number" />
                 <field name="contract_date" />
+
+                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                <filter string="Inactive" name="inactive" domain="[('active', '=', False)]"/>
             </search>
         </field>
     </record>

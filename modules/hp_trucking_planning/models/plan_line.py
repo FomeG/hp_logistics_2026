@@ -7,7 +7,7 @@ class PlanLine(models.Model):
     _name = 'trucking_planning.plan.line'
     _description = 'Plan Line'
     _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
-    _order = 'date asc'
+    # _order = 'date asc'
 
     plan_id = fields.Many2one(
         comodel_name='trucking_planning.plan',
@@ -71,15 +71,17 @@ class PlanLine(models.Model):
         inverse_name='plan_line_id',
     )
 
-    @api.depends('plan_id.date')
-    def _compute_plan_month_year(self):
-        for record in self:
-            if record.plan_id.date:
-                record.plan_month = record.plan_id.date.month
-                record.plan_year = record.plan_id.date.year
-            else:
-                record.plan_month = False
-                record.plan_year = False
+
+
+    # @api.depends('plan_id.date')
+    # def _compute_plan_month_year(self):
+    #     for record in self:
+    #         if record.plan_id.date:
+    #             record.plan_month = record.plan_id.date.month
+    #             record.plan_year = record.plan_id.date.year
+    #         else:
+    #             record.plan_month = False
+    #             record.plan_year = False
 
     @api.depends('plan_type', 'route_id')
     def _compute_actual_locations(self):

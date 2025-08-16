@@ -81,7 +81,9 @@
                     </div>
                     <div class="col-4 text-end">
                         <strong>Số: <span t-field="trip.code"/></strong><br/>
-                        <strong>Ngày đóng/trả hàng: <span t-field="trip.date" t-options='{"widget": "date"}'/></strong>
+                        <strong>Ngày đóng/trả hàng: <span t-field="trip.plan_line_id.plan_id.date" t-options='{"widget": "date"}'/></strong>
+<!--                        <strong>Ngày đóng/trả hàng: <span t-field="trip.date" t-options='{"widget": "date"}'/></strong>-->
+
                     </div>
                 </div>
 
@@ -99,20 +101,25 @@
                             <!-- Left Column: Hàng Đi -->
                             <td class="align-top">
                                 <div class="mb-3">
-                                    <strong>Số booking HPL: <span t-field="trip.booking"/></strong>
+<!--                                    <strong>Số booking HPL: <span t-field="trip.booking"/></strong>-->
+                                    <strong>Số booking HPL: <span t-field="trip.plan_line_id.plan_id.booking_bill_no"/></strong>
                                 </div>
 
                                 <div class="mb-3">
                                     <strong>3. Thông tin về người thuê vận tải</strong><br/>
-                                    Tên người thuê vận chuyển: <strong><span t-field="trip.client_id.name"/></strong><br/>
+                                    Tên người thuê vận chuyển: <strong><span t-field="trip.plan_line_id.client_id.name"/></strong><br/>
+<!--                                    Tên người thuê vận chuyển: <strong><span t-field="trip.client_id.name"/></strong><br/>-->
                                     Địa chỉ: <strong>N/A</strong>
                                 </div>
 
                                 <div class="mb-3">
                                     <strong>4. Thông tin về hợp đồng vận tải</strong><br/>
-                                    Số hợp đồng: <span t-field="trip.contract_number"/><br/>
-                                    Số bill/booking: <strong><span t-field="trip.booking"/></strong><br/>
+                                    Số hợp đồng: <br/>
+                                    Số bill/booking: <strong><span t-field="trip.plan_line_id.plan_id.booking_bill_no"/></strong><br/>
                                     Số cont: <strong><span t-field="trip.container_number"/></strong><br/>
+<!--                                    Số hợp đồng: <span t-field="trip.contract_number"/><br/>-->
+<!--                                    Số bill/booking: <strong><span t-field="trip.booking"/></strong><br/>-->
+<!--                                    Số cont: <strong><span t-field="trip.container_number"/></strong><br/>-->
                                     Số seal: <span t-field="trip.seal_number"/><br/>
                                     Loại cont: <span t-field="trip.container_type"/><br/>
                                     Kích thước: <strong><span t-field="trip.container_size"/></strong>
@@ -120,21 +127,31 @@
 
                                 <div class="mb-3">
                                     <strong>5. Thông tin về chuyến đi</strong><br/>
-                                    Tuyến vận chuyển: <span t-field="trip.route_id.name"/><br/>
-                                    Điểm xếp hàng: <span t-field="trip.container_pickup.name"/><br/>
-                                    Điểm giao hàng: <span t-field="trip.container_delivery.name"/><br/>
-                                    Nơi trả vỏ: <span t-field="trip.container_pickup.name"/><br/>
+                                    Tuyến vận chuyển: <span t-field="trip.plan_line_id.route_id.name"/><br/>
+                                    Điểm xếp hàng: <span t-field="trip.plan_line_id.actual_source_location_id.name"/><br/>
+                                    Điểm giao hàng: <span t-field="trip.plan_line_id.actual_destination_location_id.name"/><br/>
+                                    Nơi trả vỏ: <span t-field="trip.plan_line_id.actual_source_location_id.name"/><br/>
+<!--                                    Tuyến vận chuyển: <span t-field="trip.route_id.name"/><br/>-->
+<!--                                    Điểm xếp hàng: <span t-field="trip.container_pickup.name"/><br/>-->
+<!--                                    Điểm giao hàng: <span t-field="trip.container_delivery.name"/><br/>-->
+<!--                                    Nơi trả vỏ: <span t-field="trip.container_pickup.name"/><br/>-->
                                     Thời gian vận chuyển dự kiến:<br/>
-                                    Bắt đầu từ: <strong><span t-field="trip.date" t-options='{"widget": "date"}'/></strong> đến: <strong><span t-field="trip.date" t-options='{"widget": "date"}'/></strong><br/>
-                                    Tổng số km dự kiến: <strong><span t-field="trip.route_id.distance_km"/></strong><br/>
-                                    Liên hệ: <strong><span t-field="trip.contact_phone"/></strong>
+                                    Bắt đầu từ: <strong><span t-field="trip.plan_line_id.plan_id.date" t-options='{"widget": "date"}'/></strong> đến: <strong><span t-field="trip.plan_line_id.plan_id.date" t-options='{"widget": "date"}'/></strong><br/>
+                                    Tổng số km dự kiến: <strong><span t-field="trip.plan_line_id.route_id.distance_km"/></strong><br/>
+                                    Liên hệ: <strong></strong>
+<!--                                    Bắt đầu từ: <strong><span t-field="trip.date" t-options='{"widget": "date"}'/></strong> đến: <strong><span t-field="trip.date" t-options='{"widget": "date"}'/></strong><br/>-->
+<!--                                    Tổng số km dự kiến: <strong><span t-field="trip.route_id.distance_km"/></strong><br/>-->
+<!--                                    Liên hệ: <strong><span t-field="trip.contact_phone"/></strong>-->
                                 </div>
 
                                 <div class="mb-3">
                                     <strong>6. Thông tin về hàng hóa</strong><br/>
-                                    Tên hàng hóa: <span t-field="trip.note"/><br/>
-                                    Khối lượng hàng hóa (<strong>tấn</strong>): <strong>28.00</strong><br/>
-                                    Cắt máng: 
+                                    Tên hàng hóa: <span t-field="trip.goods_name"/><br/>
+                                    Khối lượng hàng hóa (<strong>tấn</strong>): <strong><span t-field="trip.goods_weight"/></strong><br/>
+                                    Cắt máng: <span t-field="trip.goods_cut_off" t-options='{"widget": "datetime"}'/>
+<!--                                    Tên hàng hóa: <span t-field="trip.note"/><br/>-->
+<!--                                    Khối lượng hàng hóa (<strong>tấn</strong>): <strong>28.00</strong><br/>-->
+<!--                                    Cắt máng: -->
                                 </div>
 
                                 <div class="mb-3">
