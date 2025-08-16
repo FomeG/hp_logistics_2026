@@ -14,11 +14,16 @@ class ResPartnerInherit(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        shipping_line_type = self.env['partner.main.type'].search([('code', '=', 'shipping_line')], limit=1)
         for vals in vals_list:
+            if shipping_line_type and not vals.get('partner_main_type_id'):
+                vals['partner_main_type_id'] = shipping_line_type.id
+
             if self._is_shipping_line_partner(vals):
                 validated, errors = ShippingLineCreateValidator.validate(vals, self.env)
                 if errors:
                     raise ValidationError("\n".join([f"• {e}" for e in errors]))
+
         return super().create(vals_list)
 
     def write(self, vals):
