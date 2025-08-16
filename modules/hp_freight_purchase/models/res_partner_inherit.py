@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields, api , tools
 from odoo.exceptions import ValidationError
 from ..validators.shipping_line_validator import ShippingLineCreateValidator, ShippingLineUpdateValidator
 
@@ -12,13 +12,26 @@ class ResPartnerInherit(models.Model):
     total_bookings = fields.Char(string="Total Bookings", compute='_compute_total_booking', store=False)
     total_quotations = fields.Char(string="Total Quotations", compute='_compute_total_quotation', store=False)
 
+    @tools.ormcache()
+    def _get_shipping_line_type(self):
+        return self.env['partner.main.type'].search([('code', '=', 'shipping_line')], limit=1)
+
+
     @api.model_create_multi
     def create(self, vals_list):
+        shipping_line_type = self._get_shipping_line_type()
+        if not shipping_line_type:
+            raise ValidationError("Shipping line type not found. Please create it first.")
+
         for vals in vals_list:
+            if shipping_line_type and not vals.get('partner_main_type_id'):
+                vals['partner_main_type_id'] = shipping_line_type.id
+
             if self._is_shipping_line_partner(vals):
                 validated, errors = ShippingLineCreateValidator.validate(vals, self.env)
                 if errors:
                     raise ValidationError("\n".join([f"• {e}" for e in errors]))
+
         return super().create(vals_list)
 
     def write(self, vals):
