@@ -42,7 +42,7 @@
 
     <record id="action_download_client_template" model="ir.actions.act_url">
         <field name="name">Download Client Template</field>
-        <field name="url">/hp_trucking_planning/static/xlsx/import_client_excel_template.xlsx</field>
+        <field name="url">/hp_trucking_planning/static/xlsx/import_client_wizard_excel_template.xlsx</field>
         <field name="target">new</field>
     </record>
 
