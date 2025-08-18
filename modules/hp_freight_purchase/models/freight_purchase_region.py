@@ -12,7 +12,11 @@ class FreightPurchaseRegion(models.Model):
     is_active = fields.Boolean(string='Is Active', default=True, tracking=True)
     ports = fields.One2many('freight.purchase.port','region_id',string='Ports', tracking=True)
     employee_ids = fields.Many2many('hr.employee', string='Pricing Members', tracking=True)
-
+    country_ids = fields.One2many(
+        'res.country',
+        'region_id',
+        string='Countries'
+    )
     employee_string = fields.Char(string="Employees in Region", compute='_compute_employee_string', store=False)
     port_string = fields.Char(string="Ports in Region", compute='_compute_port_string', store=False)
 
@@ -24,13 +28,11 @@ class FreightPurchaseRegion(models.Model):
             else:
                 region.employee_string = ""
 
-    @api.depends('ports')
+    @api.depends('country_ids.port_ids')
     def _compute_port_string(self):
         for region in self:
-            if region.ports:
-                region.port_string = ", ".join(region.ports.mapped('name'))
-            else:
-                region.port_string = ""
+            ports = region.country_ids.mapped('port_ids.name')
+            region.port_string = ", ".join(ports) if ports else ""
 
     @api.model_create_multi
     def create(self, vals_list):
