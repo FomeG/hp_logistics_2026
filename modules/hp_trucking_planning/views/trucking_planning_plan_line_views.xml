@@ -6,6 +6,7 @@
             <field name="model">trucking_planning.plan.line</field>
             <field name="arch" type="xml">
                 <list>
+                    <field name="plan_id" string="Plan"/>
                     <field name="code"/>
 <!--                    <field name="date"/>-->
                     <field name="client_id"/>
@@ -50,6 +51,20 @@
 <!--                            <field name="tax_number" readonly="1"/>-->
 <!--                            <field name="booking"/>-->
                         </group>
+
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_trips"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-truck">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_value">
+                                        <field name="trip_ids" widget="statinfo" string="Trips"/>
+                                    </span>
+                                </div>
+                            </button>
+                        </div>
+
                         <notebook>
                             <page string="Route/Driver/Vehicle">
                                 <group>
@@ -94,6 +109,24 @@
 <!--                                    <field name="container_size"/>-->
 <!--                                </group>-->
 <!--                            </page>-->
+                            <page string="Trips" invisible="not id">
+                                <field name="trip_ids">
+                                    <list>
+                                        <field name="code" string="Trip Code"/>
+                                        <field name="status"/>
+                                        <field name="container_number"/>
+                                        <field name="seal_number"/>
+                                        <field name="container_type"/>
+                                        <field name="container_size"/>
+                                        <field name="truck_id"/>
+                                        <field name="driver_id"/>
+                                        <field name="weight_class"/>
+                                        <field name="fuel_liters"/>
+                                        <field name="total_cost"/>
+                                    </list>
+                                </field>
+                            </page>
+
                             <page string="Notes">
                                 <group>
                                     <field name="note"/>
@@ -118,18 +151,31 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="code"/>
+                    <field name="plan_id" string="Plan"/>
                     <field name="client_id"/>
 <!--                    <field name="booking" />-->
                     <field name="status"/>
+                    <field name="route_id"/>
+                    <field name="goods_name"/>
 <!--                    <field name="driver_id"/>-->
 <!--                    <field name="truck_id"/>-->
 <!--                    <field name="plan_month" />-->
 <!--                    <field name="plan_year" />-->
 <!--                    <filter string="Freeway Trips" name="freeway" domain="[('freeway','=',True)]"/>-->
 
+                    <filter string="HPL Reject" name="hpl_reject" domain="[('status', '=', 'hpl_reject')]"/>
+                    <filter string="Client Cancel" name="client_cancel" domain="[('status', '=', 'client_cancel')]"/>
+                    <filter string="Checking" name="checking" domain="[('status', '=', 'checking')]"/>
+                    <filter string="Transfer" name="transfer" domain="[('status', '=', 'transfer')]"/>
+                    <filter string="Rented" name="rented" domain="[('status', '=', 'rented')]"/>
+                    <filter string="Export" name="export" domain="[('plan_type', '=', 'export')]"/>
+                    <filter string="Import" name="import" domain="[('plan_type', '=', 'import')]"/>
+
                     <group expand="0" string="Group By">
                         <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
                         <filter string="Client" name="group_by_client" context="{'group_by':'client_id'}"/>
+                        <filter string="Route" name="group_by_route" context="{'group_by':'route_id'}"/>
+                        <filter string="Direction" name="group_by_direction" context="{'group_by':'plan_type'}"/>
 <!--                        <filter string="Driver" name="group_by_driver" context="{'group_by':'driver_id'}"/>-->
 <!--                        <filter string="Date" name="group_by_date" context="{'group_by':'date:day'}"/>-->
 <!--                        <filter string="Month" name="plan_month" context="{'group_by': 'plan_month'}" />-->
@@ -137,6 +183,13 @@
                     </group>
                 </search>
             </field>
+        </record>
+
+        <record id="action_plan_line" model="ir.actions.act_window">
+            <field name="name">Plan Lines</field>
+            <field name="res_model">trucking_planning.plan.line</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'default_status': 'checking'}</field>
         </record>
 <!--        <record id="action_trip" model="ir.actions.act_window">-->
 <!--            <field name="name">Trips</field>-->

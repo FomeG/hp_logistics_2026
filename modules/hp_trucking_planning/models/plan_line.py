@@ -7,6 +7,7 @@ class PlanLine(models.Model):
     _name = 'trucking_planning.plan.line'
     _description = 'Plan Line'
     _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
+    _rec_name = 'code'
     # _order = 'date asc'
 
     plan_id = fields.Many2one(
@@ -72,7 +73,6 @@ class PlanLine(models.Model):
     )
 
 
-
     # @api.depends('plan_id.date')
     # def _compute_plan_month_year(self):
     #     for record in self:
@@ -119,3 +119,18 @@ class PlanLine(models.Model):
     def _on_route_change(self):
         for trip in self:
             trip.plan_type = trip.route_id.direction
+
+    def action_view_trips(self):
+        """Action để xem tất cả trips thuộc plan line này"""
+        self.ensure_one()
+        return {
+            'name': f'Trips - {self.code or self.plan_id.name}',
+            'res_model': 'trucking_planning.trip',
+            'view_mode': 'list,form',
+            'domain': [('plan_line_id', '=', self.id)],
+            'context': {
+                'default_plan_line_id': self.id,
+            },
+            'type': 'ir.actions.act_window',
+            'target': 'current',
+        }

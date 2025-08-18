@@ -32,9 +32,11 @@
                             <field name="name" string="Reference" readonly="True"/>
                         </group>
                         <group>
+                            <field name="plan_type" string="Plan Type"/>
                             <field name="booking_bill_no" string="Booking Bill No."/>
                             <field name="shipping_line_id" string="Shipping Line"/>
                             <field name="container_type" string="Container Type"/>
+                            <field name="location_id" string="Location"/>
                             <field name="goods_cut_off" string="Goods Cut Off Date"/>
                             <field name="date" required="1"/>
 <!--                            <field name="vehicle_id"-->
@@ -51,15 +53,15 @@
                             <field name="status"/>
                         </group>
                         <div class="oe_button_box" name="button_box">
-                            <button name="action_view_trips"
+                            <button name="action_view_plan_lines"
                                     type="object"
                                     class="oe_stat_button"
                                     icon="fa-truck">
-                                <field name="total_trips" widget="statinfo" string="Trips"/>
+                                <field name="total_trips" widget="statinfo" string="Plan Trips"/>
                             </button>
                         </div>
                         <notebook>
-                            <page string="Trips" invisible="not id">
+                            <page string="Plan Lines" invisible="not id">
                                 <field name="plan_line_ids" readonly="True">
                                     <list delete="false">
                                         <field name="code" string="Job" />
@@ -68,6 +70,8 @@
                                         <field name="plan_type" string="Direction"/>
                                         <field name="actual_source_location_id" string="From"/>
                                         <field name="actual_destination_location_id" string="To"/>
+                                        <field name="goods_name"/>
+                                        <field name="goods_weight"/>
 <!--                                        <field name="weight_class" string="Weight"/>-->
 <!--                                        <field name="fuel_liters"/>-->
 <!--                                        <field name="total_cost"/>-->
@@ -89,6 +93,7 @@
 <!--                <field name="vehicle_id"/>-->
                 <field name="shipping_line_id" string="Shipping Line"/>
                 <field name="name" string="Reference"/>
+                <field name="booking_bill_no"/>
                 <field name="month" string="Month" />
                 <field name="year" string="Year" />
 
@@ -99,6 +104,7 @@
                 <filter string="Done" name="done" domain="[('status','=','done')]"/>
                 <filter string="Confirmed" name="confirmed" domain="[('status','=','confirmed')]"/>
                 <filter string="Cancelled" name="cancelled" domain="[('status','=','cancel')]"/>
+
                 <group expand="0" string="Group By">
                     <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
                     <filter string="Plan Type" name="group_by_plan_type" context="{'group_by':'plan_type'}"/>

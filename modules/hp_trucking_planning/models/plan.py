@@ -83,7 +83,7 @@ class Plan(models.Model):
     ], default='in_progress')
 
     total_trips = fields.Char(
-        string="Total Trips",
+        string="Total Plan Trips",
         compute='_compute_total_trips',
         store=False
     )
@@ -152,11 +152,11 @@ class Plan(models.Model):
     @api.depends('plan_line_ids')
     def _compute_total_trips(self):
         for record in self:
-            record.total_trips = "0 Trip(s)"
+            record.total_trips = "0 Plan Trip(s)"
             if record.plan_line_ids:
-                record.total_trips = f"{len(record.plan_line_ids)} Trip(s)"
+                record.total_trips = f"{len(record.plan_line_ids)} Plan Trip(s)"
 
-    def action_view_trips(self):
+    def action_view_plan_lines(self):
         self.ensure_one()
         return {
             'name': 'Trips',

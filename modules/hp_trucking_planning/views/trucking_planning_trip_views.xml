@@ -5,8 +5,8 @@
         <field name="model">trucking_planning.trip</field>
         <field name="arch" type="xml">
             <list>
-                <field name="code"/>
                 <field name="plan_line_id" string="Plan Line"/>
+                <field name="code"/>
                 <field name="status"/>
                 <field name="container_number"/>
                 <field name="seal_number"/>
@@ -35,7 +35,7 @@
                     <button name="action_export_trip_docx" string="Export Trip DOCX" type="object" class="btn-primary"/>
                 </header>
                 <sheet>
-                    <group>
+                    <group string ="Trip Information">
                         <field name="plan_line_id"
                                widget="many2one"
                                string="Plan Line"
@@ -79,6 +79,18 @@
                                 <field name="goods_cut_off"/>
                             </group>
                         </page>
+                        <page string="Plan Info">
+                            <group>
+                                <field name="plan_booking_bill_no" string="Booking/Bill No" readonly="1"/>
+                                <field name="plan_date" string="Plan Date" readonly="1"/>
+                                <field name="client_id" string="Client" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="route_id" string="Route" readonly="1"/>
+                                <field name="actual_source_location_id" string="From" readonly="1"/>
+                                <field name="actual_destination_location_id" string="To" readonly="1"/>
+                            </group>
+                        </page>
                         <page string="Notes">
                             <field name="note"/>
                         </page>
@@ -96,6 +108,8 @@
             <search>
                 <field name="code"/>
                 <field name="plan_line_id"/>
+                <field name="plan_id" string="Plan"/>
+                <field name="client_id" string="Client"/>
                 <field name="container_number"/>
                 <field name="status"/>
                 <field name="truck_id"/>
@@ -114,12 +128,14 @@
                 <filter string="Freeway" name="freeway" domain="[('freeway', '=', True)]"/>
 
                 <group expand="0" string="Group By">
+                    <filter string="Plan Line" name="group_by_plan_line" context="{'group_by':'plan_line_id'}"/>
                     <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
                     <filter string="Plan Type" name="group_by_plan_type" context="{'group_by':'plan_type'}"/>
                     <filter string="Driver" name="group_by_driver" context="{'group_by':'driver_id'}"/>
                     <filter string="Truck" name="group_by_truck" context="{'group_by':'truck_id'}"/>
                     <filter string="Container Type" name="group_by_container_type" context="{'group_by':'container_type'}"/>
                     <filter string="Weight Class" name="group_by_weight_class" context="{'group_by':'weight_class'}"/>
+                    <filter string="Client" name="group_by_client" context="{'group_by':'client_id'}"/>
                 </group>
             </search>
         </field>

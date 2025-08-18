@@ -9,12 +9,67 @@ class Trip(models.Model):
     _name = 'trucking_planning.trip'
     _description = 'Trip'
     _inherit = ['unique.code.mixin','mail.thread', 'mail.activity.mixin', 'portal.mixin']
-
+    _rec_name = 'code'
 
     plan_line_id = fields.Many2one(
         comodel_name='trucking_planning.plan.line',
         string='Plan',
         required=True,
+    )
+    # Related fields để hiển thị thông tin Plan
+    plan_id = fields.Many2one(
+        comodel_name='trucking_planning.plan',
+        related='plan_line_id.plan_id',
+        string='Plan',
+        readonly=True,
+        store=True,
+    )
+    plan_booking_bill_no = fields.Char(
+        related='plan_line_id.plan_id.booking_bill_no',
+        string='Booking/Bill No',
+        readonly=True,
+        store=True,
+    )
+    plan_date = fields.Date(
+        related='plan_line_id.plan_id.date',
+        string='Plan Date',
+        readonly=True,
+        store=True,
+    )
+    plan_shipping_line_id = fields.Many2one(
+        comodel_name='trucking_planning.shipping_line',
+        related='plan_line_id.plan_id.shipping_line_id',
+        string='Plan Shipping Line',
+        readonly=True,
+        store=True,
+    )
+    client_id = fields.Many2one(
+        comodel_name='trucking_planning.client',
+        related='plan_line_id.client_id',
+        string='Client',
+        readonly=True,
+        store=True,
+    )
+    route_id = fields.Many2one(
+        comodel_name='trucking_planning.route',
+        related='plan_line_id.route_id',
+        string='Route',
+        readonly=True,
+        store=True,
+    )
+    actual_source_location_id = fields.Many2one(
+        comodel_name='trucking_planning.location',
+        related='plan_line_id.actual_source_location_id',
+        string='From Location',
+        readonly=True,
+        store=True,
+    )
+    actual_destination_location_id = fields.Many2one(
+        comodel_name='trucking_planning.location',
+        related='plan_line_id.actual_destination_location_id',
+        string='To Location',
+        readonly=True,
+        store=True,
     )
     code = fields.Char(
         string='Job Number',
