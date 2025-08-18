@@ -8,8 +8,8 @@ import math
 class Trip(models.Model):
     _name = 'trucking_planning.trip'
     _description = 'Trip'
-    _inherit = ['unique.code.mixin','mail.thread', 'mail.activity.mixin', 'portal.mixin']
-    _rec_name = 'code'
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
+    _rec_name = 'plan_line_id'
 
     plan_line_id = fields.Many2one(
         comodel_name='trucking_planning.plan.line',
@@ -24,6 +24,13 @@ class Trip(models.Model):
         readonly=True,
         store=True,
     )
+    plan_type = fields.Selection(
+        related='plan_line_id.plan_id.plan_type',
+        string='Plan Type',
+        readonly=True,
+        store=True,
+    )
+
     plan_booking_bill_no = fields.Char(
         related='plan_line_id.plan_id.booking_bill_no',
         string='Booking/Bill No',
@@ -104,14 +111,14 @@ class Trip(models.Model):
         ('20', '20'),
         ('40', '40')
     ], string="Container Size", required=True, tracking=True)
-    shipping_line_id = fields.Many2one(
-        comodel_name='trucking_planning.shipping_line',
-        required=True,
-    )
-    plan_type = fields.Selection([
-        ('export', 'Export'),
-        ('import', 'Import'),
-    ], string="Plan Type", required=True, tracking=True)
+    # shipping_line_id = fields.Many2one(
+    #     #     comodel_name='trucking_planning.shipping_line',
+    #     #     required=True,
+    #     # )
+    # plan_type = fields.Selection([
+    #     ('export', 'Export'),
+    #     ('import', 'Import'),
+    # ], string="Plan Type", required=True, tracking=True)
 
     truck_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle',
