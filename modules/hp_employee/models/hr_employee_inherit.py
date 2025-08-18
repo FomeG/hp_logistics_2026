@@ -79,6 +79,7 @@ class HrEmployeeInherit(models.Model):
         self.ensure_one()
         if self.user_id:
             raise ValidationError(_("This employee already has an user."))
+        
         return {
                 'name': _('Create User'),
                 'type': 'ir.actions.act_window',
@@ -93,6 +94,8 @@ class HrEmployeeInherit(models.Model):
                     'default_mobile': self.mobile_phone,
                     'default_login': self.work_email,
                     'default_partner_id': self.work_contact_id.id,
+                    # Use a custom context to override default groups behavior
+                    'employee_user_creation': True,
             })
         }
 
