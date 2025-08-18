@@ -1,6 +1,6 @@
 from pkg_resources import require
-
-from odoo import models, fields,api
+from odoo.odoo.api import ondelete
+from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from ..validators.port_validator import PortCreateValidator, PortUpdateValidator
 
@@ -17,10 +17,12 @@ class FreightPurchasePort(models.Model):
         default=False,
         tracking=True
     )
+    country_id = fields.Many2one('res.country', string='Country', required=True, tracking=True, ondelete='cascade')
+
     region_id = fields.Many2one(
         'freight.purchase.region',
         string='Region',
-        required=True,
+        related='country_id.region_id',
         tracking=True
     )
     is_active = fields.Boolean(
