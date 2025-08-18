@@ -27,43 +27,48 @@
                     </group>
                                                                                                  <div class="alert alert-info" role="alert">
                                  <h4 class="alert-heading">Hướng dẫn Import</h4>
-                                 <div class="row">
-                                     <div class="col-md-6">
-                                         <p><strong>📥 Tải file mẫu:</strong></p>
-                                         <p>
-                                             <a href="https://docs.google.com/spreadsheets/d/1qvMvAul7P23ZzEDAn-ot3jeK0ZHG2HM7/edit?usp=sharing&amp;ouid=115757879676763489132&amp;rtpof=true&amp;sd=true" 
-                                                target="_blank" 
-                                                class="btn btn-sm btn-outline-primary">
-                                                 <i class="fa fa-download"/> Tải File Mẫu Excel
-                                             </a>
-                                         </p>
-                                         <p><strong>📋 Cách sử dụng file mẫu:</strong></p>
-                                         <ol>
-                                             <li>Tải file mẫu từ link trên</li>
-                                             <li>Chọn "File" → "Download" → "Microsoft Excel (.xlsx)"</li>
-                                             <li>Thay thế dữ liệu mẫu bằng dữ liệu thực tế của bạn</li>
-                                             <li>Giữ nguyên tên các cột header</li>
-                                             <li>Upload file đã chỉnh sửa vào form này</li>
-                                         </ol>
-                                     </div>
-                                     <div class="col-md-6">
-                                         <p><strong>📊 Cấu trúc cột bắt buộc:</strong></p>
-                                         <ul>
-                                             <li><strong>Mã xe:</strong> Mã số xe</li>
-                                             <li><strong>Biển số:</strong> Biển số xe (bắt buộc)</li>
-                                             <li><strong>số mooc:</strong> Số mooc/trailer</li>
-                                             <li><strong>Họ tên lái xe:</strong> Tên đầy đủ của lái xe</li>
-                                             <li><strong>điện thoại:</strong> Số điện thoại lái xe</li>
-                                             <li><strong>loại máy:</strong> "máy bé" hoặc "máy to"</li>
-                                         </ul>
-                                         <p><strong>⚠️ Lưu ý quan trọng:</strong></p>
-                                         <ul>
-                                             <li>Dòng đầu tiên phải là header chứa tên các cột</li>
-                                             <li>Lái xe được import với CCCD và License Number tạm thời. Vui lòng cập nhật thủ công sau khi import</li>
-                                             <li>Trailer sẽ được tự động gán cho xe tương ứng trong cùng một dòng</li>
-                                         </ul>
-                                     </div>
-                                 </div>
+                                                                   <div class="row">
+                                      <div class="col-md-6">
+                                          <p><strong>📥 Tải file mẫu:</strong></p>
+                                          <p>
+                                              <a href="/hp_trucking_planning/static/xlsx/Sample_import_vehicle_driver.xls" 
+                                                 target="_blank" 
+                                                 class="btn btn-sm btn-outline-primary">
+                                                  <i class="fa fa-download"/> Tải File Mẫu Excel
+                                              </a>
+                                          </p>
+                                          <p><strong>📋 Cách sử dụng file mẫu:</strong></p>
+                                          <ol>
+                                              <li>Tải file mẫu từ link trên</li>
+                                              <li>Mở file Excel và nhập dữ liệu thực tế của bạn</li>
+                                              <li>Giữ nguyên tên các cột header</li>
+                                              <li>Lưu file và upload vào form này</li>
+                                          </ol>
+                                      </div>
+                                      <div class="col-md-6">
+                                          <p><strong>📊 Cấu trúc cột bắt buộc:</strong></p>
+                                          <ul>
+                                              <li><strong>Mã xe:</strong> Mã số xe</li>
+                                              <li><strong>Biển số:</strong> Biển số xe (bắt buộc)</li>
+                                              <li><strong>số mooc:</strong> Số mooc/trailer</li>
+                                              <li><strong>Họ tên lái xe:</strong> Tên đầy đủ của lái xe</li>
+                                              <li><strong>điện thoại:</strong> Số điện thoại lái xe</li>
+                                              <li><strong>loại máy:</strong> "máy bé" hoặc "máy to"</li>
+                                          </ul>
+                                      </div>
+                                  </div>
+                                  <div class="row mt-3">
+                                      <div class="col-12">
+                                          <div class="alert alert-warning" role="alert">
+                                              <h5 class="alert-heading">⚠️ Lưu ý quan trọng:</h5>
+                                              <ul class="mb-0">
+                                                  <li>Dòng đầu tiên phải là header chứa tên các cột</li>
+                                                  <li>Lái xe được import với CCCD và License Number tạm thời. Vui lòng cập nhật thủ công sau khi import</li>
+                                                  <li>Trailer sẽ được tự động gán cho xe tương ứng trong cùng một dòng</li>
+                                              </ul>
+                                          </div>
+                                      </div>
+                                  </div>
                              </div>
                 </sheet>
                 <footer>
