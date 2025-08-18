@@ -40,6 +40,7 @@
         'views/freight_purchase_remind_views.xml',
         'views/sale_order_line_selection_views.xml',
         'views/sale_order_inherit_views.xml',
+        'views/res_country_views.xml',
 
         # wizard views
         'views/wizards/freight_purchase_port_route_request.xml',

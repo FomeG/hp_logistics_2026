@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_country_with_ports_form" model="ir.ui.view">
+        <field name="name">res.country.form.with.ports</field>
+        <field name="model">res.country</field>
+        <field name="arch" type="xml">
+            <form string="Country">
+                <sheet>
+                    <group>
+                        <field name="code"/>
+                        <field name="name"/>
+                        <field name="region_id"/>
+                    </group>
+                    <notebook>
+                        <page string="Ports">
+                            <field name="port_ids">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="is_local"/>
+                                    <field name="is_active"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+</odoo>
