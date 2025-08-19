@@ -604,10 +604,11 @@ class PlanLine(models.Model):
 
         para5_content = detail_cells[0].add_paragraph()
         para5_content.add_run("Tên hàng hóa: ")
-        bold_run = para5_content.add_run({self.goods_weight or ' '})
+        bold_run = para5_content.add_run({self.goods_name or ' '})
         bold_run.bold = True
         para5_content.add_run("\nKhối lượng hàng hóa (tấn): ")
-        bold_run = para5_content.add_run({self.goods_weight or ' '})
+        bold_run = para5_content.add_run(str(self.goods_weight or 0.0))
+        # bold_run = para5_content.add_run({self.goods_weight or ' '})
         bold_run.bold = True
         para5_content.add_run("\nCắt máng (Cut off): ")
         cut_off_str = self.goods_cut_off.strftime('%d/%m/%Y %H:%M') if self.goods_cut_off else ' '
