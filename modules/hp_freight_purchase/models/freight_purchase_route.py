@@ -18,12 +18,14 @@ class FreightPurchaseRoute(models.Model):
     pol_id = fields.Many2one(
         'freight.purchase.port',
         required=True,
-        tracking=True
+        tracking=True,
+        ondelete='cascade'
     )
     pod_id = fields.Many2one(
         'freight.purchase.port',
         required=True,
-        tracking=True
+        tracking=True,
+        ondelete='cascade'
     )
     direction = fields.Selection([
         ('import', 'Import'),
