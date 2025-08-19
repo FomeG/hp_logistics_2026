@@ -1,5 +1,4 @@
 from pkg_resources import require
-from odoo.odoo.api import ondelete
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from ..validators.port_validator import PortCreateValidator, PortUpdateValidator

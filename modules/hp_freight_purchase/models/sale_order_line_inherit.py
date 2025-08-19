@@ -141,7 +141,7 @@ class SaleOrderLineInherit(models.Model):
                     raise UserError(_("No booking line found for container type %s in the selected booking.") % record.container_type_id.name)
                 
                 # Calculate average unit price from all matching booking lines
-                total_unit_price = sum(line.unit_price for line in matching_booking_line)
+                total_unit_price = sum(line.price for line in matching_booking_line)
                 average_unit_price = total_unit_price / len(matching_booking_line)
                 record.base_price = average_unit_price
 
@@ -160,7 +160,7 @@ class SaleOrderLineInherit(models.Model):
                 
                 if matching_line:
                     # Calculate average unit price from all matching quotation lines
-                    total_unit_price = sum(line.unit_price for line in matching_line)
+                    total_unit_price = sum(line.price for line in matching_line)
                     average_unit_price = total_unit_price / len(matching_line)
                     record.base_price = average_unit_price
                 else:
