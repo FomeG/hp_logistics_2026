@@ -21,15 +21,20 @@ class ImportClientWizard(models.TransientModel):
     sheet_name = fields.Char(string='Sheet Name',help='Select the Excel sheet to import')
     available_sheets = fields.Text(string='Available Sheets', readonly=True)
 
+    def _get_trucking_users(self):
+        return DepartmentService(self.env).get_user_by_department_type(DepartmentService.DEPARTMENT_TYPE_TRUCKING)
+
     @api.model
     def _get_assign_user_domain(self):
-        allow_assign_users = DepartmentService(self.env).get_user_by_department_type('trucking')
+        allow_assign_users = self._get_trucking_users()
+
         return [('id', 'in', allow_assign_users.ids)]
 
     @api.onchange('branch_id')
     def _onchange_branch_id(self):
         self.assign_user_id = False
-        allow_assign_users = DepartmentService(self.env).get_user_by_department_type('trucking')
+        allow_assign_users = self._get_trucking_users()
+
         if self.branch_id:
             allowed_users = allow_assign_users.filtered(lambda u: u.id in self.branch_id.user_ids.ids)
         else:

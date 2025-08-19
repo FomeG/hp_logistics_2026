@@ -47,7 +47,7 @@ class Branch(models.Model):
 
     @api.model
     def _get_user_domain(self):
-        allow_users = DepartmentService(self.env).get_user_by_department_type('trucking')
+        allow_users = DepartmentService(self.env).get_user_by_department_type(DepartmentService.DEPARTMENT_TYPE_TRUCKING)
 
         return [
             ('id', 'in', allow_users.ids),

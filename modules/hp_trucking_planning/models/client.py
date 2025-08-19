@@ -42,7 +42,7 @@ class Client(models.Model):
         comodel_name='res.users',
         string='Assign User',
         default=lambda self: self.env.user,
-        domain=lambda self: self._get_asssign_user_domain(),
+        domain=lambda self: self._get_assign_user_domain(),
     )
     branch_id = fields.Many2one(
         comodel_name='trucking_planning.branch',
@@ -55,8 +55,8 @@ class Client(models.Model):
     ]
 
     @api.model
-    def _get_asssign_user_domain(self):
-        allow_assign_users = DepartmentService(self.env).get_user_by_department_type('trucking')
+    def _get_assign_user_domain(self):
+        allow_assign_users = DepartmentService(self.env).get_user_by_department_type(DepartmentService.DEPARTMENT_TYPE_TRUCKING)
 
         return [
             ('id', 'in', allow_assign_users.ids),
