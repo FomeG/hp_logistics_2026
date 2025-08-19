@@ -25,6 +25,7 @@
         'views/trucking_planning_plan_views.xml',
         'views/trucking_planning_plan_line_views.xml',
         'views/trucking_planning_branch_views.xml',
+        'views/trucking_planning_trip_views.xml',
         'views/trucking_planning_menu.xml',
         'views/trucking_planning_portal_templates.xml',
         'report/ir_actions_report.xml',

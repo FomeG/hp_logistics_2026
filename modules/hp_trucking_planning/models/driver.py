@@ -36,11 +36,11 @@ class Driver(models.Model):
         default=True,
         tracking=True,
     )
-    plan_line_ids = fields.One2many(
-        comodel_name='trucking_planning.plan.line',
-        string='Trips',
-        inverse_name='driver_id',
-    )
+    # plan_line_ids = fields.One2many(
+    #     comodel_name='trucking_planning.plan.line',
+    #     string='Trips',
+    #     inverse_name='driver_id',
+    # )
     vehicle_driver_history_ids = fields.One2many(
         comodel_name='trucking_planning.vehicle.driver.history',
         inverse_name='driver_id',

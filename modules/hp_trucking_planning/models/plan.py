@@ -1,4 +1,7 @@
+from email.policy import default
+
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 from ...hp_components.services.department_service import DepartmentService
 from ..services.planning_service import planning_service
 
@@ -13,11 +16,47 @@ class Plan(models.Model):
         readonly=True,
         tracking=True,
     )
+    plan_type = fields.Selection([
+            ('export','Export'),
+            ('import','Import'),
+        ], string="Plan Type",
+        default='export',
+        required=True,
+        tracking=True
+    )
+    booking_bill_no = fields.Char(
+        string="Booking / Bill No",
+        required=True,
+        tracking=True,
+    )
+    location_id = fields.Many2one(
+        comodel_name='trucking_planning.location',
+        required=True,
+        string="Port Pickup / Drop",
+        tracking=True,
+        domain=[('type', '=', 'route_point')],
+    )
+    shipping_line_id = fields.Many2one(
+        comodel_name='trucking_planning.shipping_line',
+        required=True,
+    )
     date = fields.Date(
-        string='Return Shipment Date',
+        string='Load / Return Date',
         required=True,
         index=True,
         tracking=True,
+    )
+    container_type = fields.Selection([
+            ('dry','Dry'),
+            ('cool','Cool'),
+            ('ot','OT'),
+            ('ft','FT')
+       ], string="Container Type",
+        required=True,
+        tracking=True
+    )
+    goods_cut_off = fields.Datetime(
+        string="Cut Off",
     )
     month = fields.Integer(
         string='Month',
@@ -31,36 +70,23 @@ class Plan(models.Model):
         store=True,
         readonly=True,
     )
-    vehicle_id = fields.Many2one(
-        comodel_name='trucking_planning.vehicle',
-        domain=lambda self: self._get_vehicle_avaliable(),
-        index=True,
-    )
-    driver_id = fields.Many2one(
-        related='vehicle_id.primary_driver_id',
-        store=False,
-    )
-    status = fields.Selection([
-            ('active', 'Active'),
-            ('draft', 'Draft'),
-            ('pending', 'Pending'),
-            ('cancelled', 'Cancelled'),
-        ],
-        default='active',
-        required=True,
-        string="Status",
-        tracking=True,
-    )
     plan_line_ids = fields.One2many(
         comodel_name='trucking_planning.plan.line',
         inverse_name='plan_id',
     )
+    status = fields.Selection([
+        ('draft', 'Draft'),
+        ('confirmed', 'Confirmed'),
+        ('in_progress', 'In Progress'),
+        ('done', 'Done'),
+        ('cancel', 'Cancelled')
+    ], default='in_progress')
+
     total_trips = fields.Char(
-        string="Total Trips",
+        string="Total Plan Trips",
         compute='_compute_total_trips',
         store=False
     )
-
     @api.model
     def _get_vehicle_avaliable(self):
         domain = [
@@ -99,38 +125,38 @@ class Plan(models.Model):
                 vals['name'] = f"{prefix}/{today}/{seq_number}"
 
         records = super().create(vals_list)
-        for record in records:
-            if record.vehicle_id and record.date:
-                record.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
-                    vehicle_id=record.vehicle_id.id,
-                    date_plan=record.date,
-                    exclude_plan_id=record.id
-                )
+        # for record in records:
+        #     if record.vehicle_id and record.date:
+        #         record.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
+        #             vehicle_id=record.vehicle_id.id,
+        #             date_plan=record.date,
+        #             exclude_plan_id=record.id
+        #         )
     
         return records
     
     def write(self, vals):
         result = super().write(vals)
 
-        if 'vehicle_id' in vals or 'date' in vals:
-            for record in self:
-                if record.vehicle_id and record.date:
-                    record.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
-                        vehicle_id=record.vehicle_id.id,
-                        date_plan=record.date,
-                        exclude_plan_id=record.id
-                    )
+        # if 'vehicle_id' in vals or 'date' in vals:
+        #     for record in self:
+        #         if record.vehicle_id and record.date:
+        #             record.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
+        #                 vehicle_id=record.vehicle_id.id,
+        #                 date_plan=record.date,
+        #                 exclude_plan_id=record.id
+        #             )
     
         return result
 
     @api.depends('plan_line_ids')
     def _compute_total_trips(self):
         for record in self:
-            record.total_trips = "0 Trip(s)"
+            record.total_trips = "0 Plan Trip(s)"
             if record.plan_line_ids:
-                record.total_trips = f"{len(record.plan_line_ids)} Trip(s)"
+                record.total_trips = f"{len(record.plan_line_ids)} Plan Trip(s)"
 
-    def action_view_trips(self):
+    def action_view_plan_lines(self):
         self.ensure_one()
         return {
             'name': 'Trips',
@@ -146,3 +172,7 @@ class Plan(models.Model):
 
     def remove_vehicle_driver_of_plan_and_plan_line(self, vehicle_id, date_plan, exclude_plan_id):
         planning_service(self.env).remove_vehicle_driver_by_vehicle_and_date_plan(vehicle_id, date_plan, exclude_plan_id)
+
+    _sql_constraints = [
+        ('unique_booking','Unique(booking_bill_no)','Booking number is unique!'),
+    ]
