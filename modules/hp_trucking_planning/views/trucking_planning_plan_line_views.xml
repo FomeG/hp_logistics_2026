@@ -32,10 +32,11 @@
             <field name="model">trucking_planning.plan.line</field>
             <field name="arch" type="xml">
                 <form>
-<!--                    <header>-->
+                    <header>
+                        <field name="status" widget="statusbar" statusbar_visible="hpl_reject,client_cancel,checking,transfer,rented"/>
 <!--                        <button name="action_preview_trip_order" string="Preview Trip Order" type="object" class="btn-secondary"/>-->
 <!--                         <button name="action_export_trip_docx" string="Print Trip Order" type="object" class="btn-primary"/>-->
-<!--                    </header>-->
+                    </header>
                     <sheet>
                         <group>
                             <field name="plan_id" widget="many2one_new_tab" />
@@ -66,7 +67,7 @@
                         </div>
 
                         <notebook>
-                            <page string="Route/Driver/Vehicle">
+                            <page string="Route">
                                 <group>
                                     <field name="route_id"/>
                                     <field name="actual_source_location_id" readonly="1"
@@ -132,13 +133,13 @@
                                     <field name="note"/>
                                 </group>
                             </page>
-                            <page string="Goods Info">
-                                <group>
-                                    <field name="goods_name"/>
-                                    <field name="goods_weight"/>
-<!--                                    <field name="goods_cut_off"/>-->
-                                </group>
-                            </page>
+<!--                            <page string="Goods Info">-->
+<!--                                <group>-->
+<!--                                    <field name="goods_name"/>-->
+<!--                                    <field name="goods_weight"/>-->
+<!--&lt;!&ndash;                                    <field name="goods_cut_off"/>&ndash;&gt;-->
+<!--                                </group>-->
+<!--                            </page>-->
                         </notebook>
                     </sheet>
                     <chatter />
