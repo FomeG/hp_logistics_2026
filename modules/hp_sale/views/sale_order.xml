@@ -12,15 +12,15 @@
                 <attribute name="invisible">state not in ['draft', 'activated']</attribute>
             </xpath>
 
-            <!-- Also make the entire field readonly when not in draft or activated state -->
-            <xpath expr="//field[@name='order_line']" position="attributes">
-                <attribute name="readonly">state not in ['draft', 'pricing_leader_confirm']</attribute>
-            </xpath>
+<!--            &lt;!&ndash; Also make the entire field readonly when not in draft or activated state &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='order_line']" position="attributes">-->
+<!--                <attribute name="readonly">state not in ['draft', 'pricing_leader_confirm']</attribute>-->
+<!--            </xpath>-->
 
-            <!-- Update the original readonlycondition to include your custom states -->
-            <xpath expr="//field[@name='order_line']" position="attributes">
-                <attribute name="readonly">state not in ['draft', 'pricing_leader_confirm'] or locked</attribute>
-            </xpath>
+<!--            &lt;!&ndash; Update the original readonlycondition to include your custom states &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='order_line']" position="attributes">-->
+<!--                <attribute name="readonly">state not in ['draft', 'pricing_leader_confirm'] or locked</attribute>-->
+<!--            </xpath>-->
 
             <!-- Modify the statusbar -->
             <xpath expr="//field[@name='state']" position="attributes">
