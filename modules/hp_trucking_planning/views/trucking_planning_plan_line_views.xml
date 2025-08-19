@@ -133,13 +133,13 @@
                                     <field name="note"/>
                                 </group>
                             </page>
-<!--                            <page string="Goods Info">-->
-<!--                                <group>-->
-<!--                                    <field name="goods_name"/>-->
-<!--                                    <field name="goods_weight"/>-->
-<!--&lt;!&ndash;                                    <field name="goods_cut_off"/>&ndash;&gt;-->
-<!--                                </group>-->
-<!--                            </page>-->
+                            <page string="Goods Info">
+                                <group>
+                                    <field name="goods_name"/>
+                                    <field name="goods_weight"/>
+<!--                                    <field name="goods_cut_off"/>-->
+                                </group>
+                            </page>
                         </notebook>
                     </sheet>
                     <chatter />

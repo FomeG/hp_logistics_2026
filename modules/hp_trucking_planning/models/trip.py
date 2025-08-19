@@ -173,19 +173,37 @@ class Trip(models.Model):
     )
     # goods info
     goods_name = fields.Char(
+        related='plan_line_id.goods_name',
         string="Goods Name",
+        readonly=True,
+        store=True,
     )
     goods_weight = fields.Float(
+        related='plan_line_id.goods_weight',
         string="Goods Weight",
+        readonly=True,
+        store=True,
     )
     goods_cut_off = fields.Datetime(
+        related='plan_id.goods_cut_off',
         string="Cut Off",
+        readonly=True,
+        store=True,
     )
-
-    # route_info = fields.Text(
-    #     compute='_compute_route_info',
-    #     store=False,
+    # goods_name = fields.Char(
+    #     string="Goods Name",
     # )
+    # goods_weight = fields.Float(
+    #     string="Goods Weight",
+    # )
+    # goods_cut_off = fields.Datetime(
+    #     string="Cut Off",
+    # )
+
+    route_info = fields.Text(
+        compute='_compute_route_info',
+        store=False,
+    )
     container_info = fields.Char(
         compute='_compute_container_info',
         store=False,
@@ -199,9 +217,9 @@ class Trip(models.Model):
         store=False,
     )
 
-    _sql_constraints = [
-        ('unique_booking', 'Unique(booking)', 'Booking number is unique!'),
-    ]
+    # _sql_constraints = [
+    #     ('unique_booking', 'Unique(booking)', 'Booking number is unique!'),
+    # ]
 
     # @api.depends('plan_id.date')
     # def _compute_plan_month_year(self):
@@ -904,10 +922,10 @@ class Trip(models.Model):
 
         return doc
 
-    # def _compute_route_info(self):
-    #     for trip in self:
-    #         freeway_text = '(freeway)' if trip.freeway else ''
-    #         trip.route_info = f"{trip.actual_source_location_id.name} - {trip.actual_destination_location_id.name} {freeway_text}"
+    def _compute_route_info(self):
+        for trip in self:
+            freeway_text = '(freeway)' if trip.freeway else ''
+            trip.route_info = f"{trip.actual_source_location_id.name} - {trip.actual_destination_location_id.name} {freeway_text}"
 
     def _compute_container_info(self):
         for trip in self:
