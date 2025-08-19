@@ -36,3 +36,34 @@ class SaleOrderService:
         # Set state to customer_confirm
         sale_order.write({'state': 'customer_confirm'})
         return True
+
+    def handle_quotation_confirmed(self, sale_order):
+        """
+        Handle logic when quotation becomes sale order.
+        Set freight_booking_id based on booking lines in sale order lines.
+        """
+        _logger.info(f"Handling quotation confirmed for sale order: {sale_order.name}")
+
+        # Find sale order lines that have booking_line_id
+        lines_with_booking = sale_order.order_line.filtered(lambda line: line.booking_line_id)
+
+        if lines_with_booking:
+            # Get unique bookings from all lines
+            bookings = lines_with_booking.mapped('booking_line_id.booking_id')
+
+            if len(bookings) == 1:
+                # All lines reference the same booking
+                sale_order.freight_booking_id = bookings[0]
+                _logger.info(f"Set freight_booking_id to {bookings[0].name} for sale order {sale_order.name}")
+            elif len(bookings) > 1:
+                # Multiple bookings found - raise an error
+                booking_names = ", ".join(booking.name for booking in bookings)
+                raise exceptions.ValidationError(_(
+                    "All sale order lines must reference the same booking. Found multiple bookings: %s"
+                ) % booking_names)
+            else:
+                _logger.warning(f"No valid bookings found for sale order {sale_order.name}")
+        else:
+            _logger.info(f"No booking lines found for sale order {sale_order.name}")
+
+        return True

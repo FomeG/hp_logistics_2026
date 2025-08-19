@@ -122,4 +122,4 @@ class SaleOrderInherrit(models.Model):
         TaskService(self.env)._handle_task_with_quotation_sale_leader_confirmed(self)
 
     def _handle_quotation_confirmed(self):
-        return
+        SaleOrderService(self.env).handle_quotation_confirmed(self)
