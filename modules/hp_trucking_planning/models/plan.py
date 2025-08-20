@@ -152,14 +152,14 @@ class Plan(models.Model):
     @api.depends('plan_line_ids')
     def _compute_total_trips(self):
         for record in self:
-            record.total_trips = "0 Plan Trip(s)"
+            record.total_trips = "0 Customer(s)"
             if record.plan_line_ids:
-                record.total_trips = f"{len(record.plan_line_ids)} Plan Trip(s)"
+                record.total_trips = f"{len(record.plan_line_ids)} Customer(s)"
 
     def action_view_plan_lines(self):
         self.ensure_one()
         return {
-            'name': 'Trips',
+            'name': 'Customer',
             'res_model': 'trucking_planning.plan.line',
             'view_mode': 'list,form',
             'domain': [('plan_id', '=', self.id)],
@@ -168,6 +168,28 @@ class Plan(models.Model):
             },
             'type': 'ir.actions.act_window',
             'target': 'current',
+        }
+
+    def action_add_truck(self):
+        """Action để thêm truck mới cho plan này"""
+        self.ensure_one()
+        plan_line_ids = self.plan_line_ids.ids
+
+        if not plan_line_ids:
+            raise ValidationError("Plan này chưa có customer nào. Vui lòng thêm customer trước khi add truck.")
+
+        return {
+            'name': f'Add Truck - {self.name}',
+            'res_model': 'trucking_planning.trip',
+            'view_mode': 'form',
+            'view_id': self.env.ref('hp_trucking_planning.view_trip_form').id,
+            'context': {
+                'default_plan_id': self.id,
+                'available_plan_line_ids': plan_line_ids,
+                'show_plan_line_selection': True,
+            },
+            'type': 'ir.actions.act_window',
+            'target': 'new',
         }
 
     def remove_vehicle_driver_of_plan_and_plan_line(self, vehicle_id, date_plan, exclude_plan_id):

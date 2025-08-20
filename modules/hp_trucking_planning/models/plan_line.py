@@ -14,6 +14,7 @@ class PlanLine(models.Model):
         comodel_name='trucking_planning.plan',
         string='Plan',
         required=True,
+        readonly=True,
     )
     code = fields.Char(
         string='Job Number',
@@ -23,6 +24,12 @@ class PlanLine(models.Model):
         comodel_name='trucking_planning.client',
         required=True,
     )
+    tax_number = fields.Char(
+        string='Tax Number',
+        related='client_id.tax_number',
+        store=False,
+    )
+
     status = fields.Selection([
             ('hpl_reject','HPL Reject'),
             ('client_cancel','Client Cancel'),
@@ -121,10 +128,10 @@ class PlanLine(models.Model):
             trip.plan_type = trip.route_id.direction
 
     def action_view_trips(self):
-        """Action để xem tất cả trips thuộc plan line này"""
+        """Action để xem tất cả trips thuộc plan line"""
         self.ensure_one()
         return {
-            'name': f'Trips - {self.code or self.plan_id.name}',
+            'name': f'Trucks - {self.code or self.plan_id.name}',
             'res_model': 'trucking_planning.trip',
             'view_mode': 'list,form',
             'domain': [('plan_line_id', '=', self.id)],
@@ -133,4 +140,20 @@ class PlanLine(models.Model):
             },
             'type': 'ir.actions.act_window',
             'target': 'current',
+        }
+
+    def action_add_truck(self):
+        """Action để add truck cho customer """
+        self.ensure_one()
+        return {
+            'name': f'Add Truck - {self.code or self.client_id.name}',
+            'res_model': 'trucking_planning.trip',
+            'view_mode': 'form',
+            'view_id': self.env.ref('hp_trucking_planning.view_trip_form').id,
+            'context': {
+                'default_plan_line_id': self.id,
+                'default_plan_id': self.plan_id.id,
+            },
+            'type': 'ir.actions.act_window',
+            'target': 'new',
         }

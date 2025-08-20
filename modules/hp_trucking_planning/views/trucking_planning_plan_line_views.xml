@@ -10,7 +10,7 @@
                     <field name="code"/>
 <!--                    <field name="date"/>-->
                     <field name="client_id"/>
-<!--                    <field name="tax_number" />-->
+                    <field name="tax_number" />
                     <field name="status"/>
 <!--                    <field name="booking"/>-->
                     <field name="plan_type" string="Direction"/>
@@ -44,13 +44,13 @@
                         <group>
                             <field name="code"/>
 <!--                            <field name="date"/>-->
-                            <field name="status"/>
                             <field name="client_id"
                                 domain="[('assign_user_id', '=', uid)]"
                                 widget="many2one_new_tab" />
 <!--                            <field name="shipping_line_id" widget="many2one_new_tab" />-->
-<!--                            <field name="tax_number" readonly="1"/>-->
+                            <field name="tax_number" readonly="1"/>
 <!--                            <field name="booking"/>-->
+                            <field name="status"/>
                         </group>
 
                         <div class="oe_button_box" name="button_box">
@@ -60,8 +60,16 @@
                                     icon="fa-truck">
                                 <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_value">
-                                        <field name="trip_ids" widget="statinfo" string="Trips"/>
+                                        <field name="trip_ids" widget="statinfo" string="Truck"/>
                                     </span>
+                                </div>
+                            </button>
+                            <button name="action_add_truck"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-plus">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Add Truck</span>
                                 </div>
                             </button>
                         </div>
@@ -110,11 +118,10 @@
 <!--                                    <field name="container_size"/>-->
 <!--                                </group>-->
 <!--                            </page>-->
-                            <page string="Trips" invisible="not id">
-                                <field name="trip_ids">
-                                    <list>
-                                        <field name="code" string="Trip Code"/>
-                                        <field name="status"/>
+                            <page string="Truck" invisible="not trip_ids">
+                                 <field name="trip_ids" nolabel="1" readonly="1" create="0" delete="0" edit="0">
+                                    <list create="false" delete="false" edit="false">
+<!--                                        <field name="code" string="Trip Code"/>-->
                                         <field name="container_number"/>
                                         <field name="seal_number"/>
                                         <field name="container_type"/>
@@ -124,6 +131,7 @@
                                         <field name="weight_class"/>
                                         <field name="fuel_liters"/>
                                         <field name="total_cost"/>
+                                        <field name="status"/>
                                     </list>
                                 </field>
                             </page>

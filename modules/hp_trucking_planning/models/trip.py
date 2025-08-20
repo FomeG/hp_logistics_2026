@@ -137,6 +137,13 @@ class Trip(models.Model):
         readonly=True,
         store=True,
     )
+    client_id = fields.Many2one(
+        comodel_name='trucking_planning.client',
+        related='plan_line_id.client_id',
+        string='Client',
+        readonly=True,
+        store=True,
+    )
     note = fields.Text(string="Note")
     weight_class = fields.Selection([
         ('inferior_20', '<20T'),
@@ -244,6 +251,32 @@ class Trip(models.Model):
     #         else:
     #             rec.actual_source_location_id = False
     #             rec.actual_destination_location_id = False
+    @api.onchange('plan_line_id')
+    def _onchange_plan_line_id(self):
+        if self.plan_line_id:
+            self.plan_id = self.plan_line_id.plan_id
+
+    def _get_plan_line_domain(self):
+        domain = []
+
+        if self.env.context.get('default_plan_id'):
+            domain = [('plan_id', '=', self.env.context.get('default_plan_id'))]
+        elif self.env.context.get('default_plan_line_id'):
+            domain = [('id', '=', self.env.context.get('default_plan_line_id'))]
+
+        return domain
+
+    def action_view_job(self):
+        """Action để xem customer (plan line) của trip này"""
+        self.ensure_one()
+        return {
+            'name': f'Customer - {self.plan_line_id.code or self.plan_line_id.client_id.name}',
+            'res_model': 'trucking_planning.plan.line',
+            'view_mode': 'form',
+            'res_id': self.plan_line_id.id,
+            'type': 'ir.actions.act_window',
+            'target': 'current',
+        }
 
     @api.depends('plan_line_id.route_id', 'truck_id', 'weight_class', 'extra_fuel')
     def _compute_fuel_liters(self):
