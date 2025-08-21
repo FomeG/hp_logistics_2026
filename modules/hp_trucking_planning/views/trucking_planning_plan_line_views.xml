@@ -6,6 +6,13 @@
             <field name="model">trucking_planning.plan.line</field>
             <field name="arch" type="xml">
                 <list>
+                    <header>
+                        <button name="action_export_all_plan_lines_excel" 
+                                string="Export All to Excel" 
+                                type="object" 
+                                class="btn-primary" 
+                                icon="fa-download"/>
+                    </header>
                     <field name="plan_id" string="Plan"/>
                     <field name="code"/>
 <!--                    <field name="date"/>-->
@@ -24,6 +31,11 @@
 <!--                    <field name="container_info"/>-->
 <!--                    <field name="location_info" />-->
 <!--                    <field name="driver_info" />-->
+                    <button name="action_export_plan_line_excel" 
+                            string="Export Excel" 
+                            type="object" 
+                            class="btn-primary" 
+                            icon="fa-download"/>
                 </list>
             </field>
         </record>
@@ -34,6 +46,11 @@
                 <form>
                     <header>
                         <field name="status" widget="statusbar" statusbar_visible="hpl_reject,client_cancel,checking,transfer,rented"/>
+                        <button name="action_export_plan_line_excel" 
+                                string="Export Excel" 
+                                type="object" 
+                                class="btn-primary" 
+                                icon="fa-download"/>
 <!--                        <button name="action_preview_trip_order" string="Preview Trip Order" type="object" class="btn-secondary"/>-->
 <!--                         <button name="action_export_trip_docx" string="Print Trip Order" type="object" class="btn-primary"/>-->
                     </header>
@@ -140,6 +157,36 @@
 <!--                                    <field name="goods_cut_off"/>-->
                                 </group>
                             </page>
+                            <!--
+                            <page string="Excel Export Fields">
+                                <group>
+                                    <field name="sequence"/>
+                                    <field name="delivery_location"/>
+                                    <field name="contact_info"/>
+                                    <field name="operation_type"/>
+                                    <field name="turnaround"/>
+                                    <field name="goods_return"/>
+                                    <field name="external_vehicle"/>
+                                    <field name="owner_code"/>
+                                </group>
+                                <group>
+                                    <field name="road_fee"/>
+                                    <field name="distance"/>
+                                    <field name="fuel_before"/>
+                                    <field name="fuel_received"/>
+                                    <field name="fuel_total"/>
+                                    <field name="loading_location"/>
+                                    <field name="loading_cost"/>
+                                    <field name="unloading_location"/>
+                                    <field name="unloading_cost"/>
+                                </group>
+                                <group>
+                                    <field name="contract_number"/>
+                                    <field name="declaration_number"/>
+                                    <field name="price_code"/>
+                                </group>
+                            </page>
+                            -->
                         </notebook>
                     </sheet>
                     <chatter />

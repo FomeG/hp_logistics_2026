@@ -2,6 +2,8 @@ from odoo import models, api, fields
 from odoo.exceptions import UserError
 import base64
 import math
+import io
+from datetime import datetime
 
 class PlanLine(models.Model):
     _name = 'trucking_planning.plan.line'
@@ -72,6 +74,31 @@ class PlanLine(models.Model):
         inverse_name='plan_line_id',
     )
 
+    # --- MISSING FIELDS IN EXCEL FILE ---
+    # sequence = fields.Char(string="STT")
+    # delivery_location = fields.Text(string="Địa điểm giao")
+    # contact_info = fields.Char(string="Liên hệ", related='client_id.phone', readonly=True)
+    # operation_type = fields.Selection([
+    #     ('import', 'Nhập'),
+    #     ('export', 'Xuất')
+    # ], string="Loại NX", default='export', related='plan_id.plan_type', readonly=True)
+    # turnaround = fields.Boolean(string="Quay đầu", default=False)
+    # goods_return = fields.Boolean(string="Hàng về", default=False)
+    # external_vehicle = fields.Boolean(string="Xe ngoài", default=False)
+    # owner_code = fields.Char(string="Mã chủ PT", default='NONE')
+    # road_fee = fields.Float(string="Phí cầu đường", related='route_id.road_fee', readonly=True)
+    # distance = fields.Float(string="Cự ly", related='route_id.distance_km', readonly=True)
+    # fuel_before = fields.Float(string="Dầu tồn trước", default=0.0)
+    # fuel_received = fields.Float(string="Được lĩnh", default=0.0)
+    # fuel_total = fields.Float(string="Tổng cộng dầu", compute='_compute_fuel_total', store=True)
+    # loading_location = fields.Char(string="Điểm xếp hàng/ Bãi nâng")
+    # loading_cost = fields.Float(string="Chi phí nâng", default=0.0)
+    # unloading_location = fields.Char(string="Điểm hạ hàng/ bãi hạ")
+    # unloading_cost = fields.Float(string="Chi phí hạ", default=0.0)
+    # contract_number = fields.Char(string="Số HĐ")
+    # declaration_number = fields.Char(string="Số tờ khai")
+    # price_code = fields.Char(string="Mã bảng giá")
+
 
     # @api.depends('plan_id.date')
     # def _compute_plan_month_year(self):
@@ -134,3 +161,184 @@ class PlanLine(models.Model):
             'type': 'ir.actions.act_window',
             'target': 'current',
         }
+
+    def action_export_plan_line_excel(self):
+        """Export plan line data to Excel format"""
+        try:
+            import xlsxwriter
+        except ImportError:
+            raise UserError("xlsxwriter library is required. Please install it using: pip install xlsxwriter")
+
+        # Create workbook and worksheet
+        output = io.BytesIO()
+        workbook = xlsxwriter.Workbook(output)
+        worksheet = workbook.add_worksheet('Plan Lines')
+
+        # Define formats
+        header_format = workbook.add_format({
+            'bold': True,
+            'bg_color': '#90EE90',  # Light green background
+            'border': 1,
+            'align': 'center',
+            'valign': 'vcenter'
+        })
+
+        cell_format = workbook.add_format({
+            'border': 1,
+            'align': 'left',
+            'valign': 'vcenter'
+        })
+
+        date_format = workbook.add_format({
+            'border': 1,
+            'align': 'left',
+            'valign': 'vcenter',
+            'num_format': 'dd/mm/yyyy hh:mm'
+        })
+
+        # Company information (C1 to C5)
+        company_info = [
+            "CHI NHÁNH CÔNG TY CP TIẾP VẬN HP TẠI TP.HẢI PHÒNG",
+            "Room 202A, Dau Khi Hotel, 441 Da Nang Street, Hai An, Hai Phong, Vietnam",
+            "Tel: + 84 225 3556133 Fax: + 84 225 3556132",
+            "Email: cs@hplogistics.com.vn",
+            "Website: www.hplogistics.com.vn"
+        ]
+
+        for i, info in enumerate(company_info):
+            worksheet.write(i, 2, info)  # Column C (index 2)
+
+        # Headers (Row 9)
+        headers = [
+            'STT', 'Ngày tiếp nhận *', 'Ngày xe chạy *', 'Cut off', 'Mã đối tượng *', 
+            'Tên đối tượng', 'Tuyến đường *', 'Địa điểm giao', 'Liên hệ', 'Số Job',
+            'Số Book/Bill', 'Số Cont *', 'Số Seal', 'Loại NX *', 'Loại Cont',
+            'Kích thước cont *', 'Tên hàng hóa dịch vụ', 'Khối lượng', 'Quay đầu', 'Hàng về',
+            'Tài xế *', 'Số xe *', 'Số Mooc', 'Xe ngoài', 'Mã chủ PT', 'Phí cầu đường',
+            'Phí đi đường', 'Chi phí khác', 'Cự ly', 'Dầu tồn trước', 'Được lĩnh',
+            'Tổng cộng dầu', 'Điểm xếp hàng/ Bãi nâng', 'Chi phí nâng', 'Điểm hạ hàng/ bãi hạ',
+            'Chi phí hạ', 'Ghi chú', 'Số HĐ', 'Số tờ khai', 'Mã bảng giá'
+        ]
+
+        # Write headers
+        for col, header in enumerate(headers):
+            worksheet.write(8, col, header, header_format)  # Row 9 (index 8)
+
+        # Get plan lines data
+        plan_lines = self
+        
+        # Write data rows
+        for row, plan_line in enumerate(plan_lines, start=9):  # Start from row 10 (index 9)
+            # Get related trip data (first trip for this plan line)
+            trip = plan_line.trip_ids[0] if plan_line.trip_ids else None
+            
+            # Prepare row data
+            row_data = [
+                '',  # STT (sequence - disabled)
+                plan_line.plan_id.date.strftime('%d/%m/%Y 00:00') if plan_line.plan_id and plan_line.plan_id.date else '',  # Ngày tiếp nhận
+                plan_line.plan_id.date.strftime('%d/%m/%Y 00:00') if plan_line.plan_id and plan_line.plan_id.date else '',  # Ngày xe chạy
+                plan_line.plan_id.goods_cut_off.strftime('%d/%m/%Y %H:%M') if plan_line.plan_id and plan_line.plan_id.goods_cut_off else '',  # Cut off
+                plan_line.client_id.code if plan_line.client_id and hasattr(plan_line.client_id, 'code') else '',  # Mã đối tượng
+                plan_line.client_id.name if plan_line.client_id else '',  # Tên đối tượng
+                plan_line.route_id.name if plan_line.route_id else '',  # Tuyến đường
+                '',  # Địa điểm giao (disabled)
+                '',  # Liên hệ (disabled)
+                plan_line.code or '',  # Số Job
+                plan_line.plan_id.booking_bill_no if plan_line.plan_id else '',  # Số Book/Bill
+                trip.container_number if trip else '',  # Số Cont
+                trip.seal_number if trip else '',  # Số Seal
+                ('Xuất' if (plan_line.plan_id and plan_line.plan_id.plan_type == 'export') else 'Nhập') if plan_line.plan_id else '',  # Loại NX
+                (trip.container_type if trip and trip.container_type else ''),  # Loại Cont
+                (trip.container_size if trip and trip.container_size else ''),  # Kích thước cont
+                plan_line.goods_name or '',  # Tên hàng hóa dịch vụ
+                str(plan_line.goods_weight) if plan_line.goods_weight else '',  # Khối lượng
+                '',  # Quay đầu (disabled)
+                '',  # Hàng về (disabled)
+                (trip.driver_id.name if trip and trip.driver_id else ''),  # Tài xế
+                (trip.truck_id.name if trip and trip.truck_id else ''),  # Số xe
+                (trip.trailer_id.name if trip and trip.trailer_id else ''),  # Số Mooc
+                'Indeterminate',  # Xe ngoài (no field yet)
+                'NONE',  # Mã chủ PT (default)
+                '',  # Phí cầu đường (disabled)
+                str(getattr(plan_line.route_id, 'road_fee', '') if plan_line.route_id else ''),  # Phí đi đường
+                str(getattr(trip, 'extra_charge', '') if trip else ''),  # Chi phí khác
+                '0.0',  # Cự ly (disabled)
+                '',  # Dầu tồn trước (disabled)
+                '',  # Được lĩnh (disabled)
+                '',  # Tổng cộng dầu (disabled)
+                '',  # Điểm xếp hàng/ Bãi nâng (disabled)
+                '',  # Chi phí nâng (disabled)
+                '',  # Điểm hạ hàng/ bãi hạ (disabled)
+                '',  # Chi phí hạ (disabled)
+                plan_line.note or '',  # Ghi chú
+                '',  # Số HĐ (disabled)
+                '',  # Số tờ khai (disabled)
+                ''   # Mã bảng giá (disabled)
+            ]
+
+            # Write row data
+            for col, value in enumerate(row_data):
+                if col in [1, 2, 3]:  # Date columns
+                    worksheet.write(row, col, value, date_format)
+                else:
+                    worksheet.write(row, col, value, cell_format)
+
+        # Set column widths
+        for col in range(len(headers)):
+            worksheet.set_column(col, col, 15)
+
+        # Determine last data row (0-indexed)
+        last_data_row = 9 + len(plan_lines) - 1 if plan_lines else 9
+
+        # Signature and footer sections relative to last table row
+        center_format = workbook.add_format({'align': 'center', 'valign': 'vcenter'})
+        center_bold_format = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'bold': True})
+        italic_center_format = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'italic': True})
+        merged_border = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'border': 0})
+
+        # Column A merged to B at +7, +8, +12
+        worksheet.merge_range(last_data_row + 7, 0, last_data_row + 7, 1, 'Người lập phiếu', merged_border)
+        worksheet.merge_range(last_data_row + 8, 0, last_data_row + 8, 1, '(Ký, họ tên)', italic_center_format)
+        worksheet.merge_range(last_data_row + 12, 0, last_data_row + 12, 1, 'Lê Quý Hùng', center_bold_format)
+
+        # Column T at +7, +8
+        col_T = 19
+        worksheet.write(last_data_row + 7, col_T, 'Kế toán trưởng', center_bold_format)
+        worksheet.write(last_data_row + 8, col_T, '(Ký, họ tên)', italic_center_format)
+
+        # Column AM at +6, +7, +8, +12
+        col_AM = 38  # Column AM (zero-based)
+        worksheet.write(last_data_row + 6, col_AM, 'Ngày …..  tháng …..  năm 201….', center_format)
+        worksheet.write(last_data_row + 7, col_AM, 'Giám đốc', center_bold_format)
+        worksheet.write(last_data_row + 8, col_AM, '(Đóng dấu, ký tên)', italic_center_format)
+        worksheet.write(last_data_row + 12, col_AM, 'Nguyễn Văn Bân', center_bold_format)
+
+        workbook.close()
+        output.seek(0)
+
+        # Create attachment
+        filename = f"Plan_Lines_Export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        attachment = self.env['ir.attachment'].create({
+            'name': filename,
+            'type': 'binary',
+            'datas': base64.b64encode(output.read()),
+            'res_model': self._name,
+            'res_id': self.id if len(self) == 1 else False,
+            'mimetype': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+
+        # Return download action
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/{attachment.id}?download=true',
+            'target': 'self',
+        }
+
+    def action_export_all_plan_lines_excel(self):
+        """Export all plan lines to Excel format"""
+        return self.search([]).action_export_plan_line_excel()
+
+    # @api.depends('fuel_before', 'fuel_received')
+    # def _compute_fuel_total(self):
+    #     for record in self:
+    #         record.fuel_total = record.fuel_before + record.fuel_received
