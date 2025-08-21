@@ -13,12 +13,12 @@ class QuotationFeeValidator(FreightValidator):
                 'exists': 'freight.purchase.quotation',
                 'required': True,
             },
-            'fee_type_id': {
-                'label': 'Fee Type',
-                'type': int,
-                'exists': 'freight.purchase.fee.type',
-                'required': True,
-            },
+            # 'fee_type_id': {
+            #     'label': 'Fee Type',
+            #     'type': int,
+            #     'exists': 'freight.purchase.fee.type',
+            #     'required': True,
+            # },
             'amount': {
                 'label': 'Amount',
                 'type': (int, float),
@@ -34,10 +34,10 @@ class QuotationFeeValidator(FreightValidator):
         validated = cls._validate(field_rules, data, env, errors, mode, record)
         
         # Custom validation: Check if fee type is common
-        if validated.get('fee_type_id'):
-            fee_type = env['freight.purchase.fee.type'].browse(validated['fee_type_id'])
-            if not fee_type.is_common:
-                errors.append("Only common fee types can be added to quotation fees")
+        # if validated.get('fee_type_id'):
+        #     fee_type = env['freight.purchase.fee.type'].browse(validated['fee_type_id'])
+            # if not fee_type.is_common:
+            #     errors.append("Only common fee types can be added to quotation fees")
         
         # Custom validation: Check for duplicate fee type within same quotation
         if validated.get('quotation_id') and validated.get('fee_type_id'):
@@ -65,12 +65,12 @@ class QuotationFeeValidator(FreightValidator):
     def _is_fee_available_for_quotation(cls, quotation, fee_type, env):
         """Check if fee is available for the quotation's context"""
         # For common fee types, they are always available regardless of existing fee records
-        if fee_type.is_common:
-            return True
+        # if fee_type.is_common:
+        #     return True
             
         # For non-common fee types, check if there are any available fees for this fee type, shipping line, and direction
         available_fees = env['freight.purchase.fee'].sudo().search([
-            ('fee_type_id', '=', fee_type.id),
+            # ('fee_type_id', '=', fee_type.id),
             ('shipping_line_id', '=', quotation.shipping_line_id.id),
             '|',
             ('date_from', '<=', date.today()),
@@ -94,12 +94,12 @@ class QuotationLineFeeValidator(FreightValidator):
                 'exists': 'freight.purchase.quotation.line',
                 'required': True,
             },
-            'fee_line_id': {
-                'label': 'Fee Line',
-                'type': int,
-                'exists': 'freight.purchase.fee.line',
-                'required': True,
-            },
+            # 'fee_line_id': {
+            #     'label': 'Fee Line',
+            #     'type': int,
+            #     'exists': 'freight.purchase.fee.line',
+            #     'required': True,
+            # },
             'amount': {
                 'label': 'Amount',
                 'type': (int, float),

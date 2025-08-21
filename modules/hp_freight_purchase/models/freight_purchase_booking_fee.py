@@ -14,7 +14,7 @@ class FreightPurchaseBookingFee(models.Model):
     )
     fee_type_id = fields.Many2one(
         comodel_name="freight.purchase.fee.type",
-        domain="[('is_common', '=', True)]",
+        # domain="[('is_common', '=', True)]",
         required=True
     )
     amount = fields.Float()
