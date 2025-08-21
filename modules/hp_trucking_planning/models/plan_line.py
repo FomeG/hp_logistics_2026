@@ -5,7 +5,6 @@ import math
 import io
 from datetime import datetime
 
-
 class PlanLine(models.Model):
     _name = 'trucking_planning.plan.line'
     _description = 'Plan Line'
@@ -106,6 +105,7 @@ class PlanLine(models.Model):
     # contract_number = fields.Char(string="Số HĐ")
     # declaration_number = fields.Char(string="Số tờ khai")
     # price_code = fields.Char(string="Mã bảng giá")
+
 
     # @api.depends('plan_id.date')
     # def _compute_plan_month_year(self):
@@ -234,7 +234,7 @@ class PlanLine(models.Model):
 
         # Headers (Row 9)
         headers = [
-            'STT', 'Ngày tiếp nhận *', 'Ngày xe chạy *', 'Cut off', 'Mã đối tượng *',
+            'STT', 'Ngày tiếp nhận *', 'Ngày xe chạy *', 'Cut off', 'Mã đối tượng *', 
             'Tên đối tượng', 'Tuyến đường *', 'Địa điểm giao', 'Liên hệ', 'Số Job',
             'Số Book/Bill', 'Số Cont *', 'Số Seal', 'Loại NX *', 'Loại Cont',
             'Kích thước cont *', 'Tên hàng hóa dịch vụ', 'Khối lượng', 'Quay đầu', 'Hàng về',
@@ -250,23 +250,19 @@ class PlanLine(models.Model):
 
         # Get plan lines data
         plan_lines = self
-
+        
         # Write data rows
         for row, plan_line in enumerate(plan_lines, start=9):  # Start from row 10 (index 9)
             # Get related trip data (first trip for this plan line)
             trip = plan_line.trip_ids[0] if plan_line.trip_ids else None
-
+            
             # Prepare row data
             row_data = [
                 '',  # STT (sequence - disabled)
-                plan_line.plan_id.date.strftime('%d/%m/%Y 00:00') if plan_line.plan_id and plan_line.plan_id.date else '',
-                # Ngày tiếp nhận
-                plan_line.plan_id.date.strftime('%d/%m/%Y 00:00') if plan_line.plan_id and plan_line.plan_id.date else '',
-                # Ngày xe chạy
-                plan_line.plan_id.goods_cut_off.strftime(
-                    '%d/%m/%Y %H:%M') if plan_line.plan_id and plan_line.plan_id.goods_cut_off else '',  # Cut off
-                plan_line.client_id.code if plan_line.client_id and hasattr(plan_line.client_id, 'code') else '',
-                # Mã đối tượng
+                plan_line.plan_id.date.strftime('%d/%m/%Y 00:00') if plan_line.plan_id and plan_line.plan_id.date else '',  # Ngày tiếp nhận
+                plan_line.plan_id.date.strftime('%d/%m/%Y 00:00') if plan_line.plan_id and plan_line.plan_id.date else '',  # Ngày xe chạy
+                plan_line.plan_id.goods_cut_off.strftime('%d/%m/%Y %H:%M') if plan_line.plan_id and plan_line.plan_id.goods_cut_off else '',  # Cut off
+                plan_line.client_id.code if plan_line.client_id and hasattr(plan_line.client_id, 'code') else '',  # Mã đối tượng
                 plan_line.client_id.name if plan_line.client_id else '',  # Tên đối tượng
                 plan_line.route_id.name if plan_line.route_id else '',  # Tuyến đường
                 '',  # Địa điểm giao (disabled)
@@ -275,9 +271,7 @@ class PlanLine(models.Model):
                 plan_line.plan_id.booking_bill_no if plan_line.plan_id else '',  # Số Book/Bill
                 trip.container_number if trip else '',  # Số Cont
                 trip.seal_number if trip else '',  # Số Seal
-                ('Xuất' if (
-                            plan_line.plan_id and plan_line.plan_id.plan_type == 'export') else 'Nhập') if plan_line.plan_id else '',
-                # Loại NX
+                ('Xuất' if (plan_line.plan_id and plan_line.plan_id.plan_type == 'export') else 'Nhập') if plan_line.plan_id else '',  # Loại NX
                 (trip.container_type if trip and trip.container_type else ''),  # Loại Cont
                 (trip.container_size if trip and trip.container_size else ''),  # Kích thước cont
                 plan_line.goods_name or '',  # Tên hàng hóa dịch vụ
@@ -303,7 +297,7 @@ class PlanLine(models.Model):
                 plan_line.note or '',  # Ghi chú
                 '',  # Số HĐ (disabled)
                 '',  # Số tờ khai (disabled)
-                ''  # Mã bảng giá (disabled)
+                ''   # Mã bảng giá (disabled)
             ]
 
             # Write row data
@@ -364,7 +358,6 @@ class PlanLine(models.Model):
             'target': 'self',
         }
 
-
     def action_export_all_plan_lines_excel(self):
         """Export all plan lines to Excel format"""
         return self.search([]).action_export_plan_line_excel()
@@ -373,5 +366,3 @@ class PlanLine(models.Model):
     # def _compute_fuel_total(self):
     #     for record in self:
     #         record.fuel_total = record.fuel_before + record.fuel_received
-
-

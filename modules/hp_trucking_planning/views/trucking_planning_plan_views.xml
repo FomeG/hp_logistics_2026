@@ -91,6 +91,11 @@
 <!--                                        <field name="weight_class" string="Weight"/>-->
 <!--                                        <field name="fuel_liters"/>-->
 <!--                                        <field name="total_cost"/>-->
+                                        <button name="action_export_plan_line_excel" 
+                                                string="Export"
+                                                type="object" 
+                                                class="btn-primary" 
+                                                icon="fa-download"/>
                                     </list>
                                 </field>
                             </page>
