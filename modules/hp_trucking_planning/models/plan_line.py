@@ -80,6 +80,18 @@ class PlanLine(models.Model):
         string='Trip',
         inverse_name='plan_line_id',
     )
+    # New field for number of trucks to create
+    number_of_trucks = fields.Integer(
+        string="Number of trucks to Add",
+        default=0,
+        help="Number of trips to create for this customer"
+    )
+    truck_count = fields.Integer(
+        string="Trucks",
+        compute='_compute_truck_count',
+        store=True,
+        help="Number of trucks assigned to this customer"
+    )
 
     # --- MISSING FIELDS IN EXCEL FILE ---
     # sequence = fields.Char(string="STT")
@@ -116,6 +128,12 @@ class PlanLine(models.Model):
     #         else:
     #             record.plan_month = False
     #             record.plan_year = False
+
+    @api.depends('trip_ids')
+    def _compute_truck_count(self):
+        """Compute the number of trucks (trips) for this customer"""
+        for record in self:
+            record.truck_count = len(record.trip_ids)
 
     @api.depends('plan_type', 'route_id')
     def _compute_actual_locations(self):

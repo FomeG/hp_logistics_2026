@@ -83,12 +83,13 @@ class Trip(models.Model):
         tracking=True,
     )
     status = fields.Selection([
+        ('draft', 'Draft'),
         ('cancelled', 'Cancelled'),
         ('confirmed', 'Confirmed'),
         ('checking', 'Checking'),
         ('done', 'Done'),
     ],
-        default='checking',
+        default='draft',
         string='Status',
         tracking=True,
     )
@@ -100,12 +101,18 @@ class Trip(models.Model):
         string="Seal Number",
         tracking=True,
     )
-    container_type = fields.Selection([
-        ('dry', 'Dry'),
-        ('cool', 'Cool'),
-        ('ot', 'OT'),
-        ('ft', 'FT')
-    ], string="Container Type", required=True, tracking=True)
+    container_type = fields.Selection(
+        related='plan_id.container_type',
+        string='Container Type',
+        readonly=True,
+        store=True,
+    )
+    # container_type = fields.Selection([
+    #     ('dry', 'Dry'),
+    #     ('cool', 'Cool'),
+    #     ('ot', 'OT'),
+    #     ('ft', 'FT')
+    # ], string="Container Type", required=True, tracking=True)
 
     container_size = fields.Selection([
         ('20', '20'),
