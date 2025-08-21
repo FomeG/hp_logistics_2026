@@ -34,7 +34,7 @@
                 <header>
                     <button name="action_preview_trip_order" string="Preview Trip Order" type="object" class="btn-secondary"/>
                     <button name="action_export_trip_docx" string="Export Trip DOCX" type="object" class="btn-primary"/>
-                    <field name="status" widget="statusbar" statusbar_visible="checking,confirmed,done"/>
+                    <field name="status" widget="statusbar" statusbar_visible="draft,checking,confirmed,done"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -153,6 +153,7 @@
                 <field name="container_type"/>
                 <field name="weight_class"/>
 
+                <filter string="Draft" name="draft" domain="[('status', '=', 'draft')]"/>
                 <filter string="Confirmed" name="confirmed" domain="[('status', '=', 'confirmed')]"/>
                 <filter string="Checking" name="checking" domain="[('status', '=', 'checking')]"/>
                 <filter string="Done" name="done" domain="[('status', '=', 'done')]"/>
@@ -179,6 +180,6 @@
         <field name="name">Trips</field>
         <field name="res_model">trucking_planning.trip</field>
         <field name="view_mode">list,form</field>
-        <field name="context">{'default_status': 'checking'}</field>
+        <field name="context">{'default_status': 'draft'}</field>
     </record>
 </odoo>
