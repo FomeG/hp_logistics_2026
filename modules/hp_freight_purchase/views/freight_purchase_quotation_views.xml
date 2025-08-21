@@ -54,10 +54,11 @@
                                 </form>
                             </field>
                         </page>
-                        <page string="Common Fees">
+                        <page string="Fees">
                             <field name="fee_ids">
                                 <list editable="bottom">
-                                    <field name="fee_type_id"/>
+<field name="fee_id" domain="[('shipping_line_id','=',parent.shipping_line_id),('route_id','=',parent.route_id)]"/>
+
                                     <field name="amount"/>
                                     <field name="note" />
                                 </list>

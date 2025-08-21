@@ -10,8 +10,11 @@
                     <group>
                         <field name="name" required="1" />
                         <field name="direction" />
-                        <field name="is_common" help="Check if the fee applied directly to quotation"/>
-                        <field name="amount" invisible="not is_common" required="is_common" />
+                        <field name="apply_on" />
+
+<!--                        <field name="is_common" help="Check if the fee applied directly to quotation"/>-->
+                        <field name="amount"/>
+                        <field name="shipping_line_id"/>
                         <field name="active" invisible="not id"/>
                     </group>
                 </sheet>
@@ -27,7 +30,7 @@
             <list string="Fee Type List">
                 <field name="name" />
                 <field name="direction" />
-                <field name="is_common" />
+<!--                <field name="is_common" />-->
                 <field name="amount" />
                 <field name="active" />
             </list>
@@ -41,7 +44,8 @@
             <search string="Fee Type Search">
                 <field name="name" />
                 <field name="direction" />
-                <field name="is_common" />
+<!--                <field name="is_common" />-->
+                <field name="apply_on" />
                 <field name="amount" />
                 <field name="active" />
                 <separator string="Active Status"/>

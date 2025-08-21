@@ -37,8 +37,8 @@ class BookingFeeValidator(FreightValidator):
         # Custom validation: Check if fee type is common
         if validated.get('fee_type_id'):
             fee_type = env['freight.purchase.fee.type'].browse(validated['fee_type_id'])
-            if not fee_type.is_common:
-                errors.append("Only common fee types can be added to booking fees")
+            # if not fee_type.is_common:
+            #     errors.append("Only common fee types can be added to booking fees")
         
         # Custom validation: Check for duplicate fee type within same booking
         if validated.get('booking_id') and validated.get('fee_type_id'):
