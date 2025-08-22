@@ -12,3 +12,4 @@ from . import vehicle_driver_history
 from . import branch
 from . import wizards
 from . import trip
+

@@ -398,51 +398,13 @@ class Trip(models.Model):
 
     def action_send_message(self):
         """Send message via API for trip"""
-        try:
-            import requests
-        except ImportError:
-            raise UserError("requests library is required. Please install it using: pip install requests")
-        
-        # API configuration
-        api_url = "https://c66722b1efcf.ngrok-free.app/api/zalos/send-message-text"
-        
         # Build message content
         message_content = self._build_message_content()
         
-        # API parameters
-        params = {
-            'phone': '84',  # Default phone parameter
-            'message': message_content,
-            'website_id': '1'  # Default website_id
-        }
-        
-        try:
-            response = requests.post(api_url, params=params, timeout=30)
-            response.raise_for_status()
-            
-            # Log the message sent
-            self.message_post(
-                body=f"Message sent successfully via API. Response: {response.text}",
-                message_type='notification'
-            )
-            
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': 'Success',
-                    'message': 'Message sent successfully!',
-                    'type': 'success',
-                }
-            }
-            
-        except requests.exceptions.RequestException as e:
-            error_msg = f"Failed to send message: {str(e)}"
-            self.message_post(
-                body=error_msg,
-                message_type='notification'
-            )
-            raise UserError(error_msg)
+        # Use Zalo service to send message
+        return self.env['zalo.service'].send_message_with_logging(
+            self, message_content
+        )
     
     def _build_message_content(self):
         """Build the message content for trip"""
@@ -470,7 +432,7 @@ class Trip(models.Model):
         contact_number = "N/A"  # No contact_number field in plan model
         
         # 3. Các Yêu Cầu khác
-        notes = plan_line.note if plan_line else "N/A"
+        notes = self.note or "N/A"  # Use trip's own note for driver-specific instructions
         
         # Build complete message
         message = f"""1. Thông tin đóng trả hàng:
@@ -495,60 +457,8 @@ Notes: {notes}"""
 
     def action_send_message_bulk(self):
         """Send message via API for multiple selected trips"""
-        try:
-            import requests
-        except ImportError:
-            raise UserError("requests library is required. Please install it using: pip install requests")
-        
-        # API configuration
-        api_url = "https://c66722b1efcf.ngrok-free.app/api/zalos/send-message-text"
-        
-        success_count = 0
-        failed_count = 0
-        
-        for trip in self:
-            try:
-                # Build message content for this trip
-                message_content = trip._build_message_content()
-                
-                # API parameters
-                params = {
-                    'phone': '84',  # Default phone parameter
-                    'message': message_content,
-                    'website_id': '1'  # Default website_id
-                }
-                
-                response = requests.post(api_url, params=params, timeout=30)
-                response.raise_for_status()
-                
-                # Log the message sent
-                trip.message_post(
-                    body=f"Message sent successfully via API (bulk). Response: {response.text}",
-                    message_type='notification'
-                )
-                
-                success_count += 1
-                
-            except Exception as e:
-                error_msg = f"Failed to send message for trip {trip.name}: {str(e)}"
-                trip.message_post(
-                    body=error_msg,
-                    message_type='notification'
-                )
-                failed_count += 1
-        
-        # Show summary
-        summary_msg = f"Bulk message sending completed. Success: {success_count}, Failed: {failed_count}"
-        
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': 'Bulk Message Sending Summary',
-                'message': summary_msg,
-                'type': 'success' if failed_count == 0 else 'warning',
-            }
-        }
+        # Use Zalo service to send bulk messages
+        return self.env['zalo.service'].send_bulk_messages(self)
 
     def action_export_trip_docx(self):
         """Export trip data to DOCX format matching the transport document"""

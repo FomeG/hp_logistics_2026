@@ -4,6 +4,9 @@ import base64
 import math
 import io
 from datetime import datetime
+from ..services.zalo_service import ZaloService
+import logging
+_logger = logging.getLogger(__name__)
 
 class PlanLine(models.Model):
     _name = 'trucking_planning.plan.line'
@@ -205,100 +208,53 @@ class PlanLine(models.Model):
         }
 
     def action_send_message(self):
-        """Send message via API for plan line"""
-        try:
-            import requests
-        except ImportError:
-            raise UserError("requests library is required. Please install it using: pip install requests")
+        """Send message via API for plan line - sends to all drivers of trips"""
+        if not self.trip_ids:
+            raise UserError("No trips found in this plan line to send messages to.")
         
-        # API configuration
-        api_url = "https://c66722b1efcf.ngrok-free.app/api/zalos/send-message-text"
+        # Send personalized message to each driver
+        success_count = 0
+        failed_count = 0
         
-        # Build message content
-        message_content = self._build_message_content()
+        for trip in self.trip_ids:
+            if trip.driver_id:
+                try:
+                    # Each trip builds its own message with its own note
+                    message_content = trip._build_message_content()
+                    
+                    # Use Zalo service to send message
+                    self.env['zalo.service'].send_message_with_logging(
+                        trip, message_content
+                    )
+                    success_count += 1
+                except Exception as e:
+                    failed_count += 1
+                    # Log error but continue with other trips
+                    _logger.error(f"Failed to send message to trip {trip.id}: {str(e)}")
         
-        # API parameters
-        params = {
-            'phone': '84',  # Default phone parameter
-            'message': message_content,
-            'website_id': '1'  # Default website_id
-        }
-        
-        try:
-            response = requests.post(api_url, params=params, timeout=30)
-            response.raise_for_status()
-            
-            # Log the message sent
-            self.message_post(
-                body=f"Message sent successfully via API. Response: {response.text}",
-                message_type='notification'
-            )
-            
+        # Show summary message
+        if success_count > 0 and failed_count == 0:
             return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
                     'title': 'Success',
-                    'message': 'Message sent successfully!',
+                    'message': f'Successfully sent messages to {success_count} driver(s)',
                     'type': 'success',
                 }
             }
-            
-        except requests.exceptions.RequestException as e:
-            error_msg = f"Failed to send message: {str(e)}"
-            self.message_post(
-                body=error_msg,
-                message_type='notification'
-            )
-            raise UserError(error_msg)
-    
-    def _build_message_content(self):
-        """Build the message content for plan line"""
-        plan = self.plan_id
-        
-        # 1. Thông tin đóng trả hàng
-        booking_bill = plan.booking_bill_no or "N/A"
-        container_info = ""
-        if hasattr(self, 'container_type') and self.container_type:
-            container_info = f"{self.container_type}"
-        if hasattr(self, 'container_size') and self.container_size:
-            container_info += f" {self.container_size}"
-        if not container_info:
-            container_info = "N/A"
-            
-        shipping_line = plan.shipping_line_id.name if plan.shipping_line_id else "N/A"
-        source_location = self.actual_source_location_id.name if self.actual_source_location_id else "N/A"
-        destination_location = self.actual_destination_location_id.name if self.actual_destination_location_id else "N/A"
-        goods_weight = f"{self.goods_weight} kg" if self.goods_weight else "N/A"
-        
-        # 2. Đóng hàng/ Hạ Hàng
-        loading_time = plan.date.strftime("%d/%m/%Y") if plan.date else "N/A"
-        loading_location = plan.location_id.name if plan.location_id else "N/A"
-        contact_number = "N/A"  # No contact_number field in plan model
-        
-        # 3. Các Yêu Cầu khác
-        notes = self.note or "N/A"
-        
-        # Build complete message
-        message = f"""1. Thông tin đóng trả hàng:
-
-Số booking/số bill: {booking_bill}
-Loại container: {container_info} - hãng tầu ({shipping_line})
-Nơi lấy Cont: {source_location}
-Nơi hạ cont: {destination_location}
-Trọng lượng hàng: {goods_weight}
-
-2. Đóng hàng/ Hạ Hàng
-
-Thời gian đóng hàng: {loading_time}
-Địa điểm đóng hàng: {loading_location}
-Số liên hệ: {contact_number}
-
-3. Các Yêu Cầu khác: 
-
-Notes: {notes}"""
-        
-        return message
+        elif success_count > 0 and failed_count > 0:
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Partial Success',
+                    'message': f'Sent messages to {success_count} driver(s), failed for {failed_count} driver(s)',
+                    'type': 'warning',
+                }
+            }
+        else:
+            raise UserError(f"Failed to send messages to any drivers. {failed_count} failures.")
 
     def action_export_plan_line_excel(self):
         """Export plan line data to Excel format"""
