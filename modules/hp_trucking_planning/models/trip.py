@@ -1,7 +1,8 @@
 from odoo import models, api, fields
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 import base64
 import math
+from ..services.planning_service import planning_service
 
 
 
@@ -130,6 +131,7 @@ class Trip(models.Model):
     truck_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle',
         index=True,
+        domain=lambda self: self._get_truck_domain(),
     )
     driver_id = fields.Many2one(
         comodel_name="trucking_planning.driver",
@@ -258,10 +260,80 @@ class Trip(models.Model):
     #         else:
     #             rec.actual_source_location_id = False
     #             rec.actual_destination_location_id = False
+    def _get_truck_domain(self):
+        domain = [
+            ('type', '=', 'truck')
+        ]
+
+        branches = self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])])
+        if branches:
+            domain.append(('branch_id', 'in', [False] + branches.ids))
+        else:
+            domain.append(('branch_id', '=', False))
+
+        return domain
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        trips = super(Trip, self).create(vals_list)
+
+        for trip, vals in zip(trips, vals_list):
+            if 'truck_id' in vals and vals['truck_id']:
+                if trip.plan_line_id:
+                    used_truck_ids = self.search([
+                        ('plan_line_id', '=', trip.plan_line_id.id),
+                        ('truck_id', '=', vals['truck_id']),
+                        ('id', '!=', trip.id),
+                        ('status', 'not in', ['cancelled']),
+                    ])
+                    if used_truck_ids:
+                        raise ValidationError(
+                            f"Truck {vals['truck_id']} is already assigned to another trip in the same customer!")
+
+                if trip.plan_date:
+                    used_truck_ids_in_date = self.search([
+                        ('plan_date', '=', trip.plan_date),
+                        ('truck_id', '=', vals['truck_id']),
+                        ('id', '!=', trip.id),
+                        ('status', 'not in', ['cancelled']),
+                    ])
+                    if used_truck_ids_in_date:
+                        raise ValidationError(
+                            f"Truck {vals['truck_id']} is already assigned to another trip on the same date!")
+
+                if trip.plan_date:
+                   planning_service(self.env).remove_vehicle_driver_by_vehicle_and_date_plan(
+                        vehicle_id=vals['truck_id'],
+                        date_plan=trip.plan_date,
+                        exclude_trip_id=trip.id
+                    )
+
+        return trips
+
+    @api.model
+    def write(self, vals):
+        result = super(Trip, self).write(vals)
+
+        if 'truck_id' in vals or 'plan_date' in vals:
+            for record in self:
+                if record.truck_id and record.plan_date:
+                    record.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
+                        vehicle_id=record.truck_id.id,
+                        date_plan=record.plan_date,
+                        exclude_trip_id=record.id
+                    )
+        return result
+
+    def remove_vehicle_driver_of_plan_and_plan_line(self, vehicle_id, date_plan, exclude_plan_id):
+        planning_service(self.env).remove_vehicle_driver_by_vehicle_and_date_plan(vehicle_id, date_plan, exclude_plan_id)
+
     @api.onchange('plan_line_id')
     def _onchange_plan_line_id(self):
         if self.plan_line_id:
             self.plan_id = self.plan_line_id.plan_id
+            # Đảm bảo domain của truck_id được cập nhật khi thay đổi plan_line_id
+            return {'domain': {'truck_id': self._get_truck_domain()}}
+
 
     def _get_plan_line_domain(self):
         domain = []
