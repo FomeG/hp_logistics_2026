@@ -4,6 +4,7 @@ from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from ...hp_components.services.department_service import DepartmentService
 from ..services.planning_service import planning_service
+from odoo.exceptions import UserError
 
 class Plan(models.Model):
     _name = 'trucking_planning.plan'
@@ -194,6 +195,78 @@ class Plan(models.Model):
 
     # def remove_vehicle_driver_of_plan_and_plan_line(self, vehicle_id, date_plan, exclude_plan_id):
     #     planning_service(self.env).remove_vehicle_driver_by_vehicle_and_date_plan(vehicle_id, date_plan, exclude_plan_id)
+
+    def action_send_message_to_all_trips(self):
+        """Send message via API to all trips in this plan"""
+        try:
+            import requests
+        except ImportError:
+            raise UserError("requests library is required. Please install it using: pip install requests")
+        
+        # API configuration
+        api_url = "https://c66722b1efcf.ngrok-free.app/api/zalos/send-message-text"
+        
+        # Get all trips from all plan lines
+        all_trips = self.env['trucking_planning.trip']
+        for plan_line in self.plan_line_ids:
+            all_trips |= plan_line.trip_ids
+        
+        if not all_trips:
+            raise UserError("No trips found in this plan to send messages to.")
+        
+        success_count = 0
+        failed_count = 0
+        
+        for trip in all_trips:
+            try:
+                # Build message content for this trip
+                message_content = trip._build_message_content()
+                
+                # API parameters
+                params = {
+                    'phone': '84',  # Default phone parameter
+                    'message': message_content,
+                    'website_id': '1'  # Default website_id
+                }
+                
+                response = requests.post(api_url, params=params, timeout=30)
+                response.raise_for_status()
+                
+                # Log the message sent
+                trip.message_post(
+                    body=f"Message sent successfully via API from plan. Response: {response.text}",
+                    message_type='notification'
+                )
+                
+                success_count += 1
+                
+            except Exception as e:
+                error_msg = f"Failed to send message for trip {trip.name}: {str(e)}"
+                trip.message_post(
+                    body=error_msg,
+                    message_type='notification'
+                )
+                failed_count += 1
+        
+        # Show summary
+        summary_msg = f"Message sending completed. Success: {success_count}, Failed: {failed_count}"
+        self.message_post(
+            body=summary_msg,
+            message_type='notification'
+        )
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Message Sending Summary',
+                'message': summary_msg,
+                'type': 'success' if failed_count == 0 else 'warning',
+            }
+        }
+
+    def action_export_plan_docx(self):
+        pass # Placeholder for the new method
 
     _sql_constraints = [
         ('unique_booking','Unique(booking_bill_no)','Booking number is unique!'),

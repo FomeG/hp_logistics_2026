@@ -396,6 +396,160 @@ class Trip(models.Model):
         self.ensure_one()
         return self.env.ref('hp_trucking_planning.action_trip')
 
+    def action_send_message(self):
+        """Send message via API for trip"""
+        try:
+            import requests
+        except ImportError:
+            raise UserError("requests library is required. Please install it using: pip install requests")
+        
+        # API configuration
+        api_url = "https://c66722b1efcf.ngrok-free.app/api/zalos/send-message-text"
+        
+        # Build message content
+        message_content = self._build_message_content()
+        
+        # API parameters
+        params = {
+            'phone': '84',  # Default phone parameter
+            'message': message_content,
+            'website_id': '1'  # Default website_id
+        }
+        
+        try:
+            response = requests.post(api_url, params=params, timeout=30)
+            response.raise_for_status()
+            
+            # Log the message sent
+            self.message_post(
+                body=f"Message sent successfully via API. Response: {response.text}",
+                message_type='notification'
+            )
+            
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Success',
+                    'message': 'Message sent successfully!',
+                    'type': 'success',
+                }
+            }
+            
+        except requests.exceptions.RequestException as e:
+            error_msg = f"Failed to send message: {str(e)}"
+            self.message_post(
+                body=error_msg,
+                message_type='notification'
+            )
+            raise UserError(error_msg)
+    
+    def _build_message_content(self):
+        """Build the message content for trip"""
+        plan_line = self.plan_line_id
+        plan = plan_line.plan_id if plan_line else None
+        
+        # 1. Thông tin đóng trả hàng
+        booking_bill = plan.booking_bill_no if plan else "N/A"
+        container_info = ""
+        if self.container_type:
+            container_info = f"{self.container_type}"
+        if self.container_size:
+            container_info += f" {self.container_size}"
+        if not container_info:
+            container_info = "N/A"
+            
+        shipping_line = plan.shipping_line_id.name if plan and plan.shipping_line_id else "N/A"
+        source_location = plan_line.actual_source_location_id.name if plan_line and plan_line.actual_source_location_id else "N/A"
+        destination_location = plan_line.actual_destination_location_id.name if plan_line and plan_line.actual_destination_location_id else "N/A"
+        goods_weight = f"{plan_line.goods_weight} kg" if plan_line and plan_line.goods_weight else "N/A"
+        
+        # 2. Đóng hàng/ Hạ Hàng
+        loading_time = plan.date.strftime("%d/%m/%Y") if plan and plan.date else "N/A"
+        loading_location = plan.location_id.name if plan and plan.location_id else "N/A"
+        contact_number = "N/A"  # No contact_number field in plan model
+        
+        # 3. Các Yêu Cầu khác
+        notes = plan_line.note if plan_line else "N/A"
+        
+        # Build complete message
+        message = f"""1. Thông tin đóng trả hàng:
+
+Số booking/số bill: {booking_bill}
+Loại container: {container_info} - hãng tầu ({shipping_line})
+Nơi lấy Cont: {source_location}
+Nơi hạ cont: {destination_location}
+Trọng lượng hàng: {goods_weight}
+
+2. Đóng hàng/ Hạ Hàng
+
+Thời gian đóng hàng: {loading_time}
+Địa điểm đóng hàng: {loading_location}
+Số liên hệ: {contact_number}
+
+3. Các Yêu Cầu khác: 
+
+Notes: {notes}"""
+        
+        return message
+
+    def action_send_message_bulk(self):
+        """Send message via API for multiple selected trips"""
+        try:
+            import requests
+        except ImportError:
+            raise UserError("requests library is required. Please install it using: pip install requests")
+        
+        # API configuration
+        api_url = "https://c66722b1efcf.ngrok-free.app/api/zalos/send-message-text"
+        
+        success_count = 0
+        failed_count = 0
+        
+        for trip in self:
+            try:
+                # Build message content for this trip
+                message_content = trip._build_message_content()
+                
+                # API parameters
+                params = {
+                    'phone': '84',  # Default phone parameter
+                    'message': message_content,
+                    'website_id': '1'  # Default website_id
+                }
+                
+                response = requests.post(api_url, params=params, timeout=30)
+                response.raise_for_status()
+                
+                # Log the message sent
+                trip.message_post(
+                    body=f"Message sent successfully via API (bulk). Response: {response.text}",
+                    message_type='notification'
+                )
+                
+                success_count += 1
+                
+            except Exception as e:
+                error_msg = f"Failed to send message for trip {trip.name}: {str(e)}"
+                trip.message_post(
+                    body=error_msg,
+                    message_type='notification'
+                )
+                failed_count += 1
+        
+        # Show summary
+        summary_msg = f"Bulk message sending completed. Success: {success_count}, Failed: {failed_count}"
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Bulk Message Sending Summary',
+                'message': summary_msg,
+                'type': 'success' if failed_count == 0 else 'warning',
+            }
+        }
+
     def action_export_trip_docx(self):
         """Export trip data to DOCX format matching the transport document"""
         try:
@@ -761,9 +915,8 @@ class Trip(models.Model):
         # title_run.bold = True
         #
         # para6_content = detail_cells[0].add_paragraph()
-        # para6_content.add_run("Biển số rơ mooc, sơmi rơmooc: ")
-        # bold_run = para6_content.add_run(f"{self.trailer_id.name or '15R13049'}")
-        # bold_run.bold = True
+        # para6_content.add_run("""
+        # Biển số rơ mooc, sơmi rơmooc:""")
 
         # Hàng Về (Inbound - blank template)
         # Clear cell and add content properly
