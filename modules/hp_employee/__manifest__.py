@@ -5,7 +5,8 @@
 {
     'name': 'HP Employees',
     'version': '1.0',
-    'category': 'Hidden',
+    'author': 'HPL',
+    'category': 'HP',
     "license": "LGPL-3",
     'description': """
 HP Employee App
