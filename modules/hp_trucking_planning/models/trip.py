@@ -839,7 +839,7 @@ Notes: {notes}"""
         bold_run.bold = True
         para3_content.add_run("\nLoại cont: ")
         bold_run = para3_content.add_run(
-            f"{dict(self._fields['container_type'].selection).get(self.container_type, '')}")
+            f"{dict(self.env['trucking_planning.plan']._fields['container_type'].selection).get(self.container_type, '')}")
         bold_run.bold = True
         para3_content.add_run("\nKích thước: ")
         bold_run = para3_content.add_run(f"{self.container_size or '40'}")
