@@ -53,7 +53,7 @@
                                 class="btn-primary" 
                                 icon="fa-download"/>
                         <button name="action_send_message" 
-                                string="Send Message" 
+                                string="Send Message to All Drivers" 
                                 type="object" 
                                 class="btn-success" 
                                 icon="fa-paper-plane"/>
