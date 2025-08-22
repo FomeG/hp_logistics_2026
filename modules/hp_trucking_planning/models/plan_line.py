@@ -204,6 +204,102 @@ class PlanLine(models.Model):
             'target': 'new',
         }
 
+    def action_send_message(self):
+        """Send message via API for plan line"""
+        try:
+            import requests
+        except ImportError:
+            raise UserError("requests library is required. Please install it using: pip install requests")
+        
+        # API configuration
+        api_url = "https://c66722b1efcf.ngrok-free.app/api/zalos/send-message-text"
+        
+        # Build message content
+        message_content = self._build_message_content()
+        
+        # API parameters
+        params = {
+            'phone': '84',  # Default phone parameter
+            'message': message_content,
+            'website_id': '1'  # Default website_id
+        }
+        
+        try:
+            response = requests.post(api_url, params=params, timeout=30)
+            response.raise_for_status()
+            
+            # Log the message sent
+            self.message_post(
+                body=f"Message sent successfully via API. Response: {response.text}",
+                message_type='notification'
+            )
+            
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': 'Success',
+                    'message': 'Message sent successfully!',
+                    'type': 'success',
+                }
+            }
+            
+        except requests.exceptions.RequestException as e:
+            error_msg = f"Failed to send message: {str(e)}"
+            self.message_post(
+                body=error_msg,
+                message_type='notification'
+            )
+            raise UserError(error_msg)
+    
+    def _build_message_content(self):
+        """Build the message content for plan line"""
+        plan = self.plan_id
+        
+        # 1. Thông tin đóng trả hàng
+        booking_bill = plan.booking_bill_no or "N/A"
+        container_info = ""
+        if hasattr(self, 'container_type') and self.container_type:
+            container_info = f"{self.container_type}"
+        if hasattr(self, 'container_size') and self.container_size:
+            container_info += f" {self.container_size}"
+        if not container_info:
+            container_info = "N/A"
+            
+        shipping_line = plan.shipping_line_id.name if plan.shipping_line_id else "N/A"
+        source_location = self.actual_source_location_id.name if self.actual_source_location_id else "N/A"
+        destination_location = self.actual_destination_location_id.name if self.actual_destination_location_id else "N/A"
+        goods_weight = f"{self.goods_weight} kg" if self.goods_weight else "N/A"
+        
+        # 2. Đóng hàng/ Hạ Hàng
+        loading_time = plan.date.strftime("%d/%m/%Y") if plan.date else "N/A"
+        loading_location = plan.location_id.name if plan.location_id else "N/A"
+        contact_number = "N/A"  # No contact_number field in plan model
+        
+        # 3. Các Yêu Cầu khác
+        notes = self.note or "N/A"
+        
+        # Build complete message
+        message = f"""1. Thông tin đóng trả hàng:
+
+Số booking/số bill: {booking_bill}
+Loại container: {container_info} - hãng tầu ({shipping_line})
+Nơi lấy Cont: {source_location}
+Nơi hạ cont: {destination_location}
+Trọng lượng hàng: {goods_weight}
+
+2. Đóng hàng/ Hạ Hàng
+
+Thời gian đóng hàng: {loading_time}
+Địa điểm đóng hàng: {loading_location}
+Số liên hệ: {contact_number}
+
+3. Các Yêu Cầu khác: 
+
+Notes: {notes}"""
+        
+        return message
+
     def action_export_plan_line_excel(self):
         """Export plan line data to Excel format"""
         try:
