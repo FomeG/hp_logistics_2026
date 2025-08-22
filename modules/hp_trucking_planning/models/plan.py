@@ -87,19 +87,19 @@ class Plan(models.Model):
         compute='_compute_total_trips',
         store=False
     )
-    @api.model
-    def _get_vehicle_avaliable(self):
-        domain = [
-            ('type', '=', 'truck'),
-        ]
-
-        branches = self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])])
-        if branches:
-            domain.append(('branch_id', 'in', [False] + branches.ids))
-        else:
-            domain.append(('branch_id', '=', False))
-
-        return domain
+    # @api.model
+    # def _get_vehicle_avaliable(self):
+    #     domain = [
+    #         ('type', '=', 'truck'),
+    #     ]
+    #
+    #     branches = self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])])
+    #     if branches:
+    #         domain.append(('branch_id', 'in', [False] + branches.ids))
+    #     else:
+    #         domain.append(('branch_id', '=', False))
+    #
+    #     return domain
 
     @api.depends('date')
     def _compute_month_year(self):
@@ -192,8 +192,8 @@ class Plan(models.Model):
             'target': 'new',
         }
 
-    def remove_vehicle_driver_of_plan_and_plan_line(self, vehicle_id, date_plan, exclude_plan_id):
-        planning_service(self.env).remove_vehicle_driver_by_vehicle_and_date_plan(vehicle_id, date_plan, exclude_plan_id)
+    # def remove_vehicle_driver_of_plan_and_plan_line(self, vehicle_id, date_plan, exclude_plan_id):
+    #     planning_service(self.env).remove_vehicle_driver_by_vehicle_and_date_plan(vehicle_id, date_plan, exclude_plan_id)
 
     _sql_constraints = [
         ('unique_booking','Unique(booking_bill_no)','Booking number is unique!'),
