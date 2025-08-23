@@ -5,7 +5,6 @@ import math
 from ..services.planning_service import planning_service
 
 
-
 class Trip(models.Model):
     _name = 'trucking_planning.trip'
     _description = 'Trip'
@@ -131,7 +130,7 @@ class Trip(models.Model):
     truck_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle',
         index=True,
-        domain=lambda self: self._get_truck_domain(),
+        domain="[('id', 'in', available_truck_ids)]",
     )
     driver_id = fields.Many2one(
         comodel_name="trucking_planning.driver",
@@ -260,18 +259,51 @@ class Trip(models.Model):
     #         else:
     #             rec.actual_source_location_id = False
     #             rec.actual_destination_location_id = False
-    def _get_truck_domain(self):
-        domain = [
-            ('type', '=', 'truck')
-        ]
 
-        branches = self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])])
-        if branches:
-            domain.append(('branch_id', 'in', [False] + branches.ids))
-        else:
-            domain.append(('branch_id', '=', False))
+    available_truck_ids = fields.Many2many(
+        comodel_name='trucking_planning.vehicle',
+        compute='_compute_available_truck_ids',
+        store=False
+    )
 
-        return domain
+    @api.depends('plan_id')
+    def _compute_available_truck_ids(self):
+        for record in self:
+            domain = [('type', '=', 'truck')]
+
+            branches = self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])])
+            if branches:
+                domain.append(('branch_id', 'in', [False] + branches.ids))
+            else:
+                domain.append(('branch_id', '=', False))
+
+            plan = record.plan_id or self.env['trucking_planning.plan'].sudo().browse(self.env.context.get('default_plan_id'))
+            if plan and plan.date:
+                truck_invalids = self.sudo().search([
+                    ('plan_date', '=', plan.date),
+                    ('status', 'not in', ['cancelled'])
+                ]).mapped('truck_id')
+
+                if record.truck_id:
+                    truck_invalids = truck_invalids - record.truck_id
+
+                if truck_invalids:
+                    domain.append(('id', 'not in', truck_invalids.ids))
+
+            record.available_truck_ids = self.env['trucking_planning.vehicle'].sudo().search(domain).ids
+
+    # def _get_truck_domain(self):
+    #     domain = [
+    #         ('type', '=', 'truck')
+    #     ]
+
+    #     branches = self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])])
+    #     if branches:
+    #         domain.append(('branch_id', 'in', [False] + branches.ids))
+    #     else:
+    #         domain.append(('branch_id', '=', False))
+
+    #     return domain
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -327,12 +359,12 @@ class Trip(models.Model):
     def remove_vehicle_driver_of_plan_and_plan_line(self, vehicle_id, date_plan, exclude_plan_id):
         planning_service(self.env).remove_vehicle_driver_by_vehicle_and_date_plan(vehicle_id, date_plan, exclude_plan_id)
 
-    @api.onchange('plan_line_id')
-    def _onchange_plan_line_id(self):
-        if self.plan_line_id:
-            self.plan_id = self.plan_line_id.plan_id
-            # Đảm bảo domain của truck_id được cập nhật khi thay đổi plan_line_id
-            return {'domain': {'truck_id': self._get_truck_domain()}}
+    # @api.onchange('plan_line_id')
+    # def _onchange_plan_line_id(self):
+    #     if self.plan_line_id:
+    #         self.plan_id = self.plan_line_id.plan_id
+    #         # Đảm bảo domain của truck_id được cập nhật khi thay đổi plan_line_id
+    #         return {'domain': {'truck_id': self._get_truck_domain()}}
 
 
     # def _get_plan_line_domain(self):
