@@ -16,27 +16,17 @@ class FreightPurchaseFeeType(models.Model):
         ('n/a', 'N/A'),
     ],
         required=True,
-        default='import',
+        default='n/a',
     )
     apply_on = fields.Selection([
         ('container', 'Container'),
         ('port', 'Port'),
-    ], required=True, string="Apply on")
+        ('n/a', 'N/A'),
+    ], required=True, string="Apply on",default='n/a')
     amount = fields.Float()
     active = fields.Boolean(
         default=True,
         required=True
-    )
-    shipping_line_id = fields.Many2one(
-        comodel_name='res.partner',
-        string='Shipping Line',
-        domain=lambda self: [
-            ('partner_main_type_id', '=',
-             self.env['partner.main.type'].search([('code', '=', 'shipping_line')], limit=1).id)
-        ],
-        ondelete='restrict',
-        help="Select the Shipping Line this fee belongs to. "
-             "If left empty, the fee is considered a common fee available for all lines."
     )
 
     @api.constrains('apply_on', 'direction')
