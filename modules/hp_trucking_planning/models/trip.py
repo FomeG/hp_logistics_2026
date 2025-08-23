@@ -302,7 +302,7 @@ class Trip(models.Model):
                             f"Truck {vals['truck_id']} is already assigned to another trip on the same date!")
 
                 if trip.plan_date:
-                   planning_service(self.env).remove_vehicle_driver_by_vehicle_and_date_plan(
+                    trip.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
                         vehicle_id=vals['truck_id'],
                         date_plan=trip.plan_date,
                         exclude_trip_id=trip.id
@@ -335,15 +335,15 @@ class Trip(models.Model):
             return {'domain': {'truck_id': self._get_truck_domain()}}
 
 
-    def _get_plan_line_domain(self):
-        domain = []
-
-        if self.env.context.get('default_plan_id'):
-            domain = [('plan_id', '=', self.env.context.get('default_plan_id'))]
-        elif self.env.context.get('default_plan_line_id'):
-            domain = [('id', '=', self.env.context.get('default_plan_line_id'))]
-
-        return domain
+    # def _get_plan_line_domain(self):
+    #     domain = []
+    #
+    #     if self.env.context.get('default_plan_id'):
+    #         domain = [('plan_id', '=', self.env.context.get('default_plan_id'))]
+    #     elif self.env.context.get('default_plan_line_id'):
+    #         domain = [('id', '=', self.env.context.get('default_plan_line_id'))]
+    #
+    #     return domain
 
     def action_view_job(self):
         """Action để xem customer (plan line) của trip này"""
