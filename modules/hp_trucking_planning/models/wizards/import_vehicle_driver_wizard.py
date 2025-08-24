@@ -18,6 +18,44 @@ class ImportVehicleDriverWizard(models.TransientModel):
     sheet_name = fields.Char(string='Sheet Name', help='Select the Excel sheet to import')
     available_sheets = fields.Text(string='Available Sheets', readonly=True)
 
+    def _get_engine_type(self, machine_type):
+        """Get engine type with fuzzy matching for Vietnamese machine types"""
+        if not machine_type:
+            return 'small'
+        
+        normalized = machine_type.lower().strip()
+        
+        # Big engine variations
+        big_variations = [
+            'máy to', 'may to', 'mayto', 'máy tô', 'may to', 
+            'MÁY TO', 'MAY TO', 'May To', 'may to', 'may  to',
+            'máy  to', 'may  to', 'mayto', 'may-to', 'may_to',
+            'máy tô', 'may to', 'mayto', 'may to', 'may to',
+            'máy tô', 'may to', 'mayto', 'may to', 'may to'
+        ]
+        
+        # Small engine variations  
+        small_variations = [
+            'máy bé', 'may be', 'maybe', 'máy bê', 'may be',
+            'MÁY BÉ', 'MAY BE', 'May Be', 'may be', 'may  be',
+            'máy  bé', 'may  be', 'maybe', 'may-be', 'may_be',
+            'máy bê', 'may be', 'maybe', 'may be', 'may be'
+        ]
+        
+        # Check for big engine
+        for variation in big_variations:
+            if variation in normalized or normalized in variation:
+                return 'big'
+        
+        # Check for small engine
+        for variation in small_variations:
+            if variation in normalized or normalized in variation:
+                return 'small'
+        
+        # Default fallback with logging
+        _logger.warning(f"Unknown machine type '{machine_type}', defaulting to 'small'")
+        return 'small'
+
     @api.onchange('file', 'file_name')
     def _onchange_file(self):
         if self.file and self.file_name:
@@ -255,7 +293,7 @@ class ImportVehicleDriverWizard(models.TransientModel):
             machine_type = str(row['loại máy']).strip() if pd.notna(row['loại máy']) else ''
             
             # Map machine type to engine type
-            engine_type = 'small' if machine_type == 'máy bé' else 'big' if machine_type == 'máy to' else 'small'
+            engine_type = self._get_engine_type(machine_type)
             
             # Process Trailer first (if exists) so we can assign it to the truck
             trailer_record = None
