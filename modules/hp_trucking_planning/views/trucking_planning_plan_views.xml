@@ -51,7 +51,11 @@
                             <field name="shipping_line_id" string="Shipping Line"/>
                             <field name="container_type" string="Container Type"/>
                             <field name="location_id" string="Port"/>
+                            <field name="goods_pickup_location_id" string="Goods Pickup Location" required="1"/>
+                            <field name="goods_delivery_location_id" string="Goods Delivery Location" required="1"/>
                             <field name="date" required="1"/>
+                            <field name="estimate_time_departure" string="Estimate Time Departure" required="1"/>
+                            <field name="estimate_time_arrival" string="Estimate Time Arrival" required="1"/>
                             <field name="goods_cut_off" string="Goods Cut Off Date"/>
 <!--                            <field name="vehicle_id"-->
 <!--                                invisible="not date"-->

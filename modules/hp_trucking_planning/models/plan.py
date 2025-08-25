@@ -89,6 +89,56 @@ class Plan(models.Model):
         compute='_compute_total_trips',
         store=False
     )
+
+    estimate_time_departure = fields.Datetime(
+        string="ETD (Estimated Time of Departure)",
+        required=True,
+        tracking=True,
+    )
+    estimate_time_arrival = fields.Datetime(
+        string="ETA (Estimated Time of Arrival)",
+        required=True,
+        tracking=True,
+    )
+
+    estimate_time_duration = fields.Float(
+        string="Estimated Time Duration (Hours)",
+        compute='_compute_estimate_time_duration',
+        store=True,
+    )
+
+    goods_pickup_location_id = fields.Many2one(
+        comodel_name='trucking_planning.location',
+        string="Goods Pickup Location",
+        required="True",
+        tracking=True,
+        domain=[('type', '=', 'goods_pickup_delivery')],
+        help="Location where goods will be picked up"
+    )
+
+    goods_delivery_location_id = fields.Many2one(
+        comodel_name='trucking_planning.location',
+        string="Goods Delivery Location",
+        required="True",
+        tracking=True,
+        domain=[('type', '=', 'goods_pickup_delivery')],
+        help="Location where goods will be delivered"
+    )
+    @api.constrains('estimate_time_departure', 'estimate_time_arrival')
+    def _check_estimate_time(self):
+        for record in self:
+            if record.estimate_time_departure and record.estimate_time_arrival:
+                if record.estimate_time_arrival < record.estimate_time_departure:
+                    raise ValidationError("Estimated Time of Arrival cannot be earlier than Estimated Time of Departure.")
+
+    @api.depends('estimate_time_departure', 'estimate_time_arrival')
+    def _compute_estimate_time_duration(self):
+        for rec in self:
+            if rec.estimate_time_departure and rec.estimate_time_arrival:
+                delta = rec.estimate_time_arrival - rec.estimate_time_departure
+                rec.estimate_time_duration = delta.total_seconds() / 3600.0
+            else:
+                rec.estimate_time_duration = 0.0
     # @api.model
     # def _get_vehicle_avaliable(self):
     #     domain = [

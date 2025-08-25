@@ -50,6 +50,34 @@ class Trip(models.Model):
         readonly=True,
         store=True,
     )
+    plan_estimate_time_departure = fields.Datetime(
+        related='plan_line_id.plan_id.estimate_time_departure',
+        string='ETD',
+        readonly=True,
+        store=True,
+    )
+    plan_estimate_time_arrival = fields.Datetime(
+        related='plan_line_id.plan_id.estimate_time_arrival',
+        string='ETA',
+        readonly=True,
+        store=True,
+    )
+
+    plan_goods_pickup_location_id = fields.Many2one(
+        comodel_name='trucking_planning.location',
+        related='plan_line_id.plan_id.goods_pickup_location_id',
+        string='Goods Pickup Location',
+        readonly=True,
+        store=True,
+    )
+
+    plan_goods_delivery_location_id = fields.Many2one(
+        comodel_name='trucking_planning.location',
+        related='plan_line_id.plan_id.goods_delivery_location_id',
+        string='Goods Delivery Location',
+        readonly=True,
+        store=True,
+    )
     client_id = fields.Many2one(
         comodel_name='trucking_planning.client',
         related='plan_line_id.client_id',
@@ -801,25 +829,39 @@ Notes: {notes}"""
         bold_run.bold = True
         para4_content.add_run("\nĐiểm xếp hàng: ")
         source_location = self.plan_line_id.actual_source_location_id.name if self.plan_line_id and self.plan_line_id.actual_source_location_id else ' '
-        bold_run = para4_content.add_run(f"{source_location}")
+        pickup_location_address = ""
+        if self.plan_line_id.plan_id.goods_pickup_location_id:
+            pickup_location_address = self.plan_line_id.plan_id.goods_pickup_location_id.address or self.plan_line_id.plan_id.goods_pickup_location_id.name
+        bold_run = para4_content.add_run(f"{pickup_location_address}")
+
+        # bold_run = para4_content.add_run(f"{source_location}")
         # bold_run = para4_content.add_run(f"{self.container_pickup.name or ' '}")
         bold_run.bold = True
         para4_content.add_run("\nĐiểm giao hàng: ")
-        dest_location = self.plan_line_id.actual_destination_location_id.name if self.plan_line_id and self.plan_line_id.actual_destination_location_id else ' '
-        bold_run = para4_content.add_run(f"{dest_location}")
+        delivery_location_address = ""
+        if self.plan_line_id.plan_id.goods_delivery_location_id:
+            delivery_location_address = self.plan_line_id.plan_id.goods_delivery_location_id.address or self.plan_line_id.plan_id.goods_delivery_location_id.name
+        bold_run = para4_content.add_run(f"{delivery_location_address}")
+        # dest_location = self.plan_line_id.actual_destination_location_id.name if self.plan_line_id and self.plan_line_id.actual_destination_location_id else ' '
+        # bold_run = para4_content.add_run(f"{dest_location}")
         # bold_run = para4_content.add_run(f"{self.container_delivery.name or ' '}")
         bold_run.bold = True
-        para4_content.add_run("\nNơi trả vỏ: ")
+        para4_content.add_run("\nNơi trả hàng: ")
         bold_run = para4_content.add_run(f"{source_location}")
         # bold_run = para4_content.add_run(f"{self.container_pickup.name or ' '}")
         bold_run.bold = True
         para4_content.add_run("\nThời gian vận chuyển dự kiến:")
-        para4_content.add_run("\nBắt đầu từ: ")
-        # bold_run = para4_content.add_run(" ")
-        bold_run = para4_content.add_run(f"{trip_date.strftime('%d/%m/%Y')}")
+        para4_content.add_run("\nBắt đầu từ : ")
+        etd_str = self.plan_line_id.plan_id.estimate_time_departure.strftime('%d/%m/%Y %H:%M') if trip_date.strftime('%d/%m/%Y 06:00') else ' '
+        bold_run = para4_content.add_run(f"{etd_str}")
+        # para4_content.add_run("\nBắt đầu từ: ")
+        # # bold_run = para4_content.add_run(" ")
+        # bold_run = para4_content.add_run(f"{trip_date.strftime('%d/%m/%Y')}")
         bold_run.bold = True
         para4_content.add_run("\nđến: ")
-        bold_run = para4_content.add_run(f"{trip_date.strftime('%d/%m/%Y')}")
+        eta_str = self.plan_line_id.plan_id.estimate_time_arrival.strftime('%d/%m/%Y %H:%M') if trip_date.strftime('%d/%m/%Y 18:00') else ' '
+        bold_run = para4_content.add_run(f"{eta_str}")
+        # bold_run = para4_content.add_run(f"{trip_date.strftime('%d/%m/%Y')}")
         # bold_run = para4_content.add_run(" ")
         bold_run.bold = True
         para4_content.add_run("\nTổng số km dự kiến: ")
@@ -850,6 +892,16 @@ Notes: {notes}"""
         cut_off_str = self.goods_cut_off.strftime('%d/%m/%Y %H:%M') if self.goods_cut_off else ' '
         bold_run = para5_content.add_run(f"{cut_off_str}")
         bold_run.bold = True
+
+        para6 = detail_cells[0].add_paragraph()
+        title_run = para6.add_run("7. Ghi chú: ")
+        title_run.bold = True
+
+        para6_content = detail_cells[0].add_paragraph()
+        bold_run= para6_content.add_run(f"{self.note or ' '}")
+        bold_run.bold = True
+
+
 
         # detail_cells[0].add_paragraph()
         # para6 = detail_cells[0].add_paragraph()
@@ -906,7 +958,7 @@ Notes: {notes}"""
         para4_inbound_content.add_run("Tuyến vận chuyển:")
         para4_inbound_content.add_run("\nĐiểm xếp hàng:")
         para4_inbound_content.add_run("\nĐiểm giao hàng:")
-        para4_inbound_content.add_run("\nNơi trả vỏ:")
+        para4_inbound_content.add_run("\nNơi trả hàng:")
         para4_inbound_content.add_run("\nThời gian vận chuyển dự kiến:")
         para4_inbound_content.add_run("\nBắt đầu từ: ")
         para4_inbound_content.add_run("\nđến: ")
@@ -925,6 +977,11 @@ Notes: {notes}"""
         para5_content.add_run("Tên hàng hóa:")
         para5_content.add_run("\nKhối lượng hàng hóa (tấn): ")
         para5_content.add_run("\nCắt máng(Cut off):")
+
+        para6 = detail_cells[1].add_paragraph()
+        title_run = para6.add_run("7. Ghi chú: ")
+        title_run.bold = True
+
 
         # detail_cells[1].add_paragraph()
         para6_inbound = detail_cells[1].add_paragraph()
