@@ -65,8 +65,10 @@ class ZaloService(models.AbstractModel):
             response = self.send_message(message_content, phone, website_id)
             
             # Log success to the record
+            phone_info = f"Phone: {phone}" if phone else "Phone: Default"
             record.message_post(
                 body=f"✅ Message sent successfully via Zalo API\n"
+                     f"{phone_info}\n"
                      f"Content: {message_content[:2000]}{'...' if len(message_content) > 2000 else ''}\n"
                      f"Response: {response}",
                 message_type='notification'
@@ -76,8 +78,10 @@ class ZaloService(models.AbstractModel):
             
         except Exception as e:
             # Log error to the record
+            phone_info = f"Phone: {phone}" if phone else "Phone: Default"
             record.message_post(
                 body=f"❌ Failed to send message via Zalo API\n"
+                     f"{phone_info}\n"
                      f"Error: {str(e)}\n"
                      f"Content: {message_content[:100]}{'...' if len(message_content) > 100 else ''}",
                 message_type='notification'
@@ -98,8 +102,13 @@ class ZaloService(models.AbstractModel):
                 else:
                     raise UserError(f"Record {record._name} does not have _build_message_content method")
                 
+                # Get driver phone number for trip records
+                driver_phone = None
+                if hasattr(record, 'driver_id') and record.driver_id and record.driver_id.phone_number:
+                    driver_phone = record.driver_id.phone_number
+                
                 # Send message
-                self.send_message_with_logging(record, message_content)
+                self.send_message_with_logging(record, message_content, phone=driver_phone)
                 success_count += 1
                 
             except Exception as e:

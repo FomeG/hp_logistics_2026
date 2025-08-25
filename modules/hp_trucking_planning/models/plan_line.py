@@ -254,9 +254,12 @@ class PlanLine(models.Model):
                     # Each trip builds its own message with its own note
                     message_content = trip._build_message_content()
                     
+                    # Get driver phone number
+                    driver_phone = trip.driver_id.phone_number if trip.driver_id and trip.driver_id.phone_number else None
+                    
                     # Use Zalo service to send message
                     self.env['zalo.service'].send_message_with_logging(
-                        trip, message_content
+                        trip, message_content, phone=driver_phone
                     )
                     success_count += 1
                 except Exception as e:
