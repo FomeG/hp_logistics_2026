@@ -97,7 +97,6 @@
             action="freight_purchase_fee_line_action"
             parent="menu_freight_purchase_fee_menu"
             sequence="30" />
-
         <menuitem id="menu_freight_purchase_setting"
             name="Setting"
             parent="menu_freight_purchase_root"

@@ -1,197 +1,130 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<odoo noupdate="1">
-
-    <!-- Local Charges -->
-    <record id="fee_type_local_charges" model="freight.purchase.fee.type">
-        <field name="name">Local Charges</field>
-        <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
-        <field name="active">True</field>
-    </record>
-
-    <!-- Sub Fees -->
+<odoo>
+    <!-- Parent Fee Types -->
     <record id="fee_type_faf" model="freight.purchase.fee.type">
         <field name="name">FAF</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_bk" model="freight.purchase.fee.type">
         <field name="name">BK</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_lsa" model="freight.purchase.fee.type">
         <field name="name">LSA</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_lss" model="freight.purchase.fee.type">
         <field name="name">LSS</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_emc" model="freight.purchase.fee.type">
         <field name="name">EMC</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_ets" model="freight.purchase.fee.type">
         <field name="name">ETS</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_wrs" model="freight.purchase.fee.type">
         <field name="name">WRS</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_hws" model="freight.purchase.fee.type">
         <field name="name">HWS</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_ows" model="freight.purchase.fee.type">
         <field name="name">OWS</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_cic" model="freight.purchase.fee.type">
-        <field name="name">CIC</field>
+        <field name="name">CIC (demo)</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_isps" model="freight.purchase.fee.type">
         <field name="name">ISPS</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_cfs" model="freight.purchase.fee.type">
         <field name="name">CFS</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_isp" model="freight.purchase.fee.type">
         <field name="name">ISP</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_pss" model="freight.purchase.fee.type">
         <field name="name">PSS</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_pnc" model="freight.purchase.fee.type">
         <field name="name">PNC</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_waf" model="freight.purchase.fee.type">
         <field name="name">WAF</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_lws" model="freight.purchase.fee.type">
         <field name="name">LWS</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_ihl" model="freight.purchase.fee.type">
         <field name="name">IHL</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_ihc" model="freight.purchase.fee.type">
         <field name="name">IHC</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_dgs" model="freight.purchase.fee.type">
         <field name="name">DGS</field>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
 
-    <!-- Extra common fees -->
+    <!-- Local Charges as child fees (example under "Local Charges" parent) -->
+    <record id="fee_type_local_charges" model="freight.purchase.fee.type">
+        <field name="name">Local Charges (demo)</field>
+        <field name="direction">n/a</field>
+    </record>
+
     <record id="fee_type_thc" model="freight.purchase.fee.type">
-        <field name="name">THC</field>
+        <field name="name">THC (demo)</field>
+        <field name="parent_id" ref="fee_type_local_charges"/>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_doc" model="freight.purchase.fee.type">
-        <field name="name">DOC</field>
+        <field name="name">DOC (demo)</field>
+        <field name="parent_id" ref="fee_type_local_charges"/>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_seal" model="freight.purchase.fee.type">
-        <field name="name">SEAL</field>
+        <field name="name">SEAL (demo)</field>
+        <field name="parent_id" ref="fee_type_local_charges"/>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_tlx" model="freight.purchase.fee.type">
-        <field name="name">TLX</field>
+        <field name="name">TLX (demo)</field>
+        <field name="parent_id" ref="fee_type_local_charges"/>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_ams" model="freight.purchase.fee.type">
-        <field name="name">AMS</field>
+        <field name="name">AMS (demo)</field>
+        <field name="parent_id" ref="fee_type_local_charges"/>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
     <record id="fee_type_ens" model="freight.purchase.fee.type">
-        <field name="name">ENS</field>
+        <field name="name">ENS (demo)</field>
+        <field name="parent_id" ref="fee_type_local_charges"/>
         <field name="direction">n/a</field>
-        <field name="apply_on">n/a</field>
-        <field name="amount">0</field>
     </record>
-
+    <record id="fee_type_cic" model="freight.purchase.fee.type">
+        <field name="name">CIC (demo)</field>
+        <field name="parent_id" ref="fee_type_local_charges"/>
+        <field name="direction">n/a</field>
+    </record>
+    <record id="fee_type_cleaning_fee" model="freight.purchase.fee.type">
+        <field name="name">Cleaning Fee (demo)</field>
+        <field name="parent_id" ref="fee_type_local_charges"/>
+        <field name="direction">n/a</field>
+    </record>
 </odoo>
