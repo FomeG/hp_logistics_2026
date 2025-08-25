@@ -51,13 +51,13 @@ class Trip(models.Model):
         store=True,
     )
     plan_estimate_time_departure = fields.Datetime(
-        related='plan_line_id.plan_id.estimate_time_departure',
+        related='plan_line_id.estimate_time_departure',
         string='ETD',
         readonly=True,
         store=True,
     )
     plan_estimate_time_arrival = fields.Datetime(
-        related='plan_line_id.plan_id.estimate_time_arrival',
+        related='plan_line_id.estimate_time_arrival',
         string='ETA',
         readonly=True,
         store=True,
@@ -299,11 +299,11 @@ class Trip(models.Model):
         for record in self:
             domain = [('type', '=', 'truck')]
 
-            branches = self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])])
-            if branches:
-                domain.append(('branch_id', 'in', [False] + branches.ids))
-            else:
-                domain.append(('branch_id', '=', False))
+            # branches = self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])])
+            # if branches:
+            #     domain.append(('branch_id', 'in', [False] + branches.ids))
+            # else:
+            #     domain.append(('branch_id', '=', False))
 
             plan = record.plan_id or self.env['trucking_planning.plan'].sudo().browse(self.env.context.get('default_plan_id'))
             if plan and plan.date:
@@ -852,14 +852,14 @@ Notes: {notes}"""
         bold_run.bold = True
         para4_content.add_run("\nThời gian vận chuyển dự kiến:")
         para4_content.add_run("\nBắt đầu từ : ")
-        etd_str = self.plan_line_id.plan_id.estimate_time_departure.strftime('%d/%m/%Y %H:%M') if trip_date.strftime('%d/%m/%Y 06:00') else ' '
+        etd_str = self.plan_line_id.estimate_time_departure.strftime('%d/%m/%Y %H:%M') if trip_date.strftime('%d/%m/%Y 06:00') else ' '
         bold_run = para4_content.add_run(f"{etd_str}")
         # para4_content.add_run("\nBắt đầu từ: ")
         # # bold_run = para4_content.add_run(" ")
         # bold_run = para4_content.add_run(f"{trip_date.strftime('%d/%m/%Y')}")
         bold_run.bold = True
         para4_content.add_run("\nđến: ")
-        eta_str = self.plan_line_id.plan_id.estimate_time_arrival.strftime('%d/%m/%Y %H:%M') if trip_date.strftime('%d/%m/%Y 18:00') else ' '
+        eta_str = self.plan_line_id.estimate_time_arrival.strftime('%d/%m/%Y %H:%M') if trip_date.strftime('%d/%m/%Y 18:00') else ' '
         bold_run = para4_content.add_run(f"{eta_str}")
         # bold_run = para4_content.add_run(f"{trip_date.strftime('%d/%m/%Y')}")
         # bold_run = para4_content.add_run(" ")

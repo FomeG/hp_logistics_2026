@@ -24,6 +24,8 @@
                     <field name="route_id"/>
                     <field name="actual_source_location_id"/>
                     <field name="actual_destination_location_id"/>
+                    <field name="estimate_time_departure" string="Estimate Time Departure"/>
+                    <field name="estimate_time_arrival" string="Estimate Time Arrival"/>
                     <field name="goods_name"/>
                     <field name="goods_weight"/>
                     <field name="truck_count" string="Trucks" widget="integer"/>
@@ -79,6 +81,8 @@
                             <field name="tax_number" readonly="1"/>
 <!--                            <field name="booking"/>-->
                             <field name="status"/>
+                            <field name="estimate_time_departure" string="Estimate Time Departure" required="1"/>
+                            <field name="estimate_time_arrival" string="Estimate Time Arrival" required="1"/>
                             <field name="number_of_trucks" help="Enter the number of trucks you want to create for this customer"/>
                         </group>
 

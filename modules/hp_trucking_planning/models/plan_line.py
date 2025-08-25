@@ -1,5 +1,5 @@
 from odoo import models, api, fields
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 import base64
 import math
 import io
@@ -95,7 +95,39 @@ class PlanLine(models.Model):
         store=True,
         help="Number of trucks assigned to this customer"
     )
+    estimate_time_departure = fields.Datetime(
+        string="ETD (Estimated Time of Departure)",
+        required=True,
+        tracking=True,
+    )
+    estimate_time_arrival = fields.Datetime(
+        string="ETA (Estimated Time of Arrival)",
+        required=True,
+        tracking=True,
+    )
 
+    estimate_time_duration = fields.Float(
+        string="Estimated Time Duration (Hours)",
+        compute='_compute_estimate_time_duration',
+        store=True,
+    )
+
+    @api.constrains('estimate_time_departure', 'estimate_time_arrival')
+    def _check_estimate_time(self):
+        for record in self:
+            if record.estimate_time_departure and record.estimate_time_arrival:
+                if record.estimate_time_arrival < record.estimate_time_departure:
+                    raise ValidationError(
+                        "Estimated Time of Arrival cannot be earlier than Estimated Time of Departure.")
+
+    @api.depends('estimate_time_departure', 'estimate_time_arrival')
+    def _compute_estimate_time_duration(self):
+        for rec in self:
+            if rec.estimate_time_departure and rec.estimate_time_arrival:
+                delta = rec.estimate_time_arrival - rec.estimate_time_departure
+                rec.estimate_time_duration = delta.total_seconds() / 3600.0
+            else:
+                rec.estimate_time_duration = 0.0
     # --- MISSING FIELDS IN EXCEL FILE ---
     # sequence = fields.Char(string="STT")
     # delivery_location = fields.Text(string="Địa điểm giao")
