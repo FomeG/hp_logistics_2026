@@ -461,9 +461,12 @@ class Trip(models.Model):
         # Build message content
         message_content = self._build_message_content()
         
+        # Get driver phone number
+        driver_phone = self.driver_id.phone_number if self.driver_id and self.driver_id.phone_number else None
+        
         # Use Zalo service to send message
         return self.env['zalo.service'].send_message_with_logging(
-            self, message_content
+            self, message_content, phone=driver_phone
         )
     
     def _build_message_content(self):
