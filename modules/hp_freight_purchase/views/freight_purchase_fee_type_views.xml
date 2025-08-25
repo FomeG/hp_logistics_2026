@@ -32,6 +32,7 @@
                 <field name="direction" />
                 <field name="amount" />
                 <field name="active" />
+                <field name="description"/>
             </list>
         </field>
     </record>
@@ -46,6 +47,7 @@
                 <field name="apply_on" />
                 <field name="amount" />
                 <field name="active" />
+                <field name="parent_id"/>
                 <separator string="Active Status"/>
                 <filter string="Active" name="filter_active" domain="[('active', '=', True)]"/>
                 <filter string="Inactive" name="filter_inactive" domain="[('active', '=', False)]"/>
