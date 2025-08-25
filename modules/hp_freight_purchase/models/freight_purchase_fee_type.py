@@ -10,6 +10,23 @@ class FreightPurchaseFeeType(models.Model):
         string='Name',
         required=True
     )
+
+    # Parent field for hierarchy
+    parent_id = fields.Many2one(
+        'freight.purchase.fee.type',
+        string='Parent Fee Type',
+        ondelete='cascade',
+        domain="[('parent_id', '=', False)]",
+        index=True
+    )
+
+    # Child relationships
+    child_ids = fields.One2many(
+        'freight.purchase.fee.type',
+        'parent_id',
+        string='Child Fee Types'
+    )
+
     direction = fields.Selection([
         ('import', 'Import'),
         ('export', 'Export'),
@@ -29,12 +46,31 @@ class FreightPurchaseFeeType(models.Model):
         required=True
     )
 
-    @api.constrains('apply_on', 'direction')
-    def _check_apply_on_direction_consistency(self):
-        for record in self:
-            if record.apply_on == 'container' and record.direction == 'n/a':
-                raise ValidationError("Container fee types cannot have direction 'N/A'.")
+    description = fields.Char(
+        string="Description",
+        help="Short description for the fee type"
+    )
 
+    @api.depends('name', 'parent_id.complete_name')
+    def _compute_complete_name(self):
+        for fee_type in self:
+            if fee_type.parent_id:
+                fee_type.complete_name = '%s / %s' % (fee_type.parent_id.complete_name, fee_type.name)
+            else:
+                fee_type.complete_name = fee_type.name
+
+    @api.constrains('parent_id')
+    def _check_parent_id(self):
+        for fee_type in self:
+            if fee_type.parent_id and fee_type.parent_id == fee_type:
+                raise ValidationError("A fee type cannot be its own parent.")
+            # Check for circular references
+            if fee_type.parent_id:
+                current = fee_type.parent_id
+                while current:
+                    if current == fee_type:
+                        raise ValidationError("Circular reference detected in fee type hierarchy.")
+                    current = current.parent_id
     @api.model_create_multi
     def create(self, vals_list):
         validated_list = []

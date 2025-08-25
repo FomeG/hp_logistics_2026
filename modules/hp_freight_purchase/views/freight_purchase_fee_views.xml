@@ -2,7 +2,7 @@
 <odoo>
 
     <record id="freight_purchase_fee_form_view" model="ir.ui.view">
-        <field name="name">freight.purchase.fee.form</field>
+        <field name="name"> freight.purchase.fee.form</field>
         <field name="model">freight.purchase.fee</field>
         <field name="arch" type="xml">
             <form string="Fee">
