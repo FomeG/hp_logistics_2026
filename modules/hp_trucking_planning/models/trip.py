@@ -299,11 +299,11 @@ class Trip(models.Model):
         for record in self:
             domain = [('type', '=', 'truck')]
 
-            # branches = self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])])
-            # if branches:
-            #     domain.append(('branch_id', 'in', [False] + branches.ids))
-            # else:
-            #     domain.append(('branch_id', '=', False))
+            branches = self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])])
+            if branches:
+                domain.append(('branch_id', 'in', [False] + branches.ids))
+            else:
+                domain.append(('branch_id', '=', False))
 
             plan = record.plan_id or self.env['trucking_planning.plan'].sudo().browse(self.env.context.get('default_plan_id'))
             if plan and plan.date:
