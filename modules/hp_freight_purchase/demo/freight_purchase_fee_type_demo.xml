@@ -148,12 +148,6 @@
         <field name="description">Entry Summary Declaration Fee - Phí khai báo hải quan trước cho EU.</field>
     </record>
 
-    <record id="fee_type_cic_child_local" model="freight.purchase.fee.type">
-        <field name="name">CiC (demo)</field>
-        <field name="parent_id" ref="fee_type_local_charges"/>
-        <field name="direction">n/a</field>
-        <field name="description">Container Imbalance Charge : phí CIC thuộc nhóm Local Charges.</field>
-    </record>
 
     <record id="fee_type_cleaning_fee" model="freight.purchase.fee.type">
         <field name="name">Cleaning Fee (demo)</field>
