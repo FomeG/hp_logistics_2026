@@ -24,6 +24,7 @@ access_trucking_planning_branch_director,trucking.branch.director,model_trucking
 
 aceess_import_client_wizard_manager,trucking.import_client_wizard.manager,model_trucking_planning_import_client_wizard,base.group_system,1,1,1,1
 access_import_vehicle_driver_wizard_manager,trucking.import_vehicle_driver_wizard.manager,model_trucking_planning_import_vehicle_driver_wizard,base.group_system,1,1,1,1
+access_import_route_wizard_manager,trucking.import_route_wizard.manager,model_trucking_planning_import_route_wizard,base.group_system,1,1,1,1
 
 access_trip_user,trucking.trip.user,model_trucking_planning_trip,base.group_user,1,1,1,0
 access_trip_manager,trucking.trip.manager,model_trucking_planning_trip,base.group_system,1,1,1,1

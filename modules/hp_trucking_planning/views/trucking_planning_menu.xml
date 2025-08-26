@@ -59,5 +59,12 @@
                   parent="menu_trucking_import_tools"
                   action="action_import_vehicle_driver_wizard"
                   sequence="20"/>
+        <menuitem
+            id="menu_import_route"
+            name="Import Route"
+            parent="menu_trucking_import_tools"
+            action="action_import_route_wizard"
+            sequence="30"
+        />
     </data>
 </odoo>
