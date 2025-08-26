@@ -111,6 +111,49 @@ class PlanLine(models.Model):
         compute='_compute_estimate_time_duration',
         store=True,
     )
+    goods_pickup_location_id = fields.Many2one(
+        comodel_name='trucking_planning.location',
+        string="Goods Pickup Location",
+        required=True,
+        tracking=True,
+        domain=[('type', '=', 'goods_pickup_delivery')],
+        help="Location where goods will be picked up (Export) or delivered (Import)"
+    )
+    goods_delivery_location_id = fields.Many2one(
+        comodel_name='trucking_planning.location',
+        string="Goods Delivery Location",
+        required=True,
+        tracking=True,
+        domain=[('type', '=', 'goods_pickup_delivery')],
+        help="Location where goods will be delivered (Export) or picked up (Import)"
+    )
+
+    @api.depends('plan_type', 'route_id', 'goods_pickup_location_id', 'goods_delivery_location_id')
+    def _compute_actual_locations(self):
+        for rec in self:
+            if rec.plan_type == 'export':
+                # Export: Hàng đi từ goods_pickup -> port (plan.location_id)
+                rec.actual_source_location_id = rec.goods_pickup_location_id
+                rec.actual_destination_location_id = rec.goods_delivery_location_id or rec.plan_id.location_id
+            else:
+                # Import: Hàng đi từ port (plan.location_id) -> goods_delivery
+                rec.actual_source_location_id = rec.goods_pickup_location_id or rec.plan_id.location_id
+                rec.actual_destination_location_id = rec.goods_delivery_location_id
+            if not rec.goods_pickup_location_id or not rec.goods_delivery_location_id:
+                rec.actual_source_location_id = rec.route_id.from_location_id if rec.route_id else False
+                rec.actual_destination_location_id = rec.route_id.to_location_id if rec.route_id else False
+
+    @api.onchange('plan_type')
+    def _onchange_plan_type(self):
+        for record in self:
+            if record.plan_type == 'export':
+                # Export: chỉ cần pickup location, delivery sẽ là port
+                record.goods_pickup_location_id = False
+                record.goods_delivery_location_id = record.plan_id.location_id
+            else:
+                # Import: chỉ cần delivery location, pickup sẽ là port
+                record.goods_pickup_location_id = record.plan_id.location_id
+                record.goods_delivery_location_id = False
 
     @api.constrains('estimate_time_departure', 'estimate_time_arrival')
     def _check_estimate_time(self):

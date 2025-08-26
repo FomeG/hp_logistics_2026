@@ -65,7 +65,7 @@ class Trip(models.Model):
 
     plan_goods_pickup_location_id = fields.Many2one(
         comodel_name='trucking_planning.location',
-        related='plan_line_id.plan_id.goods_pickup_location_id',
+        related='plan_line_id.goods_pickup_location_id',
         string='Goods Pickup Location',
         readonly=True,
         store=True,
@@ -73,7 +73,7 @@ class Trip(models.Model):
 
     plan_goods_delivery_location_id = fields.Many2one(
         comodel_name='trucking_planning.location',
-        related='plan_line_id.plan_id.goods_delivery_location_id',
+        related='plan_line_id.goods_delivery_location_id',
         string='Goods Delivery Location',
         readonly=True,
         store=True,
@@ -833,8 +833,8 @@ Notes: {notes}"""
         para4_content.add_run("\nĐiểm xếp hàng: ")
         source_location = self.plan_line_id.actual_source_location_id.name if self.plan_line_id and self.plan_line_id.actual_source_location_id else ' '
         pickup_location_address = ""
-        if self.plan_line_id.plan_id.goods_pickup_location_id:
-            pickup_location_address = self.plan_line_id.plan_id.goods_pickup_location_id.address or self.plan_line_id.plan_id.goods_pickup_location_id.name
+        if self.plan_line_id.goods_pickup_location_id:
+            pickup_location_address = self.plan_line_id.goods_pickup_location_id.address or self.plan_line_id.goods_pickup_location_id.name
         bold_run = para4_content.add_run(f"{pickup_location_address}")
 
         # bold_run = para4_content.add_run(f"{source_location}")
@@ -842,8 +842,8 @@ Notes: {notes}"""
         bold_run.bold = True
         para4_content.add_run("\nĐiểm giao hàng: ")
         delivery_location_address = ""
-        if self.plan_line_id.plan_id.goods_delivery_location_id:
-            delivery_location_address = self.plan_line_id.plan_id.goods_delivery_location_id.address or self.plan_line_id.plan_id.goods_delivery_location_id.name
+        if self.plan_line_id.goods_delivery_location_id:
+            delivery_location_address = self.plan_line_id.goods_delivery_location_id.address or self.plan_line_id.goods_delivery_location_id.name
         bold_run = para4_content.add_run(f"{delivery_location_address}")
         # dest_location = self.plan_line_id.actual_destination_location_id.name if self.plan_line_id and self.plan_line_id.actual_destination_location_id else ' '
         # bold_run = para4_content.add_run(f"{dest_location}")
