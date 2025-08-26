@@ -44,7 +44,6 @@ class Plan(models.Model):
     )
     date = fields.Date(
         string='Load / Return Date',
-        required=True,
         index=True,
         tracking=True,
     )
@@ -90,23 +89,6 @@ class Plan(models.Model):
         store=False
     )
 
-    goods_pickup_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
-        string="Goods Pickup Location",
-        required="True",
-        tracking=True,
-        domain=[('type', '=', 'goods_pickup_delivery')],
-        help="Location where goods will be picked up"
-    )
-
-    goods_delivery_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
-        string="Goods Delivery Location",
-        required="True",
-        tracking=True,
-        domain=[('type', '=', 'goods_pickup_delivery')],
-        help="Location where goods will be delivered"
-    )
 
     # @api.model
     # def _get_vehicle_avaliable(self):

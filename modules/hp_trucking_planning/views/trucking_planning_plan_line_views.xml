@@ -26,6 +26,8 @@
                     <field name="actual_destination_location_id"/>
                     <field name="estimate_time_departure" string="Estimate Time Departure"/>
                     <field name="estimate_time_arrival" string="Estimate Time Arrival"/>
+                    <field name="goods_pickup_location_id" string="Place of Pickup" invisible="plan_type == 'import'" required="plan_type == 'export'"/>
+                    <field name="goods_delivery_location_id" string="Place of Delivery" invisible="plan_type == 'export'" required="plan_type == 'import'"/>
                     <field name="goods_name"/>
                     <field name="goods_weight"/>
                     <field name="truck_count" string="Trucks" widget="integer"/>
@@ -83,6 +85,8 @@
                             <field name="status"/>
                             <field name="estimate_time_departure" string="Estimate Time Departure" required="1"/>
                             <field name="estimate_time_arrival" string="Estimate Time Arrival" required="1"/>
+                            <field name="goods_pickup_location_id" string="Place of Pickup" invisible="plan_type == 'import'" required="plan_type == 'export'"/>
+                            <field name="goods_delivery_location_id" string="Place of Delivery" invisible="plan_type == 'export'" required="plan_type == 'import'"/>
                             <field name="number_of_trucks" help="Enter the number of trucks you want to create for this customer"/>
                         </group>
 
