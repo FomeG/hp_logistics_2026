@@ -1,13 +1,10 @@
-from odoo import models, fields, api, _
+from odoo import models, fields, _
 from odoo.exceptions import UserError
 import pandas as pd
 import io
 import base64
 import re
 from collections import defaultdict
-import logging
-
-_logger = logging.getLogger(__name__)
 
 class ImportRouteWizard(models.TransientModel):
     _name = 'trucking_planning.import_route_wizard'
@@ -93,9 +90,6 @@ class ImportRouteWizard(models.TransientModel):
         seen_names = defaultdict(list)   
         data = []
         for index, row in df.iterrows():
-            if index < 2:
-                continue
-
             address = row[location_header]
             if pd.isna(address):
                 continue
@@ -222,29 +216,28 @@ class ImportRouteWizard(models.TransientModel):
 
     def action_import(self):
         self.ensure_one()
-        if not self.file:
-            raise UserError(_('Please upload a file.'))
-    
-        file_content = base64.b64decode(self.file)
-
-        validate = self._validate_file(file_content)
-        if not validate['status']:
-            raise UserError(validate['message'])
+        try:
+            if not self.file:
+                raise UserError(_('Please upload a file.'))
         
-        data = validate['data']
-        new_locations = self._create_locations(data)
-        new_routes = self._create_routes(data, new_locations)
+            file_content = base64.b64decode(self.file)
 
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Import Success'),
-                'message': _("Import success: %s routes") % len(new_routes),
-                'sticky': False,
+            validate = self._validate_file(file_content)
+            if not validate['status']:
+                raise UserError(validate['message'])
+            
+            data = validate['data']
+            new_locations = self._create_locations(data)
+            new_routes = self._create_routes(data, new_locations)
+
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Import Success'),
+                    'message': _("Import success: %s routes") % len(new_routes),
+                    'sticky': False,
+                }
             }
-        } 
-
-        # try:
-        # except Exception as e:
-        #     raise UserError(str(e))
+        except Exception as e:
+            raise UserError(str(e))
