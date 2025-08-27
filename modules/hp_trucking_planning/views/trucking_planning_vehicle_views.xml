@@ -82,6 +82,8 @@
             <search string="List Vehicles">
                 <field name="name" />
                 <field name="type" />
+                <filter string="Truck" name="type_truck" domain="[('type','=','truck')]"/>
+                <filter string="Trailer" name="type_trailer" domain="[('type','=','trailer')]"/>
 
 <!--                <filter name="available_date_of_plan"-->
 <!--                    string="Available on Selected Date"-->
@@ -97,5 +99,6 @@
         <field name="view_mode">list,form</field>
         <field name="context">{'default_type': 'truck'}</field>
         <field name="domain">[('active', '=', True)]</field>
+        <field name="context">{'search_default_type_truck': 1}</field>
     </record>
 </odoo>
