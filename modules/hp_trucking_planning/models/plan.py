@@ -208,8 +208,27 @@ class Plan(models.Model):
         if not all_trips:
             raise UserError("No trips found in this plan to send messages to.")
         
-        # Use Zalo service to send bulk messages
-        return self.env['zalo.service'].send_bulk_messages(all_trips)
+        # Build message content for the first trip (as preview)
+        first_trip = all_trips[0]
+        message_content = first_trip._build_message_content()
+        
+        # Get driver phone number for the first trip
+        driver_phone = first_trip.driver_id.phone_number if first_trip.driver_id and first_trip.driver_id.phone_number else None
+        
+        # Open confirmation wizard
+        return {
+            'name': 'Confirm Zalo Message',
+            'type': 'ir.actions.act_window',
+            'res_model': 'trucking_planning.zalo.confirmation.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'record_id': self.id,
+                'record_model': self._name,
+                'message_content': message_content,
+                'driver_phone': driver_phone,
+            }
+        }
 
     def action_export_plan_docx(self):
         pass # Placeholder for the new method
