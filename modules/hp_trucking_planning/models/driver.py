@@ -5,6 +5,7 @@ class Driver(models.Model):
     _name = 'trucking_planning.driver'
     _description = 'Driver'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+    _rec_names_search = ['name', 'phone_number', 'cccd']
 
     name = fields.Char(
         string='Name',
