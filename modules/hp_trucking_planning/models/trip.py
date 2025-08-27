@@ -464,10 +464,20 @@ class Trip(models.Model):
         # Get driver phone number
         driver_phone = self.driver_id.phone_number if self.driver_id and self.driver_id.phone_number else None
         
-        # Use Zalo service to send message
-        return self.env['zalo.service'].send_message_with_logging(
-            self, message_content, phone=driver_phone
-        )
+        # Open confirmation wizard
+        return {
+            'name': 'Confirm Zalo Message',
+            'type': 'ir.actions.act_window',
+            'res_model': 'trucking_planning.zalo.confirmation.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'record_id': self.id,
+                'record_model': self._name,
+                'message_content': message_content,
+                'driver_phone': driver_phone,
+            }
+        }
     
     def _build_message_content(self):
         """Build the message content for trip"""
@@ -520,8 +530,31 @@ Notes: {notes}"""
 
     def action_send_message_bulk(self):
         """Send message via API for multiple selected trips"""
-        # Use Zalo service to send bulk messages
-        return self.env['zalo.service'].send_bulk_messages(self)
+        if not self:
+            raise UserError("No trips selected to send messages to.")
+        
+        # Build message content for the first trip (as preview)
+        first_trip = self[0]
+        message_content = first_trip._build_message_content()
+        
+        # Get driver phone number for the first trip
+        driver_phone = first_trip.driver_id.phone_number if first_trip.driver_id and first_trip.driver_id.phone_number else None
+        
+        # Open confirmation wizard
+        return {
+            'name': 'Confirm Zalo Message',
+            'type': 'ir.actions.act_window',
+            'res_model': 'trucking_planning.zalo.confirmation.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'record_id': first_trip.id,  # Use first trip as representative
+                'record_model': 'trucking_planning.trip.bulk',  # Special model for bulk
+                'message_content': message_content,
+                'driver_phone': driver_phone, # Use first trip phone
+                'bulk_trip_ids': self.ids,  # Pass all trip IDs
+            }
+        }
 
     def action_export_trip_docx(self):
         """Export trip data to DOCX format matching the transport document"""

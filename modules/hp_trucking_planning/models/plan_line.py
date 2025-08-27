@@ -287,52 +287,27 @@ class PlanLine(models.Model):
         if not self.trip_ids:
             raise UserError("No trips found in this plan line to send messages to.")
         
-        # Send personalized message to each driver
-        success_count = 0
-        failed_count = 0
+        # Build message content for the first trip (as preview)
+        first_trip = self.trip_ids[0]
+        message_content = first_trip._build_message_content()
         
-        for trip in self.trip_ids:
-            if trip.driver_id:
-                try:
-                    # Each trip builds its own message with its own note
-                    message_content = trip._build_message_content()
-                    
-                    # Get driver phone number
-                    driver_phone = trip.driver_id.phone_number if trip.driver_id and trip.driver_id.phone_number else None
-                    
-                    # Use Zalo service to send message
-                    self.env['zalo.service'].send_message_with_logging(
-                        trip, message_content, phone=driver_phone
-                    )
-                    success_count += 1
-                except Exception as e:
-                    failed_count += 1
-                    # Log error but continue with other trips
-                    _logger.error(f"Failed to send message to trip {trip.id}: {str(e)}")
+        # Get driver phone number for the first trip
+        driver_phone = first_trip.driver_id.phone_number if first_trip.driver_id and first_trip.driver_id.phone_number else None
         
-        # Show summary message
-        if success_count > 0 and failed_count == 0:
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': 'Success',
-                    'message': f'Successfully sent messages to {success_count} driver(s)',
-                    'type': 'success',
-                }
+        # Open confirmation wizard
+        return {
+            'name': 'Confirm Zalo Message',
+            'type': 'ir.actions.act_window',
+            'res_model': 'trucking_planning.zalo.confirmation.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'record_id': self.id,
+                'record_model': self._name,
+                'message_content': message_content,
+                'driver_phone': driver_phone,
             }
-        elif success_count > 0 and failed_count > 0:
-            return {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': 'Partial Success',
-                    'message': f'Sent messages to {success_count} driver(s), failed for {failed_count} driver(s)',
-                    'type': 'warning',
-                }
-            }
-        else:
-            raise UserError(f"Failed to send messages to any drivers. {failed_count} failures.")
+        }
 
     def action_export_plan_line_excel(self):
         """Export plan line data to Excel format"""
