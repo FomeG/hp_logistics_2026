@@ -18,6 +18,17 @@ class ImportVehicleDriverWizard(models.TransientModel):
     sheet_name = fields.Char(string='Sheet Name', help='Select the Excel sheet to import')
     available_sheets = fields.Text(string='Available Sheets', readonly=True)
 
+    def _normalize_text(self, text):
+        """Normalize text using the same logic as UniqueNormalizedNameMixin"""
+        if not text:
+            return ''
+        import unicodedata
+        import re
+        text = unicodedata.normalize('NFKD', str(text)).encode('ASCII', 'ignore').decode('utf-8')
+        text = text.lower().strip()
+        text = re.sub(r'\s+', '', text)  # Remove ALL spaces completely
+        return text
+
     def _get_engine_type(self, machine_type):
         """Get engine type with fuzzy matching for Vietnamese machine types"""
         if not machine_type:
@@ -298,11 +309,14 @@ class ImportVehicleDriverWizard(models.TransientModel):
             # Process Trailer first (if exists) so we can assign it to the truck
             trailer_record = None
             if trailer_number:
-                # Check if trailer exists
-                existing_trailer = vehicle_model.search([('name', '=', trailer_number)], limit=1)
+                # Check if trailer exists by normalized name (to handle unique constraint)
+                normalized_trailer_name = self._normalize_text(trailer_number)
+                existing_trailer = vehicle_model.search([('normalized_name', '=', normalized_trailer_name)], limit=1)
+                _logger.info(f"Trailer search: '{trailer_number}' -> normalized: '{normalized_trailer_name}' -> found: {bool(existing_trailer)}")
                 
                 trailer_vals = {
                     'name': trailer_number,
+                    'normalized_name': normalized_trailer_name,  # Explicitly set normalized_name
                     'type': 'trailer',
                     'branch_id': self.branch_id.id,
                     'active': True,
@@ -314,11 +328,14 @@ class ImportVehicleDriverWizard(models.TransientModel):
                 else:
                     trailer_record = vehicle_model.create(trailer_vals)
             
-            # Check if vehicle exists by license plate
-            existing_vehicle = vehicle_model.search([('name', '=', license_plate)], limit=1)
+            # Check if vehicle exists by normalized name (to handle unique constraint)
+            normalized_license_plate = self._normalize_text(license_plate)
+            existing_vehicle = vehicle_model.search([('normalized_name', '=', normalized_license_plate)], limit=1)
+            _logger.info(f"Vehicle search: '{license_plate}' -> normalized: '{normalized_license_plate}' -> found: {bool(existing_vehicle)}")
             
             vehicle_vals = {
                 'name': license_plate,
+                'normalized_name': normalized_license_plate,  # Explicitly set normalized_name
                 'type': 'truck',
                 'engine_type': engine_type,
                 'branch_id': self.branch_id.id,
