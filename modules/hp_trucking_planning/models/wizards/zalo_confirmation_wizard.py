@@ -8,7 +8,6 @@ class ZaloConfirmationWizard(models.TransientModel):
 
     message_content = fields.Text(
         string='Message Content',
-        readonly=True,
         help='Preview of the message that will be sent'
     )
     

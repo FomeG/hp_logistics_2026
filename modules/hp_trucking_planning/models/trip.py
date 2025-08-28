@@ -505,7 +505,7 @@ class Trip(models.Model):
         contact_number = "N/A"  # No contact_number field in plan model
         
         # 3. Các Yêu Cầu khác
-        notes = self.note or "N/A"  # Use trip's own note for driver-specific instructions
+        # notes = self.note or "N/A"  # Use trip's own note for driver-specific instructions
         
         # Build complete message
         message = f"""1. Thông tin đóng trả hàng:
@@ -520,11 +520,17 @@ Trọng lượng hàng: {goods_weight}
 
 Thời gian đóng hàng: {loading_time}
 Địa điểm đóng hàng: {loading_location}
-Số liên hệ: {contact_number}
+Số liên hệ: {contact_number}"""
 
-3. Các Yêu Cầu khác: 
+        notes= self.note
+        message += f"""
+        
+3. Các Yêu Cầu khác: """
 
-Notes: {notes}"""
+        if notes and notes.strip():
+            message += f"""
+        
+Notes: {notes.strip()}"""
         
         return message
 
