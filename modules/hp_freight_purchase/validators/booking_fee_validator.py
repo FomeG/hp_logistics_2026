@@ -71,9 +71,9 @@ class BookingFeeValidator(FreightValidator):
             return True  # Allow if no quotation (will be validated when quotation is created)
         
         # For common fee types, they are always available regardless of existing fee records
-        if fee_type.is_common:
-            return True
-            
+        # if fee_type.is_common:
+        #     return True
+
         # For non-common fee types, check if there are any available fees for this fee type, shipping line, and direction
         available_fees = env['freight.purchase.fee'].sudo().search([
             ('fee_type_id', '=', fee_type.id),

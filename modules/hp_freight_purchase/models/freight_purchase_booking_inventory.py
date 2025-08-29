@@ -10,9 +10,9 @@ class FreightPurchaseBookingInventory(models.Model):
     ACTION_OUT = 'out'
     ACTION_RETURN = 'return'
 
-    booking_id = fields.Many2one('freight.purchase.booking', required=True, string='Booking')
-    booking_line_id = fields.Many2one('freight.purchase.booking.line', string='Booking Line')
-    container_type_id = fields.Many2one('container.type', required=True, string='Container Type')
+    booking_id = fields.Many2one('freight.purchase.booking', required=True, string='Booking',ondelete = "cascade",)
+    booking_line_id = fields.Many2one('freight.purchase.booking.line', string='Booking Line',ondelete = "cascade",)
+    container_type_id = fields.Many2one('container.type', required=True, string='Container Type',ondelete = "cascade",)
     quantity = fields.Integer(string='Quantity', required=True, default=1)
     action = fields.Selection(
         string="Action",
@@ -27,7 +27,7 @@ class FreightPurchaseBookingInventory(models.Model):
     allow_container_type_ids = fields.Many2many(
         comodel_name='container.type',
         compute='_compute_allow_container_type_ids',
-        store=False
+        store=False,ondelete = "cascade",
     )
 
     str_inventory_booking_line = fields.Char(

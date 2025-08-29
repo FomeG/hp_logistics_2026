@@ -9,12 +9,15 @@ class FreightPurchaseQuotationFee(models.Model):
 
     quotation_id = fields.Many2one(
         comodel_name="freight.purchase.quotation",
-        required=True
+        required=True,
+        ondelete = "cascade"
     )
     fee_id = fields.Many2one(
         comodel_name="freight.purchase.fee",
         string="Fee",
         required=True,
+        ondelete="cascade"
+
     )
     amount = fields.Float()
     note = fields.Char()

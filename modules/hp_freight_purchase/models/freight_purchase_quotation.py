@@ -67,7 +67,8 @@ class FreightPurchaseQuotation(models.Model):
     fee_ids = fields.One2many(
         comodel_name="freight.purchase.quotation.fee",
         inverse_name="quotation_id",
-        string="Common Fees"
+        string="Common Fees",
+        ondelete="cascade"
     )
     total_quotation_lines = fields.Char(
         string="Total Quotation Lines",

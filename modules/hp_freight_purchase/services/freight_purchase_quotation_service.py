@@ -96,7 +96,7 @@ class FreightPurchaseQuotationService:
             # Create new
             fee_vals = {
                 'quotation_id': booking_fee.booking_id.quotation_id.id,
-                'fee_type_id': booking_fee.fee_type_id.id,
+                'fee_type_id': quotation_fee.fee_id.fee_type_id.id,
                 'amount': booking_fee.amount,
             }
             if booking_fee.note and booking_fee.note.strip():
@@ -194,7 +194,7 @@ class FreightPurchaseQuotationService:
             # Filter out None and empty values for optional fields
             fee_vals = {
                 'booking_id': booking.id,
-                'fee_type_id': quotation_fee.fee_type_id.id,
+                'fee_type_id': quotation_fee.fee_id.fee_type_id.id,
                 'amount': quotation_fee.amount,
             }
             if quotation_fee.note and quotation_fee.note.strip():
