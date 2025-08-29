@@ -97,5 +97,85 @@
             <field name="perm_create" eval="1" />
             <field name="perm_unlink" eval="1" />
         </record>
+
+        <!-- TRIP RULES -->
+
+        <!-- Rule trip Lead - can access trips from their branch (includes Member via inheritance) -->
+        <record id="trucking_plan_trip_rule_lead" model="ir.rule">
+            <field name="name">Trip: Lead can access trips from their branch</field>
+            <field name="model_id" ref="model_trucking_planning_trip" />
+            <field name="groups" eval="[(4, ref('group_hp_trucking_planning_member'))]" />
+            <field name="domain_force">[('plan_line_id.plan_id.branch_id.user_ids', 'in', [user.id])]</field>
+            <field name="perm_read" eval="1" />
+            <field name="perm_write" eval="1" />
+            <field name="perm_create" eval="1" />
+            <field name="perm_unlink" eval="0" />
+        </record>
+
+        <!-- Rule trip Director - can access all trips -->
+        <record id="trucking_plan_trip_rule_director" model="ir.rule">
+            <field name="name">Trip: Director can access all trips</field>
+            <field name="model_id" ref="model_trucking_planning_trip" />
+            <field name="groups" eval="[(4, ref('group_hp_trucking_planning_director'))]" />
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1" />
+            <field name="perm_write" eval="1" />
+            <field name="perm_create" eval="1" />
+            <field name="perm_unlink" eval="1" />
+        </record>
+
+        <!-- PLAN RULES -->
+
+        <!-- Rule plan Lead - can access plans from their branch (includes Member via inheritance) -->
+        <record id="trucking_plan_plan_rule_lead" model="ir.rule">
+            <field name="name">Plan: Lead can access plans from their branch</field>
+            <field name="model_id" ref="model_trucking_planning_plan" />
+            <field name="groups" eval="[(4, ref('group_hp_trucking_planning_member'))]" />
+            <field name="domain_force">[('branch_id.user_ids', 'in', [user.id])]</field>
+            <field name="perm_read" eval="1" />
+            <field name="perm_write" eval="1" />
+            <field name="perm_create" eval="1" />
+            <field name="perm_unlink" eval="0" />
+        </record>
+
+        <!-- Rule plan Director - can access all plans -->
+        <record id="trucking_plan_plan_rule_director" model="ir.rule">
+            <field name="name">Plan: Director can access all plans</field>
+            <field name="model_id" ref="model_trucking_planning_plan" />
+            <field name="groups" eval="[(4, ref('group_hp_trucking_planning_director'))]" />
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1" />
+            <field name="perm_write" eval="1" />
+            <field name="perm_create" eval="1" />
+            <field name="perm_unlink" eval="1" />
+        </record>
+
+        <!-- PLAN LINE RULES -->
+
+        <!-- Rule plan line Lead - can access plan lines from their branch (includes Member via inheritance) -->
+        <record id="trucking_plan_plan_line_rule_lead" model="ir.rule">
+            <field name="name">Plan Line: Lead can access plan lines from their branch</field>
+            <field name="model_id" ref="model_trucking_planning_plan_line" />
+            <field name="groups" eval="[(4, ref('group_hp_trucking_planning_member'))]" />
+            <field name="domain_force">[('plan_id.branch_id.user_ids', 'in', [user.id])]</field>
+            <field name="perm_read" eval="1" />
+            <field name="perm_write" eval="1" />
+            <field name="perm_create" eval="1" />
+            <field name="perm_unlink" eval="0" />
+        </record>
+
+        <!-- Rule plan line Director - can access all plan lines -->
+        <record id="trucking_plan_plan_line_rule_director" model="ir.rule">
+            <field name="name">Plan Line: Director can access all plan lines</field>
+            <field name="model_id" ref="model_trucking_planning_plan_line" />
+            <field name="groups" eval="[(4, ref('group_hp_trucking_planning_director'))]" />
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1" />
+            <field name="perm_write" eval="1" />
+            <field name="perm_create" eval="1" />
+            <field name="perm_unlink" eval="1" />
+        </record>
+
+
     </data>
 </odoo>
