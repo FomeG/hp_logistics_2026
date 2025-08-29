@@ -195,6 +195,38 @@ class Plan(models.Model):
             'target': 'new',
         }
 
+    def action_add_client(self):
+        """Action để thêm customer mới cho plan này"""
+        self.ensure_one()
+        return {
+            'name': f'Add Customer - {self.name}',
+            'res_model': 'trucking_planning.plan.line',
+            'view_mode': 'form',
+            'view_id': self.env.ref('hp_trucking_planning.view_plan_line_form').id,
+            'context': {
+                'default_plan_id': self.id,
+                'default_status': 'checking',
+                'form_view_initial_mode': 'edit',
+            },
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+        }
+
+    def action_view_all_trips(self):
+        """View all trips for this plan"""
+        self.ensure_one()
+        return {
+            'name': f'All Trucks - {self.name}',
+            'res_model': 'trucking_planning.trip',
+            'view_mode': 'list,form',
+            'domain': [('plan_id', '=', self.id)],
+            'context': {
+                'default_plan_id': self.id,
+            },
+            'type': 'ir.actions.act_window',
+            'target': 'current',
+        }
+
     # def remove_vehicle_driver_of_plan_and_plan_line(self, vehicle_id, date_plan, exclude_plan_id):
     #     planning_service(self.env).remove_vehicle_driver_by_vehicle_and_date_plan(vehicle_id, date_plan, exclude_plan_id)
 

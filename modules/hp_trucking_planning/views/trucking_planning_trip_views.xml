@@ -58,6 +58,24 @@
                                 <span class="o_stat_text">View Job</span>
                             </div>
                         </button>
+<!--                        Back to Plan-->
+                        <button name="action_back_to_plan"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-arrow-left">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Back to Plan</span>
+                            </div>
+                        </button>
+<!--                        All Trips in the same Plan-->
+                        <button name="action_view_plan_all_trips"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-th-list">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">View All Trucks</span>
+                            </div>
+                        </button>
                     </div>
                     <group string ="Trip Information">
                         <field name="plan_booking_bill_no"
@@ -92,6 +110,7 @@
                         <field name="plan_id" invisible="1"/>
 <!--                        <field name="code"/>-->
                         <field name="client_id" string="Client" readonly="1"/>
+                        <field name="client_tax_number" string="Client Tax Number" readonly="1"/>
 <!--                        <field name="plan_date" string="Plan Date" readonly="1"/>-->
                         <field name="status"/>
                     </group>

@@ -180,6 +180,12 @@ class Trip(models.Model):
         readonly=True,
         store=True,
     )
+    client_tax_number = fields.Char(
+        related='plan_line_id.client_id.tax_number',
+        string='Client Tax Number',
+        readonly=True,
+        store=True,
+    )
     note = fields.Text(string="Note")
     weight_class = fields.Selection([
         ('inferior_20', '<20T'),
@@ -417,6 +423,32 @@ class Trip(models.Model):
             'target': 'current',
         }
 
+    def action_back_to_plan(self):
+        """Navigate back to parent plan"""
+        self.ensure_one()
+        return {
+            'name': f'Plan - {self.plan_id.name}',
+            'res_model': 'trucking_planning.plan',
+            'view_mode': 'form',
+            'res_id': self.plan_id.id,
+            'type': 'ir.actions.act_window',
+            'target': 'current',
+        }
+
+    def action_view_plan_all_trips(self):
+        """View all trips in the parent plan"""
+        self.ensure_one()
+        return {
+            'name': f'All Trucks - {self.plan_id.name}',
+            'res_model': 'trucking_planning.trip',
+            'view_mode': 'list,form',
+            'domain': [('plan_id', '=', self.plan_id.id)],
+            'context': {
+                'default_plan_id': self.plan_id.id,
+            },
+            'type': 'ir.actions.act_window',
+            'target': 'current',
+        }
     @api.depends('plan_line_id.route_id', 'truck_id', 'weight_class', 'extra_fuel')
     def _compute_fuel_liters(self):
         for rec in self:

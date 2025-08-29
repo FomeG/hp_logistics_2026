@@ -109,6 +109,24 @@
                                     <span class="o_stat_text">Add Truck</span>
                                 </div>
                             </button>
+<!--                            Back to Plan Button-->
+                            <button name="action_back_to_plan"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-arrow-left">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Back to Plan</span>
+                                </div>
+                            </button>
+<!--                            View All Plan Trips Button-->
+                            <button name="action_view_plan_all_trips"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-list">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">View All Trucks</span>
+                                </div>
+                            </button>
                         </div>
 
                         <notebook>
