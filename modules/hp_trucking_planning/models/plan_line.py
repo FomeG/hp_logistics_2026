@@ -309,6 +309,33 @@ class PlanLine(models.Model):
             }
         }
 
+    def action_back_to_plan(self):
+        """Navigate back to parent plan"""
+        self.ensure_one()
+        return {
+            'name': f'Plan - {self.plan_id.name}',
+            'res_model': 'trucking_planning.plan',
+            'view_mode': 'form',
+            'res_id': self.plan_id.id,
+            'type': 'ir.actions.act_window',
+            'target': 'current',
+        }
+
+    def action_view_plan_all_trips(self):
+        """View all trips in the parent plan"""
+        self.ensure_one()
+        return {
+            'name': f'All Trucks - {self.plan_id.name}',
+            'res_model': 'trucking_planning.trip',
+            'view_mode': 'list,form',
+            'domain': [('plan_id', '=', self.plan_id.id)],
+            'context': {
+                'default_plan_id': self.plan_id.id,
+            },
+            'type': 'ir.actions.act_window',
+            'target': 'current',
+        }
+
     def action_export_plan_line_excel(self):
         """Export plan line data to Excel format"""
         try:

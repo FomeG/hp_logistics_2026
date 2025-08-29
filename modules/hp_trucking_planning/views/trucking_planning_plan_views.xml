@@ -70,15 +70,27 @@
                             <button name="action_view_plan_lines"
                                     type="object"
                                     class="oe_stat_button"
-                                    icon="fa-truck">
+                                    icon="fa-user">
                                 <field name="total_trips" widget="statinfo" string="Customer"/>
                             </button>
                             <button name="action_add_truck"
                                     string="Add Truck"
                                     type="object"
                                     class="btn-primary"
-                                    icon="fa-plus"
+                                    icon="fa-truck"
                                     invisible="not plan_line_ids"/>
+                            <button name="action_add_client"
+                                    string="Add Client"
+                                    type="object"
+                                    class="oe_stat_button"
+                                    icon="fa-user-plus"/>
+<!--                            Quick access to all trips:-->
+                            <button name="action_view_all_trips"
+                                string="View All Trucks"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-list"
+                                invisible="not plan_line_ids"/>
                         </div>
                         <notebook>
                             <page string="Customer" invisible="not plan_line_ids">
