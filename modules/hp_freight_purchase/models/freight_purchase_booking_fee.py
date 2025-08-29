@@ -10,12 +10,14 @@ class FreightPurchaseBookingFee(models.Model):
 
     booking_id = fields.Many2one(
         comodel_name="freight.purchase.booking",
-        required=True
+        required=True,
+        ondelete = 'cascade',
     )
     fee_type_id = fields.Many2one(
         comodel_name="freight.purchase.fee.type",
         # domain="[('is_common', '=', True)]",
-        required=True
+        required=True,
+        ondelete='cascade',
     )
     amount = fields.Float()
     note = fields.Char()

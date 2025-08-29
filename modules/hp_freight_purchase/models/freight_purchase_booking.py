@@ -23,13 +23,13 @@ class FreightPurchaseBooking(models.Model):
 
     name = fields.Char(
         string='Booking Name',
-        # compute='_compute_name',
+        compute='_compute_name',
         store=True,
         required=True,
         tracking=True
     )
     vessel_id = fields.Many2one('freight.purchase.vessel', string="Vessel",required=True,  tracking=True)
-    quotation_id = fields.Many2one('freight.purchase.quotation',required=True, string="Quotation",  tracking=True)
+    quotation_id = fields.Many2one('freight.purchase.quotation',required=True, string="Quotation",  tracking=True, ondelete = "cascade")
     etd = fields.Date(required=True, index=True,  tracking=True)
     status = fields.Selection(
         string="Status",
@@ -83,7 +83,8 @@ class FreightPurchaseBooking(models.Model):
     booking_inventory_ids = fields.One2many(
         'freight.purchase.booking.inventory',
         'booking_id', 
-        string='Booking Inventories'
+        string='Booking Inventories',
+        ondelete = "cascade",
     )
     is_show_inventory = fields.Boolean(compute='_compute_is_show_inventory', store=False)
     has_inventory = fields.Boolean(
@@ -100,7 +101,9 @@ class FreightPurchaseBooking(models.Model):
     fee_ids = fields.One2many(
         comodel_name="freight.purchase.booking.fee",
         inverse_name="booking_id",
-        string="Common Fees"
+        string="Common Fees",
+        ondelete = "cascade",
+
     )
     has_fees = fields.Boolean(
         compute='_compute_has_fees',
@@ -209,7 +212,12 @@ class FreightPurchaseBooking(models.Model):
                     container_avaliable = FreightPurchaseBookingInventoryService(self.env).count_quantity_container_available_in_booking(record.id, container_id)
                     if added_qty > container_avaliable:
                         container = self.env['container.type'].sudo().browse(container_id)
-                        raise ValidationError(f"Total quantity of container {container.name} must be less than or equal to {container_avaliable}.")
+                        if container_avaliable == 0:
+                            raise ValidationError(
+                                f"No available inventory for container {container.name}. Please check the booking inventory."
+                            )
+                        else:
+                             raise ValidationError(f"Total quantity of container {container.name} must be less than or equal to {container_avaliable}.")
 
         return super().write(vals)
 
@@ -270,7 +278,8 @@ class FreightPurchaseBooking(models.Model):
     @api.depends('booking_inventory_ids')
     def _compute_has_inventory(self):
         for record in self:
-            record.has_inventory = True if record and len(record.booking_inventory_ids) > 0 else False
+            # True nếu có ít nhất 1 inventory đã được lưu (có id)
+            record.has_inventory = any(inv.id for inv in record.booking_inventory_ids)
 
     @api.depends('booking_inventory_ids')
     def _compute_inventory_summary(self):
@@ -340,3 +349,13 @@ class FreightPurchaseBooking(models.Model):
             default_id = self.env.context.get('default_quotation_id')
             if default_id and line.quotation_id and line.quotation_id.id != default_id:
                 raise ValidationError('You can only select the quotation passed from the quotation context')
+
+    has_booking_id = fields.Boolean(
+        compute='_compute_has_booking_id',
+        store=False
+    )
+
+    def _compute_has_booking_id(self):
+        for record in self:
+            # Nếu record đã lưu thì record.id khác False
+            record.has_booking_id = bool(record.id)
