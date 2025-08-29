@@ -39,8 +39,8 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_preview_trip_order" string="Preview Trip Order" type="object" class="btn-secondary"/>
-                    <button name="action_export_trip_docx" string="Export Trip DOCX" type="object" class="btn-primary"/>
+                    <button name="action_export_trip_docx" string="Export" type="object" class="btn-primary"/>
+                    <button name="action_preview_trip_order" string="Preview" type="object" class="btn-secondary"/>
                     <button name="action_send_message" 
                             string="Send Message" 
                             type="object" 
