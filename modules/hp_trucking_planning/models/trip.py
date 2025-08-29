@@ -869,20 +869,25 @@ Notes: {notes.strip()}"""
         bold_run = para4_content.add_run(f"{route_name}")
         # bold_run = para4_content.add_run(f"{self.route_id.name or ' '}")
         bold_run.bold = True
-        para4_content.add_run("\nĐiểm xếp hàng: ")
         source_location = self.plan_line_id.actual_source_location_id.name if self.plan_line_id and self.plan_line_id.actual_source_location_id else ' '
-        pickup_location_address = ""
-        if self.plan_line_id.goods_pickup_location_id:
-            pickup_location_address = self.plan_line_id.goods_pickup_location_id.address or self.plan_line_id.goods_pickup_location_id.name
+        para4_content.add_run("\nĐiểm xếp hàng: ")
+        if self.plan_type == 'export':
+            pickup_location_address = self.plan_line_id.goods_pickup_location_id.address or self.plan_line_id.goods_pickup_location_id.name if self.plan_line_id.goods_pickup_location_id else ' '
+        else:  # import
+            pickup_location_address = self.plan_id.location_id.address or self.plan_id.location_id.name if self.plan_id.location_id else ' '
+
+        # if self.plan_line_id.goods_pickup_location_id:
+        #     pickup_location_address = self.plan_line_id.goods_pickup_location_id.address or self.plan_line_id.goods_pickup_location_id.name
         bold_run = para4_content.add_run(f"{pickup_location_address}")
 
         # bold_run = para4_content.add_run(f"{source_location}")
         # bold_run = para4_content.add_run(f"{self.container_pickup.name or ' '}")
         bold_run.bold = True
         para4_content.add_run("\nĐiểm giao hàng: ")
-        delivery_location_address = ""
-        if self.plan_line_id.goods_delivery_location_id:
-            delivery_location_address = self.plan_line_id.goods_delivery_location_id.address or self.plan_line_id.goods_delivery_location_id.name
+        if self.plan_type == 'export':
+            delivery_location_address = self.plan_id.location_id.address or self.plan_id.location_id.name if self.plan_id.location_id else ' '
+        else:  # import
+            delivery_location_address = self.plan_line_id.goods_delivery_location_id.address or self.plan_line_id.goods_delivery_location_id.name if self.plan_line_id.goods_delivery_location_id else ' '
         bold_run = para4_content.add_run(f"{delivery_location_address}")
         # dest_location = self.plan_line_id.actual_destination_location_id.name if self.plan_line_id and self.plan_line_id.actual_destination_location_id else ' '
         # bold_run = para4_content.add_run(f"{dest_location}")
@@ -894,14 +899,14 @@ Notes: {notes.strip()}"""
         bold_run.bold = True
         para4_content.add_run("\nThời gian vận chuyển dự kiến:")
         para4_content.add_run("\nBắt đầu từ : ")
-        etd_str = self.plan_line_id.estimate_time_departure.strftime('%d/%m/%Y %H:%M') if trip_date.strftime('%d/%m/%Y 06:00') else ' '
+        etd_str = self.plan_line_id.estimate_time_departure.strftime('%d/%m/%Y %H:%M') if self.plan_line_id.estimate_time_departure else ' '
         bold_run = para4_content.add_run(f"{etd_str}")
         # para4_content.add_run("\nBắt đầu từ: ")
         # # bold_run = para4_content.add_run(" ")
         # bold_run = para4_content.add_run(f"{trip_date.strftime('%d/%m/%Y')}")
         bold_run.bold = True
         para4_content.add_run("\nđến: ")
-        eta_str = self.plan_line_id.estimate_time_arrival.strftime('%d/%m/%Y %H:%M') if trip_date.strftime('%d/%m/%Y 18:00') else ' '
+        eta_str = self.plan_line_id.estimate_time_arrival.strftime('%d/%m/%Y %H:%M') if self.plan_line_id.estimate_time_arrival else ' '
         bold_run = para4_content.add_run(f"{eta_str}")
         # bold_run = para4_content.add_run(f"{trip_date.strftime('%d/%m/%Y')}")
         # bold_run = para4_content.add_run(" ")
