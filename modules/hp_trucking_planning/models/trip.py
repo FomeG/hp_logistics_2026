@@ -162,8 +162,7 @@ class Trip(models.Model):
     )
     driver_id = fields.Many2one(
         comodel_name="trucking_planning.driver",
-        related='truck_id.primary_driver_id',
-        readonly=True,
+        string="Driver",
         index=True,
     )
     trailer_id = fields.Many2one(
@@ -299,6 +298,12 @@ class Trip(models.Model):
         compute='_compute_available_truck_ids',
         store=False
     )
+
+    @api.onchange('truck_id')
+    def _onchange_truck_id(self):
+        for record in self:
+            if record.truck_id and record.truck_id.primary_driver_id:
+                record.driver_id = record.truck_id.primary_driver_id
 
     @api.depends('plan_id')
     def _compute_available_truck_ids(self):
