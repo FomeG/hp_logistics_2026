@@ -20,6 +20,7 @@
 
         <!-- Plans -->
         <menuitem id="menu_plan" name="Plans" parent="menu_trucking_operations" action="action_plan"/>
+        <menuitem id="menu_plan_line" name="Jobs" parent="menu_trucking_operations" action="action_plan_line"/>
 
 
         <!-- Shipping Lines -->

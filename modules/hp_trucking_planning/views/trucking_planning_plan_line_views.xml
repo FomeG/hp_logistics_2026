@@ -247,6 +247,7 @@
                     <field name="code"/>
                     <field name="plan_id" string="Plan"/>
                     <field name="client_id"/>
+                    <field name="tax_number"/>
 <!--                    <field name="booking" />-->
                     <field name="status"/>
                     <field name="route_id"/>
@@ -269,6 +270,8 @@
                     <group expand="0" string="Group By">
                         <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
                         <filter string="Client" name="group_by_client" context="{'group_by':'client_id'}"/>
+                        <filter string="Plan" name="group_by_plan" context="{'group_by':'plan_id'}"/>
+                        <filter string="Tax Number" name="group_by_tax_number" context="{'group_by':'tax_number'}"/>
                         <filter string="Route" name="group_by_route" context="{'group_by':'route_id'}"/>
                         <filter string="Direction" name="group_by_direction" context="{'group_by':'plan_type'}"/>
                         <filter string="Truck Count" name="group_by_truck_count" context="{'group_by':'truck_count'}"/>
