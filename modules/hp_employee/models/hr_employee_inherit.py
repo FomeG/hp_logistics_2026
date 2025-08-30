@@ -49,6 +49,7 @@ class HrEmployeeInherit(models.Model):
         return created_records
     
     def write(self, vals):
+        # Check for duplicate emails and phones
         for field in ['work_email', 'work_phone']:
             value = vals.get(field)
             if value:
@@ -59,6 +60,7 @@ class HrEmployeeInherit(models.Model):
                 if conflict:
                     raise UserError(_("%s '%s' is already used by another employee.") % (field.replace('_', ' ').title(), value))
         
+        # Handle department changes
         if 'department_id' in vals:
             for employee in self:
                 old_department = employee.department_id
@@ -68,7 +70,27 @@ class HrEmployeeInherit(models.Model):
                     new_department = self.env['hr.department'].sudo().browse(new_department_id)
                     employee._assign_group_to_member(new_department)
 
-        return super().write(vals)
+        # Sync employee changes to user (if user exists and values are different)
+        sync_fields = {}
+        for employee in self:
+            if employee.user_id:
+                if 'name' in vals and vals['name'] and vals['name'] != employee.user_id.name:
+                    sync_fields['name'] = vals['name']
+                if 'work_email' in vals and vals['work_email'] and vals['work_email'] != employee.user_id.email:
+                    sync_fields['email'] = vals['work_email']
+                if 'mobile_phone' in vals and vals['mobile_phone'] and vals['mobile_phone'] != employee.user_id.phone:
+                    sync_fields['phone'] = vals['mobile_phone']
+        
+        # Perform the employee update first
+        result = super().write(vals)
+        
+        # Then sync to user if needed
+        if sync_fields:
+            for employee in self:
+                if employee.user_id:
+                    employee.user_id.write(sync_fields)
+        
+        return result
 
     @api.depends('address_id')
     def _compute_phones(self):
