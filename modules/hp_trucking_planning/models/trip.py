@@ -155,13 +155,22 @@ class Trip(models.Model):
     #     ('import', 'Import'),
     # ], string="Plan Type", required=True, tracking=True)
 
+    vehicle_driver_history_id = fields.Many2one(
+        comodel_name='trucking_planning.vehicle.driver.history',
+        string='Vehicle',
+        domain="[('id', 'in', available_driver_vehicle_pair_ids)]",
+    )
     truck_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle',
+        related='vehicle_driver_history_id.vehicle_id',
+        store=True,
+        string='Truck',
         index=True,
-        domain="[('id', 'in', available_truck_ids)]",
     )
     driver_id = fields.Many2one(
         comodel_name="trucking_planning.driver",
+        related='vehicle_driver_history_id.driver_id',
+        store=True,
         string="Driver",
         index=True,
     )
@@ -299,11 +308,30 @@ class Trip(models.Model):
         store=False
     )
 
-    @api.onchange('truck_id')
-    def _onchange_truck_id(self):
-        for record in self:
-            if record.truck_id and record.truck_id.primary_driver_id:
-                record.driver_id = record.truck_id.primary_driver_id
+    available_driver_vehicle_pair_ids = fields.Many2many(
+        comodel_name='trucking_planning.vehicle.driver.history',
+        compute="_compute_available_driver_vehicle_pairs",
+        store=False,
+    )
+    @api.depends('plan_estimate_time_departure', 'plan_estimate_time_arrival')
+    def _compute_available_driver_vehicle_pairs(self):
+        vehicle_driver_history_model = self.env['trucking_planning.vehicle.driver.history']
+        for trip in self:
+            etd = trip.plan_estimate_time_departure
+            eta = trip.plan_estimate_time_arrival
+            if not etd or not eta:
+                trip.available_driver_vehicle_pair_ids = []
+                continue
+
+            same_period_trips = self.search([
+                ('id', '!=', trip.id),
+                ('plan_estimate_time_departure', '<=', eta),
+                ('plan_estimate_time_arrival', '>=', etd),
+            ])
+            busy_pairs = same_period_trips.mapped('vehicle_driver_history_id')
+            all_pairs = vehicle_driver_history_model.search([])
+            available = all_pairs - busy_pairs
+            trip.available_driver_vehicle_pair_ids = available
 
     @api.depends('plan_id')
     def _compute_available_truck_ids(self):
