@@ -69,6 +69,17 @@
                         <field name="fuel_rate_superior_20" string="Heavy" readonly="True"/>
                         <field name="fuel_rate_mix" string="Kẹp" readonly="True"/>
                     </group>
+                    <notebook invisible="not id">
+                        <page string="Drivers">
+                            <field name="vehicle_driver_history_ids" readonly="True">
+                                <list>
+                                    <field name="driver_id"/>
+                                    <field name="start_date"/>
+                                    <field name="end_date"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter />
             </form>

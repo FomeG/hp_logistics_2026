@@ -187,3 +187,26 @@ class Vehicle(models.Model):
     @api.model
     def _get_default_branch(self):
         return self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])], limit=1)
+
+    def assign_driver(self):
+        vehicle_driver_history_model = self.env['trucking_planning.vehicle.driver.history']
+        today = fields.Date.today()
+        for vehicle in self:
+            driver = vehicle.primary_driver_id
+            if not driver:
+                continue
+            open_histories = vehicle_driver_history_model.search([
+                ('vehicle_id', '=', vehicle.id),
+                ('end_date', '=', False)
+            ])
+            if open_histories:
+                if any(h.driver_id == driver for h in open_histories):
+                    continue
+                open_histories.write({'end_date': today})
+
+            vehicle_driver_history_model.create({
+                'vehicle_id': vehicle.id,
+                'driver_id': driver.id,
+                'start_date': today,
+            })
+

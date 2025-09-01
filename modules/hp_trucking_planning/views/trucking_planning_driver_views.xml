@@ -43,8 +43,8 @@
                             <field name="vehicle_driver_history_ids" readonly="True">
                                 <list>
                                     <field name="vehicle_id"/>
-                                    <field name="action"/>
-                                    <field name="create_date"/>
+                                    <field name="start_date"/>
+                                    <field name="end_date"/>
                                 </list>
                             </field>
                         </page>
