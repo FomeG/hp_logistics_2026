@@ -28,7 +28,7 @@ class VehicleDriverHistory(models.Model):
         index=True
     )
     _sql_constraints = [
-        ('vehicle_open_unique','unique(vehicle_id, end_date)', 'A vehicle can only have one open driver assignment at a time.')
+        ('vehicle_open_unique', 'UNIQUE(vehicle_id) WHERE (end_date IS NULL OR end_date = False)', 'A vehicle can only have one open driver assignment at a time.')
     ]
 
     @api.depends('vehicle_id', 'driver_id')
