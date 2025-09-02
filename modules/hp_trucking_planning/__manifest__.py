@@ -32,6 +32,7 @@
         'views/trucking_planning_portal_templates.xml',
         'report/ir_actions_report.xml',
         'report/trip_order_templates.xml',
+        'views/trucking_planning_vehicle_driver_history_views.xml',
     ],
     'installable': True,
     'application': True,

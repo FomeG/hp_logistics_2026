@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_driver_vehicle_pair_list" model="ir.ui.view">
+        <field name="name">driver.vehicle.pair.list</field>
+        <field name="model">trucking_planning.vehicle.driver.history</field>
+        <field name="arch" type="xml">
+            <list string="Driver–Vehicle Pairs" create="false" edit="false">
+                <field name="vehicle_id"/>
+                <field name="driver_id"/>
+                 <field name="is_busy"/>
+                <button name="action_assign_to_trip"
+                    string="Select"
+                    type="object"
+                    class="oe_highlight"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="driver_vehicle_pair_search" model="ir.ui.view">
+        <field name="name">driver.vehicle.pair.search</field>
+        <field name="model">trucking_planning.vehicle.driver.history</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="vehicle_id"/>
+                <field name="driver_id"/>
+                <filter string="Available" name="available" domain="[('is_busy','=',False)]"/>
+                <filter string="Busy" name="busy" domain="[('is_busy','=',True)]"/>
+            </search>
+        </field>
+    </record>
+
+</odoo>

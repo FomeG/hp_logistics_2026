@@ -158,7 +158,7 @@ class Trip(models.Model):
     vehicle_driver_history_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle.driver.history',
         string='Vehicle',
-        domain="[('id', 'in', available_driver_vehicle_pair_ids)]",
+        index=True,
     )
     truck_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle',
@@ -166,6 +166,7 @@ class Trip(models.Model):
         store=True,
         string='Truck',
         index=True,
+        tracking=True,
     )
     driver_id = fields.Many2one(
         comodel_name="trucking_planning.driver",
@@ -173,6 +174,7 @@ class Trip(models.Model):
         store=True,
         string="Driver",
         index=True,
+        tracking=True,
     )
     trailer_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle',
@@ -1310,3 +1312,17 @@ Notes: {notes.strip()}"""
     def _compute_driver_info(self):
         for trip in self:
             trip.driver_info = f"{trip.driver_id.name},{trip.truck_id.name}"
+
+    def action_open_vehicle_driver_pair_popup(self):
+        self.ensure_one()
+        return {
+            'name': 'Select Driver–Vehicle Pair',
+            'type': 'ir.actions.act_window',
+            'res_model': 'trucking_planning.vehicle.driver.history',
+            'view_mode': 'list,form',
+            'target': 'new',
+            'context': {
+                'trip_id': self.id,
+            },
+            "domain": [("end_date", "=", False)],
+        }

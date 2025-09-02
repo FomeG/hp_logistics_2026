@@ -115,7 +115,11 @@
                         <field name="status"/>
                     </group>
                     <group string="Vehicle Information">
-                        <field name="vehicle_driver_history_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                        <button name="action_open_vehicle_driver_pair_popup"
+                            type="object"
+                            string="Assign Driver - Vehicle"
+                            class="oe_highlight"/>
+                        <field name="vehicle_driver_history_id" options="{'no_create': True, 'no_create_edit': True}" invisible="True"/>
                         <field name="truck_id"/>
                         <field name="driver_id"/>
                         <field name="trailer_id"/>

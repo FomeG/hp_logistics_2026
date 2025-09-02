@@ -1,4 +1,7 @@
 from odoo import models, fields, api
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class VehicleDriverHistory(models.Model):
 
@@ -35,3 +38,70 @@ class VehicleDriverHistory(models.Model):
     def _compute_vehicle_driver_history_name(self):
         for record in self:
             record.name = f"{record.driver_id.name} - {record.vehicle_id.name}"
+
+    # temp field to check if pair is busy on the current trip period
+    # this field is only used for UI
+    is_busy = fields.Boolean(
+        string="Busy",
+        compute="_compute_is_busy",
+        search="_search_is_busy"
+    )
+
+    def _current_trip(self):
+        Trip = self.env["trucking_planning.trip"]
+        trip_id = self.env.context.get("trip_id")
+        trip = Trip.browse(trip_id) if trip_id else Trip.browse()
+        return trip if trip and trip.id else None
+
+    def _busy_pair_ids_for_trip(self, trip):
+        if not trip or not trip.plan_estimate_time_departure or not trip.plan_estimate_time_arrival:
+            return set()
+
+        Trip = self.env["trucking_planning.trip"]
+        domain = [
+            ("id", "!=", trip.id),
+            ("vehicle_driver_history_id", "!=", False),
+            ("plan_estimate_time_departure", "<=", trip.plan_estimate_time_arrival),
+            ("plan_estimate_time_arrival", ">=", trip.plan_estimate_time_departure),
+            ("vehicle_driver_history_id.end_date", "=", False),
+        ]
+
+        groups = Trip.read_group(
+            domain,
+            fields=["vehicle_driver_history_id"],
+            groupby=["vehicle_driver_history_id"],
+            lazy=False,
+        )
+        busy_ids = []
+        for g in groups:
+            vh = g.get("vehicle_driver_history_id")
+            if vh and isinstance(vh, (list, tuple)):
+                busy_ids.append(vh[0])
+        return set(busy_ids)
+
+    def _compute_is_busy(self):
+        trip = self._current_trip()
+        busy_ids = self._busy_pair_ids_for_trip(trip)
+        for rec in self:
+            rec.is_busy = rec.id in busy_ids
+
+    # used for search
+    def _search_is_busy(self, operator, value):
+        if operator not in ("=", "=="):
+            return []
+        trip = self._current_trip()
+        busy_ids = self._busy_pair_ids_for_trip(trip)
+        base = [("end_date", "=", False)]
+        if bool(value):
+            return base + [("id", "in", list(busy_ids) or [0])]
+        else:
+            return base + [("id", "not in", list(busy_ids) or [0])]
+
+    def action_assign_to_trip(self):
+        """Assign this pair to the trip passed via context."""
+        trip = self._current_trip()
+        trip.vehicle_driver_history_id = self.id
+
+        return {
+            "type": "ir.actions.act_window_close"  # close popup
+        }
