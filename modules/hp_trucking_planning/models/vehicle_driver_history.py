@@ -53,11 +53,14 @@ class VehicleDriverHistory(models.Model):
         trip = Trip.browse(trip_id) if trip_id else Trip.browse()
         return trip if trip and trip.id else None
 
+    def _get_trip_model(self):
+        return self.env["trucking_planning.trip"]
+
     def _busy_pair_ids_for_trip(self, trip):
         if not trip or not trip.plan_estimate_time_departure or not trip.plan_estimate_time_arrival:
             return set()
 
-        Trip = self.env["trucking_planning.trip"]
+        Trip = self._get_trip_model()
         domain = [
             ("id", "!=", trip.id),
             ("vehicle_driver_history_id", "!=", False),
@@ -97,11 +100,43 @@ class VehicleDriverHistory(models.Model):
         else:
             return base + [("id", "not in", list(busy_ids) or [0])]
 
+    def get_conflicting_trip(self, target_trip):
+        Trip = self._get_trip_model()
+        if not target_trip or not target_trip.plan_estimate_time_departure or not target_trip.plan_estimate_time_arrival:
+            return Trip
+            #hoặc return set()
+        domain = [
+            ("id", "!=", target_trip.id),
+            ("vehicle_driver_history_id", "=", self.id),
+            ("plan_estimate_time_departure", "<=", target_trip.plan_estimate_time_arrival),
+            ("plan_estimate_time_arrival", ">=", target_trip.plan_estimate_time_departure),
+            ("vehicle_driver_history_id.end_date", "=", False),
+        ]
+
+        return Trip.search(domain, limit=1)
+
     def action_assign_to_trip(self):
         """Assign this pair to the trip passed via context."""
         trip = self._current_trip()
-        trip.vehicle_driver_history_id = self.id
+        conflicting_trip = self.get_conflicting_trip(trip)
 
-        return {
-            "type": "ir.actions.act_window_close"  # close popup
-        }
+        # Check if this pair is busy (has overlapping time with other trips)
+        if conflicting_trip:
+            # Find the current trip that's causing the conflict
+            return {
+                'name': 'Confirm assigning a busy truck-driver pair.',
+                'type': 'ir.actions.act_window',
+                'res_model': 'trucking_planning.vehicle.confirmation.wizard',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {
+                    'default_vehicle_driver_history_id': self.id,
+                    'default_current_trip_id': conflicting_trip.id,
+                    'default_new_trip_id': trip.id,
+                }
+            }
+        else:
+            trip.vehicle_driver_history_id = self.id
+            return {
+                "type": "ir.actions.act_window_close"  # close popup
+            }
