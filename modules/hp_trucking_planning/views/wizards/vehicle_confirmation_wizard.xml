@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_busy_vehicle_confirmation_wizard_form" model="ir.ui.view">
+        <field name="name">vehicle.confirmation.wizard.form</field>
+        <field name="model">trucking_planning.vehicle.confirmation.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Confirm assigning a busy truck-driver pair.">
+                <sheet>
+                    <div class="alert alert-warning" role="alert">
+                        <field name="warning_message" nolabel="1"/>
+                    </div>
+
+                    <group string="Vehicle-Driver Info">
+                        <field name="vehicle_name"/>
+                        <field name="driver_name"/>
+                    </group>
+
+                    <group string="Current Trip (Busy)" col="2">
+                        <field name="current_trip_plan_name"/>
+                        <field name="current_trip_client"/>
+                        <field name="current_trip_route"/>
+                        <field name="current_trip_etd"/>
+                        <field name="current_trip_eta"/>
+                        <field name="current_trip_status"/>
+                    </group>
+
+                    <group string="New Trip (Assignment)" col="2">
+                        <field name="new_trip_plan_name"/>
+                        <field name="new_trip_client"/>
+                        <field name="new_trip_route"/>
+                        <field name="new_trip_etd"/>
+                        <field name="new_trip_eta"/>
+                    </group>
+
+                    <field name="vehicle_driver_history_id" invisible="1"/>
+                    <field name="current_trip_id" invisible="1"/>
+                    <field name="new_trip_id" invisible="1"/>
+                </sheet>
+
+                <footer>
+                    <button name="action_confirm_assignment"
+                            string="Confirm Assignment"
+                            type="object"
+                            class="btn-primary"/>
+                    <button name="action_cancel"
+                            string="Cancel"
+                            type="object"
+                            class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
