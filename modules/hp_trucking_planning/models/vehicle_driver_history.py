@@ -97,25 +97,29 @@ class VehicleDriverHistory(models.Model):
         else:
             return base + [("id", "not in", list(busy_ids) or [0])]
 
+    def get_conflicting_trip(self, target_trip):
+        if not target_trip or not target_trip.plan_estimate_time_departure or not target_trip.plan_estimate_time_arrival:
+            return self.env['trucking_planning.trip']
+
+        Trip = self.env["trucking_planning.trip"]
+        domain = [
+            ("id", "!=", target_trip.id),
+            ("vehicle_driver_history_id", "=", self.id),
+            ("plan_estimate_time_departure", "<=", target_trip.plan_estimate_time_arrival),
+            ("plan_estimate_time_arrival", ">=", target_trip.plan_estimate_time_departure),
+            ("vehicle_driver_history_id.end_date", "=", False),
+        ]
+
+        return Trip.search(domain, limit=1)
+
     def action_assign_to_trip(self):
         """Assign this pair to the trip passed via context."""
         trip = self._current_trip()
+        conflicting_trip = self.get_conflicting_trip(trip)
 
         # Check if this pair is busy (has overlapping time with other trips)
-        if self.is_busy:
+        if conflicting_trip:
             # Find the current trip that's causing the conflict
-            Trip = self.env["trucking_planning.trip"]
-            domain = [
-                ("id", "!=", trip.id),
-                ("vehicle_driver_history_id", "=", self.id),
-                ("plan_estimate_time_departure", "<=", trip.plan_estimate_time_arrival),
-                ("plan_estimate_time_arrival", ">=", trip.plan_estimate_time_departure),
-                ("vehicle_driver_history_id.end_date", "=", False),
-            ]
-
-            conflicting_trip = Trip.search(domain, limit=1)
-
-            # Open confirmation wizard
             return {
                 'name': 'Confirm assigning a busy truck-driver pair.',
                 'type': 'ir.actions.act_window',
@@ -124,7 +128,7 @@ class VehicleDriverHistory(models.Model):
                 'target': 'new',
                 'context': {
                     'default_vehicle_driver_history_id': self.id,
-                    'default_current_trip_id': conflicting_trip.id if conflicting_trip else False,
+                    'default_current_trip_id': conflicting_trip.id,
                     'default_new_trip_id': trip.id,
                 }
             }
