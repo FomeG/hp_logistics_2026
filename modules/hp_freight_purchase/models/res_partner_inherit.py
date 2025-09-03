@@ -11,7 +11,6 @@ class ResPartnerInherit(models.Model):
 
     total_bookings = fields.Char(string="Total Bookings", compute='_compute_total_booking', store=False)
     total_quotations = fields.Char(string="Total Quotations", compute='_compute_total_quotation', store=False)
-
     @tools.ormcache()
     def _get_shipping_line_type(self):
         return self.env['partner.main.type'].search([('code', '=', 'shipping_line')], limit=1)
