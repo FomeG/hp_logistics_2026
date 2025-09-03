@@ -11,7 +11,11 @@ class ResPartnerInherit(models.Model):
 
     total_bookings = fields.Char(string="Total Bookings", compute='_compute_total_booking', store=False)
     total_quotations = fields.Char(string="Total Quotations", compute='_compute_total_quotation', store=False)
-
+    shipping_line_email_ids = fields.One2many(
+        'hp.freight.purchase.shipping.line.email',
+        'partner_id',
+        string='Contact Emails'
+    )
     @tools.ormcache()
     def _get_shipping_line_type(self):
         return self.env['partner.main.type'].search([('code', '=', 'shipping_line')], limit=1)

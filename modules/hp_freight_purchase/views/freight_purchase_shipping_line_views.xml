@@ -13,6 +13,16 @@
                     <field name="email" string="Shipping Line Email" widget="email" placeholder="e.g. contact@shippingline.com" class="oe_form_field" required="1"/>
                     <field name="partner_main_type_id" invisible="1" />
                     <notebook invisible="not id">
+                        <page string="Contact Emails">
+                            <field name="shipping_line_email_ids">
+                                <list editable="bottom">
+                                    <field name="email"/>
+                                    <field name="note"/>
+                                    <field name="is_primary"/>
+                                </list>
+                            </field>
+                        </page>
+
                         <page string="Quotations" invisible="not quotation_ids">
                             <field name="quotation_ids"
                                    context="{'list_view_ref': 'hp_freight_purchase.freight_purchase_quotation_short_list_view'}"
