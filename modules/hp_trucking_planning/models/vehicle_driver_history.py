@@ -100,8 +100,36 @@ class VehicleDriverHistory(models.Model):
     def action_assign_to_trip(self):
         """Assign this pair to the trip passed via context."""
         trip = self._current_trip()
-        trip.vehicle_driver_history_id = self.id
 
-        return {
-            "type": "ir.actions.act_window_close"  # close popup
-        }
+        # Check if this pair is busy (has overlapping time with other trips)
+        if self.is_busy:
+            # Find the current trip that's causing the conflict
+            Trip = self.env["trucking_planning.trip"]
+            domain = [
+                ("id", "!=", trip.id),
+                ("vehicle_driver_history_id", "=", self.id),
+                ("plan_estimate_time_departure", "<=", trip.plan_estimate_time_arrival),
+                ("plan_estimate_time_arrival", ">=", trip.plan_estimate_time_departure),
+                ("vehicle_driver_history_id.end_date", "=", False),
+            ]
+
+            conflicting_trip = Trip.search(domain, limit=1)
+
+            # Open confirmation wizard
+            return {
+                'name': 'Confirm assigning a busy truck-driver pair.',
+                'type': 'ir.actions.act_window',
+                'res_model': 'trucking_planning.vehicle.confirmation.wizard',
+                'view_mode': 'form',
+                'target': 'new',
+                'context': {
+                    'default_vehicle_driver_history_id': self.id,
+                    'default_current_trip_id': conflicting_trip.id if conflicting_trip else False,
+                    'default_new_trip_id': trip.id,
+                }
+            }
+        else:
+            trip.vehicle_driver_history_id = self.id
+            return {
+                "type": "ir.actions.act_window_close"  # close popup
+            }
