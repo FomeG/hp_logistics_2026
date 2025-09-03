@@ -101,10 +101,10 @@ class VehicleDriverHistory(models.Model):
             return base + [("id", "not in", list(busy_ids) or [0])]
 
     def get_conflicting_trip(self, target_trip):
-        if not target_trip or not target_trip.plan_estimate_time_departure or not target_trip.plan_estimate_time_arrival:
-            return self._get_trip_model()
-
         Trip = self._get_trip_model()
+        if not target_trip or not target_trip.plan_estimate_time_departure or not target_trip.plan_estimate_time_arrival:
+            return Trip
+            #hoặc return set()
         domain = [
             ("id", "!=", target_trip.id),
             ("vehicle_driver_history_id", "=", self.id),
