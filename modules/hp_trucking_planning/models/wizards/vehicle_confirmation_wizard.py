@@ -111,14 +111,39 @@ class BusyVehicleConfirmationWizard(models.TransientModel):
     )
 
     def action_confirm_assignment(self):
-        """Confirm the assignment and assign the busy pair to the new trip"""
         if not self.new_trip_id:
             raise UserError("No new trip available for assignment.")
 
-        # Assign the vehicle-driver pair to the new trip
-        self.new_trip_id.vehicle_driver_history_id = self.vehicle_driver_history_id.id
-
+        # queued job processing unassign and reassign vehicle-driver pair
+        self.with_delay().process_busy_vehicle_reassignment(
+            current_trip_id=self.current_trip_id.id,
+            new_trip_id=self.new_trip_id.id,
+            vehicle_driver_history_id=self.vehicle_driver_history_id.id
+        )
         return {'type': 'ir.actions.act_window_close'}
+
+    def process_busy_vehicle_reassignment(self, current_trip_id, new_trip_id, vehicle_driver_history_id):
+        current_trip = self.env['trucking_planning.trip'].browse(current_trip_id)
+        new_trip = self.env['trucking_planning.trip'].browse(new_trip_id)
+        vehicle_driver_history = self.env['trucking_planning.vehicle.driver.history'].browse(vehicle_driver_history_id)
+
+        # Unassign từ current trip
+        if current_trip.exists():
+            current_trip.vehicle_driver_history_id = False
+
+            current_trip.message_post(
+                body=f"Vehicle-driver pair '{vehicle_driver_history.name}' has been unassigned and reassigned to another trip.",
+                message_type='notification'
+            )
+
+        # Assign to new trip
+        if new_trip.exists():
+            new_trip.vehicle_driver_history_id = vehicle_driver_history_id
+
+            new_trip.message_post(
+                body=f"Vehicle-driver pair '{vehicle_driver_history.name}' has been assigned to this trip (reassigned from another trip).",
+                message_type='notification'
+            )
 
     def action_cancel(self):
         """Cancel the assignment"""
