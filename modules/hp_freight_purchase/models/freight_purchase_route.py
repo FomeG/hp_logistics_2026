@@ -27,6 +27,16 @@ class FreightPurchaseRoute(models.Model):
         tracking=True,
         ondelete='cascade'
     )
+    # pol_display = fields.Char(
+    #     string="POL (Total Quotation)",
+    #     compute='_compute_port_display',
+    #     store=False
+    # )
+    pod_display = fields.Char(
+        string="pod",
+        compute='_compute_port_display',
+        store=False
+    )
     direction = fields.Selection([
         ('import', 'Import'),
         ('export', 'Export'),
@@ -118,3 +128,20 @@ class FreightPurchaseRoute(models.Model):
                 f"Route from {pol.name} to {pod.name} is invalid: "
                 f"POL and POD cannot both be local or both be non-local."
             )
+
+    @api.depends('pod_id')
+    def _compute_port_display(self):
+        for route in self:
+            # POL
+            # if route.pol_id:
+            #     total_pol = self.env['freight.purchase.quotation'].search_count([('pol_id', '=', route.pol_id.id)])
+            #     route.pol_display = f"{route.pol_id.name} ({total_pol})"
+            # else:
+            #     route.pol_display = ''
+
+            # POD
+            if route.pod_id:
+                total_pod = self.env['freight.purchase.quotation'].search_count([('pod_id', '=', route.pod_id.id)])
+                route.pod_display = f"{route.pod_id.name} ({total_pod})"
+            else:
+                route.pod_display = ''
