@@ -135,25 +135,11 @@ class Trip(models.Model):
         readonly=True,
         store=True,
     )
-    # container_type = fields.Selection([
-    #     ('dry', 'Dry'),
-    #     ('cool', 'Cool'),
-    #     ('ot', 'OT'),
-    #     ('ft', 'FT')
-    # ], string="Container Type", required=True, tracking=True)
 
     container_size = fields.Selection([
         ('20', '20'),
         ('40', '40')
     ], string="Container Size", required=True, tracking=True)
-    # shipping_line_id = fields.Many2one(
-    #     #     comodel_name='trucking_planning.shipping_line',
-    #     #     required=True,
-    #     # )
-    # plan_type = fields.Selection([
-    #     ('export', 'Export'),
-    #     ('import', 'Import'),
-    # ], string="Plan Type", required=True, tracking=True)
 
     vehicle_driver_history_id = fields.Many2one(
         comodel_name='trucking_planning.vehicle.driver.history',
@@ -249,15 +235,6 @@ class Trip(models.Model):
         readonly=True,
         store=True,
     )
-    # goods_name = fields.Char(
-    #     string="Goods Name",
-    # )
-    # goods_weight = fields.Float(
-    #     string="Goods Weight",
-    # )
-    # goods_cut_off = fields.Datetime(
-    #     string="Cut Off",
-    # )
 
     route_info = fields.Text(
         compute='_compute_route_info',
@@ -267,112 +244,11 @@ class Trip(models.Model):
         compute='_compute_container_info',
         store=False,
     )
-    # location_info = fields.Text(
-    #     compute='_compute_location_info',
-    #     store=False,
-    # )
+
     driver_info = fields.Text(
         compute='_compute_driver_info',
         store=False,
     )
-
-    # _sql_constraints = [
-    #     ('unique_booking', 'Unique(booking)', 'Booking number is unique!'),
-    # ]
-
-    # @api.depends('plan_id.date')
-    # def _compute_plan_month_year(self):
-    #     for record in self:
-    #         if record.plan_id.date:
-    #             record.plan_month = record.plan_id.date.month
-    #             record.plan_year = record.plan_id.date.year
-    #         else:
-    #             record.plan_month = False
-    #             record.plan_year = False
-    #
-    # @api.depends('plan_type', 'route_id')
-    # def _compute_actual_locations(self):
-    #     for rec in self:
-    #         if rec.route_id:
-    #             if rec.plan_type == 'export':
-    #                 rec.actual_source_location_id = rec.route_id.from_location_id
-    #                 rec.actual_destination_location_id = rec.route_id.to_location_id
-    #             else:  # import
-    #                 rec.actual_source_location_id = rec.route_id.to_location_id
-    #                 rec.actual_destination_location_id = rec.route_id.from_location_id
-    #         else:
-    #             rec.actual_source_location_id = False
-    #             rec.actual_destination_location_id = False
-
-    available_truck_ids = fields.Many2many(
-        comodel_name='trucking_planning.vehicle',
-        compute='_compute_available_truck_ids',
-        store=False
-    )
-
-    available_driver_vehicle_pair_ids = fields.Many2many(
-        comodel_name='trucking_planning.vehicle.driver.history',
-        compute="_compute_available_driver_vehicle_pairs",
-        store=False,
-    )
-    @api.depends('plan_estimate_time_departure', 'plan_estimate_time_arrival')
-    def _compute_available_driver_vehicle_pairs(self):
-        vehicle_driver_history_model = self.env['trucking_planning.vehicle.driver.history']
-        for trip in self:
-            etd = trip.plan_estimate_time_departure
-            eta = trip.plan_estimate_time_arrival
-            if not etd or not eta:
-                trip.available_driver_vehicle_pair_ids = []
-                continue
-
-            same_period_trips = self.search([
-                ('id', '!=', trip.id),
-                ('plan_estimate_time_departure', '<=', eta),
-                ('plan_estimate_time_arrival', '>=', etd),
-            ])
-            busy_pairs = same_period_trips.mapped('vehicle_driver_history_id')
-            all_pairs = vehicle_driver_history_model.search([])
-            available = all_pairs - busy_pairs
-            trip.available_driver_vehicle_pair_ids = available
-
-    @api.depends('plan_id')
-    def _compute_available_truck_ids(self):
-        for record in self:
-            domain = [('type', '=', 'truck')]
-
-            branches = self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])])
-            if branches:
-                domain.append(('branch_id', 'in', [False] + branches.ids))
-            else:
-                domain.append(('branch_id', '=', False))
-
-            plan = record.plan_id or self.env['trucking_planning.plan'].sudo().browse(self.env.context.get('default_plan_id'))
-            if plan and plan.date:
-                truck_invalids = self.sudo().search([
-                    ('plan_date', '=', plan.date),
-                    ('status', 'not in', ['cancelled'])
-                ]).mapped('truck_id')
-
-                if record.truck_id:
-                    truck_invalids = truck_invalids - record.truck_id
-
-                if truck_invalids:
-                    domain.append(('id', 'not in', truck_invalids.ids))
-
-            record.available_truck_ids = self.env['trucking_planning.vehicle'].sudo().search(domain).ids
-
-    # def _get_truck_domain(self):
-    #     domain = [
-    #         ('type', '=', 'truck')
-    #     ]
-
-    #     branches = self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])])
-    #     if branches:
-    #         domain.append(('branch_id', 'in', [False] + branches.ids))
-    #     else:
-    #         domain.append(('branch_id', '=', False))
-
-    #     return domain
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -427,24 +303,6 @@ class Trip(models.Model):
 
     def remove_vehicle_driver_of_plan_and_plan_line(self, vehicle_id, date_plan, exclude_plan_id):
         planning_service(self.env).remove_vehicle_driver_by_vehicle_and_date_plan(vehicle_id, date_plan, exclude_plan_id)
-
-    # @api.onchange('plan_line_id')
-    # def _onchange_plan_line_id(self):
-    #     if self.plan_line_id:
-    #         self.plan_id = self.plan_line_id.plan_id
-    #         # Đảm bảo domain của truck_id được cập nhật khi thay đổi plan_line_id
-    #         return {'domain': {'truck_id': self._get_truck_domain()}}
-
-
-    # def _get_plan_line_domain(self):
-    #     domain = []
-    #
-    #     if self.env.context.get('default_plan_id'):
-    #         domain = [('plan_id', '=', self.env.context.get('default_plan_id'))]
-    #     elif self.env.context.get('default_plan_line_id'):
-    #         domain = [('id', '=', self.env.context.get('default_plan_line_id'))]
-    #
-    #     return domain
 
     def action_view_job(self):
         """Action để xem customer (plan line) của trip này"""
@@ -1173,74 +1031,6 @@ Notes: {notes.strip()}"""
         bold_run = para3_permit.add_run(f"{self.total_cost or 0}")
         # bold_run = para3_permit.add_run(" ")
         bold_run.bold = True
-
-        # Merge cells in main_table for the loader section
-        # main_table.cell(2, 0).merge(main_table.cell(2, 1)).merge(main_table.cell(2, 2))
-        # title_cell = main_table.cell(2, 0)
-        # # Clear all paragraphs first
-        # for paragraph in title_cell.paragraphs:
-        #     p = paragraph._element
-        #     p.getparent().remove(p)
-        # # Add top padding to the cell
-        # title_cell._tc.get_or_add_tcPr().append(parse_xml(r'<w:tcMar xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
-        # para_loader = title_cell.add_paragraph()
-        # title_run = para_loader.add_run("8. Phần dành cho người xếp, dỡ hàng hóa lên, xuống xe ghi")
-        # title_run.bold = True
-        # # Add top padding to the cell (not the paragraph)
-        # title_cell._tc.get_or_add_tcPr().append(parse_xml(r'<w:tcMar xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
-        #
-        #
-        # loader_cells = main_table.rows[3].cells
-        # # Clear cells and add content properly
-        # # Clear all paragraphs first
-        # for paragraph in loader_cells[0].paragraphs:
-        #     p = paragraph._element
-        #     p.getparent().remove(p)
-        # for paragraph in loader_cells[1].paragraphs:
-        #     p = paragraph._element
-        #     p.getparent().remove(p)
-        #
-        # # Loading info (left cell)
-        # para1_loader = loader_cells[0].add_paragraph()
-        # title_run = para1_loader.add_run("Thông tin về xếp hàng lên xe")
-        # title_run.bold = True
-        #
-        # para2_loader = loader_cells[0].add_paragraph()
-        # para2_loader.add_run("Xếp lần 1: Địa điểm")
-        # para2_loader.add_run("\nKhối lượng hàng:     ")
-        # bold_run = para2_loader.add_run("(tấn) thời gian:")
-        # bold_run.bold = True
-        # para2_loader.add_run("\nXác nhận của người xếp hàng:")
-        # loader_cells[0].add_paragraph()
-        # loader_cells[0].add_paragraph()
-        #
-        # para3_loader = loader_cells[0].add_paragraph()
-        # para3_loader.add_run("Xếp lần 2 Địa điểm")
-        # para3_loader.add_run("\nKhối lượng hàng:     ")
-        # bold_run = para3_loader.add_run("(tấn) thời gian:")
-        # bold_run.bold = True
-        # para3_loader.add_run("\nXác nhận của người xếp hàng:")
-        # loader_cells[0].add_paragraph()
-        #
-        # # Unloading info (right cell)
-        # para1_unloader = loader_cells[1].add_paragraph()
-        # title_run = para1_unloader.add_run("Thông tin về dỡ hàng xuống xe")
-        # title_run.bold = True
-        # # loader_cells[1].add_paragraph()
-        # para2_unloader = loader_cells[1].add_paragraph()
-        # para2_unloader.add_run("Dỡ lần 1: Địa điểm")
-        # para2_unloader.add_run("\nKhối lượng hàng:     ")
-        # bold_run = para2_unloader.add_run("(tấn) thời gian:")
-        # bold_run.bold = True
-        # para2_unloader.add_run("\nXác nhận của người dỡ hàng:")
-        # loader_cells[1].add_paragraph()
-        # loader_cells[1].add_paragraph()
-        # para3_unloader = loader_cells[1].add_paragraph()
-        # para3_unloader.add_run("Dỡ lần 2 Địa điểm")
-        # para3_unloader.add_run("\nKhối lượng hàng:     ")
-        # bold_run = para3_unloader.add_run("(tấn) thời gian:")
-        # bold_run.bold = True
-        # para3_unloader.add_run("\nXác nhận của người dỡ hàng:")
 
         # Signature table
         sig_table = doc.add_table(rows=1, cols=3)
