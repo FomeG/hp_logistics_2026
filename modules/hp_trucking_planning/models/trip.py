@@ -1116,3 +1116,9 @@ Notes: {notes.strip()}"""
             },
             "domain": [("end_date", "=", False)],
         }
+    
+    def _cancel_inactive_trip(self):
+        planning_service(self.env).update_trip_statuses('cancelled')
+    
+    def _close_done_trip(self):
+        planning_service(self.env).update_trip_statuses('done')

@@ -1,3 +1,4 @@
+from odoo import fields
 
 class planning_service:
     _name = "trucking_planning.plan.service"
@@ -18,3 +19,39 @@ class planning_service:
                 'truck_id': False,
                 'driver_id': False,
             })
+
+    def update_trip_statuses(self, status):
+        now = fields.Datetime.now()
+        today = fields.Date.today()
+
+        match status:
+            case 'cancelled':
+                domain = [
+                    ('truck_id', '=', False),
+                    '|', '|',
+                        ('goods_cut_off', '<', now),
+                        ('plan_date', '<', today),
+                        ('plan_estimate_time_departure', '<', now),
+                    ('status', '!=', 'cancelled'),
+                ]
+
+            case 'done':
+                domain = [
+                    ('truck_id', '!=', False),
+                    '|', '|',
+                        ('goods_cut_off', '<', now),
+                        ('plan_date', '<', today),
+                        ('plan_estimate_time_arrival', '<', now),
+                    ('status', '!=', 'done'),
+                ]
+            case _:
+                return False
+
+        system_user = self.env.ref('base.user_root')
+        trips = self.env['trucking_planning.trip'].search(domain)
+        if trips:
+            trips.with_user(system_user).write({
+                'status': status
+            })
+        
+        return True
