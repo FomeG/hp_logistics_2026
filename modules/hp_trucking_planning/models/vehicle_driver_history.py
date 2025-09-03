@@ -53,11 +53,14 @@ class VehicleDriverHistory(models.Model):
         trip = Trip.browse(trip_id) if trip_id else Trip.browse()
         return trip if trip and trip.id else None
 
+    def _get_trip_model(self):
+        return self.env["trucking_planning.trip"]
+
     def _busy_pair_ids_for_trip(self, trip):
         if not trip or not trip.plan_estimate_time_departure or not trip.plan_estimate_time_arrival:
             return set()
 
-        Trip = self.env["trucking_planning.trip"]
+        Trip = self._get_trip_model()
         domain = [
             ("id", "!=", trip.id),
             ("vehicle_driver_history_id", "!=", False),
@@ -99,9 +102,9 @@ class VehicleDriverHistory(models.Model):
 
     def get_conflicting_trip(self, target_trip):
         if not target_trip or not target_trip.plan_estimate_time_departure or not target_trip.plan_estimate_time_arrival:
-            return self.env['trucking_planning.trip']
+            return self._get_trip_model()
 
-        Trip = self.env["trucking_planning.trip"]
+        Trip = self._get_trip_model()
         domain = [
             ("id", "!=", target_trip.id),
             ("vehicle_driver_history_id", "=", self.id),
