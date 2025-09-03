@@ -15,16 +15,25 @@ class ResPartnerInherit(models.Model):
     def _get_shipping_line_type(self):
         return self.env['partner.main.type'].search([('code', '=', 'shipping_line')], limit=1)
 
+    @tools.ormcache()
+    def _get_shipping_line_contact_type(self):
+        return self.env['partner.main.type'].search([('code', '=', 'shipping_line_contact')], limit=1)
 
     @api.model_create_multi
     def create(self, vals_list):
         shipping_line_type = self._get_shipping_line_type()
         if not shipping_line_type:
             raise ValidationError("Shipping line type not found. Please create it first.")
+        shipping_line_contact_type = self._get_shipping_line_contact_type()
 
         for vals in vals_list:
-            if shipping_line_type and not vals.get('partner_main_type_id'):
+            if shipping_line_type and not vals.get('partner_main_type_id') and not vals.get("parent_id"):
                 vals['partner_main_type_id'] = shipping_line_type.id
+
+            if vals.get("parent_id"):
+                parent = self.env['res.partner'].browse(vals["parent_id"])
+                if parent.partner_main_type_id == shipping_line_type and shipping_line_contact_type:
+                    vals['partner_main_type_id'] = shipping_line_contact_type.id
 
             if self._is_shipping_line_partner(vals):
                 validated, errors = ShippingLineCreateValidator.validate(vals, self.env)
@@ -34,13 +43,21 @@ class ResPartnerInherit(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
+        res = super().write(vals)
+        shipping_line_type = self._get_shipping_line_type()
+        shipping_line_contact_type = self._get_shipping_line_contact_type()
+
         for record in self:
+            if record.parent_id and record.parent_id.partner_main_type_id == shipping_line_type:
+                if shipping_line_contact_type and record.partner_main_type_id != shipping_line_contact_type:
+                    record.partner_main_type_id = shipping_line_contact_type
+
             if self._is_shipping_line_partner(vals, record):
                 validated, errors = ShippingLineUpdateValidator.validate(vals, self.env)
                 if errors:
                     raise ValidationError("\n".join([f"• {e}" for e in errors]))
 
-        return super().write(vals)
+        return res
 
     def _is_shipping_line_partner(self, vals, record=None):
         """Check if the partner is a shipping line based on partner_main_type_id"""
@@ -52,10 +69,7 @@ class ResPartnerInherit(models.Model):
             partner_main_type_id = vals.get('partner_main_type_id')
 
         if partner_main_type_id:
-            # Search for shipping line type by code instead of using env.ref
-            shipping_line_type = self.env['partner.main.type'].search([
-                ('code', '=', 'shipping_line')
-            ], limit=1)
+            shipping_line_type = self._get_shipping_line_type()
             return shipping_line_type and partner_main_type_id == shipping_line_type.id
         return False
 
