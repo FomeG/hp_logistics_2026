@@ -183,6 +183,14 @@ class Trip(models.Model):
         store=True,
     )
     note = fields.Text(string="Note")
+    
+    can_edit = fields.Boolean(
+        string='Can Edit',
+        compute='_compute_can_edit',
+        store=False,
+        help='Indicates whether the current user can edit this trip'
+    )
+    
     weight_class = fields.Selection([
         ('inferior_20', '<20T'),
         ('superior_20', '>20T'),
@@ -548,3 +556,46 @@ Notes: {notes.strip()}"""
     
     def _close_done_trip(self):
         planning_service(self.env).update_trip_statuses('done')
+
+    @api.depends('status', 'create_uid')
+    def _compute_can_edit(self):
+        """Compute whether the current user can edit this trip"""
+        current_user = self.env.user
+        for record in self:
+            # Check if status allows editing
+            restricted_statuses = ['done', 'close', 'cancelled']
+            if record.status in restricted_statuses:
+                record.can_edit = False
+                continue
+            
+            # Check if user is owner or has elevated permissions
+            if (record.create_uid == current_user or 
+                current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_lead') or
+                current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_director') or
+                current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_administrator')):
+                record.can_edit = True
+            else:
+                record.can_edit = False
+
+    def write(self, vals):
+        """Override write method to enforce access control"""
+        current_user = self.env.user
+        
+        for record in self:
+            # Check if status allows editing
+            restricted_statuses = ['done', 'close', 'cancelled']
+            if record.status in restricted_statuses:
+                # Only allow editing if user has elevated permissions
+                if not (current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_lead') or
+                        current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_director') or
+                        current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_administrator')):
+                    raise UserError(f"You cannot edit trip '{record.name}' because its status is '{record.status}'. Only users with elevated permissions can edit trips in this status.")
+            
+            # Check if user is owner or has elevated permissions
+            elif not (record.create_uid == current_user or 
+                     current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_lead') or
+                     current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_director') or
+                     current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_administrator')):
+                raise UserError(f"You cannot edit trip '{record.name}' because you are not the owner and don't have sufficient permissions.")
+        
+        return super().write(vals)
