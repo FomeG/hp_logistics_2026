@@ -13,16 +13,4 @@ class TripListener(Component):
 
     def on_record_write(self, record, fields=None):
         if 'vehicle_driver_history_id' in fields and record.vehicle_driver_history_id:
-            self.with_delay().process_vehicle_driver_reassignment(record)
-
-
-    def process_vehicle_driver_reassignment(self, record):
-        conflicting_trips = record.vehicle_driver_history_id.get_conflicting_trip(record)
-
-        if conflicting_trips and conflicting_trips.exists():
-            for conflicting_trip in conflicting_trips:
-                conflicting_trip.vehicle_driver_history_id = False
-                conflicting_trip.message_post(
-                    body=f"Vehicle-driver pair '{record.vehicle_driver_history_id.name}' has been unassigned and reassigned to another trip.",
-                    message_type='notification'
-                )
+            record.with_delay().process_vehicle_driver_reassignment()
