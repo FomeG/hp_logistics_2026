@@ -113,7 +113,7 @@ class VehicleDriverHistory(models.Model):
             ("vehicle_driver_history_id.end_date", "=", False),
         ]
 
-        return Trip.search(domain, limit=1)
+        return Trip.search(domain)
 
     def action_assign_to_trip(self):
         """Assign this pair to the trip passed via context."""

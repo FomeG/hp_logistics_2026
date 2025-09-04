@@ -119,14 +119,15 @@ class BusyVehicleConfirmationWizard(models.TransientModel):
         return {'type': 'ir.actions.act_window_close'}
 
     def process_busy_vehicle_reassignment(self):
-        conflicting_trip = self.vehicle_driver_history_id.get_conflicting_trip(self.new_trip_id)
+        conflicting_trips = self.vehicle_driver_history_id.get_conflicting_trip(self.new_trip_id)
 
-        if conflicting_trip and conflicting_trip.exists():
-            conflicting_trip.vehicle_driver_history_id = False
-            conflicting_trip.message_post(
-                body=f"Vehicle-driver pair '{self.vehicle_driver_history_id.name}' has been unassigned and reassigned to another trip.",
-                message_type='notification'
-            )
+        if conflicting_trips and conflicting_trips.exists():
+            for conflicting_trip in conflicting_trips:
+                conflicting_trip.vehicle_driver_history_id = False
+                conflicting_trip.message_post(
+                    body=f"Vehicle-driver pair '{self.vehicle_driver_history_id.name}' has been unassigned and reassigned to another trip.",
+                    message_type='notification'
+                )
 
         # Assign to new trip
         if self.new_trip_id and self.new_trip_id.exists():
