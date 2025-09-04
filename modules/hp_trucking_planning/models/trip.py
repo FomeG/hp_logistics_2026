@@ -514,7 +514,7 @@ Notes: {notes.strip()}"""
 
     def action_export_trip_docx(self):
         """Export trip data to DOCX format matching the transport document"""
-        return self.env['trip.docx.service'].generate_trip_docx(self)
+        return self.env['document.service'].generate_trip_docx(self)
 
     def _compute_route_info(self):
         for trip in self:
