@@ -115,33 +115,24 @@ class BusyVehicleConfirmationWizard(models.TransientModel):
             raise UserError("No new trip available for assignment.")
 
         # queued job processing unassign and reassign vehicle-driver pair
-        self.with_delay().process_busy_vehicle_reassignment(
-            current_trip_id=self.current_trip_id.id,
-            new_trip_id=self.new_trip_id.id,
-            vehicle_driver_history_id=self.vehicle_driver_history_id.id
-        )
+        self.with_delay().process_busy_vehicle_reassignment()
         return {'type': 'ir.actions.act_window_close'}
 
-    def process_busy_vehicle_reassignment(self, current_trip_id, new_trip_id, vehicle_driver_history_id):
-        current_trip = self.env['trucking_planning.trip'].browse(current_trip_id)
-        new_trip = self.env['trucking_planning.trip'].browse(new_trip_id)
-        vehicle_driver_history = self.env['trucking_planning.vehicle.driver.history'].browse(vehicle_driver_history_id)
+    def process_busy_vehicle_reassignment(self):
+        conflicting_trip = self.vehicle_driver_history_id.get_conflicting_trip(self.new_trip_id)
 
-        # Unassign từ current trip
-        if current_trip.exists():
-            current_trip.vehicle_driver_history_id = False
-
-            current_trip.message_post(
-                body=f"Vehicle-driver pair '{vehicle_driver_history.name}' has been unassigned and reassigned to another trip.",
+        if conflicting_trip and conflicting_trip.exists():
+            conflicting_trip.vehicle_driver_history_id = False
+            conflicting_trip.message_post(
+                body=f"Vehicle-driver pair '{self.vehicle_driver_history_id.name}' has been unassigned and reassigned to another trip.",
                 message_type='notification'
             )
 
         # Assign to new trip
-        if new_trip.exists():
-            new_trip.vehicle_driver_history_id = vehicle_driver_history_id
-
-            new_trip.message_post(
-                body=f"Vehicle-driver pair '{vehicle_driver_history.name}' has been assigned to this trip (reassigned from another trip).",
+        if self.new_trip_id and self.new_trip_id.exists():
+            self.new_trip_id.vehicle_driver_history_id = self.vehicle_driver_history_id
+            self.new_trip_id.message_post(
+                body=f"Vehicle-driver pair '{self.vehicle_driver_history_id.name}' has been assigned to this trip (reassigned from another trip).",
                 message_type='notification'
             )
 
