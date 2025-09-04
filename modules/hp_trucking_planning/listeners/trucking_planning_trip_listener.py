@@ -10,3 +10,7 @@ class TripListener(Component):
         """Tự động set plan_id từ plan_line_id khi tạo trip mới"""
         if record.plan_line_id and not record.plan_id:
             record.plan_id = record.plan_line_id.plan_id
+
+    def on_record_write(self, record, fields=None):
+        if 'vehicle_driver_history_id' in fields and record.vehicle_driver_history_id:
+            record.with_delay().process_vehicle_driver_reassignment()

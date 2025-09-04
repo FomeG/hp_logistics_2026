@@ -1,4 +1,3 @@
-# wizards/busy_vehicle_confirmation_wizard.py
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 
@@ -111,12 +110,14 @@ class BusyVehicleConfirmationWizard(models.TransientModel):
     )
 
     def action_confirm_assignment(self):
-        """Confirm the assignment and assign the busy pair to the new trip"""
         if not self.new_trip_id:
             raise UserError("No new trip available for assignment.")
 
-        # Assign the vehicle-driver pair to the new trip
-        self.new_trip_id.vehicle_driver_history_id = self.vehicle_driver_history_id.id
+        self.new_trip_id.vehicle_driver_history_id = self.vehicle_driver_history_id
+        self.new_trip_id.message_post(
+            body=f"Vehicle-driver pair '{self.vehicle_driver_history_id.name}' has been assigned to this trip (reassigned from another trip).",
+            message_type='notification'
+        )
 
         return {'type': 'ir.actions.act_window_close'}
 
