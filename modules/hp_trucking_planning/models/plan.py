@@ -83,12 +83,6 @@ class Plan(models.Model):
         ('cancel', 'Cancelled')
     ], default='in_progress')
 
-    can_edit = fields.Boolean(
-        string='Can Edit',
-        compute='_compute_can_edit',
-        store=False,
-        help='Indicates whether the current user can edit this plan'
-    )
 
     total_trips = fields.Char(
         string="Total Plan Trips",
@@ -272,25 +266,6 @@ class Plan(models.Model):
     def action_export_plan_docx(self):
         pass # Placeholder for the new method
 
-    @api.depends('status', 'create_uid')
-    def _compute_can_edit(self):
-        """Compute whether the current user can edit this plan"""
-        current_user = self.env.user
-        for record in self:
-            # Check if status allows editing
-            restricted_statuses = ['done', 'cancel']
-            if record.status in restricted_statuses:
-                record.can_edit = False
-                continue
-            
-            # Check if user is owner or has elevated permissions
-            if (record.create_uid == current_user or 
-                current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_lead') or
-                current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_director') or
-                current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_administrator')):
-                record.can_edit = True
-            else:
-                record.can_edit = False
 
     def write(self, vals):
         """Override write method to enforce access control"""
