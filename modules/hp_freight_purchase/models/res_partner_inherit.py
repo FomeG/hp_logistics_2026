@@ -21,44 +21,20 @@ class ResPartnerInherit(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        shipping_line_type = self._get_shipping_line_type()
-        if not shipping_line_type:
-            raise ValidationError("Shipping line type not found. Please create it first.")
-        shipping_line_contact_type = self._get_shipping_line_contact_type()
-
         for vals in vals_list:
-            if shipping_line_type and not vals.get('partner_main_type_id') and not vals.get("parent_id"):
-                vals['partner_main_type_id'] = shipping_line_type.id
-
-            if vals.get("parent_id"):
-                parent = self.env['res.partner'].browse(vals["parent_id"])
-                if parent.partner_main_type_id == shipping_line_type and shipping_line_contact_type:
-                    vals['partner_main_type_id'] = shipping_line_contact_type.id
-
             if self._is_shipping_line_partner(vals):
                 validated, errors = ShippingLineCreateValidator.validate(vals, self.env)
                 if errors:
                     raise ValidationError("\n".join([f"• {e}" for e in errors]))
-
         return super().create(vals_list)
 
-    def write(self, vals):
-        res = super().write(vals)
+    def _is_shipping_line_contact(self, vals=None):
         shipping_line_type = self._get_shipping_line_type()
         shipping_line_contact_type = self._get_shipping_line_contact_type()
-
         for record in self:
             if record.parent_id and record.parent_id.partner_main_type_id == shipping_line_type:
                 if shipping_line_contact_type and record.partner_main_type_id != shipping_line_contact_type:
                     record.partner_main_type_id = shipping_line_contact_type
-
-            if self._is_shipping_line_partner(vals, record):
-                validated, errors = ShippingLineUpdateValidator.validate(vals, self.env)
-                if errors:
-                    raise ValidationError("\n".join([f"• {e}" for e in errors]))
-
-        return res
-
     def _is_shipping_line_partner(self, vals, record=None):
         """Check if the partner is a shipping line based on partner_main_type_id"""
         if record:
