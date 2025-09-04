@@ -1,4 +1,3 @@
-# wizards/busy_vehicle_confirmation_wizard.py
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 
@@ -114,28 +113,13 @@ class BusyVehicleConfirmationWizard(models.TransientModel):
         if not self.new_trip_id:
             raise UserError("No new trip available for assignment.")
 
-        # queued job processing unassign and reassign vehicle-driver pair
-        self.with_delay().process_busy_vehicle_reassignment()
+        self.new_trip_id.vehicle_driver_history_id = self.vehicle_driver_history_id
+        self.new_trip_id.message_post(
+            body=f"Vehicle-driver pair '{self.vehicle_driver_history_id.name}' has been assigned to this trip (reassigned from another trip).",
+            message_type='notification'
+        )
+
         return {'type': 'ir.actions.act_window_close'}
-
-    def process_busy_vehicle_reassignment(self):
-        conflicting_trips = self.vehicle_driver_history_id.get_conflicting_trip(self.new_trip_id)
-
-        if conflicting_trips and conflicting_trips.exists():
-            for conflicting_trip in conflicting_trips:
-                conflicting_trip.vehicle_driver_history_id = False
-                conflicting_trip.message_post(
-                    body=f"Vehicle-driver pair '{self.vehicle_driver_history_id.name}' has been unassigned and reassigned to another trip.",
-                    message_type='notification'
-                )
-
-        # Assign to new trip
-        if self.new_trip_id and self.new_trip_id.exists():
-            self.new_trip_id.vehicle_driver_history_id = self.vehicle_driver_history_id
-            self.new_trip_id.message_post(
-                body=f"Vehicle-driver pair '{self.vehicle_driver_history_id.name}' has been assigned to this trip (reassigned from another trip).",
-                message_type='notification'
-            )
 
     def action_cancel(self):
         """Cancel the assignment"""
