@@ -71,7 +71,6 @@ class PlanLine(models.Model):
     )
     note = fields.Text(string="Note")
 
-
     # goods info
     goods_name = fields.Char(
         string="Goods Name",
@@ -517,27 +516,3 @@ class PlanLine(models.Model):
     # def _compute_fuel_total(self):
     #     for record in self:
     #         record.fuel_total = record.fuel_before + record.fuel_received
-
-
-    def write(self, vals):
-        """Override write method to enforce access control"""
-        current_user = self.env.user
-        
-        for record in self:
-            # Check if status allows editing
-            restricted_statuses = ['done', 'close', 'cancelled']
-            if record.status in restricted_statuses:
-                # Only allow editing if user has elevated permissions
-                if not (current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_lead') or
-                        current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_director') or
-                        current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_administrator')):
-                    raise UserError(f"You cannot edit plan line '{record.code}' because its status is '{record.status}'. Only users with elevated permissions can edit plan lines in this status.")
-            
-            # Check if user is owner or has elevated permissions
-            elif not (record.create_uid == current_user or 
-                     current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_lead') or
-                     current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_director') or
-                     current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_administrator')):
-                raise UserError(f"You cannot edit plan line '{record.code}' because you are not the owner and don't have sufficient permissions.")
-        
-        return super().write(vals)

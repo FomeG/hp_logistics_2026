@@ -183,8 +183,6 @@ class Trip(models.Model):
         store=True,
     )
     note = fields.Text(string="Note")
-    
-    
     weight_class = fields.Selection([
         ('inferior_20', '<20T'),
         ('superior_20', '>20T'),
@@ -550,27 +548,3 @@ Notes: {notes.strip()}"""
     
     def _close_done_trip(self):
         planning_service(self.env).update_trip_statuses('done')
-
-
-    def write(self, vals):
-        """Override write method to enforce access control"""
-        current_user = self.env.user
-        
-        for record in self:
-            # Check if status allows editing
-            restricted_statuses = ['done', 'close', 'cancelled']
-            if record.status in restricted_statuses:
-                # Only allow editing if user has elevated permissions
-                if not (current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_lead') or
-                        current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_director') or
-                        current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_administrator')):
-                    raise UserError(f"You cannot edit trip '{record.name}' because its status is '{record.status}'. Only users with elevated permissions can edit trips in this status.")
-            
-            # Check if user is owner or has elevated permissions
-            elif not (record.create_uid == current_user or 
-                     current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_lead') or
-                     current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_director') or
-                     current_user.has_group('hp_trucking_planning.group_hp_trucking_planning_administrator')):
-                raise UserError(f"You cannot edit trip '{record.name}' because you are not the owner and don't have sufficient permissions.")
-        
-        return super().write(vals)
