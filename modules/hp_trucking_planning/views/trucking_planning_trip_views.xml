@@ -12,7 +12,6 @@
                             class="btn-success" 
                             icon="fa-paper-plane"/>
                 </header>
-<!--                <field name="code"/>-->
                 <field name="plan_line_id"/>
                 <field name="plan_booking_bill_no" string="Booking No"/>
                 <field name="status"/>
@@ -20,7 +19,6 @@
                 <field name="seal_number"/>
                 <field name="container_type"/>
                 <field name="container_size"/>
-<!--                <field name="shipping_line_id"/>-->
                 <field name="plan_type"/>
                 <field name="truck_id"/>
                 <field name="driver_id"/>
@@ -39,17 +37,18 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_export_trip_docx" string="Export" type="object" class="btn-primary"/>
-                    <button name="action_preview_trip_order" string="Preview" type="object" class="btn-secondary"/>
+                    <button name="action_export_trip_docx" string="Export" type="object" class="btn-primary" invisible="not id"/>
+                    <button name="action_preview_trip_order" string="Preview" type="object" class="btn-secondary" invisible="not id"/>
                     <button name="action_send_message" 
                             string="Send Message" 
                             type="object" 
                             class="btn-success" 
-                            icon="fa-paper-plane"/>
+                            icon="fa-paper-plane"
+                            invisible="not id"/>
                     <field name="status" widget="statusbar" statusbar_visible="draft,checking,confirmed,done"/>
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
+                    <div class="oe_button_box" name="button_box" invisible="not id">
                         <button name="action_view_job"
                                 type="object"
                                 class="oe_stat_button"
@@ -84,11 +83,6 @@
                         <field name="plan_booking_bill_no"
                                string="Bill No"
                                invisible="plan_type == 'export'"/>
-<!--                        <field name="plan_line_id"-->
-<!--                               widget="many2one"-->
-<!--                               string="Plan Line"-->
-<!--                               readonly="1"-->
-<!--                               options="{'no_create': True, 'no_create_edit': True}"/>-->
 
                         <!-- Nếu add truck từ Plan - cho phép chọn customer -->
                         <field name="plan_line_id"
@@ -100,7 +94,7 @@
                                domain="[('plan_id', '=', context.get('default_plan_id', False))]"
                                options="{'no_create': True, 'no_create_edit': True}"/>
 
-                        <!-- Nếu add truck từ Plan Line - customer readonly -->
+                        <!-- Nếu add truck từ Job - customer readonly -->
                         <field name="plan_line_id"
                                widget="many2one"
                                string="Customer"
@@ -129,10 +123,8 @@
                     <group string ="Container Information">
                         <field name="container_number"/>
                         <field name="seal_number"/>
-<!--                        <field name="plan_type" readonly="1"/>-->
                         <field name="container_type"/>
                         <field name="container_size"/>
-<!--                        <field name="shipping_line_id"/>-->
                     </group>
 
                     <notebook>
@@ -144,23 +136,14 @@
                                 <field name="total_cost" readonly="1"/>
                             </group>
                         </page>
-                        <page string="Goods Info">
+                        <page string="Goods Info" invisible="not id">
                             <group>
                                 <field name="goods_name"/>
                                 <field name="goods_weight"/>
                                 <field name="goods_cut_off"/>
                             </group>
                         </page>
-<!--                        <page string="Plan Info">-->
-<!--                            <group>-->
-<!--                                <field name="plan_date" string="Plan Date" readonly="1"/>-->
-<!--                            </group>-->
-<!--                            <group>-->
-<!--                                <field name="route_id" string="Route" readonly="1"/>-->
-<!--                                <field name="actual_source_location_id" string="From" readonly="1"/>-->
-<!--                                <field name="actual_destination_location_id" string="To" readonly="1"/>-->
-<!--                            </group>-->
-<!--                        </page>-->
+
                         <page string="Notes">
                             <field name="note"/>
                         </page>
@@ -176,7 +159,6 @@
         <field name="model">trucking_planning.trip</field>
         <field name="arch" type="xml">
             <search>
-<!--                <field name="code"/>-->
                 <field name="plan_line_id"/>
                 <field name="plan_id" string="Plan"/>
                 <field name="client_id" string="Client"/>
@@ -184,7 +166,6 @@
                 <field name="status"/>
                 <field name="truck_id"/>
                 <field name="driver_id"/>
-<!--                <field name="shipping_line_id"/>-->
                 <field name="plan_type"/>
                 <field name="container_type"/>
                 <field name="weight_class"/>
@@ -199,7 +180,7 @@
                 <filter string="Freeway" name="freeway" domain="[('freeway', '=', True)]"/>
 
                 <group expand="0" string="Group By">
-                    <filter string="Plan Line" name="group_by_plan_line" context="{'group_by':'plan_line_id'}"/>
+                    <filter string="Job" name="group_by_plan_line" context="{'group_by':'plan_line_id'}"/>
                     <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
                     <filter string="Plan Type" name="group_by_plan_type" context="{'group_by':'plan_type'}"/>
                     <filter string="Driver" name="group_by_driver" context="{'group_by':'driver_id'}"/>

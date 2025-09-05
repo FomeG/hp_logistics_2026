@@ -89,21 +89,6 @@ class Plan(models.Model):
         store=False
     )
 
-
-    # @api.model
-    # def _get_vehicle_avaliable(self):
-    #     domain = [
-    #         ('type', '=', 'truck'),
-    #     ]
-    #
-    #     branches = self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])])
-    #     if branches:
-    #         domain.append(('branch_id', 'in', [False] + branches.ids))
-    #     else:
-    #         domain.append(('branch_id', '=', False))
-    #
-    #     return domain
-
     @api.depends('date')
     def _compute_month_year(self):
         for record in self:
@@ -128,29 +113,8 @@ class Plan(models.Model):
                 vals['name'] = f"{prefix}/{today}/{seq_number}"
 
         records = super().create(vals_list)
-        # for record in records:
-        #     if record.vehicle_id and record.date:
-        #         record.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
-        #             vehicle_id=record.vehicle_id.id,
-        #             date_plan=record.date,
-        #             exclude_plan_id=record.id
-        #         )
-    
         return records
-    
-    def write(self, vals):
-        result = super().write(vals)
 
-        # if 'vehicle_id' in vals or 'date' in vals:
-        #     for record in self:
-        #         if record.vehicle_id and record.date:
-        #             record.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
-        #                 vehicle_id=record.vehicle_id.id,
-        #                 date_plan=record.date,
-        #                 exclude_plan_id=record.id
-        #             )
-    
-        return result
 
     @api.depends('plan_line_ids')
     def _compute_total_trips(self):
@@ -227,12 +191,9 @@ class Plan(models.Model):
             'target': 'current',
         }
 
-    # def remove_vehicle_driver_of_plan_and_plan_line(self, vehicle_id, date_plan, exclude_plan_id):
-    #     planning_service(self.env).remove_vehicle_driver_by_vehicle_and_date_plan(vehicle_id, date_plan, exclude_plan_id)
-
     def action_send_message_to_all_trips(self):
         """Send message via API to all trips in this plan"""
-        # Get all trips from all plan lines
+        # Get all trips from all job
         all_trips = self.env['trucking_planning.trip']
         for plan_line in self.plan_line_ids:
             all_trips |= plan_line.trip_ids

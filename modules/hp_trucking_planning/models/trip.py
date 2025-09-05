@@ -330,7 +330,7 @@ class Trip(models.Model):
         planning_service(self.env).remove_vehicle_driver_by_vehicle_and_date_plan(vehicle_id, date_plan, exclude_plan_id)
 
     def action_view_job(self):
-        """Action để xem customer (plan line) của trip này"""
+        """Action để xem customer (job) của trip này"""
         self.ensure_one()
         return {
             'name': f'Customer - {self.plan_line_id.code or self.plan_line_id.client_id.name}',

@@ -92,7 +92,7 @@ class ZaloConfirmationWizard(models.TransientModel):
                 success_message = 'Message sent successfully via Zalo'
                 
             elif self.record_model == 'trucking_planning.plan.line':
-                # Plan line - send to all trips using bulk method
+                # Job - send to all trips using bulk method
                 result = self.env['zalo.service'].send_bulk_messages(record.trip_ids)
                 success_message = 'Messages sent successfully via Zalo'
 
