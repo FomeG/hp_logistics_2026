@@ -43,6 +43,7 @@ class Client(models.Model):
         string='Assign User',
         default=lambda self: self.env.user,
         domain=lambda self: self._get_assign_user_domain(),
+        tracking=True,
     )
     branch_id = fields.Many2one(
         comodel_name='trucking_planning.branch',
@@ -50,6 +51,11 @@ class Client(models.Model):
         string='Branch',
         tracking=True,
     )
+    can_edit_assign_user = fields.Boolean(
+        compute="_compute_can_edit_assign_user",
+        store=False
+    )
+
     _sql_constraints = [
         ('unique_tax', 'UNIQUE(tax_number)','Tax Number must be unique!'),
     ]
@@ -61,3 +67,8 @@ class Client(models.Model):
         return [
             ('id', 'in', allow_assign_users.ids),
         ]
+
+    @api.depends()
+    def _compute_can_edit_assign_user(self):
+        for record in self:
+            record.can_edit_assign_user = self.env.user.has_group('hp_trucking_planning.group_hp_trucking_planning_lead')

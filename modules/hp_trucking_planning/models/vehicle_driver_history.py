@@ -100,25 +100,10 @@ class VehicleDriverHistory(models.Model):
         else:
             return base + [("id", "not in", list(busy_ids) or [0])]
 
-    def get_conflicting_trip(self, target_trip):
-        Trip = self._get_trip_model()
-        if not target_trip or not target_trip.plan_estimate_time_departure or not target_trip.plan_estimate_time_arrival:
-            return Trip
-            #hoặc return set()
-        domain = [
-            ("id", "!=", target_trip.id),
-            ("vehicle_driver_history_id", "=", self.id),
-            ("plan_estimate_time_departure", "<=", target_trip.plan_estimate_time_arrival),
-            ("plan_estimate_time_arrival", ">=", target_trip.plan_estimate_time_departure),
-            ("vehicle_driver_history_id.end_date", "=", False),
-        ]
-
-        return Trip.search(domain, limit=1)
-
     def action_assign_to_trip(self):
         """Assign this pair to the trip passed via context."""
         trip = self._current_trip()
-        conflicting_trip = self.get_conflicting_trip(trip)
+        conflicting_trip = trip.get_conflicting_trip(self)  # Updated to call from Trip model
 
         # Check if this pair is busy (has overlapping time with other trips)
         if conflicting_trip:

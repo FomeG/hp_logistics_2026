@@ -29,7 +29,7 @@
                         <field name="tax_number"/>
                         <field name="phone" />
                         <field name="address"/>
-                        <field name="assign_user_id" />
+                        <field name="assign_user_id" readonly="not can_edit_assign_user" />
                         <field name="branch_id" string="Branch"
                                 widget="many2one_new_tab"
                                 options="{'no_create': True, 'no_quick_create': True}" />
