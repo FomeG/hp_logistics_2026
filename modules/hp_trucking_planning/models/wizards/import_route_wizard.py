@@ -4,7 +4,6 @@ import pandas as pd
 import io
 import base64
 import re
-from collections import defaultdict
 
 class ImportRouteWizard(models.TransientModel):
     _name = 'trucking_planning.import_route_wizard'
@@ -87,7 +86,6 @@ class ImportRouteWizard(models.TransientModel):
 
         #  build data
         current_state = False
-        seen_names = defaultdict(list)   
         data = []
         for index, row in df.iterrows():
             address = row[location_header]
@@ -115,8 +113,6 @@ class ImportRouteWizard(models.TransientModel):
                 continue
                 
             if current_state and not is_row_state:
-                seen_names[address].append(index + 4)
-
                 # build data
                 data.append({
                     'from_location': {
@@ -138,19 +134,17 @@ class ImportRouteWizard(models.TransientModel):
             elif not current_state:
                 result['message'] = _("Data row at line %s is missing a valid state %d.") % (index + 4)
                 return result
-
-        duplicates = {name: rows for name, rows in seen_names.items() if len(rows) > 1}
-        if duplicates:
-            dup_messages = []
-            for name, rows in duplicates.items():
-                dup_messages.append("%s (rows %s)" % (name, ", ".join(map(str, rows))))
-            result['message'] = _("Duplicate location names found: %s") % "; ".join(dup_messages)
-            return result
+        
+        # remove data with duplicate name
+        unique_data = {}
+        for obj in data:
+            name = obj['from_location']['name']
+            unique_data[name] = obj
 
         return {
             'status': True,
             'message': '',
-            'data': data
+            'data': list(unique_data.values())
         }
     
     def _create_locations(self, data_array):
