@@ -10,10 +10,9 @@ _logger = logging.getLogger(__name__)
 
 class PlanLine(models.Model):
     _name = 'trucking_planning.plan.line'
-    _description = 'Plan Line'
+    _description = 'Job'
     _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
     _rec_name = 'code'
-    # _order = 'date asc'
 
     plan_id = fields.Many2one(
         comodel_name='trucking_planning.plan',
@@ -197,16 +196,6 @@ class PlanLine(models.Model):
     # price_code = fields.Char(string="Mã bảng giá")
 
 
-    # @api.depends('plan_id.date')
-    # def _compute_plan_month_year(self):
-    #     for record in self:
-    #         if record.plan_id.date:
-    #             record.plan_month = record.plan_id.date.month
-    #             record.plan_year = record.plan_id.date.year
-    #         else:
-    #             record.plan_month = False
-    #             record.plan_year = False
-
     @api.depends('trip_ids')
     def _compute_truck_count(self):
         """Compute the number of trucks (trips) for this customer"""
@@ -251,7 +240,7 @@ class PlanLine(models.Model):
             trip.plan_type = trip.route_id.direction
 
     def action_view_trips(self):
-        """Action để xem tất cả trips thuộc plan line"""
+        """Action để xem tất cả trips thuộc job"""
         self.ensure_one()
         return {
             'name': f'Trucks - {self.code or self.plan_id.name}',
@@ -283,9 +272,9 @@ class PlanLine(models.Model):
         }
 
     def action_send_message(self):
-        """Send message via API for plan line - sends to all drivers of trips"""
+        """Send message via API for job - sends to all drivers of trips"""
         if not self.trip_ids:
-            raise UserError("No trips found in this plan line to send messages to.")
+            raise UserError("No trips found in this job to send messages to.")
         
         # Build message content for the first trip (as preview)
         first_trip = self.trip_ids[0]
@@ -337,7 +326,7 @@ class PlanLine(models.Model):
         }
 
     def action_export_plan_line_excel(self):
-        """Export plan line data to Excel format"""
+        """Export job data to Excel format"""
         try:
             import xlsxwriter
         except ImportError:
@@ -346,7 +335,7 @@ class PlanLine(models.Model):
         # Create workbook and worksheet
         output = io.BytesIO()
         workbook = xlsxwriter.Workbook(output)
-        worksheet = workbook.add_worksheet('Plan Lines')
+        worksheet = workbook.add_worksheet('Jobs')
 
         # Define formats
         header_format = workbook.add_format({
@@ -398,12 +387,12 @@ class PlanLine(models.Model):
         for col, header in enumerate(headers):
             worksheet.write(8, col, header, header_format)  # Row 9 (index 8)
 
-        # Get plan lines data
+        # Get jobs data
         plan_lines = self
         
         # Write data rows
         for row, plan_line in enumerate(plan_lines, start=9):  # Start from row 10 (index 9)
-            # Get related trip data (first trip for this plan line)
+            # Get related trip data (first trip for this job)
             trip = plan_line.trip_ids[0] if plan_line.trip_ids else None
             
             # Prepare row data
@@ -509,7 +498,7 @@ class PlanLine(models.Model):
         }
 
     def action_export_all_plan_lines_excel(self):
-        """Export all plan lines to Excel format"""
+        """Export all jobs to Excel format"""
         return self.search([]).action_export_plan_line_excel()
 
     # @api.depends('fuel_before', 'fuel_received')
