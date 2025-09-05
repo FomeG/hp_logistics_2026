@@ -9,7 +9,7 @@
                 <sheet>
                     <group>
                         <field name="name" required="1" />
-                        <field name="country_id" required="1" />
+                        <field name="country_id" required="1" options="{'no_create': True, 'no_create_edit': True}"/>
                         <field name="region_id"/>
                         <field name="is_local"/>
                         <field name="is_active" required="1" invisible="not id"/>
