@@ -105,7 +105,7 @@
             <field name="name">Plan: Member can edit own records when status allows</field>
             <field name="model_id" ref="model_trucking_planning_plan" />
             <field name="groups" eval="[(4, ref('group_hp_trucking_planning_member'))]" />
-            <field name="domain_force">[('create_uid', '=', user.id), ('status', 'not in', ['done', 'cancel'])]</field>
+            <field name="domain_force">[('create_uid', '=', user.id), ('status', 'not in', ['done','close','cancelled'])]</field>
             <field name="perm_read" eval="1" />
             <field name="perm_write" eval="1" />
             <field name="perm_create" eval="1" />
@@ -117,7 +117,7 @@
             <field name="name">Plan: Leader and Director can edit all records when status allows</field>
             <field name="model_id" ref="model_trucking_planning_plan" />
             <field name="groups" eval="[(4, ref('group_hp_trucking_planning_lead')), (4, ref('group_hp_trucking_planning_director'))]" />
-            <field name="domain_force">[('status', 'not in', ['done', 'cancel'])]</field>
+            <field name="domain_force">[('status', 'not in', ['done','close','cancelled'])]</field>
             <field name="perm_read" eval="1" />
             <field name="perm_write" eval="1" />
             <field name="perm_create" eval="1" />
@@ -141,7 +141,7 @@
             <field name="name">Plan Line: Member can edit own records when status allows</field>
             <field name="model_id" ref="model_trucking_planning_plan_line" />
             <field name="groups" eval="[(4, ref('group_hp_trucking_planning_member'))]" />
-            <field name="domain_force">[('create_uid', '=', user.id), ('status', 'not in', ['rented', 'client_cancel'])]</field>
+            <field name="domain_force">[('create_uid', '=', user.id), ('status', 'not in', ['done','close','cancelled'])]</field>
             <field name="perm_read" eval="1" />
             <field name="perm_write" eval="1" />
             <field name="perm_create" eval="1" />
@@ -153,7 +153,7 @@
             <field name="name">Plan Line: Leader and Director can edit all records when status allows</field>
             <field name="model_id" ref="model_trucking_planning_plan_line" />
             <field name="groups" eval="[(4, ref('group_hp_trucking_planning_lead')), (4, ref('group_hp_trucking_planning_director'))]" />
-            <field name="domain_force">[('status', 'not in', ['rented', 'client_cancel'])]</field>
+            <field name="domain_force">[('status', 'not in', ['done','close','cancelled'])]</field>
             <field name="perm_read" eval="1" />
             <field name="perm_write" eval="1" />
             <field name="perm_create" eval="1" />
@@ -177,7 +177,7 @@
             <field name="name">Trip: Member can edit own records when status allows</field>
             <field name="model_id" ref="model_trucking_planning_trip" />
             <field name="groups" eval="[(4, ref('group_hp_trucking_planning_member'))]" />
-            <field name="domain_force">[('create_uid', '=', user.id), ('status', 'not in', ['done', 'cancelled'])]</field>
+            <field name="domain_force">[('create_uid', '=', user.id), ('status', 'not in', ['done','close','cancelled'])]</field>
             <field name="perm_read" eval="1" />
             <field name="perm_write" eval="1" />
             <field name="perm_create" eval="1" />
@@ -189,7 +189,7 @@
             <field name="name">Trip: Leader and Director can edit all records when status allows</field>
             <field name="model_id" ref="model_trucking_planning_trip" />
             <field name="groups" eval="[(4, ref('group_hp_trucking_planning_lead')), (4, ref('group_hp_trucking_planning_director'))]" />
-            <field name="domain_force">[('status', 'not in', ['done', 'cancelled'])]</field>
+            <field name="domain_force">[('status', 'not in', ['done','close','cancelled'])]</field>
             <field name="perm_read" eval="1" />
             <field name="perm_write" eval="1" />
             <field name="perm_create" eval="1" />
