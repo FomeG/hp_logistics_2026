@@ -12,7 +12,6 @@
                             class="btn-success" 
                             icon="fa-paper-plane"/>
                 </header>
-<!--                <field name="code"/>-->
                 <field name="plan_line_id"/>
                 <field name="plan_booking_bill_no" string="Booking No"/>
                 <field name="status"/>
@@ -20,7 +19,6 @@
                 <field name="seal_number"/>
                 <field name="container_type"/>
                 <field name="container_size"/>
-<!--                <field name="shipping_line_id"/>-->
                 <field name="plan_type"/>
                 <field name="truck_id"/>
                 <field name="driver_id"/>
@@ -85,11 +83,6 @@
                         <field name="plan_booking_bill_no"
                                string="Bill No"
                                invisible="plan_type == 'export'"/>
-<!--                        <field name="plan_line_id"-->
-<!--                               widget="many2one"-->
-<!--                               string="Plan Line"-->
-<!--                               readonly="1"-->
-<!--                               options="{'no_create': True, 'no_create_edit': True}"/>-->
 
                         <!-- Nếu add truck từ Plan - cho phép chọn customer -->
                         <field name="plan_line_id"
@@ -130,10 +123,8 @@
                     <group string ="Container Information">
                         <field name="container_number"/>
                         <field name="seal_number"/>
-<!--                        <field name="plan_type" readonly="1"/>-->
                         <field name="container_type"/>
                         <field name="container_size"/>
-<!--                        <field name="shipping_line_id"/>-->
                     </group>
 
                     <notebook>
@@ -152,16 +143,7 @@
                                 <field name="goods_cut_off"/>
                             </group>
                         </page>
-<!--                        <page string="Plan Info">-->
-<!--                            <group>-->
-<!--                                <field name="plan_date" string="Plan Date" readonly="1"/>-->
-<!--                            </group>-->
-<!--                            <group>-->
-<!--                                <field name="route_id" string="Route" readonly="1"/>-->
-<!--                                <field name="actual_source_location_id" string="From" readonly="1"/>-->
-<!--                                <field name="actual_destination_location_id" string="To" readonly="1"/>-->
-<!--                            </group>-->
-<!--                        </page>-->
+
                         <page string="Notes">
                             <field name="note"/>
                         </page>
@@ -177,7 +159,6 @@
         <field name="model">trucking_planning.trip</field>
         <field name="arch" type="xml">
             <search>
-<!--                <field name="code"/>-->
                 <field name="plan_line_id"/>
                 <field name="plan_id" string="Plan"/>
                 <field name="client_id" string="Client"/>
@@ -185,7 +166,6 @@
                 <field name="status"/>
                 <field name="truck_id"/>
                 <field name="driver_id"/>
-<!--                <field name="shipping_line_id"/>-->
                 <field name="plan_type"/>
                 <field name="container_type"/>
                 <field name="weight_class"/>

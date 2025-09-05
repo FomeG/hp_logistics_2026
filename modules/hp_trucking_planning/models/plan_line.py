@@ -13,7 +13,6 @@ class PlanLine(models.Model):
     _description = 'Job'
     _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
     _rec_name = 'code'
-    # _order = 'date asc'
 
     plan_id = fields.Many2one(
         comodel_name='trucking_planning.plan',
@@ -196,16 +195,6 @@ class PlanLine(models.Model):
     # declaration_number = fields.Char(string="Số tờ khai")
     # price_code = fields.Char(string="Mã bảng giá")
 
-
-    # @api.depends('plan_id.date')
-    # def _compute_plan_month_year(self):
-    #     for record in self:
-    #         if record.plan_id.date:
-    #             record.plan_month = record.plan_id.date.month
-    #             record.plan_year = record.plan_id.date.year
-    #         else:
-    #             record.plan_month = False
-    #             record.plan_year = False
 
     @api.depends('trip_ids')
     def _compute_truck_count(self):
