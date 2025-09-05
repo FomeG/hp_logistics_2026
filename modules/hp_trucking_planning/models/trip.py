@@ -250,6 +250,31 @@ class Trip(models.Model):
         store=False,
     )
 
+    def get_conflicting_trip(self, vehicle_driver_history):
+        if not self or not self.plan_estimate_time_departure or not self.plan_estimate_time_arrival:
+            return self.browse()
+
+        domain = [
+            ("id", "!=", self.id),
+            ("vehicle_driver_history_id", "=", vehicle_driver_history.id),
+            ("plan_estimate_time_departure", "<=", self.plan_estimate_time_arrival),
+            ("plan_estimate_time_arrival", ">=", self.plan_estimate_time_departure),
+            ("vehicle_driver_history_id.end_date", "=", False),
+        ]
+
+        return self.search(domain)
+
+    def process_vehicle_driver_reassignment(self):
+        for trip in self:
+            conflicting_trips = trip.get_conflicting_trip(trip.vehicle_driver_history_id)
+            if conflicting_trips and conflicting_trips.exists():
+                for conflicting_trip in conflicting_trips:
+                    conflicting_trip.vehicle_driver_history_id = False
+                    conflicting_trip.message_post(
+                        body=f"Vehicle-driver pair '{self.vehicle_driver_history_id.name}' has been unassigned and reassigned to another trip.",
+                        message_type='notification'
+                    )
+
     @api.model_create_multi
     def create(self, vals_list):
         trips = super(Trip, self).create(vals_list)
@@ -489,7 +514,7 @@ Notes: {notes.strip()}"""
 
     def action_export_trip_docx(self):
         """Export trip data to DOCX format matching the transport document"""
-        return self.env['trip.docx.service'].generate_trip_docx(self)
+        return self.env['document.service'].generate_trip_docx(self)
 
     def _compute_route_info(self):
         for trip in self:

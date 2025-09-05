@@ -4,9 +4,9 @@ import base64
 import io
 
 
-class TripDocxService(models.AbstractModel):
-    _name = 'trip.docx.service'
-    _description = 'Trip DOCX Generation Service'
+class DocumentService(models.AbstractModel):
+    _name = 'document.service'
+    _description = 'Document Service'
 
     def generate_trip_docx(self, trip):
         """Generate trip data to DOCX format matching the transport document"""
