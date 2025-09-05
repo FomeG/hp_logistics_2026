@@ -131,6 +131,7 @@
                 <filter string="Done" name="done" domain="[('status','=','done')]"/>
                 <filter string="Confirmed" name="confirmed" domain="[('status','=','confirmed')]"/>
                 <filter string="Cancelled" name="cancelled" domain="[('status','=','cancel')]"/>
+                <filter string="Not Cancelled" name="not_cancelled" domain="[('status', '!=', 'cancel')]" />
 
                 <group expand="0" string="Group By">
                     <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
@@ -148,6 +149,11 @@
         <field name="name">Plans</field>
         <field name="res_model">trucking_planning.plan</field>
         <field name="view_mode">list,form</field>
-        <field name="context">{'default_status': 'in_progress'}</field>
+        <field name="context">
+            {
+                'default_status': 'in_progress',
+                'search_default_not_cancelled': 1,
+            }
+        </field>
     </record>
 </odoo>

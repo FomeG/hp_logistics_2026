@@ -220,6 +220,7 @@
                     <filter string="Rented" name="rented" domain="[('status', '=', 'rented')]"/>
                     <filter string="Export" name="export" domain="[('plan_type', '=', 'export')]"/>
                     <filter string="Import" name="import" domain="[('plan_type', '=', 'import')]"/>
+                    <filter string="Not Cancelled" name="not_cancelled" domain="[('status', '!=', 'client_cancel')]" />
 
                     <group expand="0" string="Group By">
                         <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
@@ -238,7 +239,12 @@
             <field name="name">Jobs</field>
             <field name="res_model">trucking_planning.plan.line</field>
             <field name="view_mode">list,form</field>
-            <field name="context">{'default_status': 'checking'}</field>
+            <field name="context">
+                {
+                    'default_status': 'checking',
+                    'search_default_not_cancelled': 1,
+                }
+            </field>
         </record>
 
     </data>

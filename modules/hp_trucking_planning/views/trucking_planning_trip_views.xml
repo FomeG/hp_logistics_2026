@@ -197,6 +197,7 @@
                 <filter string="Export" name="export" domain="[('plan_type', '=', 'export')]"/>
                 <filter string="Import" name="import" domain="[('plan_type', '=', 'import')]"/>
                 <filter string="Freeway" name="freeway" domain="[('freeway', '=', True)]"/>
+                <filter string="Not Cancelled" name="not_cancelled" domain="[('status', '!=', 'cancelled')]" />
 
                 <group expand="0" string="Group By">
                     <filter string="Job" name="group_by_plan_line" context="{'group_by':'plan_line_id'}"/>
@@ -216,6 +217,11 @@
         <field name="name">Trips</field>
         <field name="res_model">trucking_planning.trip</field>
         <field name="view_mode">list,form</field>
-        <field name="context">{'default_status': 'draft'}</field>
+        <field name="context">
+            {
+                'default_status': 'draft',
+                'search_default_not_cancelled': 1,
+            }
+        </field>
     </record>
 </odoo>
