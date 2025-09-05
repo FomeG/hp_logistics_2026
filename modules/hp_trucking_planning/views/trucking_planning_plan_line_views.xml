@@ -55,17 +55,22 @@
                                 string="Export Excel" 
                                 type="object" 
                                 class="btn-primary" 
-                                icon="fa-download"/>
+                                icon="fa-download"
+                                invisible="not id"/>
                         <button name="action_send_message" 
                                 string="Send Message to All Drivers" 
                                 type="object" 
                                 class="btn-success" 
-                                icon="fa-paper-plane"/>
+                                icon="fa-paper-plane"
+                                invisible="not id"/>
+
                         <button name="action_add_truck" 
                                 string="Add Truck" 
                                 type="object" 
                                 class="btn-secondary" 
-                                icon="fa-plus"/>
+                                icon="fa-plus"
+                                invisible="not id"/>
+
 <!--                        <button name="action_preview_trip_order" string="Preview Trip Order" type="object" class="btn-secondary"/>-->
 <!--                         <button name="action_export_trip_docx" string="Print Trip Order" type="object" class="btn-primary"/>-->
                     </header>
@@ -85,12 +90,12 @@
                             <field name="status"/>
                             <field name="estimate_time_departure" string="Estimate Time Departure" required="1"/>
                             <field name="estimate_time_arrival" string="Estimate Time Arrival" required="1"/>
-                            <field name="goods_pickup_location_id" string="Place of Pickup" invisible="plan_type == 'import'" required="plan_type == 'export'"/>
-                            <field name="goods_delivery_location_id" string="Place of Delivery" invisible="plan_type == 'export'" required="plan_type == 'import'"/>
+                            <field name="goods_pickup_location_id" string="Place of Pickup" invisible="plan_type == 'import' or not route_id" required="plan_type == 'export' and route_id"/>
+                            <field name="goods_delivery_location_id" string="Place of Delivery" invisible="plan_type == 'export' or not route_id" required="plan_type == 'import' and route_id"/>
                             <field name="number_of_trucks" help="Enter the number of trucks you want to create for this customer"/>
                         </group>
 
-                        <div class="oe_button_box" name="button_box">
+                        <div class="oe_button_box" name="button_box" invisible="not id">
                             <button name="action_view_trips"
                                     type="object"
                                     class="oe_stat_button"
@@ -285,7 +290,7 @@
         </record>
 
         <record id="action_plan_line" model="ir.actions.act_window">
-            <field name="name">Plan Lines</field>
+            <field name="name">Jobs</field>
             <field name="res_model">trucking_planning.plan.line</field>
             <field name="view_mode">list,form</field>
             <field name="context">{'default_status': 'checking'}</field>

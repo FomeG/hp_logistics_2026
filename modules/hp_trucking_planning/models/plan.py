@@ -232,7 +232,7 @@ class Plan(models.Model):
 
     def action_send_message_to_all_trips(self):
         """Send message via API to all trips in this plan"""
-        # Get all trips from all plan lines
+        # Get all trips from all job
         all_trips = self.env['trucking_planning.trip']
         for plan_line in self.plan_line_ids:
             all_trips |= plan_line.trip_ids

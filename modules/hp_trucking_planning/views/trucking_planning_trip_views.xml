@@ -39,17 +39,18 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="action_export_trip_docx" string="Export" type="object" class="btn-primary"/>
-                    <button name="action_preview_trip_order" string="Preview" type="object" class="btn-secondary"/>
+                    <button name="action_export_trip_docx" string="Export" type="object" class="btn-primary" invisible="not id"/>
+                    <button name="action_preview_trip_order" string="Preview" type="object" class="btn-secondary" invisible="not id"/>
                     <button name="action_send_message" 
                             string="Send Message" 
                             type="object" 
                             class="btn-success" 
-                            icon="fa-paper-plane"/>
+                            icon="fa-paper-plane"
+                            invisible="not id"/>
                     <field name="status" widget="statusbar" statusbar_visible="draft,checking,confirmed,done"/>
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
+                    <div class="oe_button_box" name="button_box" invisible="not id">
                         <button name="action_view_job"
                                 type="object"
                                 class="oe_stat_button"
@@ -100,7 +101,7 @@
                                domain="[('plan_id', '=', context.get('default_plan_id', False))]"
                                options="{'no_create': True, 'no_create_edit': True}"/>
 
-                        <!-- Nếu add truck từ Plan Line - customer readonly -->
+                        <!-- Nếu add truck từ Job - customer readonly -->
                         <field name="plan_line_id"
                                widget="many2one"
                                string="Customer"
@@ -144,7 +145,7 @@
                                 <field name="total_cost" readonly="1"/>
                             </group>
                         </page>
-                        <page string="Goods Info">
+                        <page string="Goods Info" invisible="not id">
                             <group>
                                 <field name="goods_name"/>
                                 <field name="goods_weight"/>
@@ -199,7 +200,7 @@
                 <filter string="Freeway" name="freeway" domain="[('freeway', '=', True)]"/>
 
                 <group expand="0" string="Group By">
-                    <filter string="Plan Line" name="group_by_plan_line" context="{'group_by':'plan_line_id'}"/>
+                    <filter string="Job" name="group_by_plan_line" context="{'group_by':'plan_line_id'}"/>
                     <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
                     <filter string="Plan Type" name="group_by_plan_type" context="{'group_by':'plan_type'}"/>
                     <filter string="Driver" name="group_by_driver" context="{'group_by':'driver_id'}"/>
