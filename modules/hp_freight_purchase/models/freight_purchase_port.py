@@ -21,8 +21,10 @@ class FreightPurchasePort(models.Model):
     region_id = fields.Many2one(
         'freight.purchase.region',
         string='Region',
-        related='country_id.region_id',
-        tracking=True
+        tracking=True,
+        compute='_compute_region_id',
+        store=True,
+        readonly=False
     )
     is_active = fields.Boolean(
         string='Is Active',
@@ -34,6 +36,11 @@ class FreightPurchasePort(models.Model):
         compute='_compute_region_employees',
         store=False
     )
+
+    @api.depends('country_id.region_id')
+    def _compute_region_id(self):
+        for port in self:
+            port.region_id = port.country_id.region_id if port.country_id else False
 
     @api.constrains('region_id')
     def _check_region_required(self):
@@ -55,11 +62,27 @@ class FreightPurchasePort(models.Model):
             validated, errors = PortCreateValidator.validate(vals, self.env)
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        for record in records:
+            if record.region_id and record.country_id:
+                record.country_id.region_id = record.region_id
+            elif record.country_id and record.country_id.region_id:
+                record.region_id = record.country_id.region_id.id
+        return records
     
     def write(self, vals):
         for record in self:
             validated, errors = PortUpdateValidator.validate(vals, self.env)
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
-        return super().write(vals)
+        res = super().write(vals)
+        if 'region_id' in vals:
+            for record in self:
+                if record.country_id:
+                    record.country_id.region_id = record.region_id
+
+        if 'country_id' in vals:
+            for record in self:
+                record.region_id = record.country_id.region_id.id if record.country_id.region_id else False
+
+        return res
