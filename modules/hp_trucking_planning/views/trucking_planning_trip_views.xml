@@ -76,30 +76,49 @@
                             </div>
                         </button>
                     </div>
-                    <group string ="Trip Information">
-                        <field name="plan_booking_bill_no"
-                               string="Booking No"
-                               invisible="plan_type == 'import'"/>
-                        <field name="plan_booking_bill_no"
-                               string="Bill No"
-                               invisible="plan_type == 'export'"/>
 
-                        <!-- Nếu add truck từ Plan - cho phép chọn customer -->
+                    <group string="Job Selection" invisible="context.get('default_plan_line_id', False) or context.get('default_plan_id', False) or id">
+                        <!-- Khi tạo từ list view trip - chỉ hiện job number -->
                         <field name="plan_line_id"
                                widget="many2one"
-                               string="Customer"
+                               string="Job Number"
+                               required="1"
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                    </group>
+
+                    <group string="Trip Information" invisible="not id and not context.get('default_plan_line_id', False) and not context.get('default_plan_id', False) and not plan_line_id">
+                        <!-- Booking/Bill No - chỉ hiện khi đã chọn job number hoặc khi có context từ plan/job -->
+                        <field name="plan_booking_bill_no"
+                               string="Booking No"
+                               invisible="plan_type == 'import' or (not id and not context.get('default_plan_line_id', False) and (not context.get('default_plan_id', False) or not plan_line_id))"/>
+                        <field name="plan_booking_bill_no"
+                               string="Bill No"
+                               invisible="plan_type == 'export' or (not id and not context.get('default_plan_line_id', False) and (not context.get('default_plan_id', False) or not plan_line_id))"/>
+
+                        <!-- Khi tạo từ Plan - cho phép chọn customer nhưng ẩn job number label -->
+                        <field name="plan_line_id"
+                               widget="many2one"
+                               string="Job Number"
                                readonly="context.get('default_plan_line_id', False)"
                                required="1"
-                               invisible="context.get('default_plan_line_id', False)"
+                               invisible="not context.get('default_plan_id', False) or context.get('default_plan_line_id', False)"
                                domain="[('plan_id', '=', context.get('default_plan_id', False))]"
                                options="{'no_create': True, 'no_create_edit': True}"/>
 
-                        <!-- Nếu add truck từ Job - customer readonly -->
+                        <!-- Khi tạo từ Job - customer readonly -->
                         <field name="plan_line_id"
                                widget="many2one"
-                               string="Customer"
+                               string="Job Number"
                                readonly="1"
                                invisible="not context.get('default_plan_line_id', False)"
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+
+                        <!-- Khi đã có record hoặc đã chọn job từ list view -->
+                        <field name="plan_line_id"
+                               widget="many2one"
+                               string="Job Number"
+                               readonly="1"
+                               invisible="not id or context.get('default_plan_line_id', False) or context.get('default_plan_id', False)"
                                options="{'no_create': True, 'no_create_edit': True}"/>
                         <field name="plan_id" invisible="1"/>
                         <field name="client_id" string="Client" readonly="1"/>
