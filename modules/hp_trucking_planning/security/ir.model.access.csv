@@ -11,10 +11,10 @@ access_vehicle_user,trucking.vehicle.user,model_trucking_planning_vehicle,base.g
 access_vehicle_manager,trucking.vehicle.manager,model_trucking_planning_vehicle,base.group_system,1,1,1,1
 access_driver_user,trucking.driver.user,model_trucking_planning_driver,base.group_user,1,1,1,0
 access_driver_manager,trucking.driver.manager,model_trucking_planning_driver,base.group_system,1,1,1,1
-access_plan_user,trucking.plan.user,model_trucking_planning_plan,base.group_user,1,1,1,0
-access_plan_manager,trucking.plan.manager,model_trucking_planning_plan,base.group_system,1,1,1,1
-access_plan_line_user,trucking.plan_line.user,model_trucking_planning_plan_line,base.group_user,1,1,1,0
-access_plan_line_manager,trucking.plan_line.manager,model_trucking_planning_plan_line,base.group_system,1,1,1,1
+access_plan_user,trucking.plan.user,model_trucking_planning_plan,group_hp_trucking_planning_member,1,1,1,0
+access_plan_manager,trucking.plan.manager,model_trucking_planning_plan,group_hp_trucking_planning_administrator,1,1,1,1
+access_plan_line_user,trucking.plan_line.user,model_trucking_planning_plan_line,group_hp_trucking_planning_member,1,1,1,0
+access_plan_line_manager,trucking.plan_line.manager,model_trucking_planning_plan_line,group_hp_trucking_planning_administrator,1,1,1,1
 access_vehicle_driver_history_user,trucking.vehicle_driver_history.user,model_trucking_planning_vehicle_driver_history,base.group_user,1,1,1,0
 access_vehicle_driver_history_manager,trucking.vehicle_driver_history.manager,model_trucking_planning_vehicle_driver_history,base.group_system,1,1,1,1
 
@@ -36,6 +36,6 @@ access_zalo_confirmation_wizard_member,trucking.zalo_confirmation_wizard.member,
 access_zalo_confirmation_wizard_lead,trucking.zalo_confirmation_wizard.lead,model_trucking_planning_zalo_confirmation_wizard,group_hp_trucking_planning_lead,1,1,1,0
 access_zalo_confirmation_wizard_director,trucking.zalo_confirmation_wizard.director,model_trucking_planning_zalo_confirmation_wizard,group_hp_trucking_planning_director,1,1,1,1
 
-access_trip_user,trucking.trip.user,model_trucking_planning_trip,base.group_user,1,1,1,0
-access_trip_manager,trucking.trip.manager,model_trucking_planning_trip,base.group_system,1,1,1,1
+access_trip_user,trucking.trip.user,model_trucking_planning_trip,group_hp_trucking_planning_member,1,1,1,0
+access_trip_manager,trucking.trip.manager,model_trucking_planning_trip,group_hp_trucking_planning_administrator,1,1,1,1
 access_res_user_member,trucking.user.member,base.model_res_users,group_hp_trucking_planning_member,1,0,0,0
