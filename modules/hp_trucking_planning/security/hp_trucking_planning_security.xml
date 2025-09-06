@@ -207,5 +207,29 @@
             <field name="perm_create" eval="1" />
             <field name="perm_unlink" eval="1" />
         </record>
+
+        <!-- Rule vehicle member -->
+        <record id="trucking_plan_vehicle_rule_member" model="ir.rule">
+            <field name="name">Vehicle: Lead see all of your branch</field>
+            <field name="model_id" ref="model_trucking_planning_vehicle" />
+            <field name="groups" eval="[(4, ref('group_hp_trucking_planning_member'))]" />
+            <field name="domain_force">[('branch_id.user_ids', 'in', [user.id])]</field>
+            <field name="perm_read" eval="1" />
+            <field name="perm_write" eval="1" />
+            <field name="perm_create" eval="1" />
+            <field name="perm_unlink" eval="0" />
+        </record>
+
+        <!-- Rule vehicle director -->
+        <record id="trucking_plan_vehicle_rule_director" model="ir.rule">
+            <field name="name">Vehicle: Director all access</field>
+            <field name="model_id" ref="model_trucking_planning_vehicle" />
+            <field name="groups" eval="[(4, ref('group_hp_trucking_planning_director'))]" />
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1" />
+            <field name="perm_write" eval="1" />
+            <field name="perm_create" eval="1" />
+            <field name="perm_unlink" eval="1" />
+        </record>
     </data>
 </odoo>
