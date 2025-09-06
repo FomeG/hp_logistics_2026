@@ -82,12 +82,7 @@ class PlanLine(models.Model):
         string='Trip',
         inverse_name='plan_line_id',
     )
-    # New field for number of trucks to create
-    number_of_trucks = fields.Integer(
-        string="Number of trucks to Add",
-        default=0,
-        help="Number of trips to create for this customer"
-    )
+
     truck_count = fields.Integer(
         string="Trucks",
         compute='_compute_truck_count',
@@ -254,22 +249,41 @@ class PlanLine(models.Model):
             'target': 'current',
         }
 
-
-    def action_add_truck(self):
-        """Action để add truck cho customer """
+    def action_add_draft_trip(self):
         self.ensure_one()
         return {
-            'name': f'Add Truck - {self.code or self.client_id.name}',
-            'res_model': 'trucking_planning.trip',
+            'name': f'Add Draft Trips - {self.code or self.client_id.name}',
+            'type': 'ir.actions.act_window',
+            'res_model': 'trucking_planning.add_draft_trip.wizard',
             'view_mode': 'form',
-            'view_id': self.env.ref('hp_trucking_planning.view_trip_form').id,
+            'target': 'new',
             'context': {
                 'default_plan_line_id': self.id,
                 'default_plan_id': self.plan_id.id,
-            },
-            'type': 'ir.actions.act_window',
-            'target': 'new',
+            }
         }
+
+    def _create_draft_trips(self, number_of_trips):
+        self.ensure_one()
+        if number_of_trips <= 0:
+            return
+
+        trucks_created = []
+        for i in range(number_of_trips):
+            truck_vals = {
+                'plan_line_id': self.id,
+                'container_type': self.plan_id.container_type,
+                'container_size': '40',
+                'weight_class': 'mix',
+                'status': 'draft',
+            }
+            trip = self.env['trucking_planning.trip'].create(truck_vals)
+            trucks_created.append(trip.id)
+
+        if trucks_created:
+            message = f"Created {len(trucks_created)} draft trip(s) for {self.client_id.name}"
+            self.message_post(body=message, message_type='notification')
+
 
     def action_send_message(self):
         """Send message via API for job - sends to all drivers of trips"""
