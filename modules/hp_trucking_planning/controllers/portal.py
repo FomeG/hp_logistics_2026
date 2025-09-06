@@ -28,7 +28,7 @@ class TruckingPortal(CustomerPortal):
             return self._show_report(
                 model=trip_sudo,
                 report_type=report_type,
-                report_ref='hp_trucking_planning.action_report_trip_order',
+                # report_ref='hp_trucking_planning.action_report_trip_order',
                 download=download,
             )
 
