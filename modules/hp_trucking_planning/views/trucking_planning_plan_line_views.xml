@@ -71,8 +71,9 @@
                             <field name="status"/>
                             <field name="estimate_time_departure" string="Estimate Time Departure" required="1"/>
                             <field name="estimate_time_arrival" string="Estimate Time Arrival" required="1"/>
-                            <field name="goods_pickup_location_id" string="Place of Pickup" invisible="plan_type == 'import' or not route_id" required="plan_type == 'export' and route_id"/>
-                            <field name="goods_delivery_location_id" string="Place of Delivery" invisible="plan_type == 'export' or not route_id" required="plan_type == 'import' and route_id"/>
+                            <field name="goods_pickup_location_id" string="Place of Pickup" invisible="plan_type == 'import' or not route_id" required="plan_type == 'export' and route_id" context="{'default_type':'goods_pickup_delivery','hide_type':True}"/>
+                            <field name="goods_delivery_location_id" string="Place of Delivery" invisible="plan_type == 'export' or not route_id" required="plan_type == 'import' and route_id" context="{'default_type':'goods_pickup_delivery','hide_type':True}"/>
+                            <field name="number_of_trucks" help="Enter the number of trucks you want to create for this customer"/>
                         </group>
 
                         <div class="oe_button_box" name="button_box" invisible="not id">
