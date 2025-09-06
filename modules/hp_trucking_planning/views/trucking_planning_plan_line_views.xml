@@ -34,6 +34,7 @@
                             type="object" 
                             class="btn-primary" 
                             icon="fa-download"/>
+                    <button name="action_add_draft_trip" type="object" string="Add Draft Trip" class="btn-primary"/>
                 </list>
             </field>
         </record>
@@ -56,13 +57,6 @@
                                 class="btn-success" 
                                 icon="fa-paper-plane"
                                 invisible="not id"/>
-
-                        <button name="action_add_truck" 
-                                string="Add Truck" 
-                                type="object" 
-                                class="btn-secondary" 
-                                icon="fa-plus"
-                                invisible="not id"/>
                     </header>
                     <sheet>
                         <group>
@@ -79,7 +73,6 @@
                             <field name="estimate_time_arrival" string="Estimate Time Arrival" required="1"/>
                             <field name="goods_pickup_location_id" string="Place of Pickup" invisible="plan_type == 'import' or not route_id" required="plan_type == 'export' and route_id"/>
                             <field name="goods_delivery_location_id" string="Place of Delivery" invisible="plan_type == 'export' or not route_id" required="plan_type == 'import' and route_id"/>
-                            <field name="number_of_trucks" help="Enter the number of trucks you want to create for this customer"/>
                         </group>
 
                         <div class="oe_button_box" name="button_box" invisible="not id">
@@ -93,14 +86,7 @@
                                     </span>
                                 </div>
                             </button>
-                            <button name="action_add_truck"
-                                    type="object"
-                                    class="oe_stat_button"
-                                    icon="fa-plus">
-                                <div class="o_field_widget o_stat_info">
-                                    <span class="o_stat_text">Add Truck</span>
-                                </div>
-                            </button>
+                            <button name="action_add_draft_trip" type="object" string="Add Draft Trip" class="btn-primary" icon="fa-plus"/>
 <!--                            Back to Plan Button-->
                             <button name="action_back_to_plan"
                                     type="object"
