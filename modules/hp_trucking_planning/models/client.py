@@ -50,6 +50,8 @@ class Client(models.Model):
         index=True,
         string='Branch',
         tracking=True,
+        required=True,
+        default=lambda self: self.env.user.branch_ids[:1].id,
     )
     can_edit_assign_user = fields.Boolean(
         compute="_compute_can_edit_assign_user",
