@@ -115,7 +115,7 @@ class FreightPurchaseBooking(models.Model):
         store=False,
         string="Can Apply Fees"
     )
-
+    booking_name = fields.Char(string="Booking name" ,require=True)
     @api.onchange('booking_mode')
     def _onchange_booking_mode(self):
         for record in self:
