@@ -11,6 +11,11 @@
                             type="object" 
                             class="btn-success" 
                             icon="fa-paper-plane"/>
+                    <button name="action_duplicate_with_queue"
+                            type="object"
+                            string="Duplicate"
+                            icon="fa-copy"/>
+
                 </header>
                 <field name="plan_line_id"/>
                 <field name="plan_booking_bill_no" string="Booking No"/>

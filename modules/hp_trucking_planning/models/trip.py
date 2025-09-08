@@ -250,6 +250,32 @@ class Trip(models.Model):
         store=False,
     )
 
+    def action_duplicate_with_queue(self):
+        for trip in self:
+            trip.with_delay().create_duplicated_trips()
+
+
+    def create_duplicated_trips(self):
+        """Queue job to create duplicated trips"""
+        for trip in self:
+            new_vals = {
+                'plan_line_id': trip.plan_line_id.id,
+                'container_size': trip.container_size,
+                'weight_class': trip.weight_class,
+                'freeway': trip.freeway,
+                'container_number': trip.container_number,
+                'seal_number': trip.seal_number,
+                'note': trip.note,
+                'extra_charge': trip.extra_charge,
+                'extra_fuel': trip.extra_fuel,
+                # reset unique fields
+                'vehicle_driver_history_id': False,
+                'status': 'draft',
+            }
+            new_trip = self.create(new_vals)
+
+            return new_trip
+
     def get_conflicting_trip(self, vehicle_driver_history):
         if not self or not self.plan_estimate_time_departure or not self.plan_estimate_time_arrival:
             return self.browse()
