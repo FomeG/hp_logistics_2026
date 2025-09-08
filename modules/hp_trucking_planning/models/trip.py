@@ -250,6 +250,18 @@ class Trip(models.Model):
         store=False,
     )
 
+    def copy(self, default=None):
+        if default is None:
+            default = {}
+        unique_fields_to_reset = {
+            'vehicle_driver_history_id': False,
+            'status': 'draft',
+        }
+        default.update(unique_fields_to_reset)
+        new_trip = super(Trip, self).copy(default)
+
+        return new_trip
+
     def get_conflicting_trip(self, vehicle_driver_history):
         if not self or not self.plan_estimate_time_departure or not self.plan_estimate_time_arrival:
             return self.browse()
