@@ -248,6 +248,21 @@ class PlanLine(models.Model):
             'type': 'ir.actions.act_window',
             'target': 'current',
         }
+    def action_add_truck(self):
+        """Action để add truck cho customer """
+        self.ensure_one()
+        return {
+            'name': f'Add Truck - {self.code or self.client_id.name}',
+            'res_model': 'trucking_planning.trip',
+            'view_mode': 'form',
+            'view_id': self.env.ref('hp_trucking_planning.view_trip_form').id,
+            'context': {
+                'default_plan_line_id': self.id,
+                'default_plan_id': self.plan_id.id,
+            },
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+        }
 
     def action_add_draft_trip(self):
         self.ensure_one()
