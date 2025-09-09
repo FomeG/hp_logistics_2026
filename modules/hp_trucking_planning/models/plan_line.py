@@ -23,6 +23,7 @@ class PlanLine(models.Model):
     code = fields.Char(
         string='Job Number',
         tracking=True,
+        required=True,
     )
     client_id = fields.Many2one(
         comodel_name='trucking_planning.client',
