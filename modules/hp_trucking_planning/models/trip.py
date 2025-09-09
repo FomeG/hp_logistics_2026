@@ -479,25 +479,41 @@ class Trip(models.Model):
             container_info = "N/A"
             
         shipping_line = plan.shipping_line_id.name if plan and plan.shipping_line_id else "N/A"
-        source_location = plan_line.actual_source_location_id.name if plan_line and plan_line.actual_source_location_id else "N/A"
-        destination_location = plan_line.actual_destination_location_id.name if plan_line and plan_line.actual_destination_location_id else "N/A"
+        
+        # Fix location mapping according to user requirements
+        # Nơi lấy công (Pickup Port): Always port
+        pickup_port = plan.location_id.name if plan and plan.location_id else "N/A"
+        
+        # Nơi hạ công (Delivery Port): Different logic for import vs export
+        if plan and plan.plan_type == 'import':
+            # Import: Nơi hạ công = place of delivery
+            delivery_port = plan_line.goods_delivery_location_id.name if plan_line and plan_line.goods_delivery_location_id else "N/A"
+        else:
+            # Export: Nơi hạ công = same port
+            delivery_port = plan.location_id.name if plan and plan.location_id else "N/A"
+        
         goods_weight = f"{plan_line.goods_weight} kg" if plan_line and plan_line.goods_weight else "N/A"
         
         # 2. Đóng hàng/ Hạ Hàng
         loading_time = plan.date.strftime("%d/%m/%Y") if plan and plan.date else "N/A"
-        loading_location = plan.location_id.name if plan and plan.location_id else "N/A"
-        contact_number = "N/A"  # No contact_number field in plan model
         
-        # 3. Các Yêu Cầu khác
-        # notes = self.note or "N/A"  # Use trip's own note for driver-specific instructions
+        # Địa điểm đóng hàng (Loading Address): Different logic for import vs export
+        if plan and plan.plan_type == 'import':
+            # Import: Địa điểm đóng hàng = address của to location (trong route)
+            loading_location = plan_line.route_id.to_location_id.address if plan_line and plan_line.route_id and plan_line.route_id.to_location_id and plan_line.route_id.to_location_id.address else "N/A"
+        else:
+            # Export: Địa điểm đóng hàng = place of pickup address
+            loading_location = plan_line.goods_pickup_location_id.address if plan_line and plan_line.goods_pickup_location_id and plan_line.goods_pickup_location_id.address else "N/A"
+        
+        contact_number = "N/A"  # No contact_number field in plan model
         
         # Build complete message
         message = f"""1. Thông tin đóng trả hàng:
 
 Số booking/số bill: {booking_bill}
 Loại container: {container_info} - hãng tầu ({shipping_line})
-Nơi lấy Cont: {source_location}
-Nơi hạ cont: {destination_location}
+Nơi lấy Cont: {pickup_port}
+Nơi hạ cont: {delivery_port}
 Trọng lượng hàng: {goods_weight}
 
 2. Đóng hàng/ Hạ Hàng
