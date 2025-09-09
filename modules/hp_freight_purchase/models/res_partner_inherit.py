@@ -21,16 +21,22 @@ class ResPartnerInherit(models.Model):
     def _get_shipping_line_contact_type(self):
         return self.env['partner.main.type'].search([('code', '=', 'shipping_line_contact')], limit=1)
 
+    @tools.ormcache()
+    def _get_other_type(self):
+        return self.env['partner.main.type'].search([('code', '=', 'other')], limit=1)
+
     @api.model_create_multi
     def create(self, vals_list):
-        shipping_line_type = self._get_shipping_line_type()
-        if not shipping_line_type:
-            raise ValidationError("Shipping line type not found. Please create it first.")
-        shipping_line_contact_type = self._get_shipping_line_contact_type()
+        default_type_id = self.env.context.get('default_partner_main_type_id')
+        other_type = self._get_other_type()
+        other_type_id = other_type.id if other_type else None
 
         for vals in vals_list:
-            if shipping_line_type and not vals.get('partner_main_type_id') and not vals.get("parent_id"):
-                vals['partner_main_type_id'] = shipping_line_type.id
+            if 'partner_main_type_id' not in vals or not vals.get('partner_main_type_id'):
+                if default_type_id:
+                    vals['partner_main_type_id'] = default_type_id
+                else:
+                    vals['partner_main_type_id'] = other_type_id
 
         return super().create(vals_list)
 
@@ -96,3 +102,10 @@ class ResPartnerInherit(models.Model):
             elif record.parent_id and record.parent_id.partner_main_type_id == shipping_line_type:
                 if record.partner_main_type_id != shipping_line_contact_type:
                     record.partner_main_type_id = shipping_line_contact_type
+    context = fields.Char(string="Debug Context", compute="_compute_debug_context")
+
+    @api.depends()
+    def _compute_debug_context(self):
+        for rec in self:
+            default_type = self.env.context.get('default_partner_main_type_id')
+            rec.context = str(default_type)
