@@ -27,16 +27,6 @@ class ResPartnerInherit(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        default_type_id = self.env.context.get('default_partner_main_type_id')
-        other_type = self._get_other_type()
-        other_type_id = other_type.id if other_type else None
-
-        for vals in vals_list:
-            if 'partner_main_type_id' not in vals or not vals.get('partner_main_type_id'):
-                if default_type_id:
-                    vals['partner_main_type_id'] = default_type_id
-                else:
-                    vals['partner_main_type_id'] = other_type_id
 
         return super().create(vals_list)
 
@@ -88,24 +78,7 @@ class ResPartnerInherit(models.Model):
         shipping_line_contact_type = self._get_shipping_line_contact_type()
 
         for record in self:
-            # 1. Nếu không có parent và chưa set type => shipping_line
-            if not record.parent_id and not record.partner_main_type_id:
-                record.partner_main_type_id = shipping_line_type
-
-                # cập nhật con trong queue
-                if shipping_line_contact_type:
-                    for child in record.child_ids:
-                        if child.partner_main_type_id != shipping_line_contact_type:
-                            child.partner_main_type_id = shipping_line_contact_type
-
-            # 2. Nếu có parent là shipping_line => set thành shipping_line_contact
-            elif record.parent_id and record.parent_id.partner_main_type_id == shipping_line_type:
+            # 1. Nếu có parent là shipping_line => set thành shipping_line_contact
+            if record.parent_id and record.parent_id.partner_main_type_id == shipping_line_type:
                 if record.partner_main_type_id != shipping_line_contact_type:
                     record.partner_main_type_id = shipping_line_contact_type
-    context = fields.Char(string="Debug Context", compute="_compute_debug_context")
-
-    @api.depends()
-    def _compute_debug_context(self):
-        for rec in self:
-            default_type = self.env.context.get('default_partner_main_type_id')
-            rec.context = str(default_type)
