@@ -25,8 +25,8 @@
             <field name="model_id" ref="model_trucking_planning_trip" />
             <field name="state">code</field>
             <field name="code">model.recompute_eta_near_status()</field>
-            <field name="interval_number">1</field>
-            <field name="interval_type">hours</field>
+            <field name="interval_number">5</field>
+            <field name="interval_type">minutes</field>
             <field name="active" eval="True" />
         </record>
     </data>
