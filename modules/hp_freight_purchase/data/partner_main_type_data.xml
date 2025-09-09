@@ -8,8 +8,4 @@
         <field name="code">shipping_line_contact</field>
         <field name="name">Shipping Line Contact</field>
     </record>
-      <record id="partner_main_type_other" model="partner.main.type">
-        <field name="code">other</field>
-        <field name="name">Other</field>
-    </record>
 </odoo>

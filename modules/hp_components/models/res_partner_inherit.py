@@ -9,6 +9,4 @@ class ResPartnerInherit(models.AbstractModel):
         comodel_name='partner.main.type',
         string='Main Partner Type',
         index=True,
-        default=None,
-        required=False
     )
