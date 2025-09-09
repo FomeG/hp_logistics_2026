@@ -197,7 +197,7 @@
         <field name="view_mode">list,form</field>
         <field name="res_model">res.partner</field>
         <field name="domain">[('partner_main_type_id.code', '=', 'shipping_line')]</field>
-        <!-- <field name="context">{'default_partner_main_type_id': ref('hp_freight_purchase.partner_main_type_shipping_line')}</field> -->
+    <field name="context" eval="{'default_partner_main_type_id': ref('hp_freight_purchase.partner_main_type_shipping_line')}"/>
         <field name="search_view_id" ref="freight_purchase_shipping_line_search_view"/>
         <field name="views" eval="[
             (ref('freight_purchase_shipping_line_list_view'), 'list'),
