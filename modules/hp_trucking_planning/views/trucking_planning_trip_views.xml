@@ -4,7 +4,7 @@
         <field name="name">trip.list</field>
         <field name="model">trucking_planning.trip</field>
         <field name="arch" type="xml">
-            <list>
+            <list default_order="is_eta_near desc, plan_estimate_time_arrival asc" decoration-danger="is_eta_near == True">
                 <header>
                     <button name="action_send_message_bulk" 
                             string="Send Message to Selected" 
@@ -15,8 +15,10 @@
                             type="object"
                             string="Duplicate"
                             icon="fa-copy"/>
-
                 </header>
+<!--                <div class="alert alert-warning" role="alert" style="margin: 10px; padding: 15px; border: 2px solid #f0ad4e; background-color: #fcf8e3;">-->
+<!--                    <strong>⚠️ Warning:</strong> Trips nearing ETA are highlighted in <strong style="color: #d9534f;">RED</strong>. Use the "⚠️ Nearing ETA" filter to show only urgent trips.-->
+<!--                </div>-->
                 <field name="plan_line_id"/>
                 <field name="plan_booking_bill_no" string="Booking No"/>
                 <field name="status"/>
@@ -32,6 +34,7 @@
                 <field name="freeway"/>
                 <field name="fuel_liters"/>
                 <field name="total_cost"/>
+                <field name="plan_estimate_time_arrival" string="ETA"/>
             </list>
         </field>
     </record>
@@ -203,6 +206,7 @@
                 <filter string="Import" name="import" domain="[('plan_type', '=', 'import')]"/>
                 <filter string="Freeway" name="freeway" domain="[('freeway', '=', True)]"/>
                 <filter string="Not Cancelled" name="not_cancelled" domain="[('status', '!=', 'cancelled')]" />
+                <filter string="⚠️ Nearing ETA" name="nearing_eta" domain="[('is_eta_near', '=', True)]" />
 
                 <group expand="0" string="Group By">
                     <filter string="Job" name="group_by_plan_line" context="{'group_by':'plan_line_id'}"/>
@@ -229,4 +233,5 @@
             }
         </field>
     </record>
+
 </odoo>

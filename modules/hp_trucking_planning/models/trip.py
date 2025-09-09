@@ -2,6 +2,7 @@ from odoo import models, api, fields
 from odoo.exceptions import UserError, ValidationError
 import base64
 import math
+from datetime import datetime, timedelta
 from ..services.planning_service import planning_service
 
 
@@ -248,6 +249,13 @@ class Trip(models.Model):
     driver_info = fields.Text(
         compute='_compute_driver_info',
         store=False,
+    )
+
+    is_eta_near = fields.Boolean(
+        string='Nearing ETA',
+        compute='_compute_is_eta_near',
+        store=True,
+        help='True if trip ETA is within the configured threshold'
     )
 
     def action_duplicate_with_queue(self):
@@ -555,6 +563,31 @@ Notes: {notes.strip()}"""
         for trip in self:
             trip.driver_info = f"{trip.driver_id.name},{trip.truck_id.name}"
 
+    @api.depends('plan_estimate_time_arrival', 'status')
+    def _compute_is_eta_near(self):
+        """Compute if trip ETA is within the configured threshold"""
+        # Get the threshold from system parameter
+        eta_threshold_days = int(self.env['ir.config_parameter'].sudo().get_param(
+            'hp_trucking_planning.eta_near_days', '3'
+        ))
+        
+        now = fields.Datetime.now()
+        threshold_datetime = now + timedelta(days=eta_threshold_days)
+        
+        for trip in self:
+            # Only consider active trips (not cancelled or done)
+            if trip.status in ['cancelled', 'done']:
+                trip.is_eta_near = False
+                continue
+                
+            # Check if ETA is within threshold
+            if trip.plan_estimate_time_arrival:
+                trip.is_eta_near = (
+                    now <= trip.plan_estimate_time_arrival <= threshold_datetime
+                )
+            else:
+                trip.is_eta_near = False
+
     def action_open_vehicle_driver_pair_popup(self):
         self.ensure_one()
         return {
@@ -574,3 +607,12 @@ Notes: {notes.strip()}"""
     
     def _close_done_trip(self):
         planning_service(self.env).update_trip_statuses('done')
+    
+    @api.model
+    def recompute_eta_near_status(self):
+        """Recompute is_eta_near field for all trips when system parameter changes"""
+        trips = self.search([])
+        trips._compute_is_eta_near()
+        return True
+
+    
