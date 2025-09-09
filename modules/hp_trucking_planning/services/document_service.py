@@ -18,37 +18,48 @@ class DocumentService(models.AbstractModel):
         except ImportError:
             raise UserError("python-docx library is required. Please install it using: pip install python-docx")
 
-        # Generate the DOCX file
-        doc = self._generate_trip_docx(trip)
-
-        # Save document to memory
-        doc_io = io.BytesIO()
-        doc.save(doc_io)
-        doc_io.seek(0)
-
         if not trip.driver_id:
             raise UserError("No driver id specified")
-        
-        # Create attachment
-        driver_name = trip.driver_id.name if trip.driver_id else 'N/A'
-        trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else trip.env['ir.fields.date'].today()
-        filename = f"GiayVanTai_{driver_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
-        
-        attachment = trip.env['ir.attachment'].create({
-            'name': filename,
-            'type': 'binary',
-            'datas': base64.b64encode(doc_io.read()),
-            'res_model': trip._name,
-            'res_id': trip.id,
-            'mimetype': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        })
 
-        # Return download action
-        return {
-            'type': 'ir.actions.act_url',
-            'url': f'/web/content/{attachment.id}?download=true',
-            'target': 'self',
-        }
+        try:
+            # Generate the DOCX file
+            doc = self._generate_trip_docx(trip)
+
+            # Save document to memory
+            doc_io = io.BytesIO()
+            doc.save(doc_io)
+            doc_io.seek(0)
+
+            # Create attachment with ASCII-only filename to avoid encoding issues
+            driver_name = trip.driver_id.name if trip.driver_id else 'N/A'
+            # Remove Vietnamese characters and special characters from filename
+            import re
+            safe_driver_name = re.sub(r'[^\w\s-]', '', driver_name).strip()
+            safe_driver_name = re.sub(r'[-\s]+', '_', safe_driver_name)
+            trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else trip.env['ir.fields.date'].today()
+            filename = f"GiayVanTai_{safe_driver_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
+            
+            attachment = trip.env['ir.attachment'].create({
+                'name': filename,
+                'type': 'binary',
+                'datas': base64.b64encode(doc_io.read()),
+                'res_model': trip._name,
+                'res_id': trip.id,
+                'mimetype': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            })
+
+            # Return download action
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/web/content/{attachment.id}?download=true',
+                'target': 'self',
+            }
+        except Exception as e:
+            # Log the error for debugging
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.error(f"Error generating DOCX for trip {trip.id}: {str(e)}")
+            raise UserError(f"Error generating DOCX file: {str(e)}")
 
     def _generate_trip_docx(self, trip):
         """Main method to generate the complete DOCX document"""
@@ -96,7 +107,7 @@ class DocumentService(models.AbstractModel):
         for row in header_table.rows:
             for cell in row.cells:
                 cell._tc.get_or_add_tcPr().append(parse_xml(
-                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats-officedocument.wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
+                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
                 for paragraph in cell.paragraphs:
                     for run in paragraph.runs:
                         run.font.size = Pt(9.5)
@@ -141,7 +152,7 @@ class DocumentService(models.AbstractModel):
         for row in info_table.rows:
             for cell in row.cells:
                 cell._tc.get_or_add_tcPr().append(parse_xml(
-                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats-officedocument.wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
+                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
                 for paragraph in cell.paragraphs:
                     for run in paragraph.runs:
                         run.font.size = Pt(9.5)
@@ -213,6 +224,7 @@ class DocumentService(models.AbstractModel):
         for paragraph in info_cell.paragraphs:
             p = paragraph._element
             p.getparent().remove(p)
+        info_cell.add_paragraph()
         info_para = info_cell.add_paragraph()
         info_para.add_run("Số: ")
         bold_run = info_para.add_run(f"{trip.code or ' '}")
@@ -294,7 +306,7 @@ class DocumentService(models.AbstractModel):
 
         # Add top padding to the cell
         cell._tc.get_or_add_tcPr().append(parse_xml(
-            r'<w:tcMar xmlns:w="http://schemas.openxmlformats-officedocument.wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
+            r'<w:tcMar xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
 
     def _add_booking_info(self, cell, trip, show_data=True):
         """Add booking information section"""
@@ -547,10 +559,10 @@ class DocumentService(models.AbstractModel):
             for cell in row.cells:
                 # Remove borders
                 cell._tc.get_or_add_tcPr().append(parse_xml(
-                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats-officedocument.wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
+                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
                 # Add top padding
                 cell._tc.get_or_add_tcPr().append(parse_xml(
-                    r'<w:tcMar xmlns:w="http://schemas.openxmlformats-officedocument.wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
+                    r'<w:tcMar xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
                 for paragraph in cell.paragraphs:
                     for run in paragraph.runs:
                         run.font.size = Pt(9.5)
