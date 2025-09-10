@@ -347,11 +347,15 @@ class DocumentService(models.AbstractModel):
         content_para = cell.add_paragraph()
         content_para.add_run("Số hợp đồng: ")
         if show_data:
+            route_info = trip.get_route_info()
+
             bold_run = content_para.add_run("")
             bold_run.bold = True
             content_para.add_run("\nSố bill/booking: ")
-            booking_no = trip.plan_line_id.plan_id.booking_bill_no if trip.plan_line_id and trip.plan_line_id.plan_id else 'N/A'
-            bold_run = content_para.add_run(f"{booking_no}")
+            bold_run = content_para.add_run(f"{route_info['booking_bill']}")
+            bold_run.bold = True
+            # booking_no = trip.plan_line_id.plan_id.booking_bill_no if trip.plan_line_id and trip.plan_line_id.plan_id else 'N/A'
+            # bold_run = content_para.add_run(f"{booking_no}")
             bold_run.bold = True
             content_para.add_run("\nSố cont: ")
             bold_run = content_para.add_run(f"{trip.container_number or ' '}")
@@ -360,8 +364,9 @@ class DocumentService(models.AbstractModel):
             bold_run = content_para.add_run(f"{trip.seal_number or ' '}")
             bold_run.bold = True
             content_para.add_run("\nLoại cont: ")
-            bold_run = content_para.add_run(
-                f"{dict(trip.env['trucking_planning.plan']._fields['container_type'].selection).get(trip.container_type, '')}")
+            bold_run = content_para.add_run(f"{route_info['container_info']}")
+            # bold_run = content_para.add_run(
+            #     f"{dict(trip.env['trucking_planning.plan']._fields['container_type'].selection).get(trip.container_type, '')}")
             bold_run.bold = True
             content_para.add_run("\nKích thước: ")
             bold_run = content_para.add_run(f"{trip.container_size or '40'}")
@@ -385,36 +390,50 @@ class DocumentService(models.AbstractModel):
             route_name = trip.plan_line_id.route_id.name if trip.plan_line_id and trip.plan_line_id.route_id else ' '
             bold_run = content_para.add_run(f"{route_name}")
             bold_run.bold = True
+            # loading location from route_info (địa điểm đóng hàng)
             content_para.add_run("\nĐiểm xếp hàng: ")
-            
+
+            route_info = trip.get_route_info()
+            loading_location = route_info['loading_location']
+            bold_run = content_para.add_run(f"{loading_location}")
+            bold_run.bold = True
             # Handle plan type logic for pickup location
-            pickup_location_address = ""
-            if trip.plan_type == 'export':
-                if trip.plan_line_id.goods_pickup_location_id:
-                    pickup_location_address = trip.plan_line_id.goods_pickup_location_id.address or trip.plan_line_id.goods_pickup_location_id.name
-            else:  # import
-                if trip.plan_id.location_id:
-                    pickup_location_address = trip.plan_id.location_id.address or trip.plan_id.location_id.name
-            
-            bold_run = content_para.add_run(f"{pickup_location_address}")
-            bold_run.bold = True
+
+            # pickup_location_address = ""
+            # if trip.plan_type == 'export':
+            #     if trip.plan_line_id.goods_pickup_location_id:
+            #         pickup_location_address = trip.plan_line_id.goods_pickup_location_id.address or trip.plan_line_id.goods_pickup_location_id.name
+            # else:  # import
+            #     if trip.plan_id.location_id:
+            #         pickup_location_address = trip.plan_id.location_id.address or trip.plan_id.location_id.name
+            #
+            # bold_run = content_para.add_run(f"{pickup_location_address}")
+
+            # pickup port from route_info (nơi lấy cont)
             content_para.add_run("\nĐiểm giao hàng: ")
-            
+
+            pickup_port = route_info['pickup_port']
+            bold_run = content_para.add_run(f"{pickup_port}")
+            bold_run.bold = True
             # Handle plan type logic for delivery location
-            delivery_location_address = ""
-            if trip.plan_type == 'export':
-                if trip.plan_id.location_id:
-                    delivery_location_address = trip.plan_id.location_id.address or trip.plan_id.location_id.name
-            else:  # import
-                if trip.plan_line_id.goods_delivery_location_id:
-                    delivery_location_address = trip.plan_line_id.goods_delivery_location_id.address or trip.plan_line_id.goods_delivery_location_id.name
-            
-            bold_run = content_para.add_run(f"{delivery_location_address}")
-            bold_run.bold = True
+            # delivery_location_address = ""
+            # if trip.plan_type == 'export':
+            #     if trip.plan_id.location_id:
+            #         delivery_location_address = trip.plan_id.location_id.address or trip.plan_id.location_id.name
+            # else:  # import
+            #     if trip.plan_line_id.goods_delivery_location_id:
+            #         delivery_location_address = trip.plan_line_id.goods_delivery_location_id.address or trip.plan_line_id.goods_delivery_location_id.name
+            #
+            # bold_run = content_para.add_run(f"{delivery_location_address}")
+
+            # delivery port from route_info (nơi giao cont)
             content_para.add_run("\nNơi trả hàng: ")
-            source_location = trip.plan_line_id.actual_source_location_id.name if trip.plan_line_id and trip.plan_line_id.actual_source_location_id else ' '
-            bold_run = content_para.add_run(f"{source_location}")
+            delivery_port = route_info['delivery_port']
+            bold_run = content_para.add_run(f"{delivery_port}")
             bold_run.bold = True
+
+            # source_location = trip.plan_line_id.actual_source_location_id.name if trip.plan_line_id and trip.plan_line_id.actual_source_location_id else ' '
+            # bold_run = content_para.add_run(f"{source_location}")
             content_para.add_run("\nThời gian vận chuyển dự kiến:")
             content_para.add_run("\nBắt đầu từ : ")
             trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else trip.env['ir.fields.date'].today()
@@ -453,10 +472,13 @@ class DocumentService(models.AbstractModel):
         content_para = cell.add_paragraph()
         content_para.add_run("Tên hàng hóa: ")
         if show_data:
+            route_info = trip.get_route_info()
+
             bold_run = content_para.add_run(f"{trip.goods_name or ' '}")
             bold_run.bold = True
             content_para.add_run("\nKhối lượng hàng hóa (tấn): ")
-            bold_run = content_para.add_run(str(trip.goods_weight or 0.0))
+            bold_run = content_para.add_run(f"{route_info['goods_weight']}")
+            # bold_run = content_para.add_run(str(trip.goods_weight or 0.0))
             bold_run.bold = True
             content_para.add_run("\nCắt máng (Cut off): ")
             cut_off_str = trip.goods_cut_off.strftime('%d/%m/%Y %H:%M') if trip.goods_cut_off else ' '
@@ -473,8 +495,10 @@ class DocumentService(models.AbstractModel):
         title_run.bold = True
 
         if show_data:
+            route_info = trip.get_route_info()
             content_para = cell.add_paragraph()
-            bold_run = content_para.add_run(f"{trip.note or ' '}")
+            bold_run = content_para.add_run(f"{route_info['notes']}")
+            # bold_run = content_para.add_run(f"{trip.note or ' '}")
             bold_run.bold = True
 
     def _generate_permit_section(self, doc, trip, cell):

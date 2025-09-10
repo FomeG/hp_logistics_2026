@@ -126,15 +126,21 @@
                                         <div class="mb-3">
                                             <strong>5. Thông tin về chuyến đi</strong><br/>
                                             Tuyến vận chuyển: <strong><span t-field="trip_order.plan_line_id.route_id.name"/></strong><br/>
-                                            Điểm xếp hàng: <strong><span t-field="trip_order.plan_line_id.actual_source_location_id.name"/></strong><br/>
-                                            Điểm giao hàng: <strong><span t-field="trip_order.plan_line_id.actual_destination_location_id.name"/></strong><br/>
-                                            Nơi trả vỏ: <strong><span t-field="trip_order.plan_line_id.actual_source_location_id.name"/></strong><br/>
+                                            Điểm xếp hàng: <strong t-if="trip_order.plan_type == 'import'" t-field="trip_order.actual_destination_location_id.address"/>
+                                                           <strong t-if="trip_order.plan_type == 'export'" t-field="trip_order.plan_goods_pickup_location_id.address"/><br/>
+                                            Điểm giao hàng: <strong t-field="trip_order.plan_id.location_id.name"/><br/>
+                                            Nơi trả vỏ: <strong t-if="trip_order.plan_type == 'import'" t-field="trip_order.plan_goods_delivery_location_id.name"/>
+                                                        <strong t-if="trip_order.plan_type == 'export'" t-field="trip_order.plan_id.location_id.name"/><br/>
+<!--                                            Điểm xếp hàng: <strong><span t-field="trip_order.plan_line_id.actual_source_location_id.name"/></strong><br/>-->
+<!--                                            Điểm giao hàng: <strong><span t-field="trip_order.plan_line_id.actual_destination_location_id.name"/></strong><br/>-->
+<!--                                            Nơi trả vỏ: <strong><span t-field="trip_order.plan_line_id.actual_source_location_id.name"/></strong><br/>-->
 <!--                                            Tuyến vận chuyển: <span t-field="trip_order.route_id.name"/><br/>-->
 <!--                                            Điểm xếp hàng: <span t-field="trip_order.container_pickup.name"/><br/>-->
 <!--                                            Điểm giao hàng: <span t-field="trip_order.container_delivery.name"/><br/>-->
 <!--                                            Nơi trả vỏ: <span t-field="trip_order.container_pickup.name"/><br/>-->
                                             Thời gian vận chuyển dự kiến:<br/>
-                                            Bắt đầu từ: <strong><span t-field="trip_order.plan_line_id.plan_id.date" t-options='{"widget": "date"}'/></strong> đến: <strong><span t-field="trip_order.plan_line_id.plan_id.date" t-options='{"widget": "date"}'/></strong><br/>
+                                            Bắt đầu từ: <strong t-field="trip_order.plan_estimate_time_departure" t-options="{'format': 'd/M/y HH:mm'}"/> đến: <strong t-field="trip_order.plan_estimate_time_arrival" t-options="{'format': 'd/M/y HH:mm'}"/><br/>
+<!--                                            Bắt đầu từ: <strong><span t-field="trip_order.plan_line_id.plan_id.date" t-options='{"widget": "date"}'/></strong> đến: <strong><span t-field="trip_order.plan_line_id.plan_id.date" t-options='{"widget": "date"}'/></strong><br/>-->
                                             Tổng số km dự kiến: <strong><span t-field="trip_order.plan_line_id.route_id.distance_km"/></strong><br/>
                                             Liên hệ: <strong></strong>
 <!--                                            Bắt đầu từ: <strong><span t-field="trip_order.date" t-options='{"widget": "date"}'/></strong> đến: <strong><span t-field="trip_order.date" t-options='{"widget": "date"}'/></strong><br/>-->
