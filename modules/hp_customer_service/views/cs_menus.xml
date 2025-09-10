@@ -1,0 +1,11 @@
+<odoo>
+    <menuitem id="menu_cs_root"
+              name="Customer Service"
+              web_icon="hp_pricing,static/description/icon.png"
+              sequence="36"/>
+    <menuitem id="menu_cs_job"
+              name="Jobs"
+              parent="menu_cs_root"
+              action="action_cs_job"
+              sequence="10"/>
+</odoo>
