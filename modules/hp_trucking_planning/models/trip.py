@@ -462,76 +462,97 @@ class Trip(models.Model):
                 'driver_phone': driver_phone,
             }
         }
-    
-    def _build_message_content(self):
-        """Build the message content for trip"""
+
+    def get_route_info(self):
+        """Common method to get route and location information for a trip"""
         plan_line = self.plan_line_id
         plan = plan_line.plan_id if plan_line else None
-        
+
+        result = {
+            'booking_bill': 'N/A',
+            'container_info': 'N/A',
+            'shipping_line': 'N/A',
+            'pickup_port': 'N/A',
+            'delivery_port': 'N/A',
+            'goods_weight': '0.0',
+            'loading_time': 'N/A',
+            'loading_location': 'N/A',
+            'contact_number': 'N/A',
+            'notes': self.note or ''
+        }
+
         # 1. Thông tin đóng trả hàng
-        booking_bill = plan.booking_bill_no if plan else "N/A"
-        container_info = ""
-        if self.container_type:
-            container_info = f"{self.container_type}"
-        if self.container_size:
-            container_info += f" {self.container_size}"
-        if not container_info:
-            container_info = "N/A"
-            
-        shipping_line = plan.shipping_line_id.name if plan and plan.shipping_line_id else "N/A"
-        
+        if plan:
+            result['booking_bill'] = plan.booking_bill_no or 'N/A'
+
+        if self.container_type or self.container_size:
+            container_parts = []
+            if self.container_type:
+                container_parts.append(self.container_type)
+            if self.container_size:
+                container_parts.append(self.container_size)
+            result['container_info'] = ' '.join(container_parts)
+
+        if plan and plan.shipping_line_id:
+            result['shipping_line'] = plan.shipping_line_id.name or 'N/A'
+
         # Fix location mapping according to user requirements
         # Nơi lấy công (Pickup Port): Always port
-        pickup_port = plan.location_id.name if plan and plan.location_id else "N/A"
-        
+        if plan and plan.location_id:
+            result['pickup_port'] = plan.location_id.name or 'N/A'
+
         # Nơi hạ công (Delivery Port): Different logic for import vs export
         if plan and plan.plan_type == 'import':
             # Import: Nơi hạ công = place of delivery
-            delivery_port = plan_line.goods_delivery_location_id.name if plan_line and plan_line.goods_delivery_location_id else "N/A"
+            result['delivery_port'] = plan_line.goods_delivery_location_id.name if plan_line and plan_line.goods_delivery_location_id else 'N/A'
         else:
             # Export: Nơi hạ công = same port
-            delivery_port = plan.location_id.name if plan and plan.location_id else "N/A"
-        
-        goods_weight = f"{plan_line.goods_weight} kg" if plan_line and plan_line.goods_weight else "N/A"
-        
+            result['delivery_port'] = plan.location_id.name if plan and plan.location_id else 'N/A'
+
+        if plan_line and plan_line.goods_weight:
+            result['goods_weight'] = f"{plan_line.goods_weight} kg"
+
         # 2. Đóng hàng/ Hạ Hàng
-        loading_time = plan.date.strftime("%d/%m/%Y") if plan and plan.date else "N/A"
-        
+        if plan and plan.date:
+            result['loading_time'] = plan.date.strftime("%d/%m/%Y")
+
         # Địa điểm đóng hàng (Loading Address): Different logic for import vs export
         if plan and plan.plan_type == 'import':
             # Import: Địa điểm đóng hàng = address của to location (trong route)
-            loading_location = plan_line.actual_destination_location_id.address if plan_line and plan_line.route_id and plan_line.route_id.to_location_id and plan_line.route_id.to_location_id.address else "N/A"
+            result['loading_location'] = plan_line.actual_destination_location_id.address if plan_line and plan_line.route_id and plan_line.route_id.to_location_id and plan_line.route_id.to_location_id.address else 'N/A'
         else:
             # Export: Địa điểm đóng hàng = place of pickup address
-            loading_location = plan_line.goods_pickup_location_id.address if plan_line and plan_line.goods_pickup_location_id and plan_line.goods_pickup_location_id.address else "N/A"
-        
-        contact_number = "N/A"  # No contact_number field in plan model
-        
-        # Build complete message
+            result['loading_location'] = plan_line.goods_pickup_location_id.address if plan_line and plan_line.goods_pickup_location_id and plan_line.goods_pickup_location_id.address else 'N/A'
+
+        result['contact_number'] = 'N/A'  # No contact_number field in plan model
+
+        return result
+
+    def _build_message_content(self):
+        """Build the message content for trip"""
+        route_info = self.get_route_info()
+
         message = f"""1. Thông tin đóng trả hàng:
 
-Số booking/số bill: {booking_bill}
-Loại container: {container_info} - hãng tầu ({shipping_line})
-Nơi lấy Cont: {pickup_port}
-Nơi hạ cont: {delivery_port}
-Trọng lượng hàng: {goods_weight}
+        Số booking/số bill: {route_info['booking_bill']}
+        Loại container: {route_info['container_info']} - hãng tầu ({route_info['shipping_line']})
+        Nơi lấy Cont: {route_info['pickup_port']}
+        Nơi hạ cont: {route_info['delivery_port']}
+        Trọng lượng hàng: {route_info['goods_weight']}
 
-2. Đóng hàng/ Hạ Hàng
+        2. Đóng hàng/ Hạ Hàng
 
-Thời gian đóng hàng: {loading_time}
-Địa điểm đóng hàng: {loading_location}
-Số liên hệ: {contact_number}"""
+        Thời gian đóng hàng: {route_info['loading_time']}
+        Địa điểm đóng hàng: {route_info['loading_location']}
+        Số liên hệ: {route_info['contact_number']}"""
 
-        notes= self.note
-        message += f"""
-        
-3. Các Yêu Cầu khác: """
-
-        if notes and notes.strip():
+        if route_info['notes'] and route_info['notes'].strip():
             message += f"""
-        
-Notes: {notes.strip()}"""
-        
+
+        3. Các Yêu Cầu khác:
+
+        Notes: {route_info['notes'].strip()}"""
+
         return message
 
     def action_send_message_bulk(self):
