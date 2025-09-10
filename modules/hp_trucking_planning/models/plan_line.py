@@ -123,21 +123,6 @@ class PlanLine(models.Model):
         help="Location where goods will be delivered (Export) or picked up (Import)"
     )
 
-    @api.depends('plan_type', 'route_id', 'goods_pickup_location_id', 'goods_delivery_location_id')
-    def _compute_actual_locations(self):
-        for rec in self:
-            if rec.plan_type == 'export':
-                # Export: Hàng đi từ goods_pickup -> port (plan.location_id)
-                rec.actual_source_location_id = rec.goods_pickup_location_id
-                rec.actual_destination_location_id = rec.goods_delivery_location_id or rec.plan_id.location_id
-            else:
-                # Import: Hàng đi từ port (plan.location_id) -> goods_delivery
-                rec.actual_source_location_id = rec.goods_pickup_location_id or rec.plan_id.location_id
-                rec.actual_destination_location_id = rec.goods_delivery_location_id
-            if not rec.goods_pickup_location_id or not rec.goods_delivery_location_id:
-                rec.actual_source_location_id = rec.route_id.from_location_id if rec.route_id else False
-                rec.actual_destination_location_id = rec.route_id.to_location_id if rec.route_id else False
-
     @api.onchange('plan_type')
     def _onchange_plan_type(self):
         for record in self:
@@ -202,10 +187,13 @@ class PlanLine(models.Model):
     def _compute_actual_locations(self):
         for rec in self:
             if rec.route_id:
-                if rec.plan_type == 'export':
+                # So sánh direction của route với plan_type
+                if rec.route_id.direction == rec.plan_type:
+                    # Giống nhau: giữ nguyên from -> to
                     rec.actual_source_location_id = rec.route_id.from_location_id
                     rec.actual_destination_location_id = rec.route_id.to_location_id
-                else:  # import
+                else:
+                    # Khác nhau: đảo ngược to -> from
                     rec.actual_source_location_id = rec.route_id.to_location_id
                     rec.actual_destination_location_id = rec.route_id.from_location_id
             else:

@@ -500,7 +500,7 @@ class Trip(models.Model):
         # Địa điểm đóng hàng (Loading Address): Different logic for import vs export
         if plan and plan.plan_type == 'import':
             # Import: Địa điểm đóng hàng = address của to location (trong route)
-            loading_location = plan_line.route_id.to_location_id.address if plan_line and plan_line.route_id and plan_line.route_id.to_location_id and plan_line.route_id.to_location_id.address else "N/A"
+            loading_location = plan_line.actual_destination_location_id.address if plan_line and plan_line.route_id and plan_line.route_id.to_location_id and plan_line.route_id.to_location_id.address else "N/A"
         else:
             # Export: Địa điểm đóng hàng = place of pickup address
             loading_location = plan_line.goods_pickup_location_id.address if plan_line and plan_line.goods_pickup_location_id and plan_line.goods_pickup_location_id.address else "N/A"
