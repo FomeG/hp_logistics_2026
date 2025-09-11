@@ -448,7 +448,7 @@ class DocumentService(models.AbstractModel):
             bold_run = content_para.add_run(f"{eta_str}")
             bold_run.bold = True
             content_para.add_run("\nTổng số km dự kiến: ")
-            distance = trip.plan_line_id.route_id.distance_km if trip.plan_line_id and trip.plan_line_id.route_id else 0
+            distance = trip.plan_line_id.route_id.distance_km if trip.plan_line_id and trip.plan_line_id.route_id else ''
             bold_run = content_para.add_run(f"{distance}")
             bold_run.bold = True
             content_para.add_run("\nLiên hệ: ")
@@ -462,7 +462,7 @@ class DocumentService(models.AbstractModel):
             content_para.add_run("\nBắt đầu từ: ")
             content_para.add_run("\nđến: ")
             content_para.add_run("\nTổng số km dự kiến: ")
-            bold_run = content_para.add_run("0.00")
+            bold_run = content_para.add_run("")
             bold_run.bold = True
             content_para.add_run("\nLiên hệ:")
 
@@ -537,7 +537,9 @@ class DocumentService(models.AbstractModel):
         title_run = para2_permit.add_run("TIỀN CHI PHÍ - (ĐỒNG)")
         title_run.bold = True
         para2_permit_content = cell.add_paragraph()
-        road_fee = getattr(trip.plan_line_id.route_id, 'road_fee', 0) if trip.plan_line_id and trip.plan_line_id.route_id else 0
+        road_fee = getattr(trip.plan_line_id.route_id, 'road_fee',
+                           '') if trip.plan_line_id and trip.plan_line_id.route_id else ''
+        if road_fee == 0: road_fee = ''
         para2_permit_content.add_run("Vé cầu đường: ")
         bold_run = para2_permit_content.add_run(f"{road_fee}")
         bold_run.bold = True
@@ -548,7 +550,7 @@ class DocumentService(models.AbstractModel):
         bold_run = para2_permit_content.add_run("")
         bold_run.bold = True
         para2_permit_content.add_run("\nTổng Cộng: ")
-        bold_run = para2_permit_content.add_run(f"{trip.total_cost or 0}")
+        bold_run = para2_permit_content.add_run(f"{trip.total_cost or ''}")
         bold_run.bold = True
 
         # Add loading/unloading info
@@ -567,7 +569,7 @@ class DocumentService(models.AbstractModel):
         bold_run = para3_permit.add_run(" ")
         bold_run.bold = True
         para3_permit.add_run("\nTổng Tiền: ")
-        bold_run = para3_permit.add_run(f"{trip.total_cost or 0}")
+        bold_run = para3_permit.add_run(f"{trip.total_cost or ''}")
         bold_run.bold = True
 
     def _generate_signature_section(self, doc):

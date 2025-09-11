@@ -108,7 +108,7 @@
                                             <strong>3. Thông tin về người thuê vận tải</strong><br/>
                                             Tên người thuê vận chuyển: <strong><span t-field="trip_order.plan_line_id.client_id.name"/></strong><br/>
 <!--                                            Tên người thuê vận chuyển: <strong><span t-field="trip_order.client_id.name"/></strong><br/>-->
-                                            Địa chỉ: <strong>N/A</strong>
+                                            Địa chỉ: <strong><span t-field="trip_order.client_id.address"/></strong><br/>
                                         </div>
 
                                         <div class="mb-3">
@@ -141,7 +141,7 @@
                                             Thời gian vận chuyển dự kiến:<br/>
                                             Bắt đầu từ: <strong t-field="trip_order.plan_estimate_time_departure" t-options="{'format': 'd/M/y HH:mm'}"/> đến: <strong t-field="trip_order.plan_estimate_time_arrival" t-options="{'format': 'd/M/y HH:mm'}"/><br/>
 <!--                                            Bắt đầu từ: <strong><span t-field="trip_order.plan_line_id.plan_id.date" t-options='{"widget": "date"}'/></strong> đến: <strong><span t-field="trip_order.plan_line_id.plan_id.date" t-options='{"widget": "date"}'/></strong><br/>-->
-                                            Tổng số km dự kiến: <strong><span t-field="trip_order.plan_line_id.route_id.distance_km"/></strong><br/>
+                                            Tổng số km dự kiến: <strong><span t-if="trip_order.route_id and trip_order.route_id.distance_km and trip_order.route_id.distance_km != 0" t-field="trip_order.route_id.distance_km"/></strong><br/>
                                             Liên hệ: <strong></strong>
 <!--                                            Bắt đầu từ: <strong><span t-field="trip_order.date" t-options='{"widget": "date"}'/></strong> đến: <strong><span t-field="trip_order.date" t-options='{"widget": "date"}'/></strong><br/>-->
 <!--                                            Tổng số km dự kiến: <strong><span t-field="trip_order.route_id.distance_km"/></strong><br/>-->
@@ -151,7 +151,7 @@
                                         <div class="mb-3">
                                             <strong>6. Thông tin về hàng hóa</strong><br/>
                                             Tên hàng hóa: <strong><span t-field="trip_order.goods_name"/></strong><br/>
-                                            Khối lượng hàng hóa (<strong>tấn</strong>): <strong><span t-field="trip_order.goods_weight"/></strong><br/>
+                                            Khối lượng hàng hóa (tấn): <strong><span t-if="trip_order.goods_weight and trip_order.goods_weight != 0" t-field="trip_order.goods_weight"/></strong><br/>
                                             Cắt máng (Cut off): <strong><span t-field="trip_order.goods_cut_off" t-options='{"widget": "datetime"}'/></strong>
 <!--                                            Tên hàng hóa: <span t-field="trip_order.note"/><br/>-->
 <!--                                            Khối lượng hàng hóa (<strong>tấn</strong>): <strong>28.00</strong><br/>-->
@@ -194,14 +194,14 @@
                                             Nơi trả vỏ:<br/>
                                             Thời gian vận chuyển dự kiến:<br/>
                                             Bắt đầu từ: đến<br/>
-                                            Tổng số km dự kiến: <strong>0.00</strong><br/>
+                                            Tổng số km dự kiến: <strong></strong><br/>
                                             Liên hệ:
                                         </div>
 
                                         <div class="mb-3">
                                             <strong>6. Thông tin về hàng hóa</strong><br/>
                                             Tên hàng hóa:<br/>
-                                            Khối lượng hàng hóa (<strong>tấn</strong>): <strong>0.00</strong><br/>
+                                            Khối lượng hàng hóa (<strong>tấn</strong>): <strong></strong><br/>
                                             Cắt máng:
                                         </div>
 
@@ -215,28 +215,28 @@
                                     <td class="align-top">
                                         <div class="mb-3">
                                             <strong>Nhiên Liệu - (LÍT DIZEL)</strong><br/>
-                                            Tồn trước (lít): <strong>0</strong><br/>
-                                            Được lĩnh (lít): <strong>70</strong><br/>
-                                            Tổng cộng (lít): <strong><span t-field="trip_order.fuel_liters"/></strong>
+                                            Tồn trước (lít): <strong></strong><br/>
+                                            Được lĩnh (lít): <strong><span t-if="trip_order.fuel_liters and trip_order.fuel_liters != 0" t-field="trip_order.fuel_liters"/></strong><br/>
+                                            Tổng cộng (lít): <strong></strong><br/>
                                         </div>
 
                                         <div class="mb-3">
                                             <strong>TIỀN CHI PHÍ -(ĐỒNG)</strong><br/>
-                                            Vé cầu đường: <strong><span t-field="trip_order.plan_line_id.route_id.road_fee"/></strong><br/>
-                                            Chi phí khác: <strong><span t-field="trip_order.extra_charge"/></strong><br/>
-                                            Đi đường: <strong><span t-field="trip_order.plan_line_id.route_id.total_cost"/></strong><br/>
+                                            Vé cầu đường: <strong><span t-if="trip_order.plan_line_id.route_id and trip_order.plan_line_id.route_id.road_fee and trip_order.plan_line_id.route_id.road_fee != 0" t-field="trip_order.plan_line_id.route_id.road_fee"/></strong><br/>
+                                            Chi phí khác: <strong><span t-if="trip_order.extra_charge and trip_order.extra_charge != 0" t-field="trip_order.extra_charge"/></strong><br/>
+                                            Đi đường: <strong></strong><br/>
 <!--                                            Vé cầu đường: <strong>392,000</strong><br/>-->
 <!--                                            Chi phí khác: <strong>0</strong><br/>-->
 <!--                                            Đi đường: <strong>400,000</strong><br/>-->
-                                            Tổng Cộng: <strong><span t-field="trip_order.total_cost"/></strong>
+                                            Tổng Cộng: <strong><span t-if="trip_order.total_cost and trip_order.total_cost != 0" t-field="trip_order.total_cost"/></strong>
                                         </div>
 
                                         <div class="mb-3">
                                             <br/><br/><br/><br/><br/><br/>
-                                            Nâng hàng/vỏ: <strong>0</strong><br/>
-                                            Hạ vỏ/hàng: <strong>0</strong><br/>
-                                            Tổng cộng: <strong>0</strong><br/>
-                                            Tổng Tiền: <strong><span t-field="trip_order.total_cost"/></strong>
+                                            Nâng hàng/vỏ: <strong></strong><br/>
+                                            Hạ vỏ/hàng: <strong></strong><br/>
+                                            Tổng cộng: <strong></strong><br/>
+                                            Tổng Tiền: <strong><span t-if="trip_order.total_cost and trip_order.total_cost != 0" t-field="trip_order.total_cost"/></strong>
                                         </div>
                                     </td>
                                 </tr>
@@ -253,19 +253,23 @@
                             <div class="col-6">
                                 <strong>Thông tin về xếp hàng lên xe</strong><br/>
                                 - Xếp lần 1: Địa điểm<br/>
-                                Khối lượng hàng: <strong>(tấn) thời gian:</strong><br/>
+                                Khối lượng hàng (tấn): <strong></strong><br/>
+                                Thời gian: <strong></strong><br/>
                                 Xác nhận của người xếp hàng:<br/><br/>
                                 - Xếp lần 2: Địa điểm<br/>
-                                Khối lượng hàng: <strong>(tấn) thời gian:</strong><br/>
+                                Khối lượng hàng (tấn): <strong></strong><br/>
+                                Thời gian: <strong></strong><br/>
                                 Xác nhận của người xếp hàng:
                             </div>
                             <div class="col-6">
                                 <strong>Thông tin về dỡ hàng xuống xe</strong><br/>
                                 - Dỡ lần 1: Địa điểm<br/>
-                                Khối lượng hàng: <strong>(tấn) thời gian:</strong><br/>
+                                Khối lượng hàng (tấn): <strong></strong><br/>
+                                Thời gian: <strong></strong><br/>
                                 Xác nhận của người dỡ hàng:<br/><br/>
                                 - Dỡ lần 2: Địa điểm<br/>
-                                Khối lượng hàng: <strong>(tấn) thời gian:</strong><br/>
+                                Khối lượng hàng (tấn): <strong></strong><br/>
+                                Thời gian: <strong></strong><br/>
                                 Xác nhận của người dỡ hàng:
                             </div>
                         </div>
