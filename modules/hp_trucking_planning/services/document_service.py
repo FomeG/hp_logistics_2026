@@ -21,6 +21,9 @@ class DocumentService(models.AbstractModel):
         if not trip.driver_id:
             raise UserError("No driver id specified")
 
+        if not trip.plan_id.date:
+            raise UserError("Please fill in the Load / Return Date in the related Plan before exporting the DOCX file.")
+
         try:
             # Generate the DOCX file
             doc = self._generate_trip_docx(trip)
