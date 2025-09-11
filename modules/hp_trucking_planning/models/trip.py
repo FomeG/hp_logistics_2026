@@ -474,7 +474,7 @@ class Trip(models.Model):
             'shipping_line': 'N/A',
             'pickup_port': 'N/A',
             'delivery_port': 'N/A',
-            'goods_weight': '0.0',
+            'goods_weight': '',
             'loading_time': 'N/A',
             'loading_location': 'N/A',
             'contact_number': 'N/A',
