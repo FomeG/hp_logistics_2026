@@ -56,7 +56,7 @@
                                 type="object" 
                                 class="btn-success" 
                                 icon="fa-paper-plane"
-                                invisible="not id"/>
+                                invisible="not id or not trip_ids"/>
                         <button name="action_add_truck"
                                 string="Add Truck"
                                 type="object"
@@ -85,7 +85,8 @@
                             <button name="action_view_trips"
                                     type="object"
                                     class="oe_stat_button"
-                                    icon="fa-truck">
+                                    icon="fa-truck"
+                                    invisible="not trip_ids">
                                 <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_value">
                                         <field name="trip_ids" widget="statinfo" string="Truck"/>
@@ -114,7 +115,8 @@
                             <button name="action_view_plan_all_trips"
                                     type="object"
                                     class="oe_stat_button"
-                                    icon="fa-list">
+                                    icon="fa-list"
+                                    invisible="not trip_ids">
                                 <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_text">View All Trucks</span>
                                 </div>

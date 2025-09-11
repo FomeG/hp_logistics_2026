@@ -34,7 +34,7 @@
                                 type="object" 
                                 class="btn-success" 
                                 icon="fa-paper-plane"
-                                invisible="not id"/>
+                                invisible="not id or not has_trips"/>
                     </header>
                         <group>
                             <field name="name" string="Reference" readonly="True"/>
@@ -59,7 +59,7 @@
                                     type="object"
                                     class="oe_stat_button"
                                     icon="fa-user"
-                                    invisible="not id">
+                                    invisible="not id or not plan_line_ids">
                                 <field name="total_trips" widget="statinfo" string="Customer"/>
                             </button>
                             <button name="action_add_truck"
@@ -80,7 +80,7 @@
                                 type="object"
                                 class="oe_stat_button"
                                 icon="fa-list"
-                                invisible="not plan_line_ids or not id"/>
+                                invisible="not has_trips or not id"/>
                         </div>
                         <notebook invisible="not id">
                             <page string="Customer" invisible="not plan_line_ids">

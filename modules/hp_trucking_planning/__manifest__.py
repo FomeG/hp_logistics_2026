@@ -12,6 +12,7 @@
         'security/hp_trucking_planning_security.xml',
         'security/ir.model.access.csv',
         'data/trucking_planning_sequences.xml',
+        'data/trucking_trip_expiration_settings.xml',
         #wizards
         'views/wizards/import_client_wizard.xml',
         'views/wizards/import_vehicle_driver_wizard.xml',

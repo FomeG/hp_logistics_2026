@@ -18,37 +18,51 @@ class DocumentService(models.AbstractModel):
         except ImportError:
             raise UserError("python-docx library is required. Please install it using: pip install python-docx")
 
-        # Generate the DOCX file
-        doc = self._generate_trip_docx(trip)
-
-        # Save document to memory
-        doc_io = io.BytesIO()
-        doc.save(doc_io)
-        doc_io.seek(0)
-
         if not trip.driver_id:
             raise UserError("No driver id specified")
-        
-        # Create attachment
-        driver_name = trip.driver_id.name if trip.driver_id else 'N/A'
-        trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else trip.env['ir.fields.date'].today()
-        filename = f"GiayVanTai_{driver_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
-        
-        attachment = trip.env['ir.attachment'].create({
-            'name': filename,
-            'type': 'binary',
-            'datas': base64.b64encode(doc_io.read()),
-            'res_model': trip._name,
-            'res_id': trip.id,
-            'mimetype': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        })
 
-        # Return download action
-        return {
-            'type': 'ir.actions.act_url',
-            'url': f'/web/content/{attachment.id}?download=true',
-            'target': 'self',
-        }
+        if not trip.plan_id.date:
+            raise UserError("Please fill in the Load / Return Date in the related Plan before exporting the DOCX file.")
+
+        try:
+            # Generate the DOCX file
+            doc = self._generate_trip_docx(trip)
+
+            # Save document to memory
+            doc_io = io.BytesIO()
+            doc.save(doc_io)
+            doc_io.seek(0)
+
+            # Create attachment with ASCII-only filename to avoid encoding issues
+            driver_name = trip.driver_id.name if trip.driver_id else 'N/A'
+            # Remove Vietnamese characters and special characters from filename
+            import re
+            safe_driver_name = re.sub(r'[^\w\s-]', '', driver_name).strip()
+            safe_driver_name = re.sub(r'[-\s]+', '_', safe_driver_name)
+            trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else trip.env['ir.fields.date'].today()
+            filename = f"GiayVanTai_{safe_driver_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
+            
+            attachment = trip.env['ir.attachment'].create({
+                'name': filename,
+                'type': 'binary',
+                'datas': base64.b64encode(doc_io.read()),
+                'res_model': trip._name,
+                'res_id': trip.id,
+                'mimetype': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            })
+
+            # Return download action
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f'/web/content/{attachment.id}?download=true',
+                'target': 'self',
+            }
+        except Exception as e:
+            # Log the error for debugging
+            import logging
+            _logger = logging.getLogger(__name__)
+            _logger.error(f"Error generating DOCX for trip {trip.id}: {str(e)}")
+            raise UserError(f"Error generating DOCX file: {str(e)}")
 
     def _generate_trip_docx(self, trip):
         """Main method to generate the complete DOCX document"""
@@ -96,7 +110,7 @@ class DocumentService(models.AbstractModel):
         for row in header_table.rows:
             for cell in row.cells:
                 cell._tc.get_or_add_tcPr().append(parse_xml(
-                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats-officedocument.wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
+                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
                 for paragraph in cell.paragraphs:
                     for run in paragraph.runs:
                         run.font.size = Pt(9.5)
@@ -141,7 +155,7 @@ class DocumentService(models.AbstractModel):
         for row in info_table.rows:
             for cell in row.cells:
                 cell._tc.get_or_add_tcPr().append(parse_xml(
-                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats-officedocument.wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
+                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
                 for paragraph in cell.paragraphs:
                     for run in paragraph.runs:
                         run.font.size = Pt(9.5)
@@ -213,6 +227,7 @@ class DocumentService(models.AbstractModel):
         for paragraph in info_cell.paragraphs:
             p = paragraph._element
             p.getparent().remove(p)
+        info_cell.add_paragraph()
         info_para = info_cell.add_paragraph()
         info_para.add_run("Số: ")
         bold_run = info_para.add_run(f"{trip.code or ' '}")
@@ -294,7 +309,7 @@ class DocumentService(models.AbstractModel):
 
         # Add top padding to the cell
         cell._tc.get_or_add_tcPr().append(parse_xml(
-            r'<w:tcMar xmlns:w="http://schemas.openxmlformats-officedocument.wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
+            r'<w:tcMar xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
 
     def _add_booking_info(self, cell, trip, show_data=True):
         """Add booking information section"""
@@ -335,11 +350,15 @@ class DocumentService(models.AbstractModel):
         content_para = cell.add_paragraph()
         content_para.add_run("Số hợp đồng: ")
         if show_data:
+            route_info = trip.get_route_info()
+
             bold_run = content_para.add_run("")
             bold_run.bold = True
             content_para.add_run("\nSố bill/booking: ")
-            booking_no = trip.plan_line_id.plan_id.booking_bill_no if trip.plan_line_id and trip.plan_line_id.plan_id else 'N/A'
-            bold_run = content_para.add_run(f"{booking_no}")
+            bold_run = content_para.add_run(f"{route_info['booking_bill']}")
+            bold_run.bold = True
+            # booking_no = trip.plan_line_id.plan_id.booking_bill_no if trip.plan_line_id and trip.plan_line_id.plan_id else 'N/A'
+            # bold_run = content_para.add_run(f"{booking_no}")
             bold_run.bold = True
             content_para.add_run("\nSố cont: ")
             bold_run = content_para.add_run(f"{trip.container_number or ' '}")
@@ -348,8 +367,9 @@ class DocumentService(models.AbstractModel):
             bold_run = content_para.add_run(f"{trip.seal_number or ' '}")
             bold_run.bold = True
             content_para.add_run("\nLoại cont: ")
-            bold_run = content_para.add_run(
-                f"{dict(trip.env['trucking_planning.plan']._fields['container_type'].selection).get(trip.container_type, '')}")
+            bold_run = content_para.add_run(f"{route_info['container_info']}")
+            # bold_run = content_para.add_run(
+            #     f"{dict(trip.env['trucking_planning.plan']._fields['container_type'].selection).get(trip.container_type, '')}")
             bold_run.bold = True
             content_para.add_run("\nKích thước: ")
             bold_run = content_para.add_run(f"{trip.container_size or '40'}")
@@ -373,36 +393,50 @@ class DocumentService(models.AbstractModel):
             route_name = trip.plan_line_id.route_id.name if trip.plan_line_id and trip.plan_line_id.route_id else ' '
             bold_run = content_para.add_run(f"{route_name}")
             bold_run.bold = True
+            # loading location from route_info (địa điểm đóng hàng)
             content_para.add_run("\nĐiểm xếp hàng: ")
-            
+
+            route_info = trip.get_route_info()
+            loading_location = route_info['loading_location']
+            bold_run = content_para.add_run(f"{loading_location}")
+            bold_run.bold = True
             # Handle plan type logic for pickup location
-            pickup_location_address = ""
-            if trip.plan_type == 'export':
-                if trip.plan_line_id.goods_pickup_location_id:
-                    pickup_location_address = trip.plan_line_id.goods_pickup_location_id.address or trip.plan_line_id.goods_pickup_location_id.name
-            else:  # import
-                if trip.plan_id.location_id:
-                    pickup_location_address = trip.plan_id.location_id.address or trip.plan_id.location_id.name
-            
-            bold_run = content_para.add_run(f"{pickup_location_address}")
-            bold_run.bold = True
+
+            # pickup_location_address = ""
+            # if trip.plan_type == 'export':
+            #     if trip.plan_line_id.goods_pickup_location_id:
+            #         pickup_location_address = trip.plan_line_id.goods_pickup_location_id.address or trip.plan_line_id.goods_pickup_location_id.name
+            # else:  # import
+            #     if trip.plan_id.location_id:
+            #         pickup_location_address = trip.plan_id.location_id.address or trip.plan_id.location_id.name
+            #
+            # bold_run = content_para.add_run(f"{pickup_location_address}")
+
+            # pickup port from route_info (nơi lấy cont)
             content_para.add_run("\nĐiểm giao hàng: ")
-            
+
+            pickup_port = route_info['pickup_port']
+            bold_run = content_para.add_run(f"{pickup_port}")
+            bold_run.bold = True
             # Handle plan type logic for delivery location
-            delivery_location_address = ""
-            if trip.plan_type == 'export':
-                if trip.plan_id.location_id:
-                    delivery_location_address = trip.plan_id.location_id.address or trip.plan_id.location_id.name
-            else:  # import
-                if trip.plan_line_id.goods_delivery_location_id:
-                    delivery_location_address = trip.plan_line_id.goods_delivery_location_id.address or trip.plan_line_id.goods_delivery_location_id.name
-            
-            bold_run = content_para.add_run(f"{delivery_location_address}")
-            bold_run.bold = True
+            # delivery_location_address = ""
+            # if trip.plan_type == 'export':
+            #     if trip.plan_id.location_id:
+            #         delivery_location_address = trip.plan_id.location_id.address or trip.plan_id.location_id.name
+            # else:  # import
+            #     if trip.plan_line_id.goods_delivery_location_id:
+            #         delivery_location_address = trip.plan_line_id.goods_delivery_location_id.address or trip.plan_line_id.goods_delivery_location_id.name
+            #
+            # bold_run = content_para.add_run(f"{delivery_location_address}")
+
+            # delivery port from route_info (nơi giao cont)
             content_para.add_run("\nNơi trả hàng: ")
-            source_location = trip.plan_line_id.actual_source_location_id.name if trip.plan_line_id and trip.plan_line_id.actual_source_location_id else ' '
-            bold_run = content_para.add_run(f"{source_location}")
+            delivery_port = route_info['delivery_port']
+            bold_run = content_para.add_run(f"{delivery_port}")
             bold_run.bold = True
+
+            # source_location = trip.plan_line_id.actual_source_location_id.name if trip.plan_line_id and trip.plan_line_id.actual_source_location_id else ' '
+            # bold_run = content_para.add_run(f"{source_location}")
             content_para.add_run("\nThời gian vận chuyển dự kiến:")
             content_para.add_run("\nBắt đầu từ : ")
             trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else trip.env['ir.fields.date'].today()
@@ -414,7 +448,7 @@ class DocumentService(models.AbstractModel):
             bold_run = content_para.add_run(f"{eta_str}")
             bold_run.bold = True
             content_para.add_run("\nTổng số km dự kiến: ")
-            distance = trip.plan_line_id.route_id.distance_km if trip.plan_line_id and trip.plan_line_id.route_id else 0
+            distance = trip.plan_line_id.route_id.distance_km if trip.plan_line_id and trip.plan_line_id.route_id else ''
             bold_run = content_para.add_run(f"{distance}")
             bold_run.bold = True
             content_para.add_run("\nLiên hệ: ")
@@ -428,7 +462,7 @@ class DocumentService(models.AbstractModel):
             content_para.add_run("\nBắt đầu từ: ")
             content_para.add_run("\nđến: ")
             content_para.add_run("\nTổng số km dự kiến: ")
-            bold_run = content_para.add_run("0.00")
+            bold_run = content_para.add_run("")
             bold_run.bold = True
             content_para.add_run("\nLiên hệ:")
 
@@ -441,10 +475,13 @@ class DocumentService(models.AbstractModel):
         content_para = cell.add_paragraph()
         content_para.add_run("Tên hàng hóa: ")
         if show_data:
+            route_info = trip.get_route_info()
+
             bold_run = content_para.add_run(f"{trip.goods_name or ' '}")
             bold_run.bold = True
             content_para.add_run("\nKhối lượng hàng hóa (tấn): ")
-            bold_run = content_para.add_run(str(trip.goods_weight or 0.0))
+            bold_run = content_para.add_run(f"{route_info['goods_weight']}")
+            # bold_run = content_para.add_run(str(trip.goods_weight or 0.0))
             bold_run.bold = True
             content_para.add_run("\nCắt máng (Cut off): ")
             cut_off_str = trip.goods_cut_off.strftime('%d/%m/%Y %H:%M') if trip.goods_cut_off else ' '
@@ -461,8 +498,10 @@ class DocumentService(models.AbstractModel):
         title_run.bold = True
 
         if show_data:
+            route_info = trip.get_route_info()
             content_para = cell.add_paragraph()
-            bold_run = content_para.add_run(f"{trip.note or ' '}")
+            bold_run = content_para.add_run(f"{route_info['notes']}")
+            # bold_run = content_para.add_run(f"{trip.note or ' '}")
             bold_run.bold = True
 
     def _generate_permit_section(self, doc, trip, cell):
@@ -498,7 +537,9 @@ class DocumentService(models.AbstractModel):
         title_run = para2_permit.add_run("TIỀN CHI PHÍ - (ĐỒNG)")
         title_run.bold = True
         para2_permit_content = cell.add_paragraph()
-        road_fee = getattr(trip.plan_line_id.route_id, 'road_fee', 0) if trip.plan_line_id and trip.plan_line_id.route_id else 0
+        road_fee = getattr(trip.plan_line_id.route_id, 'road_fee',
+                           '') if trip.plan_line_id and trip.plan_line_id.route_id else ''
+        if road_fee == 0: road_fee = ''
         para2_permit_content.add_run("Vé cầu đường: ")
         bold_run = para2_permit_content.add_run(f"{road_fee}")
         bold_run.bold = True
@@ -509,7 +550,7 @@ class DocumentService(models.AbstractModel):
         bold_run = para2_permit_content.add_run("")
         bold_run.bold = True
         para2_permit_content.add_run("\nTổng Cộng: ")
-        bold_run = para2_permit_content.add_run(f"{trip.total_cost or 0}")
+        bold_run = para2_permit_content.add_run(f"{trip.total_cost or ''}")
         bold_run.bold = True
 
         # Add loading/unloading info
@@ -528,7 +569,7 @@ class DocumentService(models.AbstractModel):
         bold_run = para3_permit.add_run(" ")
         bold_run.bold = True
         para3_permit.add_run("\nTổng Tiền: ")
-        bold_run = para3_permit.add_run(f"{trip.total_cost or 0}")
+        bold_run = para3_permit.add_run(f"{trip.total_cost or ''}")
         bold_run.bold = True
 
     def _generate_signature_section(self, doc):
@@ -547,10 +588,10 @@ class DocumentService(models.AbstractModel):
             for cell in row.cells:
                 # Remove borders
                 cell._tc.get_or_add_tcPr().append(parse_xml(
-                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats-officedocument.wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
+                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
                 # Add top padding
                 cell._tc.get_or_add_tcPr().append(parse_xml(
-                    r'<w:tcMar xmlns:w="http://schemas.openxmlformats-officedocument.wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
+                    r'<w:tcMar xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
                 for paragraph in cell.paragraphs:
                     for run in paragraph.runs:
                         run.font.size = Pt(9.5)
