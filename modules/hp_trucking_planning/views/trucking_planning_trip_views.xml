@@ -6,8 +6,13 @@
         <field name="arch" type="xml">
             <list default_order="is_eta_near desc, plan_estimate_time_arrival asc" decoration-danger="is_eta_near == True">
                 <header>
+                    <button name="action_export_trip_docx_bulk"
+                            string="Export all"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-download"/>
                     <button name="action_send_message_bulk" 
-                            string="Send Message to Selected" 
+                            string="Send Message to all"
                             type="object" 
                             class="btn-success" 
                             icon="fa-paper-plane"/>

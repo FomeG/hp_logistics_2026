@@ -587,6 +587,53 @@ class Trip(models.Model):
         """Export trip data to DOCX format matching the transport document"""
         return self.env['document.service'].generate_trip_docx(self)
 
+    def action_export_trip_docx_bulk(self):
+        """Export selected trips to DOCX and return a ZIP download"""
+        if not self:
+            raise UserError("No trips selected to export.")
+
+        import io
+        import zipfile
+        import re
+
+        zip_io = io.BytesIO()
+        with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as zipf:
+            for trip in self:
+                # Reuse document service to build the Document
+                doc = self.env['document.service']._generate_trip_docx(trip)
+
+                # Save document to bytes
+                doc_io = io.BytesIO()
+                doc.save(doc_io)
+                doc_io.seek(0)
+
+                # Build safe filename, mirroring single export
+                driver_name = trip.driver_id.name if trip.driver_id else 'N_A'
+                safe_driver_name = re.sub(r'[^\w\s-]', '', driver_name).strip()
+                safe_driver_name = re.sub(r'[-\s]+', '_', safe_driver_name)
+                trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else trip.env['ir.fields.date'].today()
+                filename = f"GiayVanTai_{safe_driver_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
+
+                # Write into ZIP
+                zipf.writestr(filename, doc_io.getvalue())
+
+        zip_io.seek(0)
+
+        attachment = self.env['ir.attachment'].create({
+            'name': 'GiayVanTai_All_Selected.zip',
+            'type': 'binary',
+            'datas': base64.b64encode(zip_io.getvalue()),
+            'mimetype': 'application/zip',
+            'res_model': self._name,
+            'res_id': self[0].id,
+        })
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/{attachment.id}?download=true',
+            'target': 'self',
+        }
+
     def _compute_route_info(self):
         for trip in self:
             freeway_text = '(freeway)' if trip.freeway else ''
