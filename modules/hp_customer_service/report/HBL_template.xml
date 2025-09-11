@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_HBL_bill">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="job">
+                <div style="padding:20px; font-family:Arial, Helvetica, sans-serif; font-size:12px;">
+
+                    <!-- Header -->
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid #000; padding-bottom:10px;">
+                        <div>
+                            <h3 style="margin:0;">HPS LOGISTICS SERVICE</h3>
+                        </div>
+                        <div style="text-align:right;">
+                            <h1 style="color:red; margin:0; font-size:24px;">Bill of Lading</h1>
+                            <p><b>Booking No.:</b> <t t-esc="job.booking_number or '250075682'"/></p>
+                            <p><b>B/L No.:</b> <t t-esc="job.job_number or 'HNOSE25093792'"/></p>
+                            <p>For the carrier or his authorised agent</p>
+                        </div>
+                    </div>
+
+                    <!-- Main Info -->
+                    <div style="margin-top:20px; display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+                        <div>
+                            <p><b>Shipper / Exporter:</b></p>
+                            <p><t t-esc="job.booking_party or 'AN TRUONG SON PRODUCTION COMPANY LIMITED, LANG CHE VILLAGE, CHO MOI COMMUNE, THAI NGUYEN PROVINCE, VIET NAM'"/></p>
+                        </div>
+                        <div>
+                            <p><b>Consignee / Order:</b></p>
+                            <p><t t-esc="job.department or 'TO THE ORDER OF BUSAN BANK'"/></p>
+                        </div>
+                        <div>
+                            <p><b>Notify Party:</b></p>
+                            <p><t t-esc="job.commodity or 'SH TIMBER CO., LTD, 59, GADAL 1-RO, GANGSEO-GU, BUSAN, SOUTH KOREA'"/></p>
+                        </div>
+                        <div>
+                            <p><b>Received by the Carrier:</b></p>
+                            <p>Received by the Carrier the Goods as specified above in apparent external good order and conditions unless otherwise stated, to be transported to such place as agreed, authorised or permitted herein and subject to all the terms and conditions appearing on the front and reverse side of this Bill of Lading to which the merchant agrees by accepting this Bill of Lading in any local privileges and customs notwithstanding.</p>
+                        </div>
+                    </div>
+
+                    <!-- Vessel and Ports Info -->
+                    <div style="margin-top:20px;">
+                        <table style="width:100%; border-collapse:collapse;">
+                            <tr>
+                                <td><b>Pre-carriage vessel and Voy. No.</b></td>
+                                <td><t t-esc="job.pre_carriage_vessel or ''"/> | <t t-esc="job.pre_carriage_voy or ''"/></td>
+                                <td><b>Place of receipt (*)</b></td>
+                                <td><t t-esc="job.port_receipt or 'HAI PHONG PORT, VIETNAM'"/></td>
+                            </tr>
+                            <tr>
+                                <td><b>Ocean vessel and Voy. No.</b></td>
+                                <td><t t-esc="job.vessel or 'MAERSK NARVIK 536N'"/> | <t t-esc="job.voyage or ''"/></td>
+                                <td><b>Port of loading</b></td>
+                                <td><t t-esc="job.port_loading or 'HAI PHONG PORT, VIETNAM'"/></td>
+                            </tr>
+                            <tr>
+                                <td><b>Port of discharge</b></td>
+                                <td><t t-esc="job.port_discharge or 'BUSAN, SOUTH KOREA'"/></td>
+                                <td><b>Place of delivery (*)</b></td>
+                                <td><t t-esc="job.port_delivery or 'BUSAN, SOUTH KOREA'"/></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Container / Details -->
+                    <div style="margin-top:20px;">
+                        <h4>Container Information</h4>
+                        <table style="width:100%; border-collapse:collapse;" border="1">
+                            <thead style="background:#eee;">
+                                <tr>
+                                    <th>Container No</th>
+                                    <th>Description</th>
+                                    <th>Weight (KGS)</th>
+                                    <th>Volume (CBM)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="job.detail_ids" t-as="line">
+                                    <tr>
+                                        <td><t t-esc="line.container_no"/></td>
+                                        <td><t t-esc="line.description"/></td>
+                                        <td><t t-esc="line.weight"/></td>
+                                        <td><t t-esc="line.volume"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="margin-top:20px; text-align:right;">
+                        <p><b>In Witness whereof:</b> One original Bill of Lading has been signed. If not otherwise stated above, the same being accomplished the other(s), if any, to be void, if required by the carrier one (1) original Bill of Lading must be surrendered duly endorsed in exchange for the Goods or Delivery Order.</p>
+                        <p><b>Jurisdiction:</b> All disputes relating to goods carried under this bill are to be dealt with in accordance with the jurisdiction clause, clause ..... on the reverse side of this bill.</p>
+                        <p><b>Forwarding Agent - References:</b></p>
+                        <p>UNIVERSAL SEA and AIR CO., LTD, 63, JUNGANG-DAERO, JUNG-GU, BUSAN, KOREA</p>
+                        <p>EMAIL: MSCHOI@UNIVSA.COM; JWYOO@UNIVSA.COM</p>
+                    </div>
+
+                    <div style="margin-top:20px;">
+                        <p><b>Issued at:</b> Hanoi</p>
+                        <p><b>Date:</b> <t t-esc="job.job_date or 'September 11, 2025'"/></p>
+                        <p><b>As Agent for the Carrier:</b> <t t-esc="job.carrier or 'MAERSK'"/></p>
+                    </div>
+                </div>
+<table style="width:100%; border-collapse:collapse;">
+  <tr>
+    <!-- Cột trái: 6 div con -->
+    <td style="width:50%; vertical-align:top; border:1px solid #000; padding:5px;">
+<div style="border:1px solid #000; margin-bottom:5px; padding:5px; width:300px; height:150px; font-size:12px; line-height:1.4">
+  <strong>Shipper/Exporter (full name and address)</strong><br/>
+  <span style="display:block; margin-top:20px;">
+    AN TRUONG SON PRODUCTION COMPANY LIMITED<br/>
+    Lang Che Village, Cho Moi Commune<br/>
+    Thai Nguyen Province, Viet Nam
+  </span>
+</div>
+      <div style="border:1px solid #000; margin-bottom:5px; padding:5px;">
+          <strong>Consignee or Order (full name and  address)</strong><br/>
+            <span style="display:block; margin-top:20px;">
+               TO THE ORDER OFBUSAN BANK
+            </span>
+      </div>
+      <div style="border:1px solid #000; margin-bottom:5px; padding:5px;">
+           <strong>Notify party (full name andaddress, tel, fax)</strong><br/>
+           <span style="display:block; margin-top:20px;">
+               SH TIMBER.CO., LTD<br/>
+5               9, GADAL 1-RO, GANGSEO-GU, BUSAN, SOUTH KOREA
+            </span>
+      </div>
+        <div style="border:1px solid #000; margin-bottom:5px; padding:5px;">
+          <table style="width:100%; border-collapse:collapse;">
+            <tr>
+              <td style="width:50%; border:1px solid red; height:100px; text-align:center;">
+                   <strong>Pre-carriage vessel and Voy. No</strong><br/>
+              </td>
+              <td style="width:50%; border:1px solid blue; height:100px; text-align:center;">
+                   <p>Place of receipt (*)</p><br/>
+                            <strong>259075682</strong><br/>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="border:1px solid #000; margin-bottom:5px; padding:5px;">
+          <table style="width:100%; border-collapse:collapse;">
+            <tr>
+              <td style="width:50%; border:1px solid red; height:100px; text-align:center;">
+                       <p>Ocean vessel and Voy. No.</p><br/>
+                            <strong>MAERSK NARVIK 536N</strong><br/>
+              </td>
+              <td style="width:50%; border:1px solid blue; height:100px; text-align:center;">
+                    <p>Port of loading</p><br/>
+                            <strong>HAIPHONG PORT, VIETNAM</strong><br/>
+              </td>
+            </tr>
+          </table>
+        </div>
+           <div style="border:1px solid #000; margin-bottom:5px; padding:5px;">
+          <table style="width:100%; border-collapse:collapse;">
+            <tr>
+              <td style="width:50%; border:1px solid red; height:100px; text-align:center;">
+                    <p>Port of discharge</p><br/>
+                            <strong>BUSAN,SOUTH KOREA</strong><br/>
+              </td>
+              <td style="width:50%; border:1px solid blue; height:100px; text-align:center;">
+                    <p>Place of delivery (*)</p><br/>
+                            <strong>BUSAN,SOUTH KOREA</strong><br/>
+              </td>
+            </tr>
+          </table>
+        </div>
+    </td>
+
+    <!-- Cột phải: 4 div con -->
+    <td style="width:50%; vertical-align:top; border:1px solid #000; padding:5px;">
+        <div style="border:1px solid #000; margin-bottom:5px; padding:5px; text-align:center;">
+          <h1 style="margin:0; font-size:18px;">Bill of Lading</h1>
+           <img t-att-src="'data:image/png;base64,%s' % logo_base64"
+         style="width:100%; height:auto; max-height:200px; object-fit:contain;"/>
+        </div>
+
+       <div style="border:1px solid #000; margin-bottom:5px; padding:5px;">
+              <table style="width:100%; border-collapse:collapse;">
+                <tr>
+                  <td style="width:50%; border:1px solid red; height:100px; text-align:center;">
+                          <strong>Booking No</strong><br/>
+                            <strong>259075682</strong><br/>
+                  </td>
+                  <td style="width:50%; border:1px solid blue; height:100px; text-align:center;">
+                       <strong>B/LNo.:</strong><br/>
+                            <strong>HNOSE25093792</strong><br/>
+                  </td>
+                </tr>
+              </table>
+            </div>
+      <div style="border:1px solid #000; margin-bottom:5px; padding:5px;">
+          <p>For the carrier or his authorised agent</p><br/>
+          <p>RECEIVED by the Carrier the Goods as specified above inapparent external good orders and conditions unless otherwisestated, to be transported to such place as agreed, authorised orpermitted herein and subject to all the terms and conditionsappearing on the front and reverse side of this Bill of Lading towhich the merchant agrees by accepting this Bill of Lading inany local privileges and customs notwithstanding.
+The particulars given above as stated by the shipper and theweight, measure, quantity,condition,contents and value ofGoods are unknown to the Carrier.
+In WITNESS where of one (1) original Bill of Lading has beensigned if not otherwise stated above, the same beingaccomplished the other(s), if any, to be void, if required by thecarrier one (1)  original Bill of Lading must be surrenderedduly endorsed in exchange for the Goods or Delivery Order.</p>
+          <br/><p>
+JURISDICTION : All disputes relating to goods carried underthis bill are to be dealt with in accordance with thejurisdictionclause, clause…………on the reverse side of this bill./.(*) Applicable  only when document is used as a Combinedtransport Bill of Lading</p>
+      </div>
+      <div style="border:1px solid #000; margin-bottom:5px; padding:5px;">Div 4</div>
+    </td>
+  </tr>
+</table>
+
+
+
+            </t>
+        </t>
+    </template>
+</odoo>

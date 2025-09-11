@@ -1,5 +1,5 @@
 from odoo import models, fields, api
-
+import base64, os
 class CSJob(models.Model):
     _name = 'cs.job'
     _description = 'Customer Service Job Information'
@@ -46,9 +46,31 @@ class CSJob(models.Model):
         'job_id',  # field Many2one trỏ về cs.job
         string="Job Details"
     )
-
+    carrier = fields.Char(string="carrier")
+    port_delivery = fields.Char(string="port_delivery")
+    port_receipt =  fields.Char(string="port_receipt")
+    pre_carriage_vessel = fields.Char(string="Pre-Carriage Vessel")
+    pre_carriage_voy = fields.Char(string="Pre-Carriage Voyage")
     @api.model
     def create(self, vals):
         if not vals.get('job_number'):
             vals['job_number'] = self.env['ir.sequence'].next_by_code('cs.job.sequence')
         return super(CSJob, self).create(vals)
+    def action_print_HBL_bill(self):
+        return self.env.ref('hp_customer_service.action_report_HBL_bill').report_action(self)
+
+    def _get_report_values(self, docids, data=None):
+        docs = self.env['cs.job'].browse(docids)
+
+        # Lấy logo từ static module
+        module_path = os.path.dirname(__file__)
+        logo_path = os.path.join(module_path, '..', 'static', 'src', 'img', 'logo.png')
+        logo_base64 = ''
+        if os.path.exists(logo_path):
+            with open(logo_path, 'rb') as f:
+                logo_base64 = base64.b64encode(f.read()).decode('utf-8')
+
+        return {
+            'docs': docs,
+            'logo_base64': logo_base64,
+        }

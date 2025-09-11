@@ -25,7 +25,8 @@ Long description of module's purpose
         'security/ir.model.access.csv',
         'views/cs_job_views.xml',
         'views/cs_menus.xml',
-
+        'report/HBL_template.xml',
+        'report/ir_actions_report.xml',
     ],
     # only loaded in demonstration mode
     # 'demo': [

@@ -5,6 +5,12 @@
         <field name="model">cs.job</field>
         <field name="arch" type="xml">
             <list>
+                   <header>
+<button name="action_print_HBL_bill" string="Print HBL Bill"
+        type="object" class="btn-primary"/>
+
+</header>
+
                 <field name="job_number"/>
                 <field name="job_date"/>
                 <field name="service_type"/>
@@ -25,6 +31,12 @@
         <field name="model">cs.job</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+<button name="action_print_HBL_bill" string="Print HBL Bill"
+        type="object" class="btn-primary"/>
+
+</header>
+
                 <sheet>
     <!-- Nhóm 2 cột -->
                     <group>
