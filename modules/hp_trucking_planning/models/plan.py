@@ -88,6 +88,16 @@ class Plan(models.Model):
         compute='_compute_total_trips',
         store=False
     )
+    has_trips = fields.Boolean(
+        string="Has Trips",
+        compute='_compute_has_trips',
+        store=False
+    )
+
+    @api.depends('plan_line_ids.trip_ids')
+    def _compute_has_trips(self):
+        for record in self:
+            record.has_trips = any(line.trip_ids for line in record.plan_line_ids)
 
     @api.depends('date')
     def _compute_month_year(self):
