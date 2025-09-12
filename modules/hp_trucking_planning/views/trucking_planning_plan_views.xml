@@ -134,12 +134,11 @@
                 <filter string="Not Cancelled" name="not_cancelled" domain="[('status', '!=', 'cancel')]" />
 
                 <group expand="0" string="Group By">
+                    <filter string="Created Date" name="create_date" domain="['&amp;', ('create_date', '>=', self), ('create_date', '&lt;=', self + relativedelta(days=1))]" context="{'group_by':'create_date:day'}"/>
                     <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
                     <filter string="Plan Type" name="group_by_plan_type" context="{'group_by':'plan_type'}"/>
                     <filter string="Container Type" name="group_by_container_type" context="{'group_by':'container_type'}"/>
-                    <filter string="Date" name="group_by_date" context="{'group_by':'date'}"/>
-                    <filter string="Month" name="month" context="{'group_by': 'month'}" />
-                    <filter string="Year" name="year" context="{'group_by': 'year'}" />
+                    <filter string="Load/Return Date" name="group_by_date" context="{'group_by':'date'}"/>
                 </group>
             </search>
         </field>
