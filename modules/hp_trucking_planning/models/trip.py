@@ -515,16 +515,27 @@ class Trip(models.Model):
         # 2. Đóng hàng/ Hạ Hàng
         if plan and plan.date:
             result['loading_time'] = plan.date.strftime("%d/%m/%Y")
+        loading_location = None
+        contact_number = ''
 
         # Địa điểm đóng hàng (Loading Address): Different logic for import vs export
+        # Import: Địa điểm đóng hàng = address của to location (trong route)
         if plan and plan.plan_type == 'import':
-            # Import: Địa điểm đóng hàng = address của to location (trong route)
-            result['loading_location'] = plan_line.actual_destination_location_id.address if plan_line and plan_line.route_id and plan_line.route_id.to_location_id and plan_line.route_id.to_location_id.address else 'N/A'
+            location = plan_line.actual_destination_location_id if plan_line else None
+            if location:
+                address = location.address or ''
+                loading_location = f"{location.name} ({address})" if address else location.name
+                contact_number = location.contact_phone or ''
+        # Export: Địa điểm đóng hàng = place of pickup address
         else:
-            # Export: Địa điểm đóng hàng = place of pickup address
-            result['loading_location'] = plan_line.goods_pickup_location_id.address if plan_line and plan_line.goods_pickup_location_id and plan_line.goods_pickup_location_id.address else 'N/A'
+            location = plan_line.goods_pickup_location_id if plan_line else None
+            if location:
+                address = location.address or ''
+                loading_location = f"{location.name} ({address})" if address else location.name
+                contact_number = location.contact_phone or ''
 
-        result['contact_number'] = 'N/A'  # No contact_number field in plan model
+        result['loading_location'] = loading_location
+        result['contact_number'] = contact_number
 
         return result
 
