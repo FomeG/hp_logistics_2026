@@ -504,7 +504,11 @@ class Trip(models.Model):
         # Nơi hạ công (Delivery Port): Different logic for import vs export
         if plan and plan.plan_type == 'import':
             # Import: Nơi hạ công = place of delivery
-            result['delivery_port'] = plan_line.goods_delivery_location_id.name if plan_line and plan_line.goods_delivery_location_id else 'N/A'
+            location = plan_line.goods_delivery_location_id if plan_line else None
+            if location:
+                address = location.address or ''
+                delivery_port = f"{location.name} ({address})" if address else location.name
+            result['delivery_port'] = delivery_port
         else:
             # Export: Nơi hạ công = same port
             result['delivery_port'] = plan.location_id.name if plan and plan.location_id else 'N/A'
@@ -542,6 +546,8 @@ class Trip(models.Model):
     def _build_message_content(self):
         """Build the message content for trip"""
         route_info = self.get_route_info()
+        plan = self.plan_line_id.plan_id if self.plan_line_id else None
+        section_title = "Đóng hàng" if plan and plan.plan_type == 'import' else "Hạ hàng"
 
         message = f"""1. Thông tin đóng trả hàng:
 
@@ -551,7 +557,7 @@ class Trip(models.Model):
         Nơi hạ cont: {route_info['delivery_port']}
         Trọng lượng hàng: {route_info['goods_weight']}
 
-        2. Đóng hàng/ Hạ Hàng
+2. {section_title}:
 
         Thời gian đóng hàng: {route_info['loading_time']}
         Địa điểm đóng hàng: {route_info['loading_location']}
@@ -560,7 +566,7 @@ class Trip(models.Model):
         if route_info['notes'] and route_info['notes'].strip():
             message += f"""
 
-        3. Các Yêu Cầu khác:
+3. Các Yêu Cầu khác:
 
         Notes: {route_info['notes'].strip()}"""
 
