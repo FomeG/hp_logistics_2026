@@ -14,7 +14,12 @@ class ImportClientWizard(models.TransientModel):
         'res.users',
         string='Assign User',
         required=True,
-        domain=lambda self: self._get_assign_user_domain()
+        domain="[('id', 'in', allowed_user_ids)]"
+    )
+    allowed_user_ids = fields.Many2many(
+        'res.users',
+        compute='_compute_allowed_user_ids',
+        store=False
     )
     file = fields.Binary(string='Upload File (Excel)', required=True)
     file_name = fields.Char(string='File Name')
@@ -24,24 +29,20 @@ class ImportClientWizard(models.TransientModel):
     def _get_trucking_users(self):
         return DepartmentService(self.env).get_user_by_department_type(DepartmentService.DEPARTMENT_TYPE_TRUCKING)
 
-    @api.model
-    def _get_assign_user_domain(self):
-        allow_assign_users = self._get_trucking_users()
+    @api.depends('branch_id')
+    def _compute_allowed_user_ids(self):
+        for wizard in self:
+            trucking_users = wizard._get_trucking_users()
 
-        return [('id', 'in', allow_assign_users.ids)]
+            if not wizard.branch_id:
+                wizard.allowed_user_ids = trucking_users
+            else:
+                allowed_users = wizard.branch_id.user_ids.filtered(lambda u: u.id in trucking_users.ids)
+                wizard.allowed_user_ids = allowed_users
 
     @api.onchange('branch_id')
     def _onchange_branch_id(self):
         self.assign_user_id = False
-        allow_assign_users = self._get_trucking_users()
-
-        if self.branch_id:
-            allowed_users = allow_assign_users.filtered(lambda u: u.id in self.branch_id.user_ids.ids)
-        else:
-            allowed_users = allow_assign_users
-        return {
-            'domain': {'assign_user_id': [('id', 'in', allowed_users.ids)]}
-        }
 
     @api.onchange('file', 'file_name')
     def _onchange_file(self):
