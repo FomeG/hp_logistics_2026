@@ -121,8 +121,8 @@
                 <field name="shipping_line_id" string="Shipping Line"/>
                 <field name="name" string="Reference"/>
                 <field name="booking_bill_no"/>
-                <field name="month" string="Month" />
-                <field name="year" string="Year" />
+<!--                <field name="month" string="Month" />-->
+<!--                <field name="year" string="Year" />-->
 
                 <filter string="Export" name="export" domain="[('plan_type', '=', 'export')]"/>
                 <filter string="Import" name="import" domain="[('plan_type', '=', 'import')]"/>
