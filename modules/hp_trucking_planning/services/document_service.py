@@ -1,8 +1,8 @@
-from odoo import models
+from odoo import models, fields
 from odoo.exceptions import UserError
 import base64
 import io
-
+from datetime import datetime
 
 class DocumentService(models.AbstractModel):
     _name = 'document.service'
@@ -39,8 +39,11 @@ class DocumentService(models.AbstractModel):
             import re
             safe_driver_name = re.sub(r'[^\w\s-]', '', driver_name).strip()
             safe_driver_name = re.sub(r'[-\s]+', '_', safe_driver_name)
-            trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else trip.env['ir.fields.date'].today()
-            filename = f"GiayVanTai_{safe_driver_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
+            trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else fields.Datetime.now()
+            if isinstance(trip_date, datetime):
+                filename = f"GiayVanTai_{safe_driver_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
+            else:
+                filename = f"GiayVanTai_{safe_driver_name}_{trip_date.date().strftime('%d_%m_%Y')}.docx"
             
             attachment = trip.env['ir.attachment'].create({
                 'name': filename,
@@ -234,8 +237,8 @@ class DocumentService(models.AbstractModel):
         bold_run.bold = True
         info_para.add_run("    ")
         info_para.add_run("\nNgày đóng/trả hàng: ")
-        trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else trip.env['ir.fields.date'].today()
-        bold_run = info_para.add_run(f"{trip_date.strftime('%d/%m/%Y')}")
+        trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else fields.Datetime.now()
+        bold_run = info_para.add_run(f"{trip_date.strftime('%d/%m/%Y %H:%M')}")
         bold_run.bold = True
 
     def _generate_main_content_table(self, doc, trip):

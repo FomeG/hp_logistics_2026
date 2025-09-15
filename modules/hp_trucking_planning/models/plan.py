@@ -43,7 +43,7 @@ class Plan(models.Model):
         comodel_name='trucking_planning.shipping_line',
         required=True,
     )
-    date = fields.Date(
+    date = fields.Datetime(
         string='Load / Return Date',
         index=True,
         tracking=True,
@@ -60,18 +60,18 @@ class Plan(models.Model):
     goods_cut_off = fields.Datetime(
         string="Cut Off",
     )
-    month = fields.Integer(
-        string='Month',
-        compute='_compute_month_year',
-        store=True,
-        readonly=True,
-    )
-    year = fields.Integer(
-        string='Year',
-        compute='_compute_month_year',
-        store=True,
-        readonly=True,
-    )
+    # month = fields.Integer(
+    #     string='Month',
+    #     compute='_compute_month_year',
+    #     store=True,
+    #     readonly=True,
+    # )
+    # year = fields.Integer(
+    #     string='Year',
+    #     compute='_compute_month_year',
+    #     store=True,
+    #     readonly=True,
+    # )
     plan_line_ids = fields.One2many(
         comodel_name='trucking_planning.plan.line',
         inverse_name='plan_id',
@@ -100,15 +100,15 @@ class Plan(models.Model):
         for record in self:
             record.has_trips = any(line.trip_ids for line in record.plan_line_ids)
 
-    @api.depends('date')
-    def _compute_month_year(self):
-        for record in self:
-            if record.date:
-                record.month = record.date.month
-                record.year = record.date.year
-            else:
-                record.month = False
-                record.year = False
+    # @api.depends('date')
+    # def _compute_month_year(self):
+    #     for record in self:
+    #         if record.date:
+    #             record.month = record.date.month
+    #             record.year = record.date.year
+    #         else:
+    #             record.month = False
+    #             record.year = False
 
     @api.model_create_multi
     def create(self, vals_list):

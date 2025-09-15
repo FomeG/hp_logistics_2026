@@ -38,7 +38,7 @@ class Trip(models.Model):
         readonly=True,
         store=True,
     )
-    plan_date = fields.Date(
+    plan_date = fields.Datetime(
         related='plan_line_id.plan_id.date',
         string='Plan Date',
         readonly=True,
@@ -327,15 +327,18 @@ class Trip(models.Model):
                             f"Truck {vals['truck_id']} is already assigned to another trip in the same customer!")
 
                 if trip.plan_date:
-                    used_truck_ids_in_date = self.search([
-                        ('plan_date', '=', trip.plan_date),
-                        ('truck_id', '=', vals['truck_id']),
-                        ('id', '!=', trip.id),
-                        ('status', 'not in', ['cancelled']),
-                    ])
-                    if used_truck_ids_in_date:
-                        raise ValidationError(
-                            f"Truck {vals['truck_id']} is already assigned to another trip on the same date!")
+                    plan_date = trip.plan_date.date() if trip.plan_date else None
+                    if plan_date:
+                        used_truck_ids_in_date = self.search([
+                            ('plan_date', '>=',fields.Datetime.to_string(datetime.combine(plan_date, datetime.min.time()))),
+                            ('plan_date', '<', fields.Datetime.to_string(datetime.combine(plan_date + timedelta(days=1), datetime.min.time()))),
+                            ('truck_id', '=', vals['truck_id']),
+                            ('id', '!=', trip.id),
+                            ('status', 'not in', ['cancelled']),
+                        ])
+                        if used_truck_ids_in_date:
+                            raise ValidationError(
+                                f"Truck {vals['truck_id']} is already assigned to another trip on the same date!")
 
                 if trip.plan_date:
                     trip.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
@@ -518,7 +521,9 @@ class Trip(models.Model):
 
         # 2. Đóng hàng/ Hạ Hàng
         if plan and plan.date:
-            result['loading_time'] = plan.date.strftime("%d/%m/%Y")
+            user_tz = self.env.user.tz or 'Asia/Ho_Chi_Minh'
+            localized_date = fields.Datetime.context_timestamp(self, plan.date)
+            result['loading_time'] = localized_date.strftime("%d/%m/%Y %H:%M")
         loading_location = None
         contact_number = ''
 
@@ -628,8 +633,11 @@ class Trip(models.Model):
                 driver_name = trip.driver_id.name if trip.driver_id else 'N_A'
                 safe_driver_name = re.sub(r'[^\w\s-]', '', driver_name).strip()
                 safe_driver_name = re.sub(r'[-\s]+', '_', safe_driver_name)
-                trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else trip.env['ir.fields.date'].today()
-                filename = f"GiayVanTai_{safe_driver_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
+                trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else fields.Datetime.now()
+                if isinstance(trip_date, datetime):
+                    filename = f"GiayVanTai_{safe_driver_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
+                else:
+                    filename = f"GiayVanTai_{safe_driver_name}_{trip_date.date().strftime('%d_%m_%Y')}.docx"
 
                 # Write into ZIP
                 zipf.writestr(filename, doc_io.getvalue())
