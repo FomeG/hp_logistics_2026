@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_debit_note">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <!-- Gọi layout chuẩn của report -->
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: Arial, Helvetica, sans-serif; font-size: 12px;">
+                        <!-- Header -->
+                          <div style="margin-bottom:10px">
+                            <h1 style="font-size:16px; font-weight:bold;">Kính gửi : CÔNG TY TNHH CHÈ PHÚ HÒA</h1>
+                              <br/>
+                              <p>Công ty CP TiếpVận HP xin gửi lời cảmơn tới Quý Công ty trong thời gian quađã sửdụng dịch vụcủa chúng tôi.Dướiđây là danh sách hàng mà chúng tôiđã vận chuyển cho Quý Công ty</p>
+
+                        </div>
+                        <div style="text-align:center; font-size:25px; font-weight:bold; margin-bottom:10px;color: blue">
+                            DEBIT NOTE
+                        </div>
+
+                        <div style="width:100%; margin-bottom:10px; overflow:hidden;">
+                            <div style="width:50%; float:left;">
+                                <p>Số tờ khai:</p>
+                                <p>Ghi chú:</p>
+                            </div>
+                            <div style="width:50%; float:right; text-align:right;">
+                                <p>No.: <span t-esc="o.job_number or ''"/></p>
+                                <p>Date: <span t-esc="o.create_date.strftime('%d/%m/%Y') if o.create_date else ''"/></p>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <table style="width:100%; border-collapse:collapse; font-size:12px;" border="1">
+                            <thead>
+                                <tr>
+                                    <th style="width:5%;">STT</th>
+                                    <th style="width:25%;">Các loại chi phí</th>
+                                    <th style="width:10%;">Số hóa đơn</th>
+                                    <th style="width:10%;">Số vận đơn</th>
+                                    <th style="width:10%;">Đơn vị tính</th>
+                                    <th style="width:10%;">Số lượng</th>
+                                    <th style="width:10%;">Đơn giá (VND)</th>
+                                    <th style="width:10%;">Giá chưa thuế (VND)</th>
+                                    <th style="width:10%;">Tổng (VND)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="9" style="font-weight:bold;">I. Chi phí HP xuất hóa đơn</td>
+                                </tr>
+                                <t t-set="idx" t-value="0"/>
+                                <t t-foreach="o.detail_ids" t-as="line" t-foreach-index="i">
+                                    <t t-set="idx" t-value="idx + 1"/>
+                                    <tr>
+                                        <td style="text-align:center;"><span t-esc="idx"/></td>
+                                        <td><span t-esc="line.shipper_id or ''"/></td>
+                                        <td style="text-align:center;"><span t-esc="line.shipper_id or ''"/></td>
+                                        <td style="text-align:center;"><span t-esc="line.shipper_id or ''"/></td>
+                                        <td style="text-align:center;"><span t-esc="line.shipper_id or ''"/></td>
+                                        <td style="text-align:center;"><span t-esc="line.shipper_id or 1.00"/></td>
+                                        <td style="text-align:right;"><span t-esc="line.shipper_id"/></td>
+                                        <td style="text-align:right;"><span t-esc="line.shipper_id"/></td>
+                                        <td style="text-align:right;"><span t-esc="line.shipper_id"/></td>
+                                    </tr>
+                                </t>
+                                 <!-- Tổng chi phí -->
+        <tr>
+            <td colspan="9" style="text-align:right; font-weight:bold;">
+                Tổng chi phí HP xuất hóa đơn:
+                <span t-esc="o.job_number"/>
+            </td>
+        </tr>
+                                <tbody>
+    <!-- Phần II -->
+    <tr>
+        <td colspan="9" style="font-weight:bold;">II. Chi phí khác</td>
+    </tr>
+
+    <t t-foreach="o.detail_ids" t-as="line" t-foreach-index="i">
+        <tr>
+            <td style="text-align:center;">
+                <span t-esc="o.job_number"/>
+            </td>
+            <td>
+                <span t-esc="o.job_number"/>
+            </td>
+            <td style="text-align:right;">
+                <span t-esc="o.job_number"/>
+            </td>
+             <td style="text-align:center;">
+                <span t-esc="o.job_number"/>
+            </td>
+            <td>
+                <span t-esc="o.job_number"/>
+            </td>
+            <td style="text-align:right;">
+                <span t-esc="o.job_number"/>
+            </td>
+             <td style="text-align:center;">
+                <span t-esc="o.job_number"/>
+            </td>
+            <td>
+                <span t-esc="o.job_number"/>
+            </td>
+            <td style="text-align:right;">
+                <span t-esc="o.job_number"/>
+            </td>
+            <!-- các cột khác tùy bạn -->
+        </tr>
+    </t>
+
+    <!-- Dòng tổng -->
+    <tr>
+        <td colspan="9" style="text-align:right; font-weight:bold;">
+            Tổng chi phí khác:
+            <span t-esc="o.job_number"/>
+        </td>
+    </tr>
+</tbody>
+
+                            </tbody>
+                        </table>
+                        <!-- Các dòng mô tả -->
+<p>
+    Tổng số tiền thu hộ trả hộ (chuyển vào tài khoản cá nhân):
+    <span t-esc="o.job_number"/> VNĐ
+</p>
+<p>
+    Tổng số tiền CTY CP TIẾP VẬN HP xuất hóa đơn (chuyển vào tài khoản công ty):
+    <span t-esc="o.job_number"/> VNĐ
+</p>
+<p>
+    Đề nghị Quý Công ty thanh toán cho Công ty chúng tôi theo chi tiết TK sau:
+</p>
+
+<!-- Tiêu đề phần thanh toán -->
+<table style="width:100%; margin-top:10px; font-size:12px;">
+    <tr>
+        <td style="font-weight:bold; text-decoration:underline;">
+            Thanh toán chi phí xuất hoá đơn vào tài khoản:
+        </td>
+        <td style="font-weight:bold; text-decoration:underline;">
+            Thanh toán chi phí thu hộ vào tài khoản:
+        </td>
+    </tr>
+</table>
+
+<!-- Thông tin 2 tài khoản -->
+<table style="width:100%; margin-top:10px; font-size:12px; border:none;">
+    <tr>
+        <td style="width:50%;">
+            <p><b>Tên tài khoản:</b> CÔNG TY CỔ PHẦN TIẾP VẬN HP</p>
+            <p><b>Số tài khoản:</b> 1303200988</p>
+            <p><b>Tên ngân hàng:</b> Ngân hàng TMCP Á Châu - Chi nhánh Hà Nội</p>
+            <p><b>Nội dung UNC ghi:</b> Mã số thuế khách hàng thanh toán cho hóa đơn (hoặc BILL)</p>
+        </td>
+        <td style="width:50%;">
+            <p><b>Tên tài khoản:</b> Lê Thùy Dương</p>
+            <p><b>Số tài khoản:</b> 0011001408688</p>
+            <p><b>Tên ngân hàng:</b> Vietcombank Sở giao dịch</p>
+        </td>
+    </tr>
+</table>
+
+<!-- Chữ ký -->
+<table style="width:100%; margin-top:30px; font-size:12px; border:none;">
+    <tr>
+        <td style="width:50%; text-align:center; font-weight:bold;">
+            ĐẠI DIỆN CÔNG TY TNHH CHÈ PHÚ HÒA
+        </td>
+        <td style="width:50%; text-align:center; font-weight:bold;">
+            ĐẠI DIỆN CÔNG TY HP
+        </td>
+    </tr>
+</table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

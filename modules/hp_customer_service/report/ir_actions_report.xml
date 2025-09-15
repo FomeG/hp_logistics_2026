@@ -7,4 +7,12 @@
         <field name="report_file">hp_customer_service.report_HBL_bill</field>
         <field name="print_report_name">'HBL Bill - %s' % (object.job_number)</field>
     </record>
+    <record id="action_report_debit_note" model="ir.actions.report">
+        <field name="name">HBL Bill</field>
+        <field name="model">cs.job</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hp_customer_service.report_debit_note</field>
+        <field name="report_file">hp_customer_service.report_debit_note</field>
+        <field name="print_report_name">'Debit Note - %s' % (object.job_number)</field>
+    </record>
 </odoo>

@@ -26,6 +26,7 @@ Long description of module's purpose
         'views/cs_job_views.xml',
         'views/cs_menus.xml',
         'report/HBL_template.xml',
+        'report/debit_template.xml',
         'report/ir_actions_report.xml',
     ],
     # only loaded in demonstration mode

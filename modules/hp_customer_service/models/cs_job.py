@@ -58,7 +58,8 @@ class CSJob(models.Model):
         return super(CSJob, self).create(vals)
     def action_print_HBL_bill(self):
         return self.env.ref('hp_customer_service.action_report_HBL_bill').report_action(self)
-
+    def action_print_debit(self):
+        return self.env.ref('hp_customer_service.action_report_debit_note').report_action(self)
     def _get_report_values(self, docids, data=None):
         docs = self.env['cs.job'].browse(docids)
 
