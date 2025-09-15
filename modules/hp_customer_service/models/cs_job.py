@@ -16,12 +16,14 @@ class CSJob(models.Model):
         string="Service Type",
         default='door-cy'
     )
-    job_number_reference = fields.Char(
-        string="Job Number Reference",
-    )
     department = fields.Char(string="Department", default="SEA EXPORT")
     master_bl_date = fields.Char(string="Master B/L Date")
-    shipping_lines = fields.Char(string="Shipping Lines")  # thay vì Many2one
+    shipping_line_id = fields.Many2one(
+        'res.partner',
+        string="Shipping Line",
+        domain="[('partner_main_type_id.code', '=', 'shipping_line')]",
+        help="Chọn Shipping Line cho Job này"
+    )
     vessel = fields.Char(string="Vessel")
     voyage = fields.Char(string="Voyage")
     port_loading = fields.Char(string="Port of Loading")   # thay vì Many2one

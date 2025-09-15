@@ -15,7 +15,6 @@
                 <field name="job_date"/>
                 <field name="service_type"/>
                 <field name="department"/>
-                <field name="shipping_lines"/>
                 <field name="vessel"/>
                 <field name="voyage"/>
                 <field name="port_loading"/>
@@ -43,8 +42,7 @@
     <group string="Job information" >
         <field name="job_number"/>
         <field name="job_date"/>
-        <field name="job_number_reference"/>
-        <field name="shipping_lines"/>
+        <field name="shipping_line_id"/>
     </group>
 
     <!-- Nhóm nhiều cột -->
