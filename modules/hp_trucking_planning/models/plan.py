@@ -36,7 +36,8 @@ class Plan(models.Model):
         required=True,
         string="Port Pickup / Drop",
         tracking=True,
-        domain=[('type', '=', 'route_point')],
+        domain=[('type', '=', 'port')],
+
     )
     shipping_line_id = fields.Many2one(
         comodel_name='trucking_planning.shipping_line',
