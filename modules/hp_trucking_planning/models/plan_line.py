@@ -119,7 +119,7 @@ class PlanLine(models.Model):
         string="Goods Delivery Location",
         required=True,
         tracking=True,
-        domain=[('type', 'in', ['goods_pickup_delivery', 'port'])],
+        domain=[('type', '=', 'port')],
         help="Location where goods will be delivered (Export) or picked up (Import)"
     )
 
