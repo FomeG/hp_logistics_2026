@@ -2,8 +2,11 @@ from odoo import models, api, fields
 from odoo.exceptions import UserError, ValidationError
 import base64
 import math
+import logging
 from datetime import datetime, timedelta
 from ..services.planning_service import planning_service
+
+_logger = logging.getLogger(__name__)
 
 
 class Trip(models.Model):
@@ -256,6 +259,21 @@ class Trip(models.Model):
         compute='_compute_is_eta_near',
         store=True,
         help='True if trip ETA is within the configured threshold'
+    )
+    
+    is_current = fields.Boolean(
+        string='Current Trip',
+        default=False,
+        tracking=True,
+        help='Indicates if this is the driver\'s current active trip for GPS tracking'
+    )
+    
+    checkpoint_ids = fields.One2many(
+        comodel_name='trucking_planning.trip_checkpoint',
+        inverse_name='trip_id',
+        string='GPS Checkpoints',
+        help='GPS location checkpoints for this trip',
+        order='create_date desc'
     )
 
     def action_duplicate_with_queue(self):
@@ -723,5 +741,44 @@ class Trip(models.Model):
         trips = self.search([])
         trips._compute_is_eta_near()
         return True
+
+    @api.model
+    def write(self, vals):
+        """Override write to automatically unset other current trips when setting one as current"""
+        result = super().write(vals)
+        
+        # If is_current is being set to True, unset other trips for the same driver
+        if vals.get('is_current') is True:
+            for trip in self:
+                if trip.driver_id:
+                    # Find other current trips for the same driver and unset them
+                    other_current_trips = self.search([
+                        ('id', '!=', trip.id),
+                        ('driver_id', '=', trip.driver_id.id),
+                        ('is_current', '=', True),
+                        ('status', 'not in', ['cancelled', 'done'])
+                    ])
+                    if other_current_trips:
+                        other_current_trips.write({'is_current': False})
+                        _logger.info(f"Auto-unset {len(other_current_trips)} other current trips for driver {trip.driver_id.name}")
+        
+        return result
+
+
+    def action_view_checkpoints(self):
+        """View all GPS checkpoints for this trip"""
+        self.ensure_one()
+        return {
+            'name': f'GPS Checkpoints - {self.code or f"Trip {self.id}"}',
+            'res_model': 'trucking_planning.trip_checkpoint',
+            'view_mode': 'list,form',
+            'domain': [('trip_id', '=', self.id)],
+            'context': {
+                'default_trip_id': self.id,
+                'search_default_trip_id': self.id,
+            },
+            'type': 'ir.actions.act_window',
+            'target': 'inline',
+        }
 
     

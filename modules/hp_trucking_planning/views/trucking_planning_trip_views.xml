@@ -37,6 +37,7 @@
                 <field name="trailer_id"/>
                 <field name="weight_class"/>
                 <field name="freeway"/>
+                <field name="is_current" widget="boolean_toggle"/>
                 <field name="fuel_liters"/>
                 <field name="total_cost"/>
                 <field name="plan_estimate_time_arrival" string="ETA"/>
@@ -152,6 +153,12 @@
                         <field name="weight_class"/>
                         <field name="freeway"/>
                     </group>
+                    <group string="GPS Tracking" invisible="not driver_id">
+                        <field name="is_current" 
+                               widget="boolean_toggle"
+                               string="Current Trip for GPS"
+                               help="Mark this trip as current for GPS location tracking"/>
+                    </group>
                     <group string ="Container Information">
                         <field name="container_number"/>
                         <field name="seal_number"/>
@@ -174,6 +181,13 @@
                                 <field name="goods_weight"/>
                                 <field name="goods_cut_off"/>
                             </group>
+                        </page>
+
+                        <page string="GPS Checkpoints" invisible="not id">
+                            <field name="checkpoint_ids" 
+                                   widget="one2many" 
+                                   context="{'default_trip_id': id}"
+                                   options="{'create': false, 'delete': false}"/>
                         </page>
 
                         <page string="Notes">
@@ -210,6 +224,7 @@
                 <filter string="Export" name="export" domain="[('plan_type', '=', 'export')]"/>
                 <filter string="Import" name="import" domain="[('plan_type', '=', 'import')]"/>
                 <filter string="Freeway" name="freeway" domain="[('freeway', '=', True)]"/>
+                <filter string="Current GPS Trip" name="current_gps" domain="[('is_current', '=', True)]"/>
                 <filter string="Not Cancelled" name="not_cancelled" domain="[('status', '!=', 'cancelled')]" />
                 <filter string="⚠️ Nearing ETA" name="nearing_eta" domain="[('is_eta_near', '=', True)]" />
 

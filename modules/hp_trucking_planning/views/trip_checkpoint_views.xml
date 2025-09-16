@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Trip Checkpoint Tree View -->
+    <record id="view_trip_checkpoint_tree" model="ir.ui.view">
+        <field name="name">trucking_planning.trip_checkpoint.tree</field>
+        <field name="model">trucking_planning.trip_checkpoint</field>
+        <field name="arch" type="xml">
+            <list string="GPS Checkpoints" create="false" edit="false" delete="false">
+                <field name="create_date"/>
+                <field name="trip_id"/>
+                <field name="latitude"/>
+                <field name="longitude"/>
+                <button name="action_view_on_map" type="object" 
+                        string="View on Map" icon="fa-map-marker"
+                        class="btn-link"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Trip Checkpoint Form View -->
+    <record id="view_trip_checkpoint_form" model="ir.ui.view">
+        <field name="name">trucking_planning.trip_checkpoint.form</field>
+        <field name="model">trucking_planning.trip_checkpoint</field>
+        <field name="arch" type="xml">
+            <form string="GPS Checkpoint">
+                <header>
+                    <button name="action_view_on_map" type="object" 
+                            string="View on Map" icon="fa-map-marker"
+                            class="btn-link"/>
+                    <field name="display_name" invisible="1"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="trip_info">
+                            <field name="trip_id" required="1"/>
+                            <field name="create_date" readonly="1"/>
+                        </group>
+                        <group name="location_info">
+                            <field name="latitude" required="1"/>
+                            <field name="longitude" required="1"/>
+                        </group>
+                    </group>
+                    <!-- Inline Google Maps -->
+                    <div invisible="not map_url">
+                        <h3>Location Map</h3>
+                        <field name="map_url" widget="html"/>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Trip Checkpoint Search View -->
+    <record id="view_trip_checkpoint_search" model="ir.ui.view">
+        <field name="name">trucking_planning.trip_checkpoint.search</field>
+        <field name="model">trucking_planning.trip_checkpoint</field>
+        <field name="arch" type="xml">
+            <search string="Search GPS Checkpoints">
+                <field name="trip_id"/>
+                <filter string="Today" name="today" 
+                        domain="[('create_date', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0))),
+                                ('create_date', '&lt;=', datetime.datetime.combine(context_today(), datetime.time(23,59,59)))]"/>
+                <filter string="This Week" name="this_week"
+                        domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=context_today().weekday())).strftime('%Y-%m-%d')),
+                                ('create_date', '&lt;=', (context_today() + datetime.timedelta(days=6-context_today().weekday())).strftime('%Y-%m-%d 23:59:59'))]"/>
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Trip" name="group_trip" context="{'group_by': 'trip_id'}"/>
+                    <filter string="Date" name="group_date" context="{'group_by': 'create_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Trip Checkpoint Kanban View -->
+    <record id="view_trip_checkpoint_kanban" model="ir.ui.view">
+        <field name="name">trucking_planning.trip_checkpoint.kanban</field>
+        <field name="model">trucking_planning.trip_checkpoint</field>
+        <field name="arch" type="xml">
+            <kanban string="GPS Checkpoints">
+                <field name="trip_id"/>
+                <field name="create_date"/>
+                <field name="latitude"/>
+                <field name="longitude"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="trip_id"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_body">
+                                    <div class="o_kanban_record_bottom">
+                                        <div class="oe_kanban_bottom_left">
+                                            <field name="create_date"/>
+                                        </div>
+                                        <div class="oe_kanban_bottom_right">
+                                            <span class="badge badge-info">
+                                                <t t-esc="record.latitude.value"/>°, <t t-esc="record.longitude.value"/>°
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Trip Checkpoint Action -->
+    <record id="action_trip_checkpoint" model="ir.actions.act_window">
+        <field name="name">GPS Checkpoints</field>
+        <field name="res_model">trucking_planning.trip_checkpoint</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create GPS Checkpoints
+            </p>
+            <p>
+                GPS checkpoints are automatically created when drivers send their location via Zalo messages.
+                You can view and analyze the location history for each trip.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Items -->
+    <menuitem id="menu_trip_checkpoint_root" 
+              name="GPS Tracking" 
+              parent="menu_trucking_root" 
+              sequence="50"/>
+
+    <menuitem id="menu_trip_checkpoint" 
+              name="GPS Checkpoints" 
+              parent="menu_trip_checkpoint_root" 
+              action="action_trip_checkpoint" 
+              sequence="10"/>
+
+</odoo>
