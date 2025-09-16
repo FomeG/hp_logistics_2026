@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_HBL_bill">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.basic_layout">
+                    <style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+        margin: 0;
+    }
+
+    table, th, td {
+        border: 1px solid black;
+    }
+
+<!--    td {-->
+<!--        padding: 5px;-->
+<!--    }-->
+
+<!--    .no-border td {-->
+<!--        border: none !important;-->
+<!--    }-->
+</style>
+
+                    <div class="page" style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; font-size: 12px;">
+                        <main style="margin: 0; padding: 20px 0;">
+                            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                                <tr>
+                                    <td style="width: 50%; vertical-align: top; border: 1px solid #000;">
+                                        <div style="width: 100%;box-sizing:border-box;border-bottom: 1px solid #000;  height: 150px; font-size: 12px; line-height: 1.4;">
+                                            <span>Shipper/Exporter (full name and address)</span><br/>
+                                            <h1 style="display: block; margin-top: 20px;word-break: break-word;font-size: 16px;">
+                                                 <t t-esc="o.carrier or 'TEST CARRIER'"/>
+                                            </h1>
+                                        </div>
+                                        <div style=" width: 100%;border-bottom: 1px solid #000; margin-bottom: 5px; padding: 5px;">
+                                            <span>Consignee or Order (full name and address)</span><br/>
+                                            <h1 style="display: block; margin-top: 20px;font-size: 16px;word-break: break-word;">
+                                                TO THE ORDER OF BUSAN BANK
+                                            </h1>
+                                        </div>
+                                        <div style="width: 100%;border-bottom: 1px solid #000;margin-bottom: 5px; padding: 5px;">
+                                            <span>Notify party (full name and address, tel, fax)</span><br/>
+                                            <h1 style="display: block; margin-top: 20px;word-break: break-word;font-size: 16px;">
+                                                SH TIMBER CO., LTD<br/>
+                                                59, GADAL 1-RO, GANGSEO-GU, BUSAN, SOUTH KOREA
+                                            </h1>
+                                        </div>
+<div style="width:100%; font-size:12px; overflow:hidden;border-bottom: 1px solid #000;">
+    <!-- Cột trái -->
+    <div style="border-right: 1px solid #000;width:49%; float:left; height:100px; text-align:center; box-sizing:border-box;">
+        Pre-carriage vessel and Voy. No
+    </div>
+
+    <!-- Cột phải -->
+    <div style="width:49%; float:right; height:100px; text-align:center; padding:5px; box-sizing:border-box;">
+        <p style="margin:0;">Place of receipt (*)</p>
+        <h1 style="margin-top:10px; font-size:16px; word-break:break-word;">
+            <t t-esc="o.port_receipt or '259075682'"/>
+        </h1>
+    </div>
+</div>
+<div style="width:100%;clear:both;"></div>
+
+
+
+
+
+<div style="border-bottom: 1px solid #000; overflow:hidden;">
+    <!-- Cột trái -->
+    <div style="width:49%; float:left; height:100px; text-align:center; padding:5px; box-sizing:border-box; border-right:1px solid #000;">
+        <p style="margin:0;">Ocean vessel and Voy. No.</p>
+        <h1 style="display:block; margin-top:20px; font-size:16px; word-break:break-word;">
+            <t t-esc="o.vessel or 'MAERSK NARVIK 536N'"/>
+        </h1>
+    </div>
+
+    <!-- Cột phải -->
+    <div style="width:49%; float:right; height:100px; text-align:center; box-sizing:border-box;">
+        <p style="margin:0;">Port of loading</p>
+        <h1 style="display:block; margin-top:20px; font-size:16px; word-break:break-word;">
+            <t t-esc="o.port_loading or 'HAIPHONG PORT, VIETNAM'"/>
+        </h1>
+    </div>
+
+    <div style="clear:both;"></div>
+</div>
+
+<div style="overflow:hidden;">
+    <!-- Cột trái -->
+    <div style="width:49%; float:left; height:100px; text-align:center; box-sizing:border-box; border-right:1px solid #000;">
+        <p style="margin:0;">Port of discharge</p>
+        <h1 style="display:block; margin-top:20px; font-size:16px; word-break:break-word;">
+            <t t-esc="o.port_discharge or 'BUSAN, SOUTH KOREA'"/>
+        </h1>
+    </div>
+
+    <!-- Cột phải -->
+    <div style="width:49%; float:right; height:100px; text-align:center; padding:5px; box-sizing:border-box;">
+        <p style="margin:0;">Place of delivery (*)</p>
+        <h1 style="display:block; margin-top:20px; font-size:16px; word-break:break-word;">
+            <t t-esc="o.port_delivery or 'BUSAN, SOUTH KOREA'"/>
+        </h1>
+    </div>
+
+    <div style="clear:both;"></div>
+</div>
+
+                                    </td>
+                                    <td style="width: 50%; vertical-align: top; border: 1px solid #000;">
+                                        <div style="border_bottom: 1px solid #000; text-align: center;">
+                                            <h1 style="font-size: 25px; text-align : center;">Bill of Lading</h1>
+                                        </div>
+<div style="border: 1px solid #000; overflow:hidden; margin: 0px">
+    <!-- Cột trái -->
+    <div style="width:49%; float:left; height:100px; text-align:center; padding:5px; box-sizing:border-box; border-right:1px solid #000;">
+        <p style="margin:0;">Booking No</p>
+        <h1 style="display:block; margin-top:10px; font-size:16px; word-break:break-word;">
+            <t t-esc="o.booking_number or '259075682'"/>
+        </h1>
+    </div>
+
+    <!-- Cột phải -->
+    <div style="width:49%; float:right; height:100px; text-align:center; padding:5px; box-sizing:border-box;">
+        <p style="margin:0;">B/L No.:</p>
+        <h1 style="display:block; margin-top:10px; font-size:16px; word-break:break-word;">
+            <t t-esc="o.job_number or 'HNOSE25093792'"/>
+        </h1>
+    </div>
+
+    <div style="clear:both;"></div>
+</div>
+
+                                        <div style="border_bottom: 1px solid #000; margin-bottom: 5px; padding: 5px;">
+                                            <p style="margin: 0; padding: 0;">For the carrier or his authorised agent</p>
+                                            <p style="margin: 0; padding: 0;">RECEIVED by the Carrier the Goods as specified above in apparent external good order and conditions unless otherwise stated, to be transported to such place as agreed, authorised or permitted herein and subject to all the terms and conditions appearing on the front and reverse side of this Bill of Lading to which the merchant agrees by accepting this Bill of Lading in any local privileges and customs notwithstanding.</p>
+                                            <p style="margin: 0; padding: 0;">The particulars given above as stated by the shipper and the weight, measure, quantity, condition, contents and value of Goods are unknown to the Carrier.</p>
+                                            <p style="margin: 0; padding: 0;">In WITNESS whereof one (1) original Bill of Lading has been signed if not otherwise stated above, the same being accomplished the other(s), if any, to be void, if required by the carrier one (1) original Bill of Lading must be surrendered duly endorsed in exchange for the Goods or Delivery Order.</p>
+                                            <p style="margin: 0; padding: 0;">JURISDICTION: All disputes relating to goods carried under this bill are to be dealt with in accordance with the jurisdiction clause, clause …… on the reverse side of this bill. (*) Applicable only when document is used as a Combined Transport Bill of Lading</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Carrier and Shipper Details -->
+<div style="width:100%; font-size:12px; overflow:hidden;border: 1px solid #000;">
+    <!-- Cột trái -->
+    <div style="width:30%; float:left; text-align:center; padding:5px; box-sizing:border-box; border-right:1px solid #000;">
+        Carrier’s receipt
+    </div>
+
+    <!-- Cột phải -->
+    <div style="width:69%; float:right; text-align:center; padding:5px; box-sizing:border-box;">
+        Particulars furnished by shipper but not acknowledged by the carrier
+    </div>
+
+    <div style="clear:both;"></div>
+</div>
+
+                            <table class="table table-bordered" style="width: 100%; border-collapse: collapse; font-size: 12px; margin:0;">
+                                <thead>
+                                    <tr>
+                                        <td style="width: 30%; text-align: center;">Container No. and Seal No Marks and Numbers</td>
+                                        <td style="width: 40%; text-align: center;">No. and kind of container or package - Description of goods</td>
+                                        <td style="width: 15%; text-align: center;">Gross weight</td>
+                                        <td style="width: 15%; text-align: center;">Measurement</td>
+                                    </tr>
+                                </thead>
+                            </table>
+                            <table class="table table-bordered" style="width: 100%; border-collapse: collapse; font-size: 12px; margin:0;">
+                                <thead>
+                                    <tr>
+                                        <td style="width: 70%; text-align: center;">02X40HCCONTAINER S.T.C.:</td>
+                                        <td style="width: 15%; text-align: center;">48,000.00 KGS</td>
+                                        <td style="width: 15%; text-align: center;">102.88 CBM</td>
+                                    </tr>
+                                </thead>
+                            </table>
+                            <div style="border: 1px solid #000; font-size: 12px;">
+                                <p><b>SHIPPING MARK:</b> <span t-esc="shipping_mark or ''"/></p>
+                            </div>
+
+                            <!-- Footer Details -->
+                        <table class="table table-bordered" style="width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 0px;">
+    <tr>
+        <td style="width: 30%;">
+            <i>Freight and charges</i><br/>
+            <b><span t-esc="freight_charges or ''"/></b>
+        </td>
+        <td style="width: 30%; vertical-align: top;">
+            <div style="width:100%; border-bottom: 1px solid #000; padding-bottom: 3px; margin-bottom: 3px;">
+                <i>Freight payable at</i><br/>
+                <b><span t-esc="freight_payable_at or ''"/></b>
+            </div>
+            <div>
+                <i>Declared value of good</i><br/>
+                <span t-esc="declared_value_goods or ''"/>
+            </div>
+        </td>
+        <td style="width: 40%; vertical-align: top;">
+            <i>Place and date of issue</i><br/>
+            <b><span t-esc="place_issue or 'Hanoi'"/>, <span t-esc="date_issue or 'September 12, 2025'"/></b>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <i>Exchange Rate</i><br/>
+            <span t-esc="exchange_rate or ''"/>
+        </td>
+        <td>
+            <i>Number of Original B/L</i><br/>
+            <span t-esc="num_original_bl or '1'"/>
+        </td>
+        <td rowspan="2" style="text-align: right; vertical-align: bottom;">
+            <div style="text-align: right;">
+                <i>By ………………………………………</i>
+            </div>
+        </td>
+    </tr>
+
+    <tr>
+        <td>
+            <i>Movement:</i><br/>
+            <b><span t-esc="movement or ''"/></b>
+        </td>
+        <td>
+            <i>Laden on board:</i><br/>
+            <b><span t-esc="laden_place or 'HAI PHONG'"/>, <span t-esc="laden_date or 'September 12, 2025'"/></b>
+        </td>
+    </tr>
+</table>
+
+                        </main>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
