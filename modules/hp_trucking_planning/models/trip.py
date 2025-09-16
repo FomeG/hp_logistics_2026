@@ -267,6 +267,14 @@ class Trip(models.Model):
         tracking=True,
         help='Indicates if this is the driver\'s current active trip for GPS tracking'
     )
+    
+    checkpoint_ids = fields.One2many(
+        comodel_name='trucking_planning.trip_checkpoint',
+        inverse_name='trip_id',
+        string='GPS Checkpoints',
+        help='GPS location checkpoints for this trip',
+        order='create_date desc'
+    )
 
     def action_duplicate_with_queue(self):
         for trip in self:
@@ -767,9 +775,10 @@ class Trip(models.Model):
             'domain': [('trip_id', '=', self.id)],
             'context': {
                 'default_trip_id': self.id,
+                'search_default_trip_id': self.id,
             },
             'type': 'ir.actions.act_window',
-            'target': 'current',
+            'target': 'inline',
         }
 
     

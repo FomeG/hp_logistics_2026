@@ -25,7 +25,8 @@
             <form string="GPS Checkpoint">
                 <header>
                     <button name="action_view_on_map" type="object" 
-                            string="View on Map" class="btn-primary"/>
+                            string="View on Map" icon="fa-map-marker"
+                            class="btn-link"/>
                     <field name="display_name" invisible="1"/>
                 </header>
                 <sheet>
@@ -44,6 +45,11 @@
                             <field name="longitude" required="1"/>
                         </group>
                     </group>
+                    <!-- Inline Google Maps -->
+                    <div invisible="not map_url">
+                        <h3>Location Map</h3>
+                        <field name="map_url" widget="html"/>
+                    </div>
                 </sheet>
             </form>
         </field>

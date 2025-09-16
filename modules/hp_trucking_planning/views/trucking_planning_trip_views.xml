@@ -158,12 +158,6 @@
                                widget="boolean_toggle"
                                string="Current Trip for GPS"
                                help="Mark this trip as current for GPS location tracking"/>
-                        <button name="action_view_checkpoints" 
-                                type="object" 
-                                string="View GPS Checkpoints" 
-                                class="btn-secondary"
-                                icon="fa-map-marker"
-                                invisible="not id"/>
                     </group>
                     <group string ="Container Information">
                         <field name="container_number"/>
@@ -187,6 +181,13 @@
                                 <field name="goods_weight"/>
                                 <field name="goods_cut_off"/>
                             </group>
+                        </page>
+
+                        <page string="GPS Checkpoints" invisible="not id">
+                            <field name="checkpoint_ids" 
+                                   widget="one2many" 
+                                   context="{'default_trip_id': id}"
+                                   options="{'create': false, 'delete': false}"/>
                         </page>
 
                         <page string="Notes">

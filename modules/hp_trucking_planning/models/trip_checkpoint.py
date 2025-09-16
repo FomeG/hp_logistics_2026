@@ -38,6 +38,12 @@ class TripCheckpoint(models.Model):
         compute='_compute_display_name',
         store=True
     )
+
+    map_url = fields.Html(
+        string='Map',
+        compute='_compute_map_url',
+        help='Google Maps embed for this location'
+    )
     
     @api.depends('trip_id', 'latitude', 'longitude')
     def _compute_display_name(self):
@@ -47,6 +53,24 @@ class TripCheckpoint(models.Model):
                 record.display_name = f"{trip_name} - {record.latitude}, {record.longitude}"
             else:
                 record.display_name = f"Checkpoint {record.id}"
+
+    @api.depends('latitude', 'longitude')
+    def _compute_map_url(self):
+        for record in self:
+            if record.latitude and record.longitude:
+                embed_url = f"https://www.google.com/maps/embed/v1/view?key=&center={record.latitude},{record.longitude}&zoom=15"
+                record.map_url = f'''
+                    <iframe src="{embed_url}" 
+                            width="100%" 
+                            height="400px" 
+                            frameborder="0" 
+                            style="border:0;"
+                            allowfullscreen=""
+                            loading="lazy">
+                    </iframe>
+                '''
+            else:
+                record.map_url = False
 
     @api.constrains('longitude')
     def _check_longitude(self):
@@ -93,6 +117,6 @@ class TripCheckpoint(models.Model):
         return {
             'type': 'ir.actions.act_url',
             'url': self.get_google_maps_url(),
-            'target': 'new',
+            'target': 'popup',
         }
 
