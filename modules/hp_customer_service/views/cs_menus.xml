@@ -8,4 +8,9 @@
               parent="menu_cs_root"
               action="action_cs_job"
               sequence="10"/>
+    <menuitem id="menu_cs_department_type"
+              name="Department Types"
+              parent="menu_cs_root"
+              action="action_cs_department_type"
+              sequence="20"/>
 </odoo>

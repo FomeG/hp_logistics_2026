@@ -14,7 +14,7 @@
                 <field name="job_number"/>
                 <field name="job_date"/>
                 <field name="service_type"/>
-                <field name="department"/>
+                <field name="department_id"/>
                 <field name="shipping_lines"/>
                 <field name="vessel"/>
                 <field name="voyage"/>
@@ -42,6 +42,7 @@
     <!-- Nhóm 2 cột -->
                     <group>
     <group string="Job information" >
+        <field name="code"  string="Voyage Number"/>
         <field name="job_number"/>
         <field name="job_date"/>
         <field name="job_number_reference"/>
@@ -53,7 +54,7 @@
         <field name="vessel"/>
         <field name="voyage"/>
         <field name="service_type"/>
-        <field name="department"/>
+        <field name="department_id"/>
         <field name="master_bl_date"/>
         <field name="date_of_master_bl_date"/>
     </group>

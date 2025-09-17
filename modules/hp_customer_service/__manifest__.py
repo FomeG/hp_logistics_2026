@@ -18,11 +18,13 @@ Long description of module's purpose
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
+    'depends': ['base','hp_components'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
+        'views/cs_department_type_views.xml',
+        'data/cs_job_sequence.xml',
         'views/cs_job_views.xml',
         'views/cs_menus.xml',
         'report/HBL_template.xml',
