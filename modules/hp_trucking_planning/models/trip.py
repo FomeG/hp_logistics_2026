@@ -2,8 +2,11 @@ from odoo import models, api, fields
 from odoo.exceptions import UserError, ValidationError
 import base64
 import math
+import logging
 from datetime import datetime, timedelta
 from ..services.planning_service import planning_service
+
+_logger = logging.getLogger(__name__)
 
 
 class Trip(models.Model):
@@ -38,7 +41,7 @@ class Trip(models.Model):
         readonly=True,
         store=True,
     )
-    plan_date = fields.Date(
+    plan_date = fields.Datetime(
         related='plan_line_id.plan_id.date',
         string='Plan Date',
         readonly=True,
@@ -257,6 +260,21 @@ class Trip(models.Model):
         store=True,
         help='True if trip ETA is within the configured threshold'
     )
+    
+    is_current = fields.Boolean(
+        string='Current Trip',
+        default=False,
+        tracking=True,
+        help='Indicates if this is the driver\'s current active trip for GPS tracking'
+    )
+    
+    checkpoint_ids = fields.One2many(
+        comodel_name='trucking_planning.trip_checkpoint',
+        inverse_name='trip_id',
+        string='GPS Checkpoints',
+        help='GPS location checkpoints for this trip',
+        order='create_date desc'
+    )
 
     def action_duplicate_with_queue(self):
         for trip in self:
@@ -327,15 +345,18 @@ class Trip(models.Model):
                             f"Truck {vals['truck_id']} is already assigned to another trip in the same customer!")
 
                 if trip.plan_date:
-                    used_truck_ids_in_date = self.search([
-                        ('plan_date', '=', trip.plan_date),
-                        ('truck_id', '=', vals['truck_id']),
-                        ('id', '!=', trip.id),
-                        ('status', 'not in', ['cancelled']),
-                    ])
-                    if used_truck_ids_in_date:
-                        raise ValidationError(
-                            f"Truck {vals['truck_id']} is already assigned to another trip on the same date!")
+                    plan_date = trip.plan_date.date() if trip.plan_date else None
+                    if plan_date:
+                        used_truck_ids_in_date = self.search([
+                            ('plan_date', '>=',fields.Datetime.to_string(datetime.combine(plan_date, datetime.min.time()))),
+                            ('plan_date', '<', fields.Datetime.to_string(datetime.combine(plan_date + timedelta(days=1), datetime.min.time()))),
+                            ('truck_id', '=', vals['truck_id']),
+                            ('id', '!=', trip.id),
+                            ('status', 'not in', ['cancelled']),
+                        ])
+                        if used_truck_ids_in_date:
+                            raise ValidationError(
+                                f"Truck {vals['truck_id']} is already assigned to another trip on the same date!")
 
                 if trip.plan_date:
                     trip.with_delay().remove_vehicle_driver_of_plan_and_plan_line(
@@ -504,7 +525,11 @@ class Trip(models.Model):
         # Nơi hạ công (Delivery Port): Different logic for import vs export
         if plan and plan.plan_type == 'import':
             # Import: Nơi hạ công = place of delivery
-            result['delivery_port'] = plan_line.goods_delivery_location_id.name if plan_line and plan_line.goods_delivery_location_id else 'N/A'
+            location = plan_line.goods_delivery_location_id if plan_line else None
+            if location:
+                address = location.address or ''
+                delivery_port = f"{location.name} ({address})" if address else location.name
+            result['delivery_port'] = delivery_port
         else:
             # Export: Nơi hạ công = same port
             result['delivery_port'] = plan.location_id.name if plan and plan.location_id else 'N/A'
@@ -514,23 +539,38 @@ class Trip(models.Model):
 
         # 2. Đóng hàng/ Hạ Hàng
         if plan and plan.date:
-            result['loading_time'] = plan.date.strftime("%d/%m/%Y")
+            user_tz = self.env.user.tz or 'Asia/Ho_Chi_Minh'
+            localized_date = fields.Datetime.context_timestamp(self, plan.date)
+            result['loading_time'] = localized_date.strftime("%d/%m/%Y %H:%M")
+        loading_location = None
+        contact_number = ''
 
         # Địa điểm đóng hàng (Loading Address): Different logic for import vs export
+        # Import: Địa điểm đóng hàng = address của to location (trong route)
         if plan and plan.plan_type == 'import':
-            # Import: Địa điểm đóng hàng = address của to location (trong route)
-            result['loading_location'] = plan_line.actual_destination_location_id.address if plan_line and plan_line.route_id and plan_line.route_id.to_location_id and plan_line.route_id.to_location_id.address else 'N/A'
+            location = plan_line.actual_destination_location_id if plan_line else None
+            if location:
+                address = location.address or ''
+                loading_location = f"{location.name} ({address})" if address else location.name
+                contact_number = location.contact_phone or ''
+        # Export: Địa điểm đóng hàng = place of pickup address
         else:
-            # Export: Địa điểm đóng hàng = place of pickup address
-            result['loading_location'] = plan_line.goods_pickup_location_id.address if plan_line and plan_line.goods_pickup_location_id and plan_line.goods_pickup_location_id.address else 'N/A'
+            location = plan_line.goods_pickup_location_id if plan_line else None
+            if location:
+                address = location.address or ''
+                loading_location = f"{location.name} ({address})" if address else location.name
+                contact_number = location.contact_phone or ''
 
-        result['contact_number'] = 'N/A'  # No contact_number field in plan model
+        result['loading_location'] = loading_location
+        result['contact_number'] = contact_number
 
         return result
 
     def _build_message_content(self):
         """Build the message content for trip"""
         route_info = self.get_route_info()
+        plan = self.plan_line_id.plan_id if self.plan_line_id else None
+        section_title = "Đóng hàng" if plan and plan.plan_type == 'import' else "Hạ hàng"
 
         message = f"""1. Thông tin đóng trả hàng:
 
@@ -540,7 +580,7 @@ class Trip(models.Model):
         Nơi hạ cont: {route_info['delivery_port']}
         Trọng lượng hàng: {route_info['goods_weight']}
 
-        2. Đóng hàng/ Hạ Hàng
+2. {section_title}:
 
         Thời gian đóng hàng: {route_info['loading_time']}
         Địa điểm đóng hàng: {route_info['loading_location']}
@@ -549,7 +589,7 @@ class Trip(models.Model):
         if route_info['notes'] and route_info['notes'].strip():
             message += f"""
 
-        3. Các Yêu Cầu khác:
+3. Các Yêu Cầu khác:
 
         Notes: {route_info['notes'].strip()}"""
 
@@ -586,6 +626,56 @@ class Trip(models.Model):
     def action_export_trip_docx(self):
         """Export trip data to DOCX format matching the transport document"""
         return self.env['document.service'].generate_trip_docx(self)
+
+    def action_export_trip_docx_bulk(self):
+        """Export selected trips to DOCX and return a ZIP download"""
+        if not self:
+            raise UserError("No trips selected to export.")
+
+        import io
+        import zipfile
+        import re
+
+        zip_io = io.BytesIO()
+        with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as zipf:
+            for trip in self:
+                # Reuse document service to build the Document
+                doc = self.env['document.service']._generate_trip_docx(trip)
+
+                # Save document to bytes
+                doc_io = io.BytesIO()
+                doc.save(doc_io)
+                doc_io.seek(0)
+
+                # Build safe filename, mirroring single export
+                driver_name = trip.driver_id.name if trip.driver_id else 'N_A'
+                safe_driver_name = re.sub(r'[^\w\s-]', '', driver_name).strip()
+                safe_driver_name = re.sub(r'[-\s]+', '_', safe_driver_name)
+                trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else fields.Datetime.now()
+                if isinstance(trip_date, datetime):
+                    filename = f"GiayVanTai_{safe_driver_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
+                else:
+                    filename = f"GiayVanTai_{safe_driver_name}_{trip_date.date().strftime('%d_%m_%Y')}.docx"
+
+                # Write into ZIP
+                zipf.writestr(filename, doc_io.getvalue())
+
+        zip_io.seek(0)
+
+        attachment = self.env['ir.attachment'].create({
+            'name': 'GiayVanTai_All_Selected.zip',
+            'type': 'binary',
+            'datas': base64.b64encode(zip_io.getvalue()),
+            'mimetype': 'application/zip',
+            'res_model': self._name,
+            'res_id': self[0].id,
+        })
+
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/web/content/{attachment.id}?download=true',
+            'target': 'self',
+        }
 
     def _compute_route_info(self):
         for trip in self:
@@ -651,5 +741,44 @@ class Trip(models.Model):
         trips = self.search([])
         trips._compute_is_eta_near()
         return True
+
+    @api.model
+    def write(self, vals):
+        """Override write to automatically unset other current trips when setting one as current"""
+        result = super().write(vals)
+        
+        # If is_current is being set to True, unset other trips for the same driver
+        if vals.get('is_current') is True:
+            for trip in self:
+                if trip.driver_id:
+                    # Find other current trips for the same driver and unset them
+                    other_current_trips = self.search([
+                        ('id', '!=', trip.id),
+                        ('driver_id', '=', trip.driver_id.id),
+                        ('is_current', '=', True),
+                        ('status', 'not in', ['cancelled', 'done'])
+                    ])
+                    if other_current_trips:
+                        other_current_trips.write({'is_current': False})
+                        _logger.info(f"Auto-unset {len(other_current_trips)} other current trips for driver {trip.driver_id.name}")
+        
+        return result
+
+
+    def action_view_checkpoints(self):
+        """View all GPS checkpoints for this trip"""
+        self.ensure_one()
+        return {
+            'name': f'GPS Checkpoints - {self.code or f"Trip {self.id}"}',
+            'res_model': 'trucking_planning.trip_checkpoint',
+            'view_mode': 'list,form',
+            'domain': [('trip_id', '=', self.id)],
+            'context': {
+                'default_trip_id': self.id,
+                'search_default_trip_id': self.id,
+            },
+            'type': 'ir.actions.act_window',
+            'target': 'inline',
+        }
 
     

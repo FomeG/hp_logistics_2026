@@ -25,12 +25,16 @@ class TruckingPortal(CustomerPortal):
             return request.redirect('/my')
 
         if report_type in ('html', 'pdf', 'text'):
-            return self._show_report(
-                model=trip_sudo,
-                report_type=report_type,
-                report_ref='hp_trucking_planning.action_report_trip_order',
-                download=download,
-            )
+            # Only try to render PDF if the report action exists
+            report_action = request.env.ref('hp_trucking_planning.action_report_trip_order', raise_if_not_found=False)
+            if report_action:
+                return self._show_report(
+                    model=trip_sudo,
+                    report_type=report_type,
+                    report_ref='hp_trucking_planning.action_report_trip_order',
+                    download=download,
+                )
+            # If missing, fall through to regular page render
 
         if request.env.user.share and access_token:
             # If a public/portal user accesses the trip with the access token
@@ -60,6 +64,7 @@ class TruckingPortal(CustomerPortal):
             'report_type': 'html',
             'backend_url': backend_url,
             'res_company': request.env.company,  # Use current user's company
+            'has_pdf_report': bool(request.env.ref('hp_trucking_planning.action_report_trip_order', raise_if_not_found=False)),
         }
 
         return request.render("hp_trucking_planning.portal_trip_template", values) 

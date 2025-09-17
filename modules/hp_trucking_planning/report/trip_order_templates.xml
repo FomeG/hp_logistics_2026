@@ -81,7 +81,7 @@
                     </div>
                     <div class="col-4 text-end">
                         <strong>Số: <span t-field="trip.code"/></strong><br/>
-                        <strong>Ngày đóng/trả hàng: <span t-field="trip.plan_line_id.plan_id.date" t-options='{"widget": "date"}'/></strong>
+                        <strong>Ngày đóng/trả hàng: <span t-field="trip.plan_line_id.plan_id.date" t-options='{"widget": "datetime"}'/></strong>
 <!--                        <strong>Ngày đóng/trả hàng: <span t-field="trip.date" t-options='{"widget": "date"}'/></strong>-->
 
                     </div>

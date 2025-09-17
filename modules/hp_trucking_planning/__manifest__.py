@@ -30,11 +30,12 @@
         'views/trucking_planning_plan_line_views.xml',
         'views/trucking_planning_branch_views.xml',
         'views/trucking_planning_trip_views.xml',
+        'views/trip_checkpoint_views.xml',
         'views/zalo_confirmation_wizard_views.xml',
         'views/trucking_planning_menu.xml',
         'views/trucking_planning_portal_templates.xml',
-        'report/ir_actions_report.xml',
-        'report/trip_order_templates.xml',
+        # 'report/ir_actions_report.xml',
+        # 'report/trip_order_templates.xml',
         'views/trucking_planning_vehicle_driver_history_views.xml',
 
         #data
