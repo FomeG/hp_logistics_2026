@@ -62,6 +62,15 @@
                     <field name="status" widget="statusbar" statusbar_visible="draft,checking,confirmed,done"/>
                 </header>
                 <sheet>
+                    <!-- Current Trip Status - Always Visible at Top -->
+                    <div style="margin: 10px; padding: 15px; border: 2px solid #17a2b8; background-color: transparent;" invisible="not driver_id">
+                        <strong>📍 Is Current Trip of <field name="truck_id" readonly="1" invisible="not truck_id"/>? </strong>
+                        <field name="is_current" 
+                               widget="boolean_toggle"
+                               string=""
+                               help="Mark this trip as current for GPS location tracking"/>
+                    </div>
+                    
                     <div class="oe_button_box" name="button_box" invisible="not id">
                         <button name="action_view_job"
                                 type="object"
@@ -153,12 +162,6 @@
                         <field name="weight_class"/>
                         <field name="freeway"/>
                     </group>
-                    <group string="GPS Tracking" invisible="not driver_id">
-                        <field name="is_current" 
-                               widget="boolean_toggle"
-                               string="Current Trip for GPS"
-                               help="Mark this trip as current for GPS location tracking"/>
-                    </group>
                     <group string ="Container Information">
                         <field name="container_number"/>
                         <field name="seal_number"/>
@@ -183,7 +186,7 @@
                             </group>
                         </page>
 
-                        <page string="GPS Checkpoints" invisible="not id">
+                        <page string="GPS Checkpoints" invisible="not id or not checkpoint_ids">
                             <field name="checkpoint_ids" 
                                    widget="one2many" 
                                    context="{'default_trip_id': id}"
