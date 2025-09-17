@@ -45,7 +45,7 @@
         <field name="code"  string="Voyage Number"/>
         <field name="job_number"/>
         <field name="job_date"/>
-        <field name="shipping_lines"/>
+        <field name="shipping_line_id"/>
     </group>
 
     <!-- Nhóm nhiều cột -->
