@@ -70,7 +70,11 @@
         <field name="eta"/>
         <field name="staff_sales"/>
         <field name="staff_customs"/>
-    </group></group><notebook>
+        <field name="company_account_id"/>
+        <field name="personal_account_id"/>
+
+    </group></group>
+                    <notebook>
     <page string="Job Details">
         <field name="detail_ids">
             <list editable="bottom">

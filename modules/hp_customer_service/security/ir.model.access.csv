@@ -2,3 +2,4 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_hp_customer_service_cs_job,hp_customer_service.hp_customer_service,model_cs_job,base.group_user,1,1,1,1
 access_hp_customer_service_cs_detail_job,hp_customer_service.hp_cs_job_detail,model_cs_job_detail,base.group_user,1,1,1,1
 access_cs_department_type,access.cs.department.type,hp_components.model_cs_department_type,base.group_user,1,1,1,1
+access_cs_payment_account,acess.cs.payment.account,model_cs_payment_account,base.group_user,1,1,1,1

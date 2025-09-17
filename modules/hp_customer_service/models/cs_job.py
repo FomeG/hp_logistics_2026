@@ -56,6 +56,16 @@ class CSJob(models.Model):
     port_receipt =  fields.Char(string="port_receipt")
     pre_carriage_vessel = fields.Char(string="Pre-Carriage Vessel")
     pre_carriage_voy = fields.Char(string="Pre-Carriage Voyage")
+    company_account_id = fields.Many2one(
+        'cs.payment.account',
+        string="Company Bank Account",
+        domain=[('type', '=', 'company')]
+    )
+    personal_account_id = fields.Many2one(
+        'cs.payment.account',
+        string="Personal Bank Account",
+        domain=[('type', '=', 'personal')]
+    )
     @api.model
     def create(self, vals):
         if not vals.get('job_number'):

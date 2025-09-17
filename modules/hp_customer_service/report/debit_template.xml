@@ -8,9 +8,11 @@
                     <div class="page" style="font-family: Arial, Helvetica, sans-serif; font-size: 12px;">
                         <!-- Header -->
                           <div style="margin-bottom:10px">
-                            <h1 style="font-size:16px; font-weight:bold;">Kính gửi : CÔNG TY TNHH CHÈ PHÚ HÒA</h1>
-                              <br/>
-                              <p>Công ty CP TiếpVận HP xin gửi lời cảmơn tới Quý Công ty trong thời gian quađã sửdụng dịch vụcủa chúng tôi.Dướiđây là danh sách hàng mà chúng tôiđã vận chuyển cho Quý Công ty</p>
+                            <h1 style="font-size:16px; font-weight:bold;">
+    Dear: <span t-esc="o.detail_ids and o.detail_ids[0].shipper_id.name or ''"/>
+</h1>                              <br/>
+                              <p>  HP Logistics JSC sincerely thanks your company for using our services.
+                                Below is the list of shipments that we have handled for your company.</p>
 
                         </div>
                         <div style="text-align:center; font-size:25px; font-weight:bold; margin-bottom:10px;color: blue">
@@ -19,8 +21,8 @@
 
                         <div style="width:100%; margin-bottom:10px; overflow:hidden;">
                             <div style="width:50%; float:left;">
-                                <p>Số tờ khai:</p>
-                                <p>Ghi chú:</p>
+                                <p>Declaration No.:</p>
+                                <p>Remarks::</p>
                             </div>
                             <div style="width:50%; float:right; text-align:right;">
                                 <p>No.: <span t-esc="o.job_number or ''"/></p>
@@ -32,20 +34,20 @@
                         <table style="width:100%; border-collapse:collapse; font-size:12px;" border="1">
                             <thead>
                                 <tr>
-                                    <th style="width:5%;">STT</th>
-                                    <th style="width:25%;">Các loại chi phí</th>
-                                    <th style="width:10%;">Số hóa đơn</th>
-                                    <th style="width:10%;">Số vận đơn</th>
-                                    <th style="width:10%;">Đơn vị tính</th>
-                                    <th style="width:10%;">Số lượng</th>
-                                    <th style="width:10%;">Đơn giá (VND)</th>
-                                    <th style="width:10%;">Giá chưa thuế (VND)</th>
-                                    <th style="width:10%;">Tổng (VND)</th>
+                                    <th style="width:5%;">No.</th>
+                                    <th style="width:25%;">Cost Items</th>
+                                    <th style="width:10%;">Invoice No.</th>
+                                    <th style="width:10%;">B/L No.</th>
+                                    <th style="width:10%;">Unit</th>
+                                    <th style="width:10%;">Quantity</th>
+                                    <th style="width:10%;">Unit Price (VND)</th>
+                                    <th style="width:10%;">Amount excl. VAT (VND)</th>
+                                    <th style="width:10%;">Total (VND)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="9" style="font-weight:bold;">I. Chi phí HP xuất hóa đơn</td>
+                                    <td colspan="9" style="font-weight:bold;">I. Invoice-related costs</td>
                                 </tr>
                                 <t t-set="idx" t-value="0"/>
                                 <t t-foreach="o.detail_ids" t-as="line" t-foreach-index="i">
@@ -72,7 +74,7 @@
                                 <tbody>
     <!-- Phần II -->
     <tr>
-        <td colspan="9" style="font-weight:bold;">II. Chi phí khác</td>
+        <td colspan="9" style="font-weight:bold;">II. Other Costs</td>
     </tr>
 
     <t t-foreach="o.detail_ids" t-as="line" t-foreach-index="i">
@@ -111,7 +113,7 @@
     <!-- Dòng tổng -->
     <tr>
         <td colspan="9" style="text-align:right; font-weight:bold;">
-            Tổng chi phí khác:
+            Total Other Costs: (VND)
             <span t-esc="o.job_number"/>
         </td>
     </tr>
@@ -121,25 +123,25 @@
                         </table>
                         <!-- Các dòng mô tả -->
 <p>
-    Tổng số tiền thu hộ trả hộ (chuyển vào tài khoản cá nhân):
+    Total COD/Collection (to personal account):
     <span t-esc="o.job_number"/> VNĐ
 </p>
 <p>
-    Tổng số tiền CTY CP TIẾP VẬN HP xuất hóa đơn (chuyển vào tài khoản công ty):
+    Total invoiced amount (to company account):
     <span t-esc="o.job_number"/> VNĐ
 </p>
 <p>
-    Đề nghị Quý Công ty thanh toán cho Công ty chúng tôi theo chi tiết TK sau:
+   Please kindly settle payment to our following bank accounts:
 </p>
 
 <!-- Tiêu đề phần thanh toán -->
 <table style="width:100%; margin-top:10px; font-size:12px;">
     <tr>
         <td style="font-weight:bold; text-decoration:underline;">
-            Thanh toán chi phí xuất hoá đơn vào tài khoản:
+            Pay invoice costs to account:
         </td>
         <td style="font-weight:bold; text-decoration:underline;">
-            Thanh toán chi phí thu hộ vào tài khoản:
+            Pay collection fees to account:
         </td>
     </tr>
 </table>
@@ -148,15 +150,15 @@
 <table style="width:100%; margin-top:10px; font-size:12px; border:none;">
     <tr>
         <td style="width:50%;">
-            <p><b>Tên tài khoản:</b> CÔNG TY CỔ PHẦN TIẾP VẬN HP</p>
-            <p><b>Số tài khoản:</b> 1303200988</p>
-            <p><b>Tên ngân hàng:</b> Ngân hàng TMCP Á Châu - Chi nhánh Hà Nội</p>
+           <p><b>Account Name:</b> <span t-esc="o.personal_account_id.name"/></p>
+            <p><b>Account Number:</b> <span t-esc="o.personal_account_id.account_number"/></p>
+            <p><b>Bank Name:</b> <span t-esc="o.personal_account_id.bank_name"/></p>
             <p><b>Nội dung UNC ghi:</b> Mã số thuế khách hàng thanh toán cho hóa đơn (hoặc BILL)</p>
         </td>
         <td style="width:50%;">
-            <p><b>Tên tài khoản:</b> Lê Thùy Dương</p>
-            <p><b>Số tài khoản:</b> 0011001408688</p>
-            <p><b>Tên ngân hàng:</b> Vietcombank Sở giao dịch</p>
+            <p><b>Account Name:</b> <span t-esc="o.personal_account_id.name"/></p>
+            <p><b>Account Number:</b> <span t-esc="o.personal_account_id.account_number"/></p>
+            <p><b>Bank Name:</b> <span t-esc="o.personal_account_id.bank_name"/></p>
         </td>
     </tr>
 </table>
@@ -165,10 +167,10 @@
 <table style="width:100%; margin-top:30px; font-size:12px; border:none;">
     <tr>
         <td style="width:50%; text-align:center; font-weight:bold;">
-            ĐẠI DIỆN CÔNG TY TNHH CHÈ PHÚ HÒA
+            For and on behalf of Customer
         </td>
         <td style="width:50%; text-align:center; font-weight:bold;">
-            ĐẠI DIỆN CÔNG TY HP
+            For and on behalf of HP Logistics
         </td>
     </tr>
 </table>
