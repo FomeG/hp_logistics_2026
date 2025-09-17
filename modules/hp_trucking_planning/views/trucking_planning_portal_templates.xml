@@ -18,7 +18,7 @@
                     <t t-set="entries">
                         <div class="d-flex flex-column gap-4 mt-3">
                             <div class="d-flex flex-column gap-2" id="trip_order_sidebar_button">
-                                <div class="o_download_pdf d-flex gap-2 flex-lg-column flex-xl-row flex-wrap">
+                                <div class="o_download_pdf d-flex gap-2 flex-lg-column flex-xl-row flex-wrap" t-if="has_pdf_report">
                                     <a class="btn btn-light o_print_btn o_portal_invoice_print flex-grow-1" t-att-href="trip_order.get_portal_url(report_type='pdf')" id="print_trip_report" title="View Details" role="button" target="_blank"><i class="fa fa-print me-1"/>View Details</a>
                                 </div>
                             </div>
@@ -81,7 +81,7 @@
                             </div>
                             <div class="col-4 text-end">
                                 <strong>Số: <span t-field="trip_order.code"/></strong><br/>
-                                <strong>Ngày đóng/trả hàng: <span t-field="trip_order.plan_line_id.plan_id.date" t-options='{"widget": "date"}'/></strong>
+                                <strong>Ngày đóng/trả hàng: <span t-field="trip_order.plan_line_id.plan_id.date" t-options='{"widget": "datetime"}'/></strong>
 <!--                                <strong>Ngày đóng/trả hàng: <span t-field="trip_order.date" t-options='{"widget": "date"}'/></strong>-->
                             </div>
                         </div>

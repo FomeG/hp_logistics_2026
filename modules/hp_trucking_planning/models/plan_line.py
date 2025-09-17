@@ -119,7 +119,7 @@ class PlanLine(models.Model):
         string="Goods Delivery Location",
         required=True,
         tracking=True,
-        domain=[('type', '=', 'goods_pickup_delivery')],
+        domain=[('type', '=', 'port')],
         help="Location where goods will be delivered (Export) or picked up (Import)"
     )
 
@@ -416,8 +416,8 @@ class PlanLine(models.Model):
             # Prepare row data
             row_data = [
                 '',  # STT (sequence - disabled)
-                plan_line.plan_id.date.strftime('%d/%m/%Y 00:00') if plan_line.plan_id and plan_line.plan_id.date else '',  # Ngày tiếp nhận
-                plan_line.plan_id.date.strftime('%d/%m/%Y 00:00') if plan_line.plan_id and plan_line.plan_id.date else '',  # Ngày xe chạy
+                plan_line.plan_id.date.strftime('%d/%m/%Y %H:%M') if plan_line.plan_id and plan_line.plan_id.date else '',  # Ngày tiếp nhận
+                plan_line.plan_id.date.strftime('%d/%m/%Y %H:%M') if plan_line.plan_id and plan_line.plan_id.date else '',  # Ngày xe chạy
                 plan_line.plan_id.goods_cut_off.strftime('%d/%m/%Y %H:%M') if plan_line.plan_id and plan_line.plan_id.goods_cut_off else '',  # Cut off
                 plan_line.client_id.code if plan_line.client_id and hasattr(plan_line.client_id, 'code') else '',  # Mã đối tượng
                 plan_line.client_id.name if plan_line.client_id else '',  # Tên đối tượng
