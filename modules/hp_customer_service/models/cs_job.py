@@ -4,11 +4,6 @@ class CSJob(models.Model):
     _name = 'cs.job'
     _description = 'Customer Service Job Information'
     _rec_name = 'job_number'
-    code = fields.Char(
-        string="Voyage Number",
-        required=False,
-        default=lambda self: self.env['ir.sequence'].next_by_code('cs.job.voyage') or '/'
-    )
     job_number = fields.Char(
         string="Job Number",
         required=True,
