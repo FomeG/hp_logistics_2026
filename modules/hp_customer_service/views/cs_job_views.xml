@@ -45,7 +45,6 @@
         <field name="code"  string="Voyage Number"/>
         <field name="job_number"/>
         <field name="job_date"/>
-        <field name="job_number_reference"/>
         <field name="shipping_lines"/>
     </group>
 

@@ -20,9 +20,6 @@ class CSJob(models.Model):
         string="Service Type",
         default='door-cy'
     )
-    job_number_reference = fields.Char(
-        string="Job Number Reference",
-    )
     department_id = fields.Many2one(
         "cs.department.type",
         string="Department",
