@@ -2,6 +2,8 @@ from odoo import models, fields, api
 import re
 import calendar
 
+from ..services.res_partner_service import ResPartnerService
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -38,8 +40,8 @@ class Vehicle(models.Model):
     )
 
     primary_driver_id = fields.Many2one(
-        comodel_name='trucking_planning.driver',
-        domain="[('active', '=', True)]",
+        comodel_name='res.partner',
+        domain=[('type','=', ResPartnerService.PARTNER_TYPE_DRIVER)],
         index=True,
     )
     fuel_rate_inferior_20 = fields.Float(

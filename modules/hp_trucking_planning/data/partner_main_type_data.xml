@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="partner_main_type_driver_internal" model="partner.main.type">
+        <field name="code">internal_driver</field>
+        <field name="name">Internal Driver</field>
+    </record>
+    <record id="partner_main_type_shipping_driver_external" model="partner.main.type">
+        <field name="code">external_driver</field>
+        <field name="name">External Driver</field>
+    </record>
+</odoo>

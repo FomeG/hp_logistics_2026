@@ -2,9 +2,7 @@ from email.policy import default
 
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
-from ...hp_components.services.department_service import DepartmentService
-from ..services.planning_service import planning_service
-from ..services.zalo_service import ZaloService
+from ..services.res_partner_service import ResPartnerService
 from odoo.exceptions import UserError
 
 class Plan(models.Model):
@@ -40,8 +38,9 @@ class Plan(models.Model):
 
     )
     shipping_line_id = fields.Many2one(
-        comodel_name='trucking_planning.shipping_line',
+        comodel_name='res.partner',
         required=True,
+        domain=[('partner_main_type_id.code', '=', ResPartnerService.SHIPPING_LINE)]
     )
     date = fields.Date(
         string='Load / Return Date',

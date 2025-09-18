@@ -1,81 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="view_vehicle_list" model="ir.ui.view">
-        <field name="name">trucking_planning.vehicle.list</field>
-        <field name="model">trucking_planning.vehicle</field>
+    <record id="view_vehicle_tree" model="ir.ui.view">
+        <field name="name">fleet.vehicle.tree</field>
+        <field name="model">fleet.vehicle</field>
         <field name="arch" type="xml">
             <list string="Vehicles">
-                <field name="name" string="License Plate"/>
-                <field name="type" string="Vehicle Type"/>
-                <field name="engine_type" string="Engine Size" invisible="type == 'trailer'"/>
-                <field name="trailer_id" string="Assigned Trailer" invisible="type == 'trailer'"/>
-                <field name="primary_driver_id" string="Driver" invisible="type == 'trailer'"/>
-                <field name="fuel_rate_inferior_20" string="Light" invisible="type == 'trailer'"/>
-                <field name="fuel_rate_superior_20" string="Heavy" invisible="type == 'trailer'"/>
-                <field name="fuel_rate_mix" string="Kẹp" invisible="type == 'trailer'"/>
-                <field name="is_rented" string="Rented"/>
-                <field name="registration_date" string="Reg. Date"/>
-                <field name="active" invisible="1"/>
-                <field name="branch_id" groups="base.group_user" options="{'no_create': True, 'no_quick_create': True}" />
-            </list>
-        </field>
-    </record>
-
-    <record id="view_popup_plannin_vehicle_list" model="ir.ui.view">
-        <field name="name">trucking_planning.vehicle.list.popup</field>
-        <field name="model">trucking_planning.vehicle</field>
-        <field name="arch" type="xml">
-            <list string="Vehicles">
-                <field name="name" string="License Plate" />
-                <field name="type" string="Vehicle Type" />
-                <field name="engine_type" string="Engine Size" invisible="type == 'trailer'" />
-                <field name="primary_driver_id" string="Driver" invisible="type == 'trailer'" />
-<!--                <field name="total_plan_in_month"/>-->
+                <field name="license_plate" string="License Plate" />
+                <field name="model_id" string="Vehicle Type" />
+                <field name="engine_type" string="Engine Size" invisible="vehicle_type == 'trailer'" />
+                <field name="trailer_id" string="Assigned Trailer"
+                    invisible="vehicle_type == 'trailer'" />
+                <field name="driver_id" string="Driver" invisible="vehicle_type == 'trailer'" />
+                <field name="fuel_rate_inferior_20" string="Light"
+                    invisible="vehicle_type == 'trailer'" />
+                <field name="fuel_rate_superior_20" string="Heavy"
+                    invisible="vehicle_type == 'trailer'" />
+                <field name="fuel_rate_mix" string="Kẹp" invisible="vehicle_type == 'trailer'" />
                 <field name="is_rented" string="Rented" />
+                <field name="acquisition_date" string="Reg. Date" />
+                <field name="trucking_branch_id" string="Branch" groups="base.group_user"
+                    options="{'no_create': True, 'no_quick_create': True}" />
             </list>
         </field>
     </record>
 
     <record id="view_vehicle_form" model="ir.ui.view">
-        <field name="name">trucking_planning.vehicle.form</field>
-        <field name="model">trucking_planning.vehicle</field>
+        <field name="name">fleet.vehicle.form</field>
+        <field name="model">fleet.vehicle</field>
         <field name="arch" type="xml">
-            <form string="Vehicle">
+            <form>
                 <sheet>
+                    <div class="oe_button_box" name="button_box" />
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                        invisible="active" />
+                    <field name="image_128" widget='image' class="oe_avatar" />
+
+                    <div class="oe_title mb48">
+                        <h1>
+                            <field name="license_plate" placeholder="e.g. License Plate" required="1" />
+                        </h1>
+                    </div>
                     <group>
                         <group string="Basic Information">
-                            <field name="name" string="License Plate"/>
-                            <field name="type" string="Vehicle Type"/>
+                            <field name="model_id" string="Vehicle Type"
+                                options="{'no_create': True, 'no_edit': True}" />
                             <field name="engine_type" string="Engine Size"
-                                   invisible="type == 'trailer'"
-                                   required="type == 'truck'"
+                                invisible="vehicle_type == 'trailer'"
+                                required="vehicle_type == 'truck'"
                             />
-                            <field name="registration_date" string="Registration Date"/>
-                            <field name="is_rented" string="Rented Vehicle"/>
+                            <field name="acquisition_date" string="Registration Date" />
+                            <field name="is_rented" string="Rented Vehicle" />
                         </group>
-                        <group string="Assignment" invisible="type == 'trailer'">
-                            <field name="trailer_id" string="Assigned Trailer"
+                        <group string="Assignment" invisible="vehicle_type == 'trailer'">
+                            <field name="trailer_id"
+                                string="Assigned Trailer"
+                                options="{'no_create': True, 'no_edit': True}"
                                 widget="many2one_new_tab" />
-                            <field name="primary_driver_id" string="Driver"
-                                domain="[('active', '=', True)]"
+                            <field name="driver_id"
+                                string="Driver"
+                                context="{
+                                    'list_view_ref': 'hp_trucking_planning.view_driver_tree',
+                                    'search_view_ref': 'hp_trucking_planning.view_driver_search',                    
+                                }"
+                                options="{'no_create': True, 'no_edit': True}"
                                 widget="many2one_new_tab" />
-                            <field name="branch_id" string="Branch"
+                            <field name="trucking_branch_id" string="Branch"
                                 widget="many2one_new_tab"
-                                options="{'no_create': True, 'no_quick_create': True}" />
+                                options="{'no_create': True, 'no_edit': True}" />
                         </group>
                     </group>
-                    <group string="Fuel Consumption Rates" invisible="type == 'trailer'">
-                        <field name="fuel_rate_inferior_20" string="Light" readonly="True"/>
-                        <field name="fuel_rate_superior_20" string="Heavy" readonly="True"/>
-                        <field name="fuel_rate_mix" string="Kẹp" readonly="True"/>
+                    <group string="Fuel Consumption Rates" invisible="vehicle_type == 'trailer'">
+                        <field name="fuel_rate_inferior_20" string="Light" readonly="True" />
+                        <field name="fuel_rate_superior_20" string="Heavy" readonly="True" />
+                        <field name="fuel_rate_mix" string="Kẹp" readonly="True" />
                     </group>
                     <notebook invisible="not id">
-                        <page string="Drivers">
+                        <page string="Driver Histories">
                             <field name="vehicle_driver_history_ids" readonly="True">
                                 <list>
-                                    <field name="driver_id"/>
-                                    <field name="start_date"/>
-                                    <field name="end_date"/>
+                                    <field name="driver_id" />
+                                    <field name="start_date" />
+                                    <field name="end_date" />
                                 </list>
                             </field>
                         </page>
@@ -86,30 +91,30 @@
         </field>
     </record>
 
-    <record id="hp_trucking_planning_vehicle_form_search" model="ir.ui.view">
-        <field name="name">trucking.planning.vehicle.search</field>
-        <field name="model">trucking_planning.vehicle</field>
+    <record id="view_vehicle_search" model="ir.ui.view">
+        <field name="name">fleet.vehicle.search</field>
+        <field name="model">fleet.vehicle</field>
         <field name="arch" type="xml">
             <search string="List Vehicles">
                 <field name="name" />
-                <field name="type" />
-                <filter string="Truck" name="type_truck" domain="[('type','=','truck')]"/>
-                <filter string="Trailer" name="type_trailer" domain="[('type','=','trailer')]"/>
-
-<!--                <filter name="available_date_of_plan"-->
-<!--                    string="Available on Selected Date"-->
-<!--                    domain="[('is_available_on_date', '=', True)]" />-->
+                <field name="vehicle_type" />
+                <filter string="Truck" name="type_truck" domain="[('vehicle_type','=','truck')]" />
+                <filter string="Trailer" name="type_trailer"
+                    domain="[('vehicle_type','=','trailer')]" />
             </search>
         </field>
     </record>
 
     <record id="action_vehicle" model="ir.actions.act_window">
-        <field name="name">Vehicles</field>
-        <field name="res_model">trucking_planning.vehicle</field>
-        <field name="search_view_id" ref="hp_trucking_planning_vehicle_form_search" />
+        <field name="name">vehicles</field>
+        <field name="res_model">fleet.vehicle</field>
+        <field name="search_view_id" ref="view_vehicle_search" />
         <field name="view_mode">list,form</field>
-        <field name="context">{'default_type': 'truck'}</field>
-        <field name="domain">[('active', '=', True)]</field>
-        <field name="context">{'search_default_type_truck': 1}</field>
+        <field name="view_id" ref="view_vehicle_tree" />
+        <field name="context">
+            {
+                'form_view_ref': 'hp_trucking_planning.view_vehicle_form',
+            }
+        </field>
     </record>
 </odoo>

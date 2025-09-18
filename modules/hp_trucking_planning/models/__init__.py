@@ -13,4 +13,6 @@ from . import branch
 from . import wizards
 from . import trip
 from . import res_users_inherit
-
+from . import res_partner_inherit
+from . import fleet_vehicle_inherit
+from . import fleet_vehicle_model_inherit

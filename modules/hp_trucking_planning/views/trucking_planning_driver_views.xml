@@ -1,81 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <record id="view_driver_tree" model="ir.ui.view">
-        <field name="name">driver.tree</field>
-        <field name="model">trucking_planning.driver</field>
+        <field name="name">partner.driver.tree</field>
+        <field name="model">res.partner</field>
         <field name="arch" type="xml">
-            <list>
-                <field name="name"/>
-                <field name="phone_number"/>
+            <list string="Drivers">
+                <field name="name" />
                 <field name="cccd" />
                 <field name="license_number" />
                 <field name="contract_date" />
+                <field name="partner_main_type_id" string="Type"/>
                 <field name="create_date" groups="base.group_system" />
             </list>
         </field>
     </record>
+
     <record id="view_driver_form" model="ir.ui.view">
-        <field name="name">driver.form</field>
-        <field name="model">trucking_planning.driver</field>
+        <field name="name">partner.driver.form</field>
+        <field name="model">res.partner</field>
         <field name="arch" type="xml">
             <form>
                 <sheet>
+                    <div class="oe_button_box" name="button_box" />
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                        invisible="active" />
+                    <field name="image_1920" widget="image" class="oe_avatar"
+                        options="{'preview_image':'image_128'}" />
+
+                    <div class="oe_title mb48">
+                        <h1>
+                            <field name="name" placeholder="e.g. Driver Name" required="1" />
+                        </h1>
+                    </div>
                     <group>
-                        <field name="name"/>
-                        <field name="phone_number"/>
-                        <field name="cccd"/>
-                        <field name="license_number"/>
-                        <field name="contract_date"/>
-                        <field name="active"/>
-                        <field name="notes"/>
+                        <field name="partner_main_type_id"
+                            string="Type"
+                            required="1"
+                            domain="[('code', 'in', ['internal_driver', 'external_driver'])]" />
+                        <field name="phone" />
+                        <field name="cccd" required="1" />
+                        <field name="license_number" required="1" />
+                        <field name="contract_date" />
+                        <field name="active" />
+                        <field name="notes" />
+                        <field name="type" invisible="1" default="driver" />
                     </group>
-                    <notebook invisible="not id">
-                        <!-- <page string="Trips">
-                            <field name="plan_line_ids" readonly="1">
-                                <list>
-                                    <field name="code"/>
-                                    <field name="date"/>
-                                    <field name="route_id"/>
-                                </list>
-                            </field>
-                        </page> -->
-                        <page string="Vehicles">
-                            <field name="vehicle_driver_history_ids" readonly="True">
-                                <list>
-                                    <field name="vehicle_id"/>
-                                    <field name="start_date"/>
-                                    <field name="end_date"/>
-                                </list>
-                            </field>
-                        </page>
-                    </notebook>
                 </sheet>
                 <chatter />
             </form>
         </field>
     </record>
 
-    <record id="hp_trucking_planning_driver_form_search" model="ir.ui.view">
-        <field name="name">trucking.planning.driver.search</field>
-        <field name="model">trucking_planning.driver</field>
+    <record id="view_driver_search" model="ir.ui.view">
+        <field name="name">partner.driver.search</field>
+        <field name="model">res.partner</field>
         <field name="arch" type="xml">
             <search string="List Drivers">
                 <field name="name" />
-                <field name="phone_number" />
+                <field name="phone" />
                 <field name="cccd" />
                 <field name="license_number" />
                 <field name="contract_date" />
-
-                <filter string="Active" name="active" domain="[('active', '=', True)]"/>
-                <filter string="Inactive" name="inactive" domain="[('active', '=', False)]"/>
+                <filter string="Active" name="active" domain="[('active', '=', True)]" />
+                <filter string="Inactive" name="inactive" domain="[('active', '=', False)]" />
             </search>
         </field>
     </record>
 
     <record id="action_driver" model="ir.actions.act_window">
         <field name="name">Drivers</field>
-        <field name="res_model">trucking_planning.driver</field>
-        <field name="search_view_id" ref="hp_trucking_planning_driver_form_search" />
+        <field name="res_model">res.partner</field>
+        <field name="search_view_id" ref="view_driver_search" />
         <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_driver_tree" />
+        <field name="domain">[('type', '=', 'driver')]</field>
+        <field name="context">
+            {
+                'form_view_ref': 'hp_trucking_planning.view_driver_form',
+                'default_type': 'driver'
+            }
+        </field>
     </record>
 </odoo>

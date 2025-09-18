@@ -48,6 +48,38 @@
             parent="menu_trucking_config"
             action="action_branch"
             groups="base.group_system,hp_trucking_planning.group_hp_trucking_planning_director"
+            sequence="10"
+        />
+        <menuitem
+            name="Vehicle"
+            parent="menu_trucking_config"
+            id="menu_trucking_vehicle_configuration"
+            sequence="20"
+            groups="base.group_system,hp_trucking_planning.group_hp_trucking_planning_director"
+        />
+        <menuitem
+            id="menu_vehicle_manufacturer"
+            name="Manufacturers"
+            parent="menu_trucking_vehicle_configuration"
+            action="fleet.fleet_vehicle_model_brand_action"
+            groups="base.group_system,hp_trucking_planning.group_hp_trucking_planning_director"
+            sequence="10"
+        />
+        <menuitem
+            id="menu_vehicle_category"
+            name="Categories"
+            parent="menu_trucking_vehicle_configuration"
+            action="fleet.fleet_vehicle_model_category_action"
+            groups="base.group_system,hp_trucking_planning.group_hp_trucking_planning_director"
+            sequence="20"
+        />
+        <menuitem
+            id="menu_vehicle_model"
+            name="Models"
+            parent="menu_trucking_vehicle_configuration"
+            action="fleet.fleet_vehicle_model_action"
+            groups="base.group_system,hp_trucking_planning.group_hp_trucking_planning_director"
+            sequence="30"
         />
 
         <menuitem id="menu_import_client"
