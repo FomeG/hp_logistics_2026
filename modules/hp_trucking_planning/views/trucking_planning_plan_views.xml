@@ -84,8 +84,8 @@
                         </div>
                         <notebook invisible="not id">
                             <page string="Customer" invisible="not plan_line_ids">
-                                <field name="plan_line_ids" readonly="True">
-                                    <list delete="false">
+                                <field name="plan_line_ids" readonly="false" create="false">
+                                    <list delete="false" create="false">
                                         <field name="code" string="Job" />
                                         <field name="client_id"/>
                                         <field name="status"/>
@@ -98,6 +98,7 @@
                                         <field name="estimate_time_arrival" string="Estimate Time Arrival"/>
                                         <field name="goods_name"/>
                                         <field name="goods_weight"/>
+                                        <field name="truck_count" string="Trucks"/>
                                         <button name="action_export_plan_line_excel" 
                                                 string="Export"
                                                 type="object" 

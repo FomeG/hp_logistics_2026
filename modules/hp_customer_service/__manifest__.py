@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': "hp_customer_service",
-    'summary': "Short (1 phrase/line) summary of the module's purpose",
+    'summary': "This module is to manage job that will be delivered to other teams",
     'description': 'This module is used by CS team',
     'author': 'HPL',
     'category': 'HP',
