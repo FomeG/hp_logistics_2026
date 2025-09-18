@@ -535,7 +535,7 @@ class Trip(models.Model):
             result['delivery_port'] = plan.location_id.name if plan and plan.location_id else 'N/A'
 
         if plan_line and plan_line.goods_weight:
-            result['goods_weight'] = f"{plan_line.goods_weight} kg"
+            result['goods_weight'] = f"{plan_line.goods_weight} Tấn"
 
         # 2. Đóng hàng/ Hạ Hàng
         if plan and plan.date:
