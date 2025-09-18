@@ -8,7 +8,7 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','hp_components'],
+    'depends': ['base','hp_components','hp_freight_purchase'],
 
     # always loaded
     'data': [

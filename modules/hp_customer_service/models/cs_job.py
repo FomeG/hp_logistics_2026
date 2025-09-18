@@ -15,10 +15,19 @@ class CSJob(models.Model):
         string="Service Type",
         default='door-cy'
     )
-    department_id = fields.Many2one(
-        "cs.department.type",
+    department_code = fields.Selection(
+        selection=[
+            ('JP01', 'SEA EXPORT'),
+            ('JP02', 'SEA IMPORT'),
+            ('JP03', 'AIR EXPORT'),
+            ('JP04', 'AIR IMPORT'),
+            ('JP05', 'LAND'),
+            ('JP06', 'MISCELLANEOUS'),
+            ('JP07', 'SALES AND MARKETING'),
+            ('JP08', 'ADMINISTRATION'),
+        ],
         string="Department",
-        required=True
+        required=True,
     )
     master_bl_date = fields.Char(string="Master B/L Date")
     shipping_line_id = fields.Many2one(
@@ -29,8 +38,21 @@ class CSJob(models.Model):
     )
     vessel = fields.Char(string="Vessel")
     voyage = fields.Char(string="Voyage")
-    port_loading = fields.Char(string="Port of Loading")   # thay vì Many2one
-    port_discharge = fields.Char(string="Port of Discharge")
+    booking_id = fields.Many2one('freight.purchase.booking', string="Booking")
+
+    port_loading = fields.Many2one(
+        'freight.purchase.port',
+        string="Port of Loading",
+        related = 'booking_id.quotation_id.route_id.pol_id'
+    )
+
+    port_discharge = fields.Many2one(
+        'freight.purchase.port',
+        string="Port of Discharge",
+        related='booking_id.quotation_id.route_id.pod_id'
+
+    )
+
     port_transit = fields.Char(string="Port of Transit")
     pre_carriage_by = fields.Char(string="Pre-Carriage By")
     commodity = fields.Char(string="Commodity")
@@ -57,14 +79,17 @@ class CSJob(models.Model):
     pre_carriage_vessel = fields.Char(string="Pre-Carriage Vessel")
     pre_carriage_voy = fields.Char(string="Pre-Carriage Voyage")
     company_account_id = fields.Many2one(
-        'cs.payment.account',
+              'res.partner.bank',
         string="Company Bank Account",
-        domain=[('type', '=', 'company')]
+        # domain=[('type', '=', 'company')],
+        ondelete ='set null'
     )
     personal_account_id = fields.Many2one(
-        'cs.payment.account',
+              'res.partner.bank',
         string="Personal Bank Account",
-        domain=[('type', '=', 'personal')]
+        # domain=[('type', '=', 'personal')],
+        ondelete='set null'
+
     )
     @api.model
     def create(self, vals):

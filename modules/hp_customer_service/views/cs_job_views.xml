@@ -14,7 +14,6 @@
                 <field name="job_number"/>
                 <field name="job_date"/>
                 <field name="service_type"/>
-                <field name="department_id"/>
                 <field name="shipping_line_id"/>
                 <field name="vessel"/>
                 <field name="voyage"/>
@@ -52,12 +51,13 @@
         <field name="vessel"/>
         <field name="voyage"/>
         <field name="service_type"/>
-        <field name="department_id"/>
+        <field name="department_code"/>
         <field name="master_bl_date"/>
         <field name="date_of_master_bl_date"/>
     </group>
 
     <group>
+        <field name="booking_id" options="{'no_create': True, 'no_create_edit': True}"/>
         <field name="port_loading"/>
         <field name="port_discharge"/>
         <field name="port_transit"/>
