@@ -1,5 +1,5 @@
 from odoo import models, fields, api
-import base64, os
+import base64, os, json
 class CSJob(models.Model):
     _name = 'cs.job'
     _description = 'Customer Service Job Information'
@@ -43,13 +43,13 @@ class CSJob(models.Model):
     port_loading = fields.Many2one(
         'freight.purchase.port',
         string="Port of Loading",
-        related = 'booking_id.quotation_id.route_id.pol_id'
+        related = 'booking_id.pol_id'
     )
 
     port_discharge = fields.Many2one(
         'freight.purchase.port',
         string="Port of Discharge",
-        related='booking_id.quotation_id.route_id.pod_id'
+        related='booking_id.pod_id'
 
     )
 
@@ -78,18 +78,13 @@ class CSJob(models.Model):
     port_receipt =  fields.Char(string="port_receipt")
     pre_carriage_vessel = fields.Char(string="Pre-Carriage Vessel")
     pre_carriage_voy = fields.Char(string="Pre-Carriage Voyage")
-    company_account_id = fields.Many2one(
-              'res.partner.bank',
-        string="Company Bank Account",
-        # domain=[('type', '=', 'company')],
-        ondelete ='set null'
+    company_account= fields.Selection(
+        selection=lambda self: self._get_bank_selection(),
+        string="Company Bank Accounty",
     )
-    personal_account_id = fields.Many2one(
-              'res.partner.bank',
+    personal_account = fields.Selection(
+        selection=lambda self: self._get_bank_selection(),
         string="Personal Bank Account",
-        # domain=[('type', '=', 'personal')],
-        ondelete='set null'
-
     )
     @api.model
     def create(self, vals):
@@ -100,18 +95,16 @@ class CSJob(models.Model):
         return self.env.ref('hp_customer_service.action_report_HBL_bill').report_action(self)
     def action_print_debit(self):
         return self.env.ref('hp_customer_service.action_report_debit_note').report_action(self)
-    def _get_report_values(self, docids, data=None):
-        docs = self.env['cs.job'].browse(docids)
-
-        # Lấy logo từ static module
-        module_path = os.path.dirname(__file__)
-        logo_path = os.path.join(module_path, '..', 'static', 'src', 'img', 'logo.png')
-        logo_base64 = ''
-        if os.path.exists(logo_path):
-            with open(logo_path, 'rb') as f:
-                logo_base64 = base64.b64encode(f.read()).decode('utf-8')
-
-        return {
-            'docs': docs,
-            'logo_base64': logo_base64,
-        }
+    def _get_bank_selection(self):
+        param = self.env['ir.config_parameter'].sudo().get_param('hp_bank')
+        banks = []
+        if param:
+            try:
+                data = json.loads(param)
+                for i, bank in enumerate(data):
+                    # i bắt đầu từ 0 → trùng với key dict
+                    name = f"{bank.get('bank_name')} - {bank.get('bank_account')} ({bank.get('bank_holder_name')})"
+                    banks.append((str(i), name))
+            except Exception:
+                pass
+        return banks

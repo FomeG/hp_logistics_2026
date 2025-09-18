@@ -21,8 +21,8 @@
         'report/ir_actions_report.xml',
     ],
     # only loaded in demonstration mode
-    # 'demo': [
-    #     'demo/demo.xml',
-    # ],
+    'demo': [
+        'data/bank_demo_data.xml',
+    ],
 }
 

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="hp_bank_demo" model="ir.config_parameter">
+        <field name="key">hp_bank</field>
+        <field name="value">
+            [
+              {"bank_name": "MB Bank", "bank_account": "3424234234", "bank_holder_name": "Hp logistic"},
+              {"bank_name": "Vietcombank", "bank_account": "999999999", "bank_holder_name": "Hp logistic"}
+            ]
+        </field>
+    </record>
+</odoo>

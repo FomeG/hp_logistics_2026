@@ -70,8 +70,8 @@
         <field name="eta"/>
         <field name="staff_sales"/>
         <field name="staff_customs"/>
-        <field name="company_account_id"/>
-        <field name="personal_account_id"/>
+        <field name="company_account"/>
+        <field name="personal_account"/>
 
     </group></group>
                     <notebook>

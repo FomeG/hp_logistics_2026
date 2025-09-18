@@ -4,4 +4,4 @@ from . import unique_code_mixin
 from . import unique_normalized_name_mixin
 from . import partner_main_type
 from . import res_partner_inherit
-from . import cs_department_type
+from . import department_type
