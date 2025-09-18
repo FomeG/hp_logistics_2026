@@ -125,6 +125,10 @@
 <!--                <field name="month" string="Month" />-->
 <!--                <field name="year" string="Year" />-->
 
+                <field name="create_date" string="Created Date"/>
+
+                <filter name="create_date" string="Created Date" date="create_date" start_year="-4" start_month="-8" end_month="3"/>
+                <filter string="Created Today" name="created_today" domain="[('create_date','&gt;=', context_today())]"/>
                 <filter string="Export" name="export" domain="[('plan_type', '=', 'export')]"/>
                 <filter string="Import" name="import" domain="[('plan_type', '=', 'import')]"/>
                 <filter string="Draft" name="draft" domain="[('status','=','draft')]"/>
