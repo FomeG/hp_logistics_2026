@@ -422,6 +422,21 @@ class Trip(models.Model):
             'type': 'ir.actions.act_window',
             'target': 'current',
         }
+
+    def action_open_truck_detail(self):
+        self.ensure_one()
+        return {
+            'name': f'Truck Detail - {self.truck_id.name if self.truck_id else "New"}',
+            'res_model': 'trucking_planning.trip',
+            'view_mode': 'form',
+            'res_id': self.id,
+            'type': 'ir.actions.act_window',
+            'target': 'new_tab',
+            'context': {
+                'form_view_initial_mode': 'edit',
+            }
+        }
+
     @api.depends('plan_line_id.route_id', 'truck_id', 'weight_class', 'extra_fuel')
     def _compute_fuel_liters(self):
         for rec in self:
