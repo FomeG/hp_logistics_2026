@@ -2,4 +2,3 @@
 
 from . import cs_job
 from . import cs_job_detail
-from . import cs_payment_account
