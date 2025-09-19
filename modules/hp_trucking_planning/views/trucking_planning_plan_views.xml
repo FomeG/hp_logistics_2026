@@ -49,7 +49,7 @@
                                    invisible="plan_type == 'export'"/>
                             <field name="shipping_line_id" string="Shipping Line"/>
                             <field name="container_type" string="Container Type"/>
-                            <field name="location_id" string="Port"/>
+                            <field name="location_id" string="Port" context="{'default_type':'port', 'hide_type':True}"/>
                             <field name="date"/>
                             <field name="goods_cut_off" string="Goods Cut Off Date"/>
                             <field name="status"/>
