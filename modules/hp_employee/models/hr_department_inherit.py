@@ -4,9 +4,9 @@ from odoo.exceptions import UserError, ValidationError
 class HpDepartmentInherit(models.Model):
     _inherit = 'hr.department'
 
-    TYPE_SALE = 'SALE'
-    TYPE_PRICING = 'PRICING'
-    TYPE_TRUCKING = 'TRUCKING'
+    TYPE_SALE = 'sale'
+    TYPE_PRICING = 'pricing'
+    TYPE_TRUCKING = 'trucking'
 
     ROLE_MANAGER = 'manager'
     ROLE_MEMBER = 'member'
@@ -24,7 +24,7 @@ class HpDepartmentInherit(models.Model):
         count = self.sudo().search_count([('department_type_id', 'in', self.ARRAY_TYPE)])
         return count < len(self.ARRAY_TYPE)
     department_type_id = fields.Many2one(
-        'department.type', string='Department Type', required=True
+        'department.type', string='Department Type', required=True,ondelete='cascade'
     )
 
     @api.model_create_multi
@@ -32,9 +32,10 @@ class HpDepartmentInherit(models.Model):
         for vals in vals_list:
             dept_type = vals.get('department_type_id')
             if dept_type:
+                dept_type_id = self.env['department.type'].browse(dept_type)
                 existing = self.sudo().search([('department_type_id', '=', dept_type)], limit=1)
                 if existing:
-                    raise ValidationError(f"Department with type '{dept_type}' already exists.")
+                    raise ValidationError(f"Department with type '{dept_type_id.name}' already exists.")
 
         departments = super().create(vals_list)
         for department in departments:

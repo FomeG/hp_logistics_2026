@@ -5,6 +5,7 @@
             name="Department type"
             parent="hr.menu_hr_root"
             action="action_cs_department_type"
+            groups="base.group_system"
             sequence="11"/>
     </data>
 </odoo>
