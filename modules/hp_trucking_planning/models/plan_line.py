@@ -153,21 +153,6 @@ class PlanLine(models.Model):
 
                     raise UserError(error_message)
 
-    @api.depends('plan_type', 'route_id', 'goods_pickup_location_id', 'goods_delivery_location_id')
-    def _compute_actual_locations(self):
-        for rec in self:
-            if rec.plan_type == 'export':
-                # Export: Hàng đi từ goods_pickup -> port (plan.location_id)
-                rec.actual_source_location_id = rec.goods_pickup_location_id
-                rec.actual_destination_location_id = rec.goods_delivery_location_id or rec.plan_id.location_id
-            else:
-                # Import: Hàng đi từ port (plan.location_id) -> goods_delivery
-                rec.actual_source_location_id = rec.goods_pickup_location_id or rec.plan_id.location_id
-                rec.actual_destination_location_id = rec.goods_delivery_location_id
-            if not rec.goods_pickup_location_id or not rec.goods_delivery_location_id:
-                rec.actual_source_location_id = rec.route_id.from_location_id if rec.route_id else False
-                rec.actual_destination_location_id = rec.route_id.to_location_id if rec.route_id else False
-
     @api.onchange('plan_type')
     def _onchange_plan_type(self):
         for record in self:
@@ -180,13 +165,18 @@ class PlanLine(models.Model):
                 record.goods_pickup_location_id = record.plan_id.location_id
                 record.goods_delivery_location_id = False
 
-    @api.constrains('estimate_time_departure', 'estimate_time_arrival')
+    @api.constrains('estimate_time_departure', 'estimate_time_arrival', 'plan_type')
     def _check_estimate_time(self):
         for record in self:
             if record.estimate_time_departure and record.estimate_time_arrival:
-                if record.estimate_time_arrival < record.estimate_time_departure:
-                    raise ValidationError(
-                        "Estimated Time of Arrival cannot be earlier than Estimated Time of Departure.")
+                if record.plan_type == 'export':
+                    if record.estimate_time_arrival >= record.estimate_time_departure:
+                        raise ValidationError(
+                            "For Export jobs, Estimated Time of Arrival must be earlier than Estimated Time of Departure.")
+                else:
+                    if record.estimate_time_arrival <= record.estimate_time_departure:
+                        raise ValidationError(
+                            "For Import jobs, Estimate Time of Arrival must be later than Estimate Time of Departure.")
 
     @api.depends('estimate_time_departure', 'estimate_time_arrival')
     def _compute_estimate_time_duration(self):
