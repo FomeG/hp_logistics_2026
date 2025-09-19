@@ -1,10 +1,9 @@
 from odoo import models, fields, api
-import base64, os
+import base64, os, json
 class CSJob(models.Model):
     _name = 'cs.job'
     _description = 'Customer Service Job Information'
     _rec_name = 'job_number'
-
     job_number = fields.Char(
         string="Job Number",
         required=True,
@@ -16,7 +15,20 @@ class CSJob(models.Model):
         string="Service Type",
         default='door-cy'
     )
-    department = fields.Char(string="Department", default="SEA EXPORT")
+    department_code = fields.Selection(
+        selection=[
+            ('JP01', 'SEA EXPORT'),
+            ('JP02', 'SEA IMPORT'),
+            ('JP03', 'AIR EXPORT'),
+            ('JP04', 'AIR IMPORT'),
+            ('JP05', 'LAND'),
+            ('JP06', 'MISCELLANEOUS'),
+            ('JP07', 'SALES AND MARKETING'),
+            ('JP08', 'ADMINISTRATION'),
+        ],
+        string="Department",
+        required=True,
+    )
     master_bl_date = fields.Char(string="Master B/L Date")
     shipping_line_id = fields.Many2one(
         'res.partner',
@@ -24,10 +36,29 @@ class CSJob(models.Model):
         domain="[('partner_main_type_id.code', '=', 'shipping_line')]",
         help="Chọn Shipping Line cho Job này"
     )
-    vessel = fields.Char(string="Vessel")
-    voyage = fields.Char(string="Voyage")
-    port_loading = fields.Char(string="Port of Loading")   # thay vì Many2one
-    port_discharge = fields.Char(string="Port of Discharge")
+    vessel = fields.Many2one(
+        'freight.purchase.vessel',
+        string="Vessel",
+        related="booking_id.vessel_id",
+        store=True,
+        readonly=True,
+    )
+    voyage = fields.Char(string="Voyage",related="booking_id.quotation_id.code",)
+    booking_id = fields.Many2one('freight.purchase.booking', string="Booking")
+
+    port_loading = fields.Many2one(
+        'freight.purchase.port',
+        string="Port of Loading",
+        related = 'booking_id.pol_id'
+    )
+
+    port_discharge = fields.Many2one(
+        'freight.purchase.port',
+        string="Port of Discharge",
+        related='booking_id.pod_id'
+
+    )
+
     port_transit = fields.Char(string="Port of Transit")
     pre_carriage_by = fields.Char(string="Pre-Carriage By")
     commodity = fields.Char(string="Commodity")
@@ -38,7 +69,7 @@ class CSJob(models.Model):
         string="Bill Type",
         default='hbl'
     )
-    etd = fields.Datetime(string="ETD")
+    etd = fields.Date(related="booking_id.etd", store=True)
     eta = fields.Datetime(string="ETA")
     staff_sales = fields.Char(string="Staff Sales")   # thay vì Many2one
     staff_customs = fields.Char(string="Staff Customs")
@@ -53,6 +84,14 @@ class CSJob(models.Model):
     port_receipt =  fields.Char(string="port_receipt")
     pre_carriage_vessel = fields.Char(string="Pre-Carriage Vessel")
     pre_carriage_voy = fields.Char(string="Pre-Carriage Voyage")
+    company_account= fields.Selection(
+        selection=lambda self: self._get_bank_selection('company'),
+        string="Company Bank Account",
+    )
+    personal_account = fields.Selection(
+        selection=lambda self: self._get_bank_selection('personal'),
+        string="Personal Bank Account",
+    )
     @api.model
     def create(self, vals):
         if not vals.get('job_number'):
@@ -60,19 +99,19 @@ class CSJob(models.Model):
         return super(CSJob, self).create(vals)
     def action_print_HBL_bill(self):
         return self.env.ref('hp_customer_service.action_report_HBL_bill').report_action(self)
-
-    def _get_report_values(self, docids, data=None):
-        docs = self.env['cs.job'].browse(docids)
-
-        # Lấy logo từ static module
-        module_path = os.path.dirname(__file__)
-        logo_path = os.path.join(module_path, '..', 'static', 'src', 'img', 'logo.png')
-        logo_base64 = ''
-        if os.path.exists(logo_path):
-            with open(logo_path, 'rb') as f:
-                logo_base64 = base64.b64encode(f.read()).decode('utf-8')
-
-        return {
-            'docs': docs,
-            'logo_base64': logo_base64,
-        }
+    def action_print_debit(self):
+        return self.env.ref('hp_customer_service.action_report_debit_note').report_action(self)
+    def _get_bank_selection(self, bank_type=None):
+        param = self.env['ir.config_parameter'].sudo().get_param('hp_bank')
+        banks = []
+        if param:
+            try:
+                data = json.loads(param)
+                for i, bank in enumerate(data):
+                    # lọc theo type + active
+                    if bank.get('type') == bank_type and bank.get('active', True):
+                        name = f"{bank.get('bank_name')} - {bank.get('bank_account')} ({bank.get('bank_holder_name')})"
+                        banks.append((str(i), name))
+            except Exception:
+                pass
+        return banks

@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="hr.view_department_form" />
         <field name="arch" type="xml">
             <xpath expr="//group/group/field[@name='name']" position="after">
-                <field name="department_type" />
+                <field name="department_type_id" />
             </xpath>
             <xpath expr="//group/group/field[@name='manager_id']" position="attributes">
                 <attribute name="required">1</attribute>
@@ -20,7 +20,7 @@
         <field name="inherit_id" ref="hr.view_department_tree" />
         <field name="arch" type="xml">
             <xpath expr="//list/field[@name='name']" position="after">
-                <field name="department_type" />
+                <field name="department_type_id"/>
             </xpath>
         </field>
     </record>
@@ -31,7 +31,7 @@
         <field name="inherit_id" ref="hr.hr_department_view_kanban" />
         <field name="arch" type="xml">
             <xpath expr="//t[@t-name='card']/a/field[@name='name']" position="after">
-                <field name="department_type" class="text-muted small ms-2" />
+                <field name="department_type_id" class="text-muted small ms-2" />
             </xpath>
         </field>
     </record>
@@ -43,11 +43,11 @@
         <field name="arch" type="xml">
             <xpath expr="//search/filter[@name='inactive']" position="after">
                 <filter string="Sale" name="sale"
-                    domain="[('department_type','=','sale')]" />
+                    domain="[('department_type_id.code','=','sale')]" />
                 <filter string="Pricing" name="pricing"
-                    domain="[('department_type','=','pricing')]" />
+                    domain="[('department_type_id.code','=','pricing')]" />
                 <filter string="Trucking" name="trucking"
-                    domain="[('department_type','=','trucking')]" />
+                    domain="[('department_type_id.code','=','trucking')]" />
             </xpath>
         </field>
     </record>

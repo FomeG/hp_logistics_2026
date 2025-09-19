@@ -34,10 +34,10 @@
                         <group colspan="2">
                             <field name="price" string="Price" readonly="1"/>
                             <field name="employee_id" string="Reserved By"
-                                domain="[('department_id.department_type', '=', 'sale')]"
-                                options="{'no_create': True, 'no_edit': True}"
-                                widget="many2one_new_tab"
-                            />
+                                   domain="[('department_id.department_type_id.code', '=', 'sale')]"
+                                   options="{'no_create': True, 'no_edit': True}"
+                                   widget="many2one_new_tab"/>
+
                             <field name="reservation_expiration_date" />
                             <field name="note" />
 

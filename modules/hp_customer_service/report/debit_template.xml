@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_debit_note">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <!-- Gọi layout chuẩn của report -->
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: Arial, Helvetica, sans-serif; font-size: 12px;">
+                        <!-- Header -->
+                          <div style="margin-bottom:10px">
+                            <h1 style="font-size:16px; font-weight:bold;">
+    Dear: <span t-esc="o.detail_ids and o.detail_ids[0].shipper_id.name or ''"/>
+</h1>                              <br/>
+                              <p>  HP Logistics JSC sincerely thanks your company for using our services.
+                                Below is the list of shipments that we have handled for your company.</p>
+
+                        </div>
+                        <div style="text-align:center; font-size:25px; font-weight:bold; margin-bottom:10px;color: blue">
+                            DEBIT NOTE
+                        </div>
+
+                        <div style="width:100%; margin-bottom:10px; overflow:hidden;">
+                            <div style="width:50%; float:left;">
+                                <p>Declaration No.:</p>
+                                <p>Remarks::</p>
+                            </div>
+                            <div style="width:50%; float:right; text-align:right;">
+                                <p>No.: <span t-esc="o.job_number or ''"/></p>
+                                <p>Date: <span t-esc="o.create_date.strftime('%d/%m/%Y') if o.create_date else ''"/></p>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <table style="width:100%; border-collapse:collapse; font-size:12px;" border="1">
+                            <thead>
+                                <tr>
+                                    <th style="width:5%;">No.</th>
+                                    <th style="width:25%;">Cost Items</th>
+                                    <th style="width:10%;">Invoice No.</th>
+                                    <th style="width:10%;">B/L No.</th>
+                                    <th style="width:10%;">Unit</th>
+                                    <th style="width:10%;">Quantity</th>
+                                    <th style="width:10%;">Unit Price (VND)</th>
+                                    <th style="width:10%;">Amount excl. VAT (VND)</th>
+                                    <th style="width:10%;">Total (VND)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="9" style="font-weight:bold;">I. Invoice-related costs</td>
+                                </tr>
+                                <t t-set="idx" t-value="0"/>
+                                <t t-foreach="o.detail_ids" t-as="line" t-foreach-index="i">
+                                    <t t-set="idx" t-value="idx + 1"/>
+                                    <tr>
+                                        <td style="text-align:center;"><span t-esc="idx"/></td>
+                                        <td><span t-esc="line.shipper_id or ''"/></td>
+                                        <td style="text-align:center;"><span t-esc="line.shipper_id or ''"/></td>
+                                        <td style="text-align:center;"><span t-esc="line.shipper_id or ''"/></td>
+                                        <td style="text-align:center;"><span t-esc="line.shipper_id or ''"/></td>
+                                        <td style="text-align:center;"><span t-esc="line.shipper_id or 1.00"/></td>
+                                        <td style="text-align:right;"><span t-esc="line.shipper_id"/></td>
+                                        <td style="text-align:right;"><span t-esc="line.shipper_id"/></td>
+                                        <td style="text-align:right;"><span t-esc="line.shipper_id"/></td>
+                                    </tr>
+                                </t>
+                                 <!-- Tổng chi phí -->
+        <tr>
+            <td colspan="9" style="text-align:right; font-weight:bold;">
+                Tổng chi phí HP xuất hóa đơn:
+                <span t-esc="o.job_number"/>
+            </td>
+        </tr>
+                                <tbody>
+    <!-- Phần II -->
+    <tr>
+        <td colspan="9" style="font-weight:bold;">II. Other Costs</td>
+    </tr>
+
+    <t t-foreach="o.detail_ids" t-as="line" t-foreach-index="i">
+        <tr>
+            <td style="text-align:center;">
+                <span t-esc="o.job_number"/>
+            </td>
+            <td>
+                <span t-esc="o.job_number"/>
+            </td>
+            <td style="text-align:right;">
+                <span t-esc="o.job_number"/>
+            </td>
+             <td style="text-align:center;">
+                <span t-esc="o.job_number"/>
+            </td>
+            <td>
+                <span t-esc="o.job_number"/>
+            </td>
+            <td style="text-align:right;">
+                <span t-esc="o.job_number"/>
+            </td>
+             <td style="text-align:center;">
+                <span t-esc="o.job_number"/>
+            </td>
+            <td>
+                <span t-esc="o.job_number"/>
+            </td>
+            <td style="text-align:right;">
+                <span t-esc="o.job_number"/>
+            </td>
+            <!-- các cột khác tùy bạn -->
+        </tr>
+    </t>
+
+    <!-- Dòng tổng -->
+    <tr>
+        <td colspan="9" style="text-align:right; font-weight:bold;">
+            Total Other Costs: (VND)
+            <span t-esc="o.job_number"/>
+        </td>
+    </tr>
+</tbody>
+
+                            </tbody>
+                        </table>
+                        <!-- Các dòng mô tả -->
+<p>
+    Total COD/Collection (to personal account):
+    <span t-esc="o.job_number"/> VNĐ
+</p>
+<p>
+    Total invoiced amount (to company account):
+    <span t-esc="o.job_number"/> VNĐ
+</p>
+<p>
+   Please kindly settle payment to our following bank accounts:
+</p>
+
+<!-- Tiêu đề phần thanh toán -->
+<table style="width:100%; margin-top:10px; font-size:12px;">
+    <tr>
+        <td style="font-weight:bold; text-decoration:underline;">
+            Pay invoice costs to account:
+        </td>
+        <td style="font-weight:bold; text-decoration:underline;">
+            Pay collection fees to account:
+        </td>
+    </tr>
+</table>
+
+<!-- Thông tin 2 tài khoản -->
+<table style="width:100%; margin-top:10px; font-size:12px; border:none;">
+    <tr>
+        <td style="width:50%;">
+           <p><b>Account Name:</b> <span t-esc="o.company_account"/></p>
+            <p><b>Account Number:</b> <span t-esc="o.company_account"/></p>
+            <p><b>Bank Name:</b> <span t-esc="o.company_account"/></p>
+            <p><b>Nội dung UNC write:</b> Customer tax code for paying the invoice (or BILL)</p>
+        </td>
+        <td style="width:50%;">
+            <p><b>Account Name:</b> <span t-esc="o.personal_account"/></p>
+            <p><b>Account Number:</b> <span t-esc="o.personal_account"/></p>
+            <p><b>Bank Name:</b> <span t-esc="o.personal_account"/></p>
+        </td>
+    </tr>
+</table>
+
+<!-- Chữ ký -->
+<table style="width:100%; margin-top:30px; font-size:12px; border:none;">
+    <tr>
+        <td style="width:50%; text-align:center; font-weight:bold;">
+            For and on behalf of Customer
+        </td>
+        <td style="width:50%; text-align:center; font-weight:bold;">
+            For and on behalf of HP Logistics
+        </td>
+    </tr>
+</table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

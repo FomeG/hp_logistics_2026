@@ -14,7 +14,7 @@
                     <notebook>
                         <page string="Employees">
                             <field name="employee_ids"
-                                domain="[('department_id.department_type', '=', 'pricing')]">
+                                 domain="[('department_id.department_type_id.code', '=', 'pricing')]">
                                 <list create="0" delete="0" edit="0" multi_edit="0">
                                     <field name="name" />
                                     <field name="work_phone" />

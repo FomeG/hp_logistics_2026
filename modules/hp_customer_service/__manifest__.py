@@ -7,21 +7,23 @@
     'category': 'HP',
     'version': '0.1',
 
-    'depends': ['base','hp_components'],
+    # any module necessary for this one to work correctly
+    'depends': ['base','hp_components','hp_freight_purchase'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
+        # 'views/cs_department_type_views.xml',
         'views/cs_job_views.xml',
+        'wizard/hp_bank_wizard_view.xml',
         'views/cs_menus.xml',
         'report/HBL_template.xml',
+        'report/debit_template.xml',
         'report/ir_actions_report.xml',
     ],
     # only loaded in demonstration mode
-    # 'demo': [
-    #     'demo/demo.xml',
-    # ],
-    'installable': True,
-    'application': True
+    'demo': [
+        'data/bank_demo_data.xml',
+    ],
 }
 

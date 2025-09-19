@@ -8,4 +8,14 @@
               parent="menu_cs_root"
               action="action_cs_job"
               sequence="10"/>
+    <menuitem id="menu_cs_settings"
+              name="Settings"
+              parent="menu_cs_root"
+              sequence="20"/>
+
+    <menuitem id="menu_hp_bank_wizard"
+              name="Add Bank"
+              parent="menu_cs_settings"
+              action="action_hp_bank_wizard"
+              sequence="30"/>
 </odoo>
