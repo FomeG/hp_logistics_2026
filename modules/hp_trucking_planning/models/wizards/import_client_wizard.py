@@ -3,6 +3,7 @@ from odoo.exceptions import UserError
 import pandas as pd
 import io
 import base64
+from datetime import datetime
 from odoo.addons.hp_components.services.department_service import DepartmentService
 
 class ImportClientWizard(models.TransientModel):
@@ -61,102 +62,165 @@ class ImportClientWizard(models.TransientModel):
             self.sheet_name = ''
             self.available_sheets = ''
 
-    def get_available_sheets(self):
-        if not self.file or not self.file_name:
-            return []
+    def _validate_file(self, file_content):
+        result = {
+            'status': False,
+            'message': '',
+            'data': []
+        }
+
+        if not self.file_name.lower().endswith(('.xlsx', '.xls')):
+            result['message'] = _("Only Excel files (.xlsx, .xls) are allowed.")
+            return result
+
+        engine = 'xlrd' if self.file_name.endswith('.xls') else 'openpyxl'
+        convert_file_content = io.BytesIO(file_content)
+
         try:
-            file_content = base64.b64decode(self.file)
-            xl = pd.ExcelFile(io.BytesIO(file_content),
-                              engine='xlrd' if self.file_name.endswith('.xls') else 'openpyxl')
-            return xl.sheet_names
-        except Exception:
-            return []
+            xl = pd.ExcelFile(convert_file_content, engine=engine)
+            available_sheets = xl.sheet_names
+
+            sheet_import = self.sheet_name or available_sheets[0]
+            if sheet_import not in available_sheets:
+                result['message'] = _('Sheet "%s" not found in file.\nAvailable sheets: %s') % (
+                    sheet_import, ', '.join(available_sheets))
+                return result
+
+            df = pd.read_excel(
+                io.BytesIO(file_content),
+                engine=engine,
+                sheet_name=sheet_import,
+                header=3
+            )
+
+            required_columns = ['Mã đối tượng', 'MST', 'Tên đối tượng', 'ĐỊA CHỈ']
+            missing_columns = [col for col in required_columns if col not in df.columns]
+            if missing_columns:
+                available_cols = [str(col) for col in df.columns]
+                result['message'] = _('Missing required columns: %s\n\nAvailable columns in sheet "%s":\n%s') % (
+                    ', '.join(missing_columns), sheet_import, '\n- '.join(available_cols))
+                return result
+
+            current_time = datetime.now().strftime('%Y%m%d%H%M%S')
+            processed_data = []
+            fake_data_count = 0
+
+            for index, row in df.iterrows():
+                tax_number = str(row['MST']).strip() if pd.notna(row['MST']) else f'FAKE_{current_time}_{index}'
+                code = str(row['Mã đối tượng']).strip() if pd.notna(
+                    row['Mã đối tượng']) else f'FAKE_{current_time}_{index}'
+                name = str(row['Tên đối tượng']).strip() if pd.notna(
+                    row['Tên đối tượng']) else f'FAKE_{current_time}_{index}'
+                address = str(row['ĐỊA CHỈ']).strip() if pd.notna(row['ĐỊA CHỈ']) else False
+                phone = str(row.get('Số điện thoại', '')).strip() if pd.notna(row.get('Số điện thoại')) else False
+
+                if tax_number.startswith('FAKE_') or code.startswith('FAKE_') or name.startswith('FAKE_'):
+                    fake_data_count += 1
+
+                processed_data.append({
+                    'code': code,
+                    'name': name,
+                    'address': address,
+                    'tax_number': tax_number,
+                    'phone': phone,
+                })
+
+            result.update({
+                'status': True,
+                'data': processed_data,
+                'sheet_name': sheet_import,
+                'fake_data_count': fake_data_count,
+                'current_time': current_time
+            })
+
+        except Exception as e:
+            result['message'] = _('Error reading file: %s') % str(e)
+
+        return result
+
+    def _create_clients(self, data_array):
+        Client = self.env['trucking_planning.client']
+        tax_numbers = [data['tax_number'] for data in data_array]
+        codes = [data['code'] for data in data_array]
+        existing_clients = Client.search([
+            '|', ('tax_number', 'in', tax_numbers),
+            ('code', 'in', codes)
+        ])
+        existing_clients_map = {client.tax_number: client for client in existing_clients}
+
+        clients_to_create = []
+        clients_to_update = []
+
+        for data in data_array:
+            vals = data.copy()
+            vals.update({
+                'branch_id': self.branch_id.id,
+                'assign_user_id': self.assign_user_id.id,
+            })
+            tax_number = data['tax_number']
+            code = data['code']
+            existing_client = existing_clients_map.get(tax_number)
+            if existing_client:
+                clients_to_update.append((existing_client, vals))
+            else:
+                existing_client = Client.search([('code', '=', code)], limit=1)
+                if existing_client:
+                    clients_to_update.append((existing_client, vals))
+                else:
+                    clients_to_create.append(vals)
+
+        imported_count = 0
+        updated_count = 0
+
+        if clients_to_create:
+            Client.create(clients_to_create)
+            imported_count = len(clients_to_create)
+
+        if clients_to_update:
+            for existing_client, vals in clients_to_update:
+                existing_client.write(vals)
+            updated_count = len(clients_to_update)
+
+        return imported_count, updated_count
 
     def action_import(self):
         self.ensure_one()
-        if not self.file:
-            raise UserError(_('Please upload a file.'))
         try:
+            if not self.file:
+                raise UserError(_('Please upload a file.'))
             file_content = base64.b64decode(self.file)
-            xl = pd.ExcelFile(io.BytesIO(file_content),
-                              engine='xlrd' if self.file_name.endswith('.xls') else 'openpyxl')
-            sheet_names = xl.sheet_names
-            sheet_to_import = None
+            validate_result = self._validate_file(file_content)
+            if not validate_result['status']:
+                raise UserError(validate_result['message'])
 
-            if self.sheet_name:
-                if self.sheet_name in sheet_names:
-                    sheet_to_import = self.sheet_name
-                else:
-                    raise UserError(_('Sheet "%s" not found in file.\nAvailable sheets: %s') % (
-                    self.sheet_name, ', '.join(sheet_names)))
-            else:
-                if len(sheet_names) == 1:
-                    sheet_to_import = sheet_names[0]
-                else:
-                    raise UserError(
-                        _('Multiple sheets found. Please specify sheet name.\nAvailable sheets: %s') % ', '.join(
-                            sheet_names))
+            data = validate_result['data']
+            if not data:
+                raise UserError(_('No valid data found to import.'))
 
-            df = pd.read_excel(io.BytesIO(file_content),
-                               engine='xlrd' if self.file_name.endswith('.xls') else 'openpyxl',
-                               sheet_name=sheet_to_import,
-                               header=3)
+            imported_count, updated_count = self._create_clients(data)
+
+            message_parts = [
+                _('Import completed from sheet "%s"') % validate_result['sheet_name'],
+                _('- New clients: %s') % imported_count,
+                _('- Updated clients: %s') % updated_count,
+            ]
+
+            fake_data_count = validate_result.get('fake_data_count', 0)
+            if fake_data_count > 0:
+                current_time = validate_result.get('current_time', '')
+                message_parts.append(_('- Records with fake data (FAKE_%s_*): %s') % (current_time, fake_data_count))
+
+            message = '\n'.join(message_parts)
+
+            return {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Import Success'),
+                    'message': message,
+                    'sticky': False,
+                }
+            }
 
         except Exception as e:
-            raise UserError(_('Error reading file: %s') % str(e))
-
-        required_columns = ['Mã đối tượng', 'MST', 'Tên đối tượng', 'ĐỊA CHỈ']
-        missing_columns = [col for col in required_columns if col not in df.columns]
-        if missing_columns:
-            available_cols = [str(col) for col in df.columns]
-            raise UserError(_('Missing required columns: %s\n\nAvailable columns in sheet "%s":\n%s') %
-                            (', '.join(missing_columns), sheet_to_import, '\n- '.join(available_cols)))
-        client_model = self.env['trucking_planning.client']
-        imported_count = 0
-        updated_count = 0
-        skipped_count = 0
-
-        for index, row in df.iterrows():
-            tax_number = str(row['MST']).strip() if pd.notna(row['MST']) else False
-            if not tax_number:
-                skipped_count += 1
-                continue
-
-            existing_client = client_model.search([('tax_number', '=', tax_number)], limit=1)
-            vals = {
-                'code': str(row['Mã đối tượng']).strip() if pd.notna(row['Mã đối tượng']) else False,
-                'name': str(row['Tên đối tượng']).strip() if pd.notna(row['Tên đối tượng']) else False,
-                'address': str(row['ĐỊA CHỈ']).strip() if pd.notna(row['ĐỊA CHỈ']) else False,
-                'tax_number': tax_number,
-                'branch_id': self.branch_id.id,
-                'assign_user_id': self.assign_user_id.id,
-                'phone': str(row.get('Số điện thoại', '')).strip() if pd.notna(row.get('Số điện thoại')) else False,
-            }
-
-            if existing_client:
-                existing_client.write(vals)
-                updated_count += 1
-            else:
-                client_model.create(vals)
-                imported_count += 1
-
-        message_parts = [
-            _('Import completed from sheet "%s"') % sheet_to_import,
-            _('- New clients: %s') % imported_count,
-            _('- Updated clients: %s') % updated_count,
-        ]
-
-        if skipped_count > 0:
-            message_parts.append(_('- Skipped rows (no tax number): %s') % skipped_count)
-
-        message = '\n'.join(message_parts)
-
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _('Import Success'),
-                'message': message,
-                'sticky': False,
-            }
-        }
+            raise UserError(str(e))

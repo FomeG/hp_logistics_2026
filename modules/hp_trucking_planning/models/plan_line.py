@@ -123,6 +123,51 @@ class PlanLine(models.Model):
         help="Location where goods will be delivered (Export) or picked up (Import)"
     )
 
+    @api.constrains('code')
+    def _check_unique_job_number(self):
+        for record in self:
+            if record.code:
+                existing_job = self.env['trucking_planning.plan.line'].search([
+                    ('code', '=', record.code),
+                    ('id', '!=', record.id)
+                ], limit=1)
+                if existing_job:
+                    booking_info = existing_job.plan_id.booking_bill_no if existing_job.plan_id else ''
+                    base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                    view_url = f"{base_url}/web#id={existing_job.id}&model=trucking_planning.plan.line&view_type=form"
+                    error_message = f"""Job Number '{record.code}' already exists!
+
+                        Job Details:
+                        - Job Number: {existing_job.code}
+                        - Booking/Bill No: {booking_info}
+                        - Plan: {existing_job.plan_id.name if existing_job.plan_id else ''}
+                        - Client: {existing_job.client_id.name if existing_job.client_id else ''}
+                        - Route: {existing_job.route_id.name if existing_job.route_id else ''}
+                        - Estimated Time of Departure: {existing_job.estimate_time_departure.strftime('%d/%m/%Y %H:%M') if existing_job.estimate_time_departure else ''}
+                        - Estimated Time of Arrival: {existing_job.estimate_time_arrival.strftime('%d/%m/%Y %H:%M') if existing_job.estimate_time_arrival else ''}
+                        - Status: {existing_job.status}
+
+                        View existing job: {view_url}
+
+                        Choose a different Job Number."""
+
+                    raise UserError(error_message)
+
+    @api.depends('plan_type', 'route_id', 'goods_pickup_location_id', 'goods_delivery_location_id')
+    def _compute_actual_locations(self):
+        for rec in self:
+            if rec.plan_type == 'export':
+                # Export: Hàng đi từ goods_pickup -> port (plan.location_id)
+                rec.actual_source_location_id = rec.goods_pickup_location_id
+                rec.actual_destination_location_id = rec.goods_delivery_location_id or rec.plan_id.location_id
+            else:
+                # Import: Hàng đi từ port (plan.location_id) -> goods_delivery
+                rec.actual_source_location_id = rec.goods_pickup_location_id or rec.plan_id.location_id
+                rec.actual_destination_location_id = rec.goods_delivery_location_id
+            if not rec.goods_pickup_location_id or not rec.goods_delivery_location_id:
+                rec.actual_source_location_id = rec.route_id.from_location_id if rec.route_id else False
+                rec.actual_destination_location_id = rec.route_id.to_location_id if rec.route_id else False
+
     @api.onchange('plan_type')
     def _onchange_plan_type(self):
         for record in self:
