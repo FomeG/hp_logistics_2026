@@ -1,0 +1,25 @@
+<odoo>
+<record id="view_hp_bank_wizard_form" model="ir.ui.view">
+    <field name="name">hp.bank.wizard.form</field>
+    <field name="model">hp.bank.wizard</field>
+    <field name="arch" type="xml">
+        <form string="Add Bank">
+            <group>
+                <field name="bank_name"/>
+                <field name="bank_account"/>
+                <field name="bank_holder_name"/>
+            </group>
+            <footer>
+                <button string="Add Bank" type="object" name="action_add_bank" class="btn-primary"/>
+                <button string="Cancel" class="btn-secondary" special="cancel"/>
+            </footer>
+        </form>
+    </field>
+</record>
+    <record id="action_hp_bank_wizard" model="ir.actions.act_window">
+    <field name="name">Add Bank</field>
+    <field name="res_model">hp.bank.wizard</field>
+    <field name="view_mode">form,list</field>
+    <field name="target">new</field>
+</record>
+</odoo>

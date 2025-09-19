@@ -12,12 +12,16 @@
 HP Employee App
 ===================================================
 """,
-    'depends': ['base', 'hr','hr_org_chart'],
+    'depends': ['base', 'hr','hr_org_chart','hp_components'],
     'data': [
         # 'data/demo_data.xml',
+        'views/cs_department_type_views.xml',
         'views/hidden_btn_new_views.xml',
         'views/hr_department_form_views.xml',
         'views/hr_employee_form_views.xml',
+        'views/cs_department_type_views.xml',
+        'views/menu.xml',
+
     ],
     "assets": {
         "web.assets_backend": [

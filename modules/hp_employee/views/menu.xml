@@ -1,0 +1,10 @@
+<odoo>
+    <data>
+        <menuitem
+            id="menu_hr_department_type"
+            name="Department type"
+            parent="hr.menu_hr_root"
+            action="action_cs_department_type"
+            sequence="11"/>
+    </data>
+</odoo>

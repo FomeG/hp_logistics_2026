@@ -8,9 +8,9 @@
               parent="menu_cs_root"
               action="action_cs_job"
               sequence="10"/>
-    <menuitem id="menu_cs_department_type"
-              name="Department Types"
+    <menuitem id="menu_hp_bank_wizard"
+          name="Add Bank"
               parent="menu_cs_root"
-              action="action_cs_department_type"
-              sequence="20"/>
+          action="action_hp_bank_wizard"
+         sequence="30"/>
 </odoo>
