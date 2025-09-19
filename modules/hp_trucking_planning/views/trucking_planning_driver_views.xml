@@ -74,11 +74,11 @@
         <field name="view_mode">list,form</field>
         <field name="view_id" ref="view_driver_tree" />
         <field name="domain">[('type', '=', 'driver')]</field>
-        <field name="context">
-            {
+        <field name="context"
+            eval="{
                 'form_view_ref': 'hp_trucking_planning.view_driver_form',
-                'default_type': 'driver'
-            }
-        </field>
+                'default_type': 'driver',
+                'default_partner_main_type_id': ref('hp_trucking_planning.partner_main_type_driver_internal'),
+            }" />
     </record>
 </odoo>

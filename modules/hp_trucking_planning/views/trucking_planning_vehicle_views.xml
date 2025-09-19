@@ -51,11 +51,12 @@
                             <field name="acquisition_date" string="Registration Date" />
                             <field name="is_rented" string="Rented Vehicle" />
                         </group>
-                        <group string="Assignment" invisible="vehicle_type == 'trailer'">
+                        <group string="Assignment">
                             <field name="trailer_id"
                                 string="Assigned Trailer"
                                 options="{'no_create': True, 'no_edit': True}"
-                                widget="many2one_new_tab" />
+                                widget="many2one_new_tab"
+                                invisible="vehicle_type == 'trailer'" />
                             <field name="driver_id"
                                 string="Driver"
                                 context="{
@@ -63,7 +64,8 @@
                                     'search_view_ref': 'hp_trucking_planning.view_driver_search',                    
                                 }"
                                 options="{'no_create': True, 'no_edit': True}"
-                                widget="many2one_new_tab" />
+                                widget="many2one_new_tab"
+                                invisible="vehicle_type == 'trailer'" />
                             <field name="trucking_branch_id" string="Branch"
                                 widget="many2one_new_tab"
                                 options="{'no_create': True, 'no_edit': True}" />
@@ -114,6 +116,7 @@
         <field name="context">
             {
                 'form_view_ref': 'hp_trucking_planning.view_vehicle_form',
+                'search_default_type_truck': 1,
             }
         </field>
     </record>
