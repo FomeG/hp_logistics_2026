@@ -28,7 +28,7 @@ class DepartmentService:
 
     def get_user_by_department_type(self, department_type):
         employees = self.env['hr.employee'].sudo().search([
-            ('department_id.department_type', '=', department_type),
+            ('department_id.department_type_id.code', '=', department_type),
             ('user_id', '!=', False),
         ])
 
