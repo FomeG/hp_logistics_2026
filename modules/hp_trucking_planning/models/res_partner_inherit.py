@@ -52,7 +52,6 @@ class ResPartnerInherit(models.Model):
     _sql_constraints = [
         ('unique_license_number', 'UNIQUE(license_number)','License Number must be unique!'),
         ('unique_cccd', 'UNIQUE(cccd)', 'CCCD must be unique!'),
-        ('unique_phone', 'UNIQUE(phone)', 'Phone Number must be unique!'),
         ('unique_vat', 'UNIQUE(vat)','Tax Number must be unique!'),
     ]
 

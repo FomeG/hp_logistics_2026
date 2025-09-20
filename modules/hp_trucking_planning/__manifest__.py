@@ -5,7 +5,7 @@
     'description': "This module allows to manage driver, truck, cost and make planning, order for transport",
     'author': 'HPL',
     'category': 'HP',
-    'version': '18.0.0.0.2',
+    'version': '18.0.0.0.3',
     "license": "LGPL-3",
     'depends': ['base','hp_components', 'queue_job', 'portal', 'hp_employee', 'fleet'],
     'data': [
