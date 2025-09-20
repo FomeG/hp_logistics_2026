@@ -4,6 +4,7 @@ import pandas as pd
 import io
 import base64
 from odoo.addons.hp_components.services.department_service import DepartmentService
+from ...services.res_partner_service import ResPartnerService
 
 class ImportClientWizard(models.TransientModel):
     _name = 'trucking_planning.import_client_wizard'
@@ -111,23 +112,25 @@ class ImportClientWizard(models.TransientModel):
             available_cols = [str(col) for col in df.columns]
             raise UserError(_('Missing required columns: %s\n\nAvailable columns in sheet "%s":\n%s') %
                             (', '.join(missing_columns), sheet_to_import, '\n- '.join(available_cols)))
-        client_model = self.env['trucking_planning.client']
+        client_model = self.env['res.partner']
         imported_count = 0
         updated_count = 0
         skipped_count = 0
 
+        data_clients = []
         for index, row in df.iterrows():
             tax_number = str(row['MST']).strip() if pd.notna(row['MST']) else False
             if not tax_number:
                 skipped_count += 1
                 continue
 
-            existing_client = client_model.search([('tax_number', '=', tax_number)], limit=1)
+            existing_client = client_model.search([('vat', '=', tax_number)], limit=1)
             vals = {
+                'type': ResPartnerService.PARTNER_TYPE_CLIENT,
                 'code': str(row['Mã đối tượng']).strip() if pd.notna(row['Mã đối tượng']) else False,
                 'name': str(row['Tên đối tượng']).strip() if pd.notna(row['Tên đối tượng']) else False,
-                'address': str(row['ĐỊA CHỈ']).strip() if pd.notna(row['ĐỊA CHỈ']) else False,
-                'tax_number': tax_number,
+                'street': str(row['ĐỊA CHỈ']).strip() if pd.notna(row['ĐỊA CHỈ']) else False,
+                'vat': tax_number,
                 'branch_id': self.branch_id.id,
                 'assign_user_id': self.assign_user_id.id,
                 'phone': str(row.get('Số điện thoại', '')).strip() if pd.notna(row.get('Số điện thoại')) else False,
@@ -137,8 +140,11 @@ class ImportClientWizard(models.TransientModel):
                 existing_client.write(vals)
                 updated_count += 1
             else:
-                client_model.create(vals)
-                imported_count += 1
+                data_clients.append(vals)
+
+        if data_clients:
+            client_model.create(data_clients)
+            imported_count = len(data_clients)
 
         message_parts = [
             _('Import completed from sheet "%s"') % sheet_to_import,

@@ -14,7 +14,6 @@
 
         <!-- Import Tools Submenu -->
         <menuitem id="menu_trucking_import_tools" name="Import Tools" parent="menu_trucking_root" sequence="35" groups="base.group_system"/>
-        <menuitem id="menu_download_client_template" name="Download Template Import Client" action="action_download_client_template" parent="menu_trucking_import_tools" sequence="2"/>
         <!-- Plans -->
         <menuitem id="menu_plan" name="Plans" parent="menu_trucking_operations" action="action_plan" sequence="10"/>
         <menuitem id="menu_plan_line" name="Jobs" parent="menu_trucking_operations" action="action_plan_line" sequence="20"/>

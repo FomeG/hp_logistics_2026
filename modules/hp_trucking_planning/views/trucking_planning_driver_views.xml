@@ -42,7 +42,7 @@
                         <field name="license_number" required="1" />
                         <field name="contract_date" />
                         <field name="active" />
-                        <field name="notes" />
+                        <field name="comment" />
                         <field name="type" invisible="1" default="driver" />
                     </group>
                 </sheet>

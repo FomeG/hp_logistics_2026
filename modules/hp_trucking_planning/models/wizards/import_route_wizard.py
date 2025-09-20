@@ -32,7 +32,7 @@ class ImportRouteWizard(models.TransientModel):
             result['message'] = _("Only Excel files (.xlsx, .xls) are allowed.")
             return result
         
-        engine = 'openpyxl'
+        engine = 'xlrd' if self.file_name.endswith('.xls') else 'openpyxl'
         convert_file_content = io.BytesIO(file_content)
         xl = pd.ExcelFile(convert_file_content, engine)
         available_sheets = xl.sheet_names

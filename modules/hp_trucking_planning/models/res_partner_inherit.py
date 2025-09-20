@@ -19,7 +19,6 @@ class ResPartnerInherit(models.Model):
     cccd = fields.Char(string='CCCD', tracking=True)
     license_number = fields.Char(string='License Number', tracking=True)
     contract_date = fields.Date(string='Contract Date', tracking=True)
-    notes = fields.Text(string='Notes')
     # ====== End Driver ======
 
     # ====== Start Client ======
