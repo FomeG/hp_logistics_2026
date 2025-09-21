@@ -4,7 +4,8 @@ import pandas as pd
 import io
 import base64
 import logging
-from odoo.addons.hp_components.services.department_service import DepartmentService
+from ...services.res_partner_service import ResPartnerService
+from ...services.vehicle_service import VehicleService
 
 _logger = logging.getLogger(__name__)
 
@@ -71,182 +72,58 @@ class ImportVehicleDriverWizard(models.TransientModel):
     def _onchange_file(self):
         if self.file and self.file_name:
             self.sheet_name = ''
-            try:
-                file_content = base64.b64decode(self.file)
+            file_content = base64.b64decode(self.file)
                 
-                # Check if file content is valid
-                if len(file_content) == 0:
-                    raise Exception("File is empty")
-                
-                # Try to determine the correct engine based on file extension
-                if self.file_name.endswith('.xls'):
-                    # For .xls files, try openpyxl first (works with newer pandas), then xlrd
-                    try:
-                        xl = pd.ExcelFile(io.BytesIO(file_content), engine='openpyxl')
-                        engine = 'openpyxl'
-                    except Exception as e1:
-                        try:
-                            xl = pd.ExcelFile(io.BytesIO(file_content), engine='xlrd')
-                            engine = 'xlrd'
-                        except Exception as e2:
-                            # Check if it's a version issue and provide specific guidance
-                            if "version" in str(e1).lower() or "version" in str(e2).lower():
-                                raise Exception("Excel library version issue detected. Please upgrade: pip install --upgrade xlrd openpyxl")
-                            else:
-                                raise Exception(f"Both engines failed for .xls file. openpyxl: {str(e1)}, xlrd: {str(e2)}")
-                elif self.file_name.endswith('.xlsx'):
-                    engine = 'openpyxl'
-                else:
-                    # Try both engines for unknown extensions
-                    try:
-                        xl = pd.ExcelFile(io.BytesIO(file_content), engine='openpyxl')
-                        engine = 'openpyxl'
-                    except Exception as e1:
-                        try:
-                            xl = pd.ExcelFile(io.BytesIO(file_content), engine='xlrd')
-                            engine = 'xlrd'
-                        except Exception as e2:
-                            # Check if it's a version issue and provide specific guidance
-                            if "version" in str(e1).lower() or "version" in str(e2).lower():
-                                raise Exception("Excel library version issue detected. Please upgrade: pip install --upgrade xlrd openpyxl")
-                            else:
-                                raise Exception(f"Both engines failed. openpyxl: {str(e1)}, xlrd: {str(e2)}")
-                
-                xl = pd.ExcelFile(io.BytesIO(file_content), engine=engine)
-                self.available_sheets = ', '.join(xl.sheet_names)
-                if len(xl.sheet_names) >= 1:
-                    self.sheet_name = xl.sheet_names[0]
-            except Exception as e:
-                error_msg = str(e)
-                if "version" in error_msg.lower():
-                    error_msg = "Excel library version issue detected. Please upgrade: pip install --upgrade xlrd openpyxl"
-                else:
-                    error_msg = f'Cannot read Excel file: {error_msg}'
-                _logger.error(error_msg)
-                self.available_sheets = error_msg
+            # Check if file content is valid
+            if len(file_content) == 0:
+                raise Exception("File is empty")
+            
+                # check file type
+            if not self.file_name.lower().endswith(('.xlsx', '.xls')):
+                raise UserError(_("Only Excel files (.xlsx, .xls) are allowed."))
+
+            engine = 'xlrd' if self.file_name.endswith('.xls') else 'openpyxl'
+            xl = pd.ExcelFile(io.BytesIO(file_content), engine=engine)
+            self.available_sheets = ', '.join(xl.sheet_names)
+            if len(xl.sheet_names) >= 1:
+                self.sheet_name = xl.sheet_names[0]
         else:
             self.sheet_name = ''
             self.available_sheets = ''
 
     def get_available_sheets(self):
-        if not self.file or not self.file_name:
-            return []
-        try:
-            file_content = base64.b64decode(self.file)
-            
-            # Check if file content is valid
-            if len(file_content) == 0:
-                raise Exception("File is empty")
-            
-            # Try to determine the correct engine based on file extension
-            if self.file_name.endswith('.xls'):
-                # For .xls files, try openpyxl first (works with newer pandas), then xlrd
-                try:
-                    xl = pd.ExcelFile(io.BytesIO(file_content), engine='openpyxl')
-                    engine = 'openpyxl'
-                    _logger.info("Using openpyxl for .xls file")
-                except Exception as e1:
-                    _logger.info(f"openpyxl failed for .xls: {str(e1)}")
-                    try:
-                        xl = pd.ExcelFile(io.BytesIO(file_content), engine='xlrd')
-                        engine = 'xlrd'
-                        _logger.info("Using xlrd for .xls file")
-                    except Exception as e2:
-                        _logger.info(f"xlrd failed for .xls: {str(e2)}")
-                        raise Exception(f"Both engines failed for .xls file. openpyxl: {str(e1)}, xlrd: {str(e2)}")
-            elif self.file_name.endswith('.xlsx'):
-                engine = 'openpyxl'
-            else:
-                # Try both engines for unknown extensions
-                try:
-                    xl = pd.ExcelFile(io.BytesIO(file_content), engine='openpyxl')
-                    engine = 'openpyxl'
-                except Exception as e1:
-                    _logger.info(f"openpyxl failed: {str(e1)}")
-                    try:
-                        xl = pd.ExcelFile(io.BytesIO(file_content), engine='xlrd')
-                        engine = 'xlrd'
-                    except Exception as e2:
-                        _logger.info(f"xlrd failed: {str(e2)}")
-                        raise Exception(f"Both engines failed. openpyxl: {str(e1)}, xlrd: {str(e2)}")
-            
-            xl = pd.ExcelFile(io.BytesIO(file_content), engine=engine)
-            _logger.info(f"Successfully read Excel file with engine: {engine}, Sheets: {xl.sheet_names}")
-            return xl.sheet_names
-        except Exception as e:
-            return []
+        file_content = base64.b64decode(self.file)
+        engine = 'xlrd' if self.file_name.endswith('.xls') else 'openpyxl'
+        xl = pd.ExcelFile(io.BytesIO(file_content), engine=engine)
+        return xl.sheet_names
 
     def action_import(self):
         self.ensure_one()
         if not self.file:
             raise UserError(_('Please upload a file.'))
         
-        try:
-            file_content = base64.b64decode(self.file)
-            
-            # Try to determine the correct engine based on file extension
-            if self.file_name.endswith('.xls'):
-                # For .xls files, try openpyxl first (works with newer pandas), then xlrd
-                try:
-                    xl = pd.ExcelFile(io.BytesIO(file_content), engine='openpyxl')
-                    engine = 'openpyxl'
-                    _logger.info("Using openpyxl for .xls file")
-                except Exception as e1:
-                    _logger.info(f"openpyxl failed for .xls: {str(e1)}")
-                    try:
-                        xl = pd.ExcelFile(io.BytesIO(file_content), engine='xlrd')
-                        engine = 'xlrd'
-                        _logger.info("Using xlrd for .xls file")
-                    except Exception as e2:
-                        _logger.info(f"xlrd failed for .xls: {str(e2)}")
-                        raise Exception(f"Both engines failed for .xls file. openpyxl: {str(e1)}, xlrd: {str(e2)}")
-            elif self.file_name.endswith('.xlsx'):
-                engine = 'openpyxl'
-            else:
-                # Try both engines for unknown extensions
-                try:
-                    xl = pd.ExcelFile(io.BytesIO(file_content), engine='openpyxl')
-                    engine = 'openpyxl'
-                except Exception as e1:
-                    _logger.info(f"openpyxl failed: {str(e1)}")
-                    try:
-                        xl = pd.ExcelFile(io.BytesIO(file_content), engine='xlrd')
-                        engine = 'xlrd'
-                    except Exception as e2:
-                        _logger.info(f"xlrd failed: {str(e2)}")
-                        raise Exception(f"Both engines failed. openpyxl: {str(e1)}, xlrd: {str(e2)}")
-            
-            xl = pd.ExcelFile(io.BytesIO(file_content), engine=engine)
-            sheet_names = xl.sheet_names
-            sheet_to_import = None
+        vehicle_model = self.env['fleet.vehicle.model']
+        vehicle_model_truck = vehicle_model.search([('vehicle_type', '=', VehicleService.VEHICLE_MODEL_TYPE_TRUCK)], limit=1)
+        vehicle_model_trailer = vehicle_model.search([('vehicle_type', '=', VehicleService.VEHICLE_MODEL_TYPE_TRAILER)], limit=1)
+        if not vehicle_model_trailer or not vehicle_model_truck:
+            raise UserError(_('Please create data vehicle model type truck and trailer.'))
+        
+        file_content = base64.b64decode(self.file)
+    
+        engine = 'xlrd' if self.file_name.endswith('.xls') else 'openpyxl'
+        xl = pd.ExcelFile(io.BytesIO(file_content), engine=engine)
+        sheet_names = xl.sheet_names
+        sheet_to_import = None
 
-            if self.sheet_name:
-                if self.sheet_name in sheet_names:
-                    sheet_to_import = self.sheet_name
-                else:
-                    raise UserError(_('Sheet "%s" not found in file.\nAvailable sheets: %s') % (
-                    self.sheet_name, ', '.join(sheet_names)))
-            else:
-                if len(sheet_names) == 1:
-                    sheet_to_import = sheet_names[0]
-                else:
-                    raise UserError(
-                        _('Multiple sheets found. Please specify sheet name.\nAvailable sheets: %s') % ', '.join(
-                            sheet_names))
+        sheet_to_import = sheet_names[0]
+        if self.sheet_name and self.sheet_name in sheet_names:
+            sheet_to_import = self.sheet_name
 
-            # Read the Excel file starting from row 1 (header row)
-            df = pd.read_excel(io.BytesIO(file_content),
-                               engine=engine,
-                               sheet_name=sheet_to_import,
-                               header=0)  # Header is in row 1
-
-        except Exception as e:
-            error_msg = str(e)
-            if "version" in error_msg.lower():
-                error_msg = "Excel library version issue detected. Please upgrade: pip install --upgrade xlrd openpyxl"
-            else:
-                error_msg = f'Error reading file: {error_msg}'
-            raise UserError(_(error_msg))
+        # Read the Excel file starting from row 1 (header row)
+        df = pd.read_excel(io.BytesIO(file_content),
+                            engine=engine,
+                            sheet_name=sheet_to_import,
+                            header=0)  # Header is in row 1
 
         # Check for required columns based on the image data
         required_columns = ['Mã xe', 'Biển số', 'Họ tên lái xe', 'điện thoại', 'loại máy']
@@ -256,8 +133,8 @@ class ImportVehicleDriverWizard(models.TransientModel):
             raise UserError(_('Missing required columns: %s\n\nAvailable columns in sheet "%s":\n%s') %
                             (', '.join(missing_columns), sheet_to_import, '\n- '.join(available_cols)))
 
-        vehicle_model = self.env['trucking_planning.vehicle']
-        driver_model = self.env['trucking_planning.driver']
+        vehicle_model = self.env['fleet.vehicle']
+        driver_model = self.env['res.partner.driver']
         
         imported_vehicles = 0
         updated_vehicles = 0
@@ -279,13 +156,14 @@ class ImportVehicleDriverWizard(models.TransientModel):
             driver_record = None
             if driver_name and driver_phone:
                 # Check if driver exists by phone number (unique constraint)
-                existing_driver = driver_model.search([('phone_number', '=', driver_phone)], limit=1)
+                existing_driver = driver_model.search([('phone', '=', driver_phone), ('type', '=', ResPartnerService.PARTNER_TYPE_DRIVER)], limit=1)
                 
                 # Generate unique temporary values
                 temp_suffix = driver_phone if driver_phone else f'TEMP_{index}'
                 driver_vals = {
+                    'type': ResPartnerService.PARTNER_TYPE_DRIVER,
                     'name': driver_name,
-                    'phone_number': driver_phone,
+                    'phone': driver_phone,
                     'cccd': f'DUMMY_CCCD_{temp_suffix}',  # Temporary value, needs manual update
                     'license_number': f'DUMMY_LICENSE_{temp_suffix}',  # Temporary value, needs manual update
                 }
@@ -299,7 +177,6 @@ class ImportVehicleDriverWizard(models.TransientModel):
                     imported_drivers += 1
 
             # Process Vehicle Data
-            vehicle_code = str(row['Mã xe']).strip() if pd.notna(row['Mã xe']) else ''
             trailer_number = str(row['số mooc']).strip() if pd.notna(row['số mooc']) else ''
             machine_type = str(row['loại máy']).strip() if pd.notna(row['loại máy']) else ''
             
@@ -309,17 +186,15 @@ class ImportVehicleDriverWizard(models.TransientModel):
             # Process Trailer first (if exists) so we can assign it to the truck
             trailer_record = None
             if trailer_number:
-                # Check if trailer exists by normalized name (to handle unique constraint)
-                normalized_trailer_name = self._normalize_text(trailer_number)
-                existing_trailer = vehicle_model.search([('normalized_name', '=', normalized_trailer_name)], limit=1)
-                _logger.info(f"Trailer search: '{trailer_number}' -> normalized: '{normalized_trailer_name}' -> found: {bool(existing_trailer)}")
+                existing_trailer = vehicle_model.search([
+                    ('license_plate', '=', trailer_number),
+                    ('vehicle_type', '=', VehicleService.VEHICLE_MODEL_TYPE_TRAILER),
+                ], limit=1)
                 
                 trailer_vals = {
-                    'name': trailer_number,
-                    'normalized_name': normalized_trailer_name,  # Explicitly set normalized_name
-                    'type': 'trailer',
-                    'branch_id': self.branch_id.id,
-                    'active': True,
+                    'license_plate': trailer_number,
+                    'model_id': vehicle_model_trailer.id,
+                    'trucking_branch_id': self.branch_id.id,
                 }
                 
                 if existing_trailer:
@@ -329,22 +204,21 @@ class ImportVehicleDriverWizard(models.TransientModel):
                     trailer_record = vehicle_model.create(trailer_vals)
             
             # Check if vehicle exists by normalized name (to handle unique constraint)
-            normalized_license_plate = self._normalize_text(license_plate)
-            existing_vehicle = vehicle_model.search([('normalized_name', '=', normalized_license_plate)], limit=1)
-            _logger.info(f"Vehicle search: '{license_plate}' -> normalized: '{normalized_license_plate}' -> found: {bool(existing_vehicle)}")
+            existing_vehicle = vehicle_model.search([
+                ('license_plate', '=', license_plate),
+                ('vehicle_type', '=', VehicleService.VEHICLE_MODEL_TYPE_TRUCK),
+            ], limit=1)
             
             vehicle_vals = {
-                'name': license_plate,
-                'normalized_name': normalized_license_plate,  # Explicitly set normalized_name
-                'type': 'truck',
+                'license_plate': license_plate,
+                'model_id': vehicle_model_truck.id,
                 'engine_type': engine_type,
-                'branch_id': self.branch_id.id,
-                'active': True,
+                'trucking_branch_id': self.branch_id.id,
             }
             
             # Set primary driver if we have a driver record
             if driver_record:
-                vehicle_vals['primary_driver_id'] = driver_record.id
+                vehicle_vals['driver_id'] = driver_record.id
             
             # Assign trailer to the truck (if we have a trailer record)
             if trailer_record:

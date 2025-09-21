@@ -2,6 +2,8 @@ from odoo import models, fields, api
 import re
 import calendar
 
+from ..services.res_partner_service import ResPartnerService
+
 import logging
 logger = logging.getLogger(__name__)
 

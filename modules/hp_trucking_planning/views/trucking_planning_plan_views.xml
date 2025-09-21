@@ -47,7 +47,14 @@
                             <field name="booking_bill_no"
                                    string="Bill No"
                                    invisible="plan_type == 'export'"/>
-                            <field name="shipping_line_id" string="Shipping Line"/>
+                            <field name="shipping_line_id"
+                                    string="Shipping Line"
+                                    context="{
+                                            'list_view_ref': 'hp_trucking_planning.view_shipping_line_tree',
+                                            'search_view_ref': 'hp_trucking_planning.view_shipping_line_form',                    
+                                        }"
+                                    options="{'no_create': True, 'no_edit': True}"
+                                    widget="many2one_new_tab" />
                             <field name="container_type" string="Container Type"/>
                             <field name="location_id" string="Port" context="{'default_type':'port', 'hide_type':True}"/>
                             <field name="date"/>
@@ -74,7 +81,7 @@
                                     class="oe_stat_button"
                                     icon="fa-user-plus"
                                     invisible="not id"/>
-<!--                            Quick access to all trips:-->
+                        <!--                            Quick access to all trips:-->
                             <button name="action_view_all_trips"
                                 string="View All Trucks"
                                 type="object"
@@ -87,7 +94,13 @@
                                 <field name="plan_line_ids" readonly="True">
                                     <list delete="false">
                                         <field name="code" string="Job" />
-                                        <field name="client_id"/>
+                                        <field name="client_id"
+                                                context="{
+                                                    'list_view_ref': 'hp_trucking_planning.view_client_tree',
+                                                    'search_view_ref': 'hp_trucking_planning.view_client_search',                    
+                                                }"
+                                                options="{'no_create': True, 'no_edit': True}"
+                                                widget="many2one_new_tab" />
                                         <field name="status"/>
                                         <field name="plan_type" string="Direction"/>
                                         <field name="actual_source_location_id" string="From"/>

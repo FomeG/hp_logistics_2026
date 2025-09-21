@@ -48,7 +48,7 @@ class Trip(models.Model):
         store=True,
     )
     plan_shipping_line_id = fields.Many2one(
-        comodel_name='trucking_planning.shipping_line',
+        comodel_name='res.partner',
         related='plan_line_id.plan_id.shipping_line_id',
         string='Plan Shipping Line',
         readonly=True,
@@ -79,13 +79,6 @@ class Trip(models.Model):
         comodel_name='trucking_planning.location',
         related='plan_line_id.goods_delivery_location_id',
         string='Goods Delivery Location',
-        readonly=True,
-        store=True,
-    )
-    client_id = fields.Many2one(
-        comodel_name='trucking_planning.client',
-        related='plan_line_id.client_id',
-        string='Client',
         readonly=True,
         store=True,
     )
@@ -151,7 +144,7 @@ class Trip(models.Model):
         index=True,
     )
     truck_id = fields.Many2one(
-        comodel_name='trucking_planning.vehicle',
+        comodel_name='fleet.vehicle',
         related='vehicle_driver_history_id.vehicle_id',
         store=True,
         string='Truck',
@@ -159,7 +152,7 @@ class Trip(models.Model):
         tracking=True,
     )
     driver_id = fields.Many2one(
-        comodel_name="trucking_planning.driver",
+        comodel_name="res.partner.driver",
         related='vehicle_driver_history_id.driver_id',
         store=True,
         string="Driver",
@@ -167,21 +160,21 @@ class Trip(models.Model):
         tracking=True,
     )
     trailer_id = fields.Many2one(
-        comodel_name='trucking_planning.vehicle',
+        comodel_name='fleet.vehicle',
         domain=[('type', '=', 'trailer')],
         related='truck_id.trailer_id',
         readonly=True,
         store=True,
     )
     client_id = fields.Many2one(
-        comodel_name='trucking_planning.client',
+        comodel_name='res.partner.client',
         related='plan_line_id.client_id',
         string='Client',
         readonly=True,
         store=True,
     )
     client_tax_number = fields.Char(
-        related='plan_line_id.client_id.tax_number',
+        related='plan_line_id.client_id.vat',
         string='Client Tax Number',
         readonly=True,
         store=True,

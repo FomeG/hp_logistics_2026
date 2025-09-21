@@ -5,6 +5,7 @@ import io
 import base64
 from datetime import datetime
 from odoo.addons.hp_components.services.department_service import DepartmentService
+from ...services.res_partner_service import ResPartnerService
 
 class ImportClientWizard(models.TransientModel):
     _name = 'trucking_planning.import_client_wizard'

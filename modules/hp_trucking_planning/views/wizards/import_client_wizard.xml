@@ -28,6 +28,52 @@
                             <field name="available_sheets" readonly="1"/>
                         </group>
                     </group>
+                    <div class="alert alert-info" role="alert">
+                        <h4 class="alert-heading">Excel import instructions</h4>
+                        <div class="row mt-3">
+                            <div class=" col-md-6">
+                                <p>
+                                    <strong>📊 Step:</strong>
+                                </p>
+                                <ol>
+                                    <li> Download sample file: <a
+                                            href="/hp_trucking_planning/static/xlsx/import_client_wizard_excel_template.xlsx"
+                                            target="_blank"
+                                            class="btn btn-sm btn-outline-primary">
+                                            <i class="fa fa-download" /> File excel </a>
+                                    </li>
+                                    <li>Open the Excel file and enter your actual data</li>
+                                    <li>Keep the column header format unchanged</li>
+                                    <li>Save the file and upload it to this form</li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <p>
+                                    <strong>📊 Columns require:</strong>
+                                </p>
+                                <ul>
+                                    <li>
+                                        <strong>STT</strong>
+                                    </li>
+                                    <li>
+                                        <strong>Mã đối tượng</strong>
+                                    </li>
+                                    <li>
+                                        <strong>MST</strong>
+                                    </li>
+                                    <li>
+                                        <strong>Tên đối tượng</strong>
+                                    </li>
+                                    <li>
+                                        <strong>Địa chỉ</strong>
+                                    </li>
+                                    <li>
+                                        <strong>Số điện thoại</strong>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </sheet>
                 <footer>
                     <button name="action_import"
@@ -38,12 +84,6 @@
                 </footer>
             </form>
         </field>
-    </record>
-
-    <record id="action_download_client_template" model="ir.actions.act_url">
-        <field name="name">Download Client Template</field>
-        <field name="url">/hp_trucking_planning/static/xlsx/import_client_wizard_excel_template.xlsx</field>
-        <field name="target">new</field>
     </record>
 
     <record id="action_import_client_wizard" model="ir.actions.act_window">

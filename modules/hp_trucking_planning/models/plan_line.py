@@ -5,6 +5,8 @@ import math
 import io
 from datetime import datetime
 from ..services.zalo_service import ZaloService
+from ..services.res_partner_service import ResPartnerService
+
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -26,15 +28,15 @@ class PlanLine(models.Model):
         required=True,
     )
     client_id = fields.Many2one(
-        comodel_name='trucking_planning.client',
+        comodel_name='res.partner.client',
         required=True,
+        domain=[('type','=', ResPartnerService.PARTNER_TYPE_CLIENT)]
     )
     tax_number = fields.Char(
         string='Tax Number',
-        related='client_id.tax_number',
+        related='client_id.vat',
         store=False,
     )
-
     status = fields.Selection([
         ('hpl_reject', 'HPL Reject'),
         ('client_cancel', 'Client Cancel'),

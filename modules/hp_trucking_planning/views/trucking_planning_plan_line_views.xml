@@ -71,7 +71,11 @@
                         <group>
                             <field name="code" required="1"/>
                             <field name="client_id"
-                                domain="[('assign_user_id', '=', uid)]"
+                                context="{
+                                    'list_view_ref': 'hp_trucking_planning.view_client_tree',
+                                    'search_view_ref': 'hp_trucking_planning.view_client_search',                    
+                                }"
+                                options="{'no_create': True, 'no_edit': True}"
                                 widget="many2one_new_tab" />
                             <field name="tax_number" readonly="1"/>
                             <field name="status"/>

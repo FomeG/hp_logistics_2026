@@ -65,9 +65,15 @@
         <!-- Rule client Member -->
         <record id="trucking_plan_client_rule_member" model="ir.rule">
             <field name="name">Client: Member see all of your branch</field>
-            <field name="model_id" ref="model_trucking_planning_client" />
+            <field name="model_id" ref="model_res_partner" />
             <field name="groups" eval="[(4, ref('group_hp_trucking_planning_member'))]" />
-            <field name="domain_force">[('branch_id.user_ids', 'in', [user.id])]</field>
+            <field name="domain_force">
+                [
+                    '|',
+                    ('type', '!=', 'client'),
+                    ('branch_id.user_ids', 'in', [user.id])
+                ]
+            </field>
             <field name="perm_read" eval="1" />
             <field name="perm_write" eval="1" />
             <field name="perm_create" eval="1" />
@@ -77,7 +83,7 @@
         <!-- Rule client director -->
         <record id="trucking_plan_client_rule_director" model="ir.rule">
             <field name="name">Client: Director see all</field>
-            <field name="model_id" ref="model_trucking_planning_client" />
+            <field name="model_id" ref="model_res_partner" />
             <field name="groups" eval="[(4, ref('group_hp_trucking_planning_director'))]" />
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="1" />
@@ -87,7 +93,7 @@
         </record>
 
         <!-- Access Control Rules for Plan, Job, and Trip -->
-        
+
         <!-- Plan: Members can only edit their own records when status allows -->
         <record id="trucking_plan_plan_member_rule" model="ir.rule">
             <field name="name">Plan: Member can edit own records when status allows</field>
@@ -199,9 +205,9 @@
         <!-- Rule vehicle member -->
         <record id="trucking_plan_vehicle_rule_member" model="ir.rule">
             <field name="name">Vehicle: Lead see all of your branch</field>
-            <field name="model_id" ref="model_trucking_planning_vehicle" />
+            <field name="model_id" ref="model_fleet_vehicle" />
             <field name="groups" eval="[(4, ref('group_hp_trucking_planning_member'))]" />
-            <field name="domain_force">[('branch_id.user_ids', 'in', [user.id])]</field>
+            <field name="domain_force">[('trucking_branch_id.user_ids', 'in', [user.id])]</field>
             <field name="perm_read" eval="1" />
             <field name="perm_write" eval="1" />
             <field name="perm_create" eval="1" />
@@ -211,7 +217,7 @@
         <!-- Rule vehicle director -->
         <record id="trucking_plan_vehicle_rule_director" model="ir.rule">
             <field name="name">Vehicle: Director all access</field>
-            <field name="model_id" ref="model_trucking_planning_vehicle" />
+            <field name="model_id" ref="model_fleet_vehicle" />
             <field name="groups" eval="[(4, ref('group_hp_trucking_planning_director'))]" />
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="1" />

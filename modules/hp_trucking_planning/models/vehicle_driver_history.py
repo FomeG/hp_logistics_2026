@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from ..services.res_partner_service import ResPartnerService
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -8,6 +9,7 @@ class VehicleDriverHistory(models.Model):
     _name = "trucking_planning.vehicle.driver.history"
     _description = "History of vehicle driver history"
     _order = "create_date desc"
+
     name = fields.Char(
         string='Name',
         compute='_compute_vehicle_driver_history_name',
@@ -15,12 +17,13 @@ class VehicleDriverHistory(models.Model):
         store=True,
     )
     vehicle_id = fields.Many2one(
-        comodel_name='trucking_planning.vehicle',
+        comodel_name='fleet.vehicle',
         index=True,
     )
     driver_id = fields.Many2one(
-        comodel_name='trucking_planning.driver',
+        comodel_name='res.partner.driver',
         index=True,
+        domain=[('type','=', ResPartnerService.PARTNER_TYPE_DRIVER)]
     )
     start_date = fields.Date(
         string='Start date',

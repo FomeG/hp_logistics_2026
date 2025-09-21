@@ -22,8 +22,8 @@ class Branch(models.Model):
         domain=lambda self: self._get_user_domain(),
     )
     vehicle_ids = fields.One2many(
-        comodel_name='trucking_planning.vehicle',
-        inverse_name='branch_id',
+        comodel_name='fleet.vehicle',
+        inverse_name='trucking_branch_id',
         string='vehicles'
     )
 
