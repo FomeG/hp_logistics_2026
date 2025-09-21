@@ -47,6 +47,8 @@ access_res_user_member,trucking.user.member,base.model_res_users,group_hp_trucki
 
 
 access_res_partner_member,trucking.res_partner.member,base.model_res_partner,base.group_user,1,1,0,0
+access_res_partner_driver_member,trucking.res_partner_driver.member,model_res_partner_driver,group_hp_trucking_planning_member,1,1,1,0
+access_res_partner_client_member,trucking.res_partner_client.member,model_res_partner_client,group_hp_trucking_planning_member,1,1,1,0
 access_freight_purchase_booking_member,trucking.freight_purchase_booking.member,hp_freight_purchase.model_freight_purchase_booking,base.group_user,1,0,0,0
 access_freight_purchase_quotation_member,trucking.freight_purchase_quotation.member,hp_freight_purchase.model_freight_purchase_quotation,base.group_user,1,0,0,0
 access_partner_main_type_member,trucking.partner_main_type.member,hp_components.model_partner_main_type,base.group_user,1,0,0,0

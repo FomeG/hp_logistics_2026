@@ -28,7 +28,7 @@ class PlanLine(models.Model):
         required=True,
     )
     client_id = fields.Many2one(
-        comodel_name='res.partner',
+        comodel_name='res.partner.client',
         required=True,
         domain=[('type','=', ResPartnerService.PARTNER_TYPE_CLIENT)]
     )

@@ -134,7 +134,7 @@ class ImportVehicleDriverWizard(models.TransientModel):
                             (', '.join(missing_columns), sheet_to_import, '\n- '.join(available_cols)))
 
         vehicle_model = self.env['fleet.vehicle']
-        driver_model = self.env['res.partner']
+        driver_model = self.env['res.partner.driver']
         
         imported_vehicles = 0
         updated_vehicles = 0

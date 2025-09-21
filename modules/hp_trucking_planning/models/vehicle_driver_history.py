@@ -21,7 +21,7 @@ class VehicleDriverHistory(models.Model):
         index=True,
     )
     driver_id = fields.Many2one(
-        comodel_name='res.partner',
+        comodel_name='res.partner.driver',
         index=True,
         domain=[('type','=', ResPartnerService.PARTNER_TYPE_DRIVER)]
     )

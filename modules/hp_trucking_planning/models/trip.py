@@ -149,7 +149,7 @@ class Trip(models.Model):
         tracking=True,
     )
     driver_id = fields.Many2one(
-        comodel_name="res.partner",
+        comodel_name="res.partner.driver",
         related='vehicle_driver_history_id.driver_id',
         store=True,
         string="Driver",
@@ -164,7 +164,7 @@ class Trip(models.Model):
         store=True,
     )
     client_id = fields.Many2one(
-        comodel_name='res.partner',
+        comodel_name='res.partner.client',
         related='plan_line_id.client_id',
         string='Client',
         readonly=True,

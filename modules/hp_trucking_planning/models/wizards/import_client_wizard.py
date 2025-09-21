@@ -112,7 +112,7 @@ class ImportClientWizard(models.TransientModel):
             available_cols = [str(col) for col in df.columns]
             raise UserError(_('Missing required columns: %s\n\nAvailable columns in sheet "%s":\n%s') %
                             (', '.join(missing_columns), sheet_to_import, '\n- '.join(available_cols)))
-        client_model = self.env['res.partner']
+        client_model = self.env['res.partner.client']
         imported_count = 0
         updated_count = 0
         skipped_count = 0

@@ -2,7 +2,7 @@
 <odoo>
     <record id="view_driver_tree" model="ir.ui.view">
         <field name="name">partner.driver.tree</field>
-        <field name="model">res.partner</field>
+        <field name="model">res.partner.driver</field>
         <field name="arch" type="xml">
             <list string="Drivers">
                 <field name="name" />
@@ -17,7 +17,7 @@
 
     <record id="view_driver_form" model="ir.ui.view">
         <field name="name">partner.driver.form</field>
-        <field name="model">res.partner</field>
+        <field name="model">res.partner.driver</field>
         <field name="arch" type="xml">
             <form>
                 <sheet>
@@ -53,7 +53,7 @@
 
     <record id="view_driver_search" model="ir.ui.view">
         <field name="name">partner.driver.search</field>
-        <field name="model">res.partner</field>
+        <field name="model">res.partner.driver</field>
         <field name="arch" type="xml">
             <search string="List Drivers">
                 <field name="name" />
@@ -69,7 +69,7 @@
 
     <record id="action_driver" model="ir.actions.act_window">
         <field name="name">Drivers</field>
-        <field name="res_model">res.partner</field>
+        <field name="res_model">res.partner.driver</field>
         <field name="search_view_id" ref="view_driver_search" />
         <field name="view_mode">list,form</field>
         <field name="view_id" ref="view_driver_tree" />
