@@ -5,3 +5,4 @@ from . import unique_normalized_name_mixin
 from . import partner_main_type
 from . import res_partner_inherit
 from . import department_type
+from . import constants

@@ -9,3 +9,4 @@ from . import cancel_task_service
 from . import department_service
 from . import sale_order_service
 from . import project_service
+from . import partner_service

@@ -31,12 +31,14 @@
                             <field name="vehicle_ids" readonly="1">
                                 <list>
                                     <field name="license_plate" string="License Plate" />
-                                    <field name="model_id" string="Vehicle Type" />
-                                    <field name="engine_type" string="Engine Size"
-                                        invisible="vehicle_type == 'trailer'" />
-                                    <field name="driver_id" string="Driver"
-                                        invisible="vehicle_type == 'trailer'" />
-                                    <field name="is_rented" string="Rented" />
+                                    <field name="category_id" string="type" />
+                                    <field name="tag_ids" string="Engine"
+                                           widget="many2many_tags"
+                                           options="{'color_field': 'color'}" readonly="1"
+                                           />
+<!--                                    <field name="driver_id" string="Driver"-->
+<!--                                        invisible="vehicle_type == 'trailer'" />-->
+<!--                                    <field name="is_rented" string="Rented" />-->
                                 </list>
                             </field>
                         </page>
