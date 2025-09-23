@@ -5,6 +5,11 @@ from odoo.osv import expression
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
+    branch_id = fields.Many2one(
+        comodel_name='hr.branch',
+        index=True,
+    )
+
     is_sale_man = fields.Boolean(string="Is Sale Man", compute="_compute_is_sale_man", store=False)
     sale_user_ids = fields.Many2many('res.users', compute='_compute_sale_user_ids', store=False)
 

@@ -2,17 +2,8 @@ from odoo import models, fields, api
 from ...hp_components.services.department_service import DepartmentService
 
 class ResPartnerClient(models.Model):
-    _name = 'res.partner.client'
-    _description = 'Driver'
-    _inherits = {'res.partner': 'client_id'}
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _inherit = ['res.partner.client']
 
-    client_id = fields.Many2one(
-        comodel_name='res.partner',
-        string='Info Client',
-        ondelete='cascade',
-        required=True,
-    )
     route_ids = fields.Many2many(
         comodel_name='trucking_planning.route',
         string='Routes',
@@ -22,7 +13,7 @@ class ResPartnerClient(models.Model):
         inverse_name='client_id',
         string='Trips'
     )
-    assign_user_id = fields.Many2one(
+    assign_trucking_manager_id = fields.Many2one(
         comodel_name='res.users',
         string='Assign User',
         default=lambda self: self.env.user,

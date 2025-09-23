@@ -5,12 +5,12 @@
         <field name="model">res.partner.client</field>
         <field name="arch" type="xml">
             <list string="Clients">
-                <field name="code" />
+                <field name="ref" />
                 <field name="name" />
                 <field name="vat" string="Tax Number" />
                 <field name="phone" />
                 <field name="street" string="Address" />
-                <field name="assign_user_id" />
+                <field name="assign_trucking_manager_id" />
                 <field name="branch_id" />
                 <field name="create_date" groups="base.group_system" />
             </list>
@@ -35,11 +35,11 @@
                         </h1>
                     </div>
                     <group>
-                        <field name="code" required="1" />
+                        <field name="ref" required="1" />
                         <field name="vat" required="1" />
                         <field name="phone" />
                         <field name="street" string="Address" />
-                        <field name="assign_user_id" />
+                        <field name="assign_trucking_manager_id" />
                         <field name="branch_id" required="1" />
                     </group>
                     <notebook>

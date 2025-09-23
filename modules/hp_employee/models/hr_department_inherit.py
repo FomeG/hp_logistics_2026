@@ -13,6 +13,10 @@ class HpDepartmentInherit(models.Model):
 
     ARRAY_TYPE = [TYPE_SALE, TYPE_PRICING, TYPE_TRUCKING]
 
+    branch_id = fields.Many2one(
+        comodel_name='hr.branch',
+        index=True,
+    )
     # department_type = fields.Selection([
     #     (TYPE_SALE, 'Sale'),
     #     (TYPE_PRICING, 'Pricing'),
