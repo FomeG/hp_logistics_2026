@@ -121,8 +121,8 @@ class ImportClientWizard(models.TransientModel):
                 processed_data.append({
                     'code': code,
                     'name': name,
-                    'address': address,
-                    'tax_number': tax_number,
+                    'street': address,
+                    'vat': tax_number,
                     'phone': phone,
                 })
 
@@ -140,14 +140,14 @@ class ImportClientWizard(models.TransientModel):
         return result
 
     def _create_clients(self, data_array):
-        Client = self.env['trucking_planning.client']
-        tax_numbers = [data['tax_number'] for data in data_array]
+        Client = self.env['res.partner.client']
+        tax_numbers = [data['vat'] for data in data_array]
         codes = [data['code'] for data in data_array]
         existing_clients = Client.search([
-            '|', ('tax_number', 'in', tax_numbers),
+            '|', ('vat', 'in', tax_numbers),
             ('code', 'in', codes)
         ])
-        existing_clients_map = {client.tax_number: client for client in existing_clients}
+        existing_clients_map = {client.vat: client for client in existing_clients}
 
         clients_to_create = []
         clients_to_update = []
@@ -155,12 +155,13 @@ class ImportClientWizard(models.TransientModel):
         for data in data_array:
             vals = data.copy()
             vals.update({
+                'type': ResPartnerService.PARTNER_TYPE_CLIENT,
                 'branch_id': self.branch_id.id,
                 'assign_user_id': self.assign_user_id.id,
             })
-            tax_number = data['tax_number']
+            vat = data['vat']
             code = data['code']
-            existing_client = existing_clients_map.get(tax_number)
+            existing_client = existing_clients_map.get(vat)
             if existing_client:
                 clients_to_update.append((existing_client, vals))
             else:
