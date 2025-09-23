@@ -135,16 +135,4 @@
         </field>
     </record>
 
-    <!-- Menu Items -->
-    <menuitem id="menu_trip_checkpoint_root" 
-              name="GPS Tracking" 
-              parent="menu_trucking_root" 
-              sequence="50"/>
-
-    <menuitem id="menu_trip_checkpoint" 
-              name="GPS Checkpoints" 
-              parent="menu_trip_checkpoint_root" 
-              action="action_trip_checkpoint" 
-              sequence="10"/>
-
 </odoo>
