@@ -6,6 +6,8 @@ import base64
 import logging
 from ...services.res_partner_service import ResPartnerService
 from ...services.vehicle_service import VehicleService
+from odoo.addons.hp_components.models import constants
+
 
 _logger = logging.getLogger(__name__)
 
@@ -33,7 +35,7 @@ class ImportVehicleDriverWizard(models.TransientModel):
     def _get_engine_type(self, machine_type):
         """Get engine type with fuzzy matching for Vietnamese machine types"""
         if not machine_type:
-            return 'small'
+            return constants.VehicleEngineType.SMALL
         
         normalized = machine_type.lower().strip()
         
@@ -57,16 +59,17 @@ class ImportVehicleDriverWizard(models.TransientModel):
         # Check for big engine
         for variation in big_variations:
             if variation in normalized or normalized in variation:
-                return 'big'
+                return constants.VehicleEngineType.SMALL
+
         
         # Check for small engine
         for variation in small_variations:
             if variation in normalized or normalized in variation:
-                return 'small'
+                return constants.VehicleEngineType.SMALL
         
         # Default fallback with logging
         _logger.warning(f"Unknown machine type '{machine_type}', defaulting to 'small'")
-        return 'small'
+        return constants.VehicleEngineType.SMALL
 
     @api.onchange('file', 'file_name')
     def _onchange_file(self):
@@ -101,15 +104,12 @@ class ImportVehicleDriverWizard(models.TransientModel):
         self.ensure_one()
         if not self.file:
             raise UserError(_('Please upload a file.'))
-        
-        vehicle_model = self.env['fleet.vehicle.model']
-        vehicle_model_truck = vehicle_model.search([('vehicle_type', '=', VehicleService.VEHICLE_MODEL_TYPE_TRUCK)], limit=1)
-        vehicle_model_trailer = vehicle_model.search([('vehicle_type', '=', VehicleService.VEHICLE_MODEL_TYPE_TRAILER)], limit=1)
-        if not vehicle_model_trailer or not vehicle_model_truck:
-            raise UserError(_('Please create data vehicle model type truck and trailer.'))
-        
+
+        vehicle_model = self.env['fleet.vehicle.hpl']
+        driver_model = self.env['res.partner.driver']
+
         file_content = base64.b64decode(self.file)
-    
+
         engine = 'xlrd' if self.file_name.endswith('.xls') else 'openpyxl'
         xl = pd.ExcelFile(io.BytesIO(file_content), engine=engine)
         sheet_names = xl.sheet_names
@@ -133,9 +133,6 @@ class ImportVehicleDriverWizard(models.TransientModel):
             raise UserError(_('Missing required columns: %s\n\nAvailable columns in sheet "%s":\n%s') %
                             (', '.join(missing_columns), sheet_to_import, '\n- '.join(available_cols)))
 
-        vehicle_model = self.env['fleet.vehicle']
-        driver_model = self.env['res.partner.driver']
-        
         imported_vehicles = 0
         updated_vehicles = 0
         imported_drivers = 0
@@ -188,12 +185,13 @@ class ImportVehicleDriverWizard(models.TransientModel):
             if trailer_number:
                 existing_trailer = vehicle_model.search([
                     ('license_plate', '=', trailer_number),
-                    ('vehicle_type', '=', VehicleService.VEHICLE_MODEL_TYPE_TRAILER),
+                    ('fake_category_type', '=', constants.VehicleModelCategory.TRAILER),
                 ], limit=1)
-                
+
                 trailer_vals = {
                     'license_plate': trailer_number,
-                    'model_id': vehicle_model_trailer.id,
+                    'fake_category_type': constants.VehicleModelCategory.TRAILER,
+                    'fake_engine_type': constants.VehicleEngineType.SMALL,  # Trailer doesn't need engine type
                     'trucking_branch_id': self.branch_id.id,
                 }
                 
@@ -206,24 +204,24 @@ class ImportVehicleDriverWizard(models.TransientModel):
             # Check if vehicle exists by normalized name (to handle unique constraint)
             existing_vehicle = vehicle_model.search([
                 ('license_plate', '=', license_plate),
-                ('vehicle_type', '=', VehicleService.VEHICLE_MODEL_TYPE_TRUCK),
+                ('fake_category_type', '=', constants.VehicleModelCategory.TRUCK),
             ], limit=1)
             
             vehicle_vals = {
                 'license_plate': license_plate,
-                'model_id': vehicle_model_truck.id,
-                'engine_type': engine_type,
+                'fake_category_type': constants.VehicleModelCategory.TRUCK,
+                'fake_engine_type': engine_type,
                 'trucking_branch_id': self.branch_id.id,
             }
             
             # Set primary driver if we have a driver record
             if driver_record:
-                vehicle_vals['driver_id'] = driver_record.id
-            
+                vehicle_vals['driver_id'] = driver_record.partner_id.id
+
             # Assign trailer to the truck (if we have a trailer record)
             if trailer_record:
-                vehicle_vals['trailer_id'] = trailer_record.id
-            
+                vehicle_vals['trailer_id'] = trailer_record.vehicle_id.id
+
             if existing_vehicle:
                 existing_vehicle.write(vehicle_vals)
                 updated_vehicles += 1

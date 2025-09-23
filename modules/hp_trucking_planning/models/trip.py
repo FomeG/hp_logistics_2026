@@ -161,8 +161,8 @@ class Trip(models.Model):
     )
     trailer_id = fields.Many2one(
         comodel_name='fleet.vehicle',
-        domain=[('type', '=', 'trailer')],
-        related='truck_id.trailer_id',
+        string='Trailer',
+        compute='_compute_trailer_id',
         readonly=True,
         store=True,
     )
@@ -269,10 +269,17 @@ class Trip(models.Model):
         order='create_date desc'
     )
 
+    @api.depends('truck_id')
+    def _compute_trailer_id(self):
+        for trip in self:
+            hpl_record = self.env['fleet.vehicle.hpl'].search([
+                ('vehicle_id', '=', trip.truck_id.id)
+            ], limit=1)
+            trip.trailer_id = hpl_record.trailer_id if hpl_record else False
+
     def action_duplicate_with_queue(self):
         for trip in self:
             trip.with_delay().create_duplicated_trips()
-
 
     def create_duplicated_trips(self):
         """Queue job to create duplicated trips"""
