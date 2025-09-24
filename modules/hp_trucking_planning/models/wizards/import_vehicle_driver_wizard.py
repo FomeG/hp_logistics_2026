@@ -161,7 +161,7 @@ class ImportVehicleDriverWizard(models.TransientModel):
                     'type': ResPartnerService.PARTNER_TYPE_DRIVER,
                     'name': driver_name,
                     'phone': driver_phone,
-                    'cccd': f'DUMMY_CCCD_{temp_suffix}',  # Temporary value, needs manual update
+                    'ref': f'DUMMY_CCCD_{temp_suffix}',  # Temporary value, needs manual update
                     'license_number': f'DUMMY_LICENSE_{temp_suffix}',  # Temporary value, needs manual update
                 }
                 
