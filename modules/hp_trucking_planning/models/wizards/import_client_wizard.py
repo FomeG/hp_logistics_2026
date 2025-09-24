@@ -6,6 +6,7 @@ import base64
 from datetime import datetime
 from odoo.addons.hp_components.services.department_service import DepartmentService
 from ...services.res_partner_service import ResPartnerService
+from odoo.addons.hp_components.services.partner_service import PartnerService
 
 class ImportClientWizard(models.TransientModel):
     _name = 'trucking_planning.import_client_wizard'
@@ -162,9 +163,10 @@ class ImportClientWizard(models.TransientModel):
             if vat in existing_vats and vat not in existing_clients_map:
                 skipped_vats.append(vat)
                 continue
-
+            partner_service = PartnerService(self.env)
+            partner_main_type = partner_service.get_partner_main_type_client()
             vals.update({
-                'type': ResPartnerService.PARTNER_TYPE_CLIENT,
+                'partner_main_type_id': partner_main_type.id,
                 'branch_id': self.branch_id.id,
                 'assign_trucking_manager_id': self.assign_user_id.id,
             })
