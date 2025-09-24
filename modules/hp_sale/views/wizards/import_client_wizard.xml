@@ -2,23 +2,23 @@
 <odoo>
     <!-- Import Client Wizard Form View -->
     <record id="view_import_client_wizard_form" model="ir.ui.view">
-        <field name="name">trucking_planning.import_client_wizard.form</field>
-        <field name="model">trucking_planning.import_client_wizard</field>
+        <field name="name">sale.import_client_wizard.form</field>
+        <field name="model">sale.import_client_wizard</field>
         <field name="arch" type="xml">
             <form string="Import Client">
                 <sheet>
                     <div class="oe_title mb-3">
                         <h1>
-                            <i class="fa fa-upload text-primary"/> Import Client từ Excel
+                            <i class="fa fa-upload text-primary"/> Import Client From Excel
                         </h1>
                     </div>
                     <group>
                         <group string="Cấu hình Import" class="col-md-6">
                             <field name="branch_id"
-                                   placeholder="Chọn chi nhánh..."
+                                   placeholder="Select Branch ..."
                                    options="{'no_create': True, 'no_quick_create': True}"/>
                             <field name="assign_user_id"
-                                   placeholder="Chọn user được assign..."
+                                   placeholder="Select User ..."
                                    options="{'no_create': True, 'no_quick_create': True}"/>
                         </group>
                         <group string="File Upload" class="col-md-6">
@@ -37,7 +37,7 @@
                                 </p>
                                 <ol>
                                     <li> Download sample file: <a
-                                            href="/hp_trucking_planning/static/xlsx/import_client_wizard_excel_template.xlsx"
+                                            href="/hp_sale/static/xlsx/import_client_excel_template.xlsx"
                                             target="_blank"
                                             class="btn btn-sm btn-outline-primary">
                                             <i class="fa fa-download" /> File excel </a>
@@ -88,7 +88,7 @@
 
     <record id="action_import_client_wizard" model="ir.actions.act_window">
         <field name="name">Import Client</field>
-        <field name="res_model">trucking_planning.import_client_wizard</field>
+        <field name="res_model">sale.import_client_wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
         <field name="view_id" ref="view_import_client_wizard_form"/>

@@ -10,3 +10,5 @@ access_product_product_sale_leader,access_product_product_sale_leader,product.mo
 access_product_product_sale_director,access_product_product_sale_director,product.model_product_product,sales_team.group_sale_manager,1,1,1,1
 
 access_partner_client_sale_member,access_partner_client_sale_member,model_res_partner_client,base.group_user,1,1,1,1
+
+access_import_client_wizard_manager,sale.import_client_wizard.manager,model_sale_import_client_wizard,base.group_system,1,1,1,1

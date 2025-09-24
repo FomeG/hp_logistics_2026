@@ -17,7 +17,6 @@
         'data/vehicle_tag_data.xml',
 
         #wizards
-        'views/wizards/import_client_wizard.xml',
         'views/wizards/import_vehicle_driver_wizard.xml',
         'views/wizards/import_route_wizard.xml',
         # 'views/wizards/vehicle_confirmation_wizard.xml',

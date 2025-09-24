@@ -5,4 +5,19 @@
         <field name="sequence">25</field>
     </record>
 
+    <menuitem
+        id="menu_sale_tools"
+        name="Tools"
+        parent="sale.sale_menu_root"
+        sequence="100"
+        groups="base.group_system" />
+
+    <menuitem
+        id="menu_sale_import_client"
+        name="Import Client"
+        parent="menu_sale_tools"
+        sequence="10"
+        action="action_import_client_wizard"
+        groups="base.group_system" />
+
 </odoo>

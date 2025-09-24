@@ -5,14 +5,13 @@ import io
 import base64
 from datetime import datetime
 from odoo.addons.hp_components.services.department_service import DepartmentService
-from ...services.res_partner_service import ResPartnerService
 from odoo.addons.hp_components.services.partner_service import PartnerService
 
 class ImportClientWizard(models.TransientModel):
-    _name = 'trucking_planning.import_client_wizard'
+    _name = 'sale.import_client_wizard'
     _description = 'Import Client Wizard'
 
-    branch_id = fields.Many2one('trucking_planning.branch', string='Branch', required=True)
+    branch_id = fields.Many2one('hr.branch', string='Branch', required=True)
     assign_user_id = fields.Many2one(
         'res.users',
         string='Assign User',
@@ -35,13 +34,7 @@ class ImportClientWizard(models.TransientModel):
     @api.depends('branch_id')
     def _compute_allowed_user_ids(self):
         for wizard in self:
-            trucking_users = wizard._get_trucking_users()
-
-            if not wizard.branch_id:
-                wizard.allowed_user_ids = trucking_users
-            else:
-                allowed_users = wizard.branch_id.user_ids.filtered(lambda u: u.id in trucking_users.ids)
-                wizard.allowed_user_ids = allowed_users
+            wizard.allowed_user_ids = wizard._get_trucking_users()
 
     @api.onchange('branch_id')
     def _onchange_branch_id(self):
