@@ -108,18 +108,18 @@ class ImportClientWizard(models.TransientModel):
 
             for index, row in df.iterrows():
                 tax_number = str(row['MST']).strip() if pd.notna(row['MST']) else f'FAKE_{current_time}_{index}'
-                code = str(row['Mã đối tượng']).strip() if pd.notna(
+                ref = str(row['Mã đối tượng']).strip() if pd.notna(
                     row['Mã đối tượng']) else f'FAKE_{current_time}_{index}'
                 name = str(row['Tên đối tượng']).strip() if pd.notna(
                     row['Tên đối tượng']) else f'FAKE_{current_time}_{index}'
                 address = str(row['ĐỊA CHỈ']).strip() if pd.notna(row['ĐỊA CHỈ']) else False
                 phone = str(row.get('Số điện thoại', '')).strip() if pd.notna(row.get('Số điện thoại')) else False
 
-                if tax_number.startswith('FAKE_') or code.startswith('FAKE_') or name.startswith('FAKE_'):
+                if tax_number.startswith('FAKE_') or ref.startswith('FAKE_') or name.startswith('FAKE_'):
                     fake_data_count += 1
 
                 processed_data.append({
-                    'code': code,
+                    'ref': ref,
                     'name': name,
                     'street': address,
                     'vat': tax_number,
@@ -142,30 +142,38 @@ class ImportClientWizard(models.TransientModel):
     def _create_clients(self, data_array):
         Client = self.env['res.partner.client']
         tax_numbers = [data['vat'] for data in data_array]
-        codes = [data['code'] for data in data_array]
+        refs = [data['ref'] for data in data_array]
+        existing_partners = self.env['res.partner'].search([('vat', 'in', tax_numbers)])
+        existing_vats = {partner.vat for partner in existing_partners}
         existing_clients = Client.search([
-            '|', ('vat', 'in', tax_numbers),
-            ('code', 'in', codes)
+            '|', ('vat', 'in', tax_numbers), ('ref', 'in', refs)
         ])
         existing_clients_map = {client.vat: client for client in existing_clients}
 
         clients_to_create = []
         clients_to_update = []
+        skipped_vats = []
 
         for data in data_array:
             vals = data.copy()
+            vat = data['vat']
+            ref = data['ref']
+
+            if vat in existing_vats and vat not in existing_clients_map:
+                skipped_vats.append(vat)
+                continue
+
             vals.update({
                 'type': ResPartnerService.PARTNER_TYPE_CLIENT,
                 'branch_id': self.branch_id.id,
-                'assign_user_id': self.assign_user_id.id,
+                'assign_trucking_manager_id': self.assign_user_id.id,
             })
-            vat = data['vat']
-            code = data['code']
+
             existing_client = existing_clients_map.get(vat)
             if existing_client:
                 clients_to_update.append((existing_client, vals))
             else:
-                existing_client = Client.search([('code', '=', code)], limit=1)
+                existing_client = Client.search([('ref', '=', ref)], limit=1)
                 if existing_client:
                     clients_to_update.append((existing_client, vals))
                 else:
@@ -173,6 +181,7 @@ class ImportClientWizard(models.TransientModel):
 
         imported_count = 0
         updated_count = 0
+        skipped_count = len(skipped_vats)
 
         if clients_to_create:
             Client.create(clients_to_create)
@@ -183,7 +192,7 @@ class ImportClientWizard(models.TransientModel):
                 existing_client.write(vals)
             updated_count = len(clients_to_update)
 
-        return imported_count, updated_count
+        return imported_count, updated_count, skipped_count, skipped_vats
 
     def action_import(self):
         self.ensure_one()
@@ -199,7 +208,7 @@ class ImportClientWizard(models.TransientModel):
             if not data:
                 raise UserError(_('No valid data found to import.'))
 
-            imported_count, updated_count = self._create_clients(data)
+            imported_count, updated_count, skipped_count, skipped_vats = self._create_clients(data)
 
             message_parts = [
                 _('Import completed from sheet "%s"') % validate_result['sheet_name'],
