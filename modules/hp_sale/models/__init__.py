@@ -4,3 +4,4 @@ from . import product_category
 from . import res_partner_inherit
 from . import sale_order_inherit
 from . import res_partner_client
+from . import wizards

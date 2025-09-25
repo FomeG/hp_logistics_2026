@@ -14,7 +14,7 @@ from . import wizards
 from . import trip
 from . import trip_checkpoint
 from . import res_users_inherit
-from . import res_partner_inherit
+# from . import res_partner_inherit
 from . import res_partner_driver
 from . import res_partner_client
 from . import fleet_vehicle_inherit
