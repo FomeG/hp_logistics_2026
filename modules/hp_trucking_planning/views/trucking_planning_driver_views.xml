@@ -38,6 +38,15 @@
                         <field name="ref" string="CCCD" required="1" />
                         <field name="license_number" required="1" />
                     </group>
+                    <group string="Vehicle Assignation History">
+                        <field name="vehicle_assignation_ids">
+                            <list>
+                                <field name="vehicle_id" string="Vehicle"/>
+                                <field name="date_start" string="Start Date"/>
+                                <field name="date_end" string="End Date"/>
+                            </list>
+                        </field>
+                    </group>
                 </sheet>
                 <chatter />
             </form>

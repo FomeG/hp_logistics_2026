@@ -12,6 +12,12 @@ class ResPartnerDriver(models.Model):
         required=True,
         ondelete='cascade',
     )
+    vehicle_assignation_ids = fields.One2many(
+        comodel_name='fleet.vehicle.assignation.log',
+        inverse_name='driver_id',
+        string='Vehicle Assignation History',
+        readonly=True
+    )
     license_number = fields.Char(
         string='License Number',
         index=True,

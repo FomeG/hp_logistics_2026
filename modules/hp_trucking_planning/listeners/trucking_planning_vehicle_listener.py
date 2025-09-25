@@ -7,7 +7,12 @@ class TruckingPlanningVehicleListener(Component):
     _apply_on = ['fleet.vehicle']
 
     def on_record_create(self, record, fields=None):
-        record.with_delay().assign_driver()
+        hpl_record = self.env['fleet.vehicle.hpl'].search([('vehicle_id', '=', record.id)], limit=1)
+        if hpl_record:
+            hpl_record.with_delay().assign_driver()
 
     def on_record_write(self, record, fields=None):
-        record.with_delay().assign_driver()
+        if 'driver_id' in fields:
+            hpl_record = self.env['fleet.vehicle.hpl'].search([('vehicle_id', '=', record.id)], limit=1)
+            if hpl_record:
+                hpl_record.with_delay().assign_driver()

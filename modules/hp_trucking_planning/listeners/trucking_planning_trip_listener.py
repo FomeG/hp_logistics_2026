@@ -12,5 +12,5 @@ class TripListener(Component):
             record.plan_id = record.plan_line_id.plan_id
 
     def on_record_write(self, record, fields=None):
-        if 'vehicle_driver_history_id' in fields and record.vehicle_driver_history_id:
+        if 'vehicle_assignment_log_id' in fields and record.vehicle_assignment_log_id:
             record.with_delay().process_vehicle_driver_reassignment()
