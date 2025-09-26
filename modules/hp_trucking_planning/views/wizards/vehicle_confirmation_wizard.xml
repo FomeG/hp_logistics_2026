@@ -32,7 +32,7 @@
                         <field name="new_trip_eta"/>
                     </group>
 
-                    <field name="vehicle_driver_history_id" invisible="1"/>
+                    <field name="vehicle_assignment_log_id" invisible="1"/>
                     <field name="current_trip_id" invisible="1"/>
                     <field name="new_trip_id" invisible="1"/>
                 </sheet>

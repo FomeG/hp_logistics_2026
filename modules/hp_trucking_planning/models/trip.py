@@ -5,6 +5,8 @@ import math
 import logging
 from datetime import datetime, timedelta
 from ..services.planning_service import planning_service
+from ..services.res_partner_service import ResPartnerService
+from ...hp_components.services.partner_service import PartnerService
 
 _logger = logging.getLogger(__name__)
 
@@ -138,27 +140,53 @@ class Trip(models.Model):
         ('40', '40')
     ], string="Container Size", required=True, tracking=True)
 
-    vehicle_driver_history_id = fields.Many2one(
-        comodel_name='trucking_planning.vehicle.driver.history',
-        string='Vehicle',
+    # vehicle_driver_history_id = fields.Many2one(
+    #     comodel_name='trucking_planning.vehicle.driver.history',
+    #     string='Vehicle',
+    #     index=True,
+    # )
+    vehicle_assignment_log_id = fields.Many2one(
+        comodel_name='fleet.vehicle.assignation.log',
+        string='Vehicle Assignment Log',
         index=True,
     )
     truck_id = fields.Many2one(
         comodel_name='fleet.vehicle',
-        related='vehicle_driver_history_id.vehicle_id',
-        store=True,
         string='Truck',
-        index=True,
-        tracking=True,
-    )
-    driver_id = fields.Many2one(
-        comodel_name="res.partner.driver",
-        related='vehicle_driver_history_id.driver_id',
+        compute='_compute_truck_id',
         store=True,
-        string="Driver",
-        index=True,
-        tracking=True,
+        readonly=True,
     )
+
+    driver_id = fields.Many2one(
+        comodel_name='res.partner',
+        string='Driver',
+        compute='_compute_driver_id',
+        store=True,
+        readonly=True,
+        domain=lambda self: self._get_driver_domain()
+    )
+
+    def _get_driver_domain(self):
+        partner_service = PartnerService(self.env)
+        return [('partner_main_type_id', '=',partner_service.get_partner_main_type_driver().id)]
+
+    # truck_id = fields.Many2one(
+    #     comodel_name='fleet.vehicle',
+    #     related='vehicle_assignment_log_id.vehicle_id',
+    #     store=True,
+    #     string='Truck',
+    #     index=True,
+    #     tracking=True,
+    # )
+    # driver_id = fields.Many2one(
+    #     comodel_name="res.partner.driver",
+    #     related='vehicle_assignment_log_id.driver_id',
+    #     store=True,
+    #     string="Driver",
+    #     index=True,
+    #     tracking=True,
+    # )
     trailer_id = fields.Many2one(
         comodel_name='fleet.vehicle',
         string='Trailer',
@@ -269,6 +297,16 @@ class Trip(models.Model):
         order='create_date desc'
     )
 
+    @api.depends('vehicle_assignment_log_id.vehicle_id')
+    def _compute_truck_id(self):
+        for rec in self:
+            rec.truck_id = rec.vehicle_assignment_log_id.vehicle_id if rec.vehicle_assignment_log_id else False
+
+    @api.depends('vehicle_assignment_log_id.driver_id')
+    def _compute_driver_id(self):
+        for rec in self:
+            rec.driver_id = rec.vehicle_assignment_log_id.driver_id if rec.vehicle_assignment_log_id else False
+
     @api.depends('truck_id')
     def _compute_trailer_id(self):
         for trip in self:
@@ -295,35 +333,35 @@ class Trip(models.Model):
                 'extra_charge': trip.extra_charge,
                 'extra_fuel': trip.extra_fuel,
                 # reset unique fields
-                'vehicle_driver_history_id': False,
+                'vehicle_assignment_log_id': False,
                 'status': 'draft',
             }
             new_trip = self.create(new_vals)
 
             return new_trip
 
-    def get_conflicting_trip(self, vehicle_driver_history):
+    def get_conflicting_trip(self, vehicle_assignment_log):
         if not self or not self.plan_estimate_time_departure or not self.plan_estimate_time_arrival:
             return self.browse()
 
         domain = [
             ("id", "!=", self.id),
-            ("vehicle_driver_history_id", "=", vehicle_driver_history.id),
+            ("vehicle_assignment_log_id", "=", vehicle_assignment_log.id),
             ("plan_estimate_time_departure", "<=", self.plan_estimate_time_arrival),
             ("plan_estimate_time_arrival", ">=", self.plan_estimate_time_departure),
-            ("vehicle_driver_history_id.end_date", "=", False),
+            ("vehicle_assignment_log_id.date_end", "=", False),
         ]
 
         return self.search(domain)
 
     def process_vehicle_driver_reassignment(self):
         for trip in self:
-            conflicting_trips = trip.get_conflicting_trip(trip.vehicle_driver_history_id)
+            conflicting_trips = trip.get_conflicting_trip(trip.vehicle_assignment_log_id)
             if conflicting_trips and conflicting_trips.exists():
                 for conflicting_trip in conflicting_trips:
-                    conflicting_trip.vehicle_driver_history_id = False
+                    conflicting_trip.vehicle_assignment_log_id = False
                     conflicting_trip.message_post(
-                        body=f"Vehicle-driver pair '{self.vehicle_driver_history_id.name}' has been unassigned and reassigned to another trip.",
+                        body=f"Vehicle-driver pair '{self.vehicle_assignment_log_id.name}' has been unassigned and reassigned to another trip.",
                         message_type='notification'
                     )
 
@@ -441,21 +479,12 @@ class Trip(models.Model):
     def _compute_fuel_liters(self):
         for rec in self:
             if rec.plan_line_id.route_id and rec.truck_id:
-                # Get the fleet.vehicle.hpl record that corresponds to this fleet.vehicle
-                hpl_vehicle = self.env['fleet.vehicle.hpl'].search([
-                    ('vehicle_id', '=', rec.truck_id.id)
-                ], limit=1)
-                
-                if not hpl_vehicle:
-                    # If no hpl vehicle found, skip fuel calculation
-                    rec.fuel_liters = 0
-                    continue
-                
-                fuel_rate = hpl_vehicle.fuel_rate_mix
+                hpl_vehicle = self.env['fleet.vehicle.hpl'].search([('vehicle_id', '=', rec.truck_id.id)], limit=1)
+                fuel_rate = hpl_vehicle.fuel_rate_mix if hpl_vehicle else 0.0
                 if rec.weight_class == 'inferior_20':
-                    fuel_rate = hpl_vehicle.fuel_rate_inferior_20
+                    fuel_rate = hpl_vehicle.fuel_rate_inferior_20 if hpl_vehicle else 0.0
                 elif rec.weight_class == 'superior_20':
-                    fuel_rate = hpl_vehicle.fuel_rate_superior_20
+                    fuel_rate = hpl_vehicle.fuel_rate_superior_20 if hpl_vehicle else 0.0
                 distance = rec.plan_line_id.route_id.distance_km
                 if rec.plan_line_id.route_id.extra_fuel:
                     distance = rec.plan_line_id.route_id.distance_km + 40
@@ -745,13 +774,13 @@ class Trip(models.Model):
         return {
             'name': 'Select Driver–Vehicle Pair',
             'type': 'ir.actions.act_window',
-            'res_model': 'trucking_planning.vehicle.driver.history',
+            'res_model': 'fleet.vehicle.assignation.log',
             'view_mode': 'list,form',
             'target': 'new',
             'context': {
                 'trip_id': self.id,
             },
-            "domain": [("end_date", "=", False)],
+            "domain": [("date_end", "=", False)],
         }
     
     def _cancel_inactive_trip(self):

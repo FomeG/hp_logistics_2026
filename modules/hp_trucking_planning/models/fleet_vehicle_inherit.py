@@ -16,10 +16,10 @@ class FleetVehicleInherit(models.Model):
     )
 
     # will be replaced by "fleet.vehicle.assignation.log"
-    # vehicle_driver_history_ids = fields.One2many(
-    #     comodel_name='trucking_planning.vehicle.driver.history',
-    #     inverse_name='vehicle_id',
-    # )
+    vehicle_assignment_log_ids = fields.One2many(
+        comodel_name='fleet.vehicle.assignation.log',
+        inverse_name='vehicle_id',
+    )
     trucking_branch_id = fields.Many2one(
         comodel_name='trucking_planning.branch',
         index=True,

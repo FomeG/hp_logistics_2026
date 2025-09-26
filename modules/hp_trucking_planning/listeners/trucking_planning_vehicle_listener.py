@@ -1,4 +1,5 @@
-from odoo.addons.component.core import Component
+from odoo.addons.component.core import Component, _logger
+
 
 class TruckingPlanningVehicleListener(Component):
     _name = 'fleet.vehicle.listener'
@@ -7,7 +8,8 @@ class TruckingPlanningVehicleListener(Component):
     _apply_on = ['fleet.vehicle']
 
     def on_record_create(self, record, fields=None):
-        record.with_delay().assign_driver()
+        pass
 
     def on_record_write(self, record, fields=None):
-        record.with_delay().assign_driver()
+        pass
+

@@ -19,11 +19,11 @@
         #wizards
         'views/wizards/import_vehicle_driver_wizard.xml',
         'views/wizards/import_route_wizard.xml',
-        # 'views/wizards/vehicle_confirmation_wizard.xml',
+        'views/wizards/vehicle_confirmation_wizard.xml',
         # 'views/wizards/add_draft_trip_wizard.xml',
 
         # views
-        # 'views/trucking_planning_shipping_line_views.xml',
+        'views/trucking_planning_shipping_line_views.xml',
         'views/trucking_planning_vehicle_views.xml',
         'views/trucking_planning_client_views.xml',
         'views/trucking_planning_location_views.xml',

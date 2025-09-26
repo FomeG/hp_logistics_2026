@@ -33,7 +33,7 @@
 
 
         <!-- Shipping Lines -->
-<!--        <menuitem id="menu_shipping_line" name="Shipping Lines" parent="menu_trucking_master_data" action="action_shipping_line"/>-->
+        <menuitem id="menu_shipping_line" name="Shipping Lines" parent="menu_trucking_master_data" action="action_shipping_line"/>
 
         <!-- Locations -->
         <menuitem id="menu_location" name="Locations" parent="menu_trucking_master_data" action="action_location"/>
