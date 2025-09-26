@@ -23,6 +23,21 @@ class SaleOrderInherrit(models.Model):
         ('cancel', 'Cancelled'),
     ], string="Status", readonly=True, copy=False, index=True, tracking=3, default='draft')
 
+    client_id = fields.Many2one(
+        comodel_name='res.partner.client',
+        string='Client',
+        required=True,
+        tracking=True,
+    )
+
+    @api.onchange("client_id")
+    def _onchange_client_id(self):
+        if self.client_id and self.client_id.partner_id:
+            self.partner_id = self.client_id.partner_id.id if self.client_id else False
+        else:
+            self.partner_id = False
+
+
     # When activate Quotation => check if some product is missing booking/price => make task and assgin to all users relating to the pod
     def action_activate_quotation(self):
         """Submit quotation for customer review."""
