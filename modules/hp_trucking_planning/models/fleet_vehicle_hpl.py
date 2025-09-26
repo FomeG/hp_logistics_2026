@@ -179,26 +179,3 @@ class FleetVehicleHpl(models.Model):
             if vehicle_service.is_trailer(record):
                 return constants.VehicleModelCategory.TRAILER
         return constants.VehicleModelCategory.TRUCK
-
-    def assign_driver(self):
-
-        vehicle_assignation_log_model = self.env['fleet.vehicle.assignation.log']
-        today = fields.Date.today()
-        for vehicle in self:
-            driver = vehicle.vehicle_id.driver_id
-            if not driver:
-                continue
-            open_assignations = vehicle_assignation_log_model.search([
-                ('vehicle_id', '=', vehicle.vehicle_id.id),
-                ('date_end', '=', False)
-            ])
-            if open_assignations:
-                if any(h.driver_id == driver for h in open_assignations):
-                    continue
-                open_assignations.write({'date_end': today})
-
-            vehicle_assignation_log_model.create({
-                'vehicle_id': vehicle.vehicle_id.id,
-                'driver_id': driver.id,
-                'date_start': today,
-            })

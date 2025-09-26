@@ -6,6 +6,7 @@ import logging
 from datetime import datetime, timedelta
 from ..services.planning_service import planning_service
 from ..services.res_partner_service import ResPartnerService
+from ...hp_components.services.partner_service import PartnerService
 
 _logger = logging.getLogger(__name__)
 
@@ -163,8 +164,13 @@ class Trip(models.Model):
         compute='_compute_driver_id',
         store=True,
         readonly=True,
-        domain=[('type', '=', ResPartnerService.PARTNER_TYPE_DRIVER)]
+        domain=lambda self: self._get_driver_domain()
     )
+
+    def _get_driver_domain(self):
+        partner_service = PartnerService(self.env)
+        return [('partner_main_type_id', '=',partner_service.get_partner_main_type_driver().id)]
+
     # truck_id = fields.Many2one(
     #     comodel_name='fleet.vehicle',
     #     related='vehicle_assignment_log_id.vehicle_id',
