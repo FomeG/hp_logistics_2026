@@ -70,7 +70,7 @@
             <field name="domain_force">
                 [
                     '|',
-                    ('type', '!=', 'client'),
+                    ('partner_main_type_id.code', '!=', 'client'),
                     ('branch_id.user_ids', 'in', [user.id])
                 ]
             </field>

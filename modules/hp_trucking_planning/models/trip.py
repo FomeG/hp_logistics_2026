@@ -441,11 +441,21 @@ class Trip(models.Model):
     def _compute_fuel_liters(self):
         for rec in self:
             if rec.plan_line_id.route_id and rec.truck_id:
-                fuel_rate = rec.truck_id.fuel_rate_mix
+                # Get the fleet.vehicle.hpl record that corresponds to this fleet.vehicle
+                hpl_vehicle = self.env['fleet.vehicle.hpl'].search([
+                    ('vehicle_id', '=', rec.truck_id.id)
+                ], limit=1)
+                
+                if not hpl_vehicle:
+                    # If no hpl vehicle found, skip fuel calculation
+                    rec.fuel_liters = 0
+                    continue
+                
+                fuel_rate = hpl_vehicle.fuel_rate_mix
                 if rec.weight_class == 'inferior_20':
-                    fuel_rate = rec.truck_id.fuel_rate_inferior_20
+                    fuel_rate = hpl_vehicle.fuel_rate_inferior_20
                 elif rec.weight_class == 'superior_20':
-                    fuel_rate = rec.truck_id.fuel_rate_superior_20
+                    fuel_rate = hpl_vehicle.fuel_rate_superior_20
                 distance = rec.plan_line_id.route_id.distance_km
                 if rec.plan_line_id.route_id.extra_fuel:
                     distance = rec.plan_line_id.route_id.distance_km + 40
@@ -640,7 +650,7 @@ class Trip(models.Model):
 
     def action_export_trip_docx(self):
         """Export trip data to DOCX format matching the transport document"""
-        return self.env['document.service'].generate_trip_docx(self)
+        return self.env['hp.document.service'].generate_trip_docx(self)
 
     def action_export_trip_docx_bulk(self):
         """Export selected trips to DOCX and return a ZIP download"""
@@ -655,7 +665,7 @@ class Trip(models.Model):
         with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as zipf:
             for trip in self:
                 # Reuse document service to build the Document
-                doc = self.env['document.service']._generate_trip_docx(trip)
+                doc = self.env['hp.document.service']._generate_trip_docx(trip)
 
                 # Save document to bytes
                 doc_io = io.BytesIO()
