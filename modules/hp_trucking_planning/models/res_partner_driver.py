@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import models, fields, api
 
 class ResPartnerDriver(models.Model):
     _name = 'res.partner.driver'
@@ -12,9 +12,11 @@ class ResPartnerDriver(models.Model):
         required=True,
         ondelete='cascade',
     )
-    vehicle_assignation_ids = fields.One2many(
+
+    # Computed field để lấy vehicle assignation history thông qua partner_id
+    vehicle_assignation_history_ids = fields.One2many(
         comodel_name='fleet.vehicle.assignation.log',
-        inverse_name='driver_id',
+        compute='_compute_vehicle_assignation_history',
         string='Vehicle Assignation History',
         readonly=True
     )
@@ -40,6 +42,18 @@ class ResPartnerDriver(models.Model):
         string='License Type',
         tracking=True
     )
+
+    @api.depends('partner_id')
+    def _compute_vehicle_assignation_history(self):
+        for record in self:
+            if record.partner_id:
+                assignments = self.env['fleet.vehicle.assignation.log'].search([
+                    ('driver_id', '=', record.partner_id.id)
+                ])
+                record.vehicle_assignation_history_ids = assignments
+            else:
+                record.vehicle_assignation_history_ids = False
+
     _sql_constraints = [
         ('unique_license_number', 'UNIQUE(license_number)','License Number must be unique!'),
     ]

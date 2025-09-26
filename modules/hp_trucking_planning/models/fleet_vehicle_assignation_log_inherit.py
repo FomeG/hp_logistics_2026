@@ -4,9 +4,9 @@ from ..services.res_partner_service import ResPartnerService
 class FleetVehicleAssignationLogInherit(models.Model):
     _inherit = 'fleet.vehicle.assignation.log'
 
-    driver_id = fields.Many2one(
-        domain=[('type', '=', ResPartnerService.PARTNER_TYPE_DRIVER)]
-    )
+    # driver_id = fields.Many2one(
+    #     domain=[('type', '=', ResPartnerService.PARTNER_TYPE_DRIVER)]
+    # )
     is_busy = fields.Boolean(
         string="Busy",
         compute="_compute_is_busy",

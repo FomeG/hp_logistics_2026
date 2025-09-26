@@ -39,7 +39,7 @@
                         <field name="license_number" required="1" />
                     </group>
                     <group string="Vehicle Assignation History">
-                        <field name="vehicle_assignation_ids">
+                        <field name="vehicle_assignation_history_ids">
                             <list>
                                 <field name="vehicle_id" string="Vehicle"/>
                                 <field name="date_start" string="Start Date"/>
