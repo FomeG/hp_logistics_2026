@@ -14,6 +14,9 @@ HP Employee App
 """,
     'depends': ['base', 'hr','hr_org_chart','hp_components'],
     'data': [
+        # security
+        'security/ir.model.access.csv',
+
         # 'data/demo_data.xml',
         'views/cs_department_type_views.xml',
         'views/hidden_btn_new_views.xml',

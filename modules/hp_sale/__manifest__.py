@@ -17,6 +17,9 @@
         'data/product_data.xml',
         'data/price_category_cron.xml',
 
+        # wizards
+        'views/wizards/import_client_wizard.xml',
+
         # security
         'security/hp_sale_security.xml',
         'security/ir.model.access.csv',

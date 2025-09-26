@@ -5,17 +5,15 @@ from ..services.res_partner_service import ResPartnerService
 class ResPartnerInherit(models.Model):
     _inherit = ['res.partner']
 
-    type = fields.Selection([
-        ('contact', 'Contact'),
-        ('invoice', 'Invoice Address'),
-        ('delivery', 'Delivery Address'),
-        ('other', 'Other Address'),
+    # Extend existing selection instead of redefining it to avoid overwriting core values
+    type = fields.Selection(selection_add=[
         (ResPartnerService.PARTNER_TYPE_DRIVER, 'Driver'),
         (ResPartnerService.PARTNER_TYPE_CLIENT, 'Client'),
-    ],string='Address Type', default='contact')
-
+        (ResPartnerService.DRIVER_INTERNAL_TYPE, 'Internal Driver'),
+        (ResPartnerService.DRIVER_EXTERNAL_TYPE, 'External Driver'),
+        (ResPartnerService.SHIPPING_LINE, 'Shipping Line'),
+    ])
     cccd = fields.Char(string='CCCD', tracking=True)
-    code = fields.Char(string= 'Client Code', tracking=True)
     branch_id = fields.Many2one(
         comodel_name='trucking_planning.branch',
         index=True,
@@ -31,7 +29,7 @@ class ResPartnerInherit(models.Model):
 
     _required_fields_by_type = {
         ResPartnerService.PARTNER_TYPE_DRIVER: ['name', 'cccd'],
-        ResPartnerService.PARTNER_TYPE_CLIENT: ['name', 'code', 'vat', 'branch_id'],
+        ResPartnerService.PARTNER_TYPE_CLIENT: ['name', 'ref', 'vat', 'branch_id'],
     }
 
     @api.constrains('type')

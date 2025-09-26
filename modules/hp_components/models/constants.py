@@ -17,3 +17,4 @@ class VehicleTag:
 
 class PartnerMainTypeCode:
     DRIVER = 'driver'
+    CLIENT = 'client'

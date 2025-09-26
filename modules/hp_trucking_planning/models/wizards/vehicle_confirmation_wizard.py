@@ -6,8 +6,8 @@ class BusyVehicleConfirmationWizard(models.TransientModel):
     _name = 'trucking_planning.vehicle.confirmation.wizard'
     _description = 'Busy Vehicle Assignment Confirmation Wizard'
 
-    vehicle_driver_history_id = fields.Many2one(
-        'trucking_planning.vehicle.driver.history',
+    vehicle_assignment_log_id = fields.Many2one(
+        'fleet.vehicle.assignation.log',
         string='Vehicle-Driver Pair',
         required=True,
         readonly=True
@@ -92,13 +92,13 @@ class BusyVehicleConfirmationWizard(models.TransientModel):
     )
 
     vehicle_name = fields.Char(
-        related='vehicle_driver_history_id.vehicle_id.name',
+        related='vehicle_assignment_log_id.vehicle_id.name',
         string='Vehicle',
         readonly=True
     )
 
     driver_name = fields.Char(
-        related='vehicle_driver_history_id.driver_id.name',
+        related='vehicle_assignment_log_id.driver_id.name',
         string='Driver',
         readonly=True
     )
@@ -113,9 +113,9 @@ class BusyVehicleConfirmationWizard(models.TransientModel):
         if not self.new_trip_id:
             raise UserError("No new trip available for assignment.")
 
-        self.new_trip_id.vehicle_driver_history_id = self.vehicle_driver_history_id
+        self.new_trip_id.vehicle_assignment_log_id = self.vehicle_assignment_log_id
         self.new_trip_id.message_post(
-            body=f"Vehicle-driver pair '{self.vehicle_driver_history_id.name}' has been assigned to this trip (reassigned from another trip).",
+            body=f"Vehicle-driver pair '{self.vehicle_assignment_log_id.name}' has been assigned to this trip (reassigned from another trip).",
             message_type='notification'
         )
 

@@ -16,3 +16,6 @@ class PartnerService:
         return type
     def get_partner_main_type_driver(self):
         return self._get_or_create_partner_main_type_by_code(PartnerMainTypeCode.DRIVER)
+
+    def get_partner_main_type_client(self):
+        return self._get_or_create_partner_main_type_by_code(PartnerMainTypeCode.CLIENT)
