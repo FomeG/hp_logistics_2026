@@ -85,12 +85,11 @@
         <field name="search_view_id" ref="view_client_search" />
         <field name="view_mode">list,form</field>
         <field name="view_id" ref="view_client_tree" />
-        <field name="domain">[('type', '=', 'client')]</field>
-        <field name="context">
-            {
+        <field name="domain">[('partner_main_type_id.code', '=', 'client')]</field>
+        <field name="context"
+            eval="{
                 'form_view_ref': 'hp_trucking_planning.view_client_form',
-                'default_type': 'client'
-            }
-        </field>
+                'default_partner_main_type_id': ref('hp_components.partner_main_type_client')
+            }" />
     </record>
 </odoo>
