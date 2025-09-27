@@ -521,7 +521,7 @@ class Trip(models.Model):
         message_content = self._build_message_content()
         
         # Get driver phone number
-        driver_phone = self.driver_id.phone_number if self.driver_id and self.driver_id.phone_number else None
+        driver_phone = self.driver_id.phone if self.driver_id and self.driver_id.phone else None
         
         # Open confirmation wizard
         return {
