@@ -12,6 +12,18 @@
         sequence="100"
         groups="base.group_system" />
 
+    <record id="sale.res_partner_menu" model="ir.ui.menu">
+        <field name="active">False</field>
+    </record>
+
+    <menuitem
+        id="menu_sale_client"
+        name="Clients"
+        parent="sale.sale_menu_root"
+        sequence="35"
+        action="action_res_partner_client"
+        groups="sales_team.group_sale_salesman" />
+
     <menuitem
         id="menu_sale_import_client"
         name="Import Client"
