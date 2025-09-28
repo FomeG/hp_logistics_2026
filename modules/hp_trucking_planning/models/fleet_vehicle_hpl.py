@@ -133,10 +133,7 @@ class FleetVehicleHpl(models.Model):
                 vehicle_service.set_big_engine(record)
             else:
                 vehicle_service.set_small_engine(record)
-            
-            # Create vehicle-driver history if driver is assigned
-            if vals.get('driver_id'):
-                record.assign_driver()
+
         return records
 
     def write(self, vals):
@@ -150,12 +147,7 @@ class FleetVehicleHpl(models.Model):
                     vehicle_service.set_big_engine(record)
                 else:
                     vehicle_service.set_small_engine(record)
-        
-        # Create vehicle-driver history if driver is assigned
-        if 'driver_id' in vals:
-            for record in self:
-                if record.driver_id:
-                    record.assign_driver()
+
         return result
 
     def _clean_license_plate(self, plate):
