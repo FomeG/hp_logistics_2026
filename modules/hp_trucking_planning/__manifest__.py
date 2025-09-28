@@ -7,7 +7,7 @@
     'category': 'HP',
     'version': '18.0.0.0.2',
     "license": "LGPL-3",
-    'depends': ['base','hp_components', 'queue_job', 'portal', 'hp_employee', 'fleet', 'hp_sale', 'hp_document'],
+    'depends': ['base','hp_components', 'queue_job', 'portal', 'hp_employee', 'fleet', 'hp_sale'],
     'data': [
         'security/hp_trucking_planning_security.xml',
         'security/ir.model.access.csv',
@@ -19,11 +19,11 @@
         #wizards
         'views/wizards/import_vehicle_driver_wizard.xml',
         'views/wizards/import_route_wizard.xml',
-        'views/wizards/vehicle_confirmation_wizard.xml',
+        # 'views/wizards/vehicle_confirmation_wizard.xml',
         # 'views/wizards/add_draft_trip_wizard.xml',
 
         # views
-        'views/trucking_planning_shipping_line_views.xml',
+        # 'views/trucking_planning_shipping_line_views.xml',
         'views/trucking_planning_vehicle_views.xml',
         'views/trucking_planning_client_views.xml',
         'views/trucking_planning_location_views.xml',
