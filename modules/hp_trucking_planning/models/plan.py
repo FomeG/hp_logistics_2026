@@ -216,7 +216,7 @@ class Plan(models.Model):
         message_content = first_trip._build_message_content()
         
         # Get driver phone number for the first trip
-        driver_phone = first_trip.driver_id.phone_number if first_trip.driver_id and first_trip.driver_id.phone_number else None
+        driver_phone = first_trip.driver_id.phone if first_trip.driver_id and first_trip.driver_id.phone else None
         
         # Open confirmation wizard
         return {

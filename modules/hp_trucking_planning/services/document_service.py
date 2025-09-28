@@ -183,7 +183,7 @@ class DocumentService(models.AbstractModel):
         bold_run = driver_para.add_run(f"{trip.driver_id.name if trip.driver_id else 'Bùi Văn Thắng'}")
         bold_run.bold = True
         driver_para.add_run("\nSố điện thoại liên hệ: ")
-        bold_run = driver_para.add_run(f"{getattr(trip.driver_id, 'phone_number', 'N/A')}")
+        bold_run = driver_para.add_run(f"{getattr(trip.driver_id, 'phone', 'N/A')}")
         bold_run.bold = True
 
         # Merge 2nd and 3rd columns for the first row

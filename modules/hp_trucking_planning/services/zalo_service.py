@@ -104,8 +104,8 @@ class ZaloService(models.AbstractModel):
                 
                 # Get driver phone number for trip records
                 driver_phone = None
-                if hasattr(record, 'driver_id') and record.driver_id and record.driver_id.phone_number:
-                    driver_phone = record.driver_id.phone_number
+                if hasattr(record, 'driver_id') and record.driver_id and record.driver_id.phone:
+                    driver_phone = record.driver_id.phone
                 
                 # Send message
                 self.send_message_with_logging(record, message_content, phone=driver_phone)

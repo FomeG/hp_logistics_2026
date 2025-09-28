@@ -78,16 +78,16 @@ class ZaloGPSWebhookController(http.Controller):
             driver = None
             
             # First try exact match
-            driver = request.env['trucking_planning.driver'].sudo().search([
-                ('phone_number', '=', phone)
+            driver = request.env['res.partner.driver'].sudo().search([
+                ('phone', '=', phone)
             ], limit=1)
             
             # If not found and phone starts with '84', try converting to local format
             if not driver and phone.startswith('84'):
                 # Convert 84965774192 -> 0965774192
                 local_phone = '0' + phone[2:]  # Remove '84' prefix and add '0'
-                driver = request.env['trucking_planning.driver'].sudo().search([
-                    ('phone_number', '=', local_phone)
+                driver = request.env['res.partner.driver'].sudo().search([
+                    ('phone', '=', local_phone)
                 ], limit=1)
                 if driver:
                     _logger.info(f"GPS webhook: Found driver using local format {local_phone} for international phone {phone}")
@@ -96,8 +96,8 @@ class ZaloGPSWebhookController(http.Controller):
             elif not driver and phone.startswith('0'):
                 # Convert 0965774192 -> 84965774192
                 international_phone = '84' + phone[1:]  # Remove '0' prefix and add '84'
-                driver = request.env['trucking_planning.driver'].sudo().search([
-                    ('phone_number', '=', international_phone)
+                driver = request.env['res.partner.driver'].sudo().search([
+                    ('phone', '=', international_phone)
                 ], limit=1)
                 if driver:
                     _logger.info(f"GPS webhook: Found driver using international format {international_phone} for local phone {phone}")
