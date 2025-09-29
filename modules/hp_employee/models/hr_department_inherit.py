@@ -13,14 +13,22 @@ class HpDepartmentInherit(models.Model):
 
     ARRAY_TYPE = [TYPE_SALE, TYPE_PRICING, TYPE_TRUCKING]
 
+    name = fields.Char(
+        string='Department Name',
+        compute='_compute_department_name',
+        required=False,
+        store=True,
+    )
+
     branch_id = fields.Many2one(
         comodel_name='hr.branch',
         index=True,
-        required=True,
     )
 
     department_type_id = fields.Many2one(
-        'department.type', string='Department Type', required=True,ondelete='cascade'
+        comodel_name='department.type',
+        string='Department Type',
+        ondelete='cascade',
     )
 
     _sql_constraints = [
@@ -35,6 +43,14 @@ class HpDepartmentInherit(models.Model):
     def can_create_department(self):
         count = self.sudo().search_count([('department_type_id', 'in', self.ARRAY_TYPE)])
         return count < len(self.ARRAY_TYPE)
+
+    @api.depends('department_type_id', 'branch_id')
+    def _compute_department_name(self):
+        for record in self:
+            if record.department_type_id and record.branch_id:
+                record.name = record.department_type_id.name + ' ' + record.branch_id.name
+            else:
+                record.name = ''
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -78,6 +94,14 @@ class HpDepartmentInherit(models.Model):
                 department._remove_group_of_manage(manager.id)
             
         return super().unlink()
+
+    def copy(self, default=None):
+        default = dict(default or {})
+        default.update({
+            'name': "New Department",
+            'branch_id': False,
+        })
+        return super().copy(default)
     
     def _get_group_by_role(self, role):
         group_map = {
