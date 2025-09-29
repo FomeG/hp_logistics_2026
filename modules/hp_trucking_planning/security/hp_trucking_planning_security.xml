@@ -167,12 +167,24 @@
         </record>
 
         <!-- Trip: Members can only edit their own records when status allows -->
-        <record id="trucking_plan_trip_member_rule" model="ir.rule">
+        <record id="trucking_plan_trip_member_read_rule" model="ir.rule">
+            <field name="name">Trip: Member can read own records</field>
+            <field name="model_id" ref="model_trucking_planning_trip" />
+            <field name="groups" eval="[(4, ref('group_hp_trucking_planning_member'))]" />
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="1" />
+            <field name="perm_write" eval="0" />
+            <field name="perm_create" eval="0" />
+            <field name="perm_unlink" eval="0" />
+        </record>
+
+        <!-- Trip: Members can write their own records when status allows -->
+        <record id="trucking_plan_trip_member_write_rule" model="ir.rule">
             <field name="name">Trip: Member can edit own records when status allows</field>
             <field name="model_id" ref="model_trucking_planning_trip" />
             <field name="groups" eval="[(4, ref('group_hp_trucking_planning_member'))]" />
             <field name="domain_force">[('create_uid', '=', user.id), ('status', 'not in', ['done','close','cancelled'])]</field>
-            <field name="perm_read" eval="1" />
+            <field name="perm_read" eval="0" />
             <field name="perm_write" eval="1" />
             <field name="perm_create" eval="1" />
             <field name="perm_unlink" eval="0" />
