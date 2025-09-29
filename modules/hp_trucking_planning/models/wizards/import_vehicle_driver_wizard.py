@@ -7,6 +7,7 @@ import logging
 from ...services.res_partner_service import ResPartnerService
 from ...services.vehicle_service import VehicleService
 from odoo.addons.hp_components.models import constants
+from odoo.addons.hp_components.services.partner_service import PartnerService
 
 
 _logger = logging.getLogger(__name__)
@@ -152,13 +153,15 @@ class ImportVehicleDriverWizard(models.TransientModel):
             
             driver_record = None
             if driver_name and driver_phone:
+                partner_service = PartnerService(self.env)
+                partner_main_type_driver = partner_service.get_partner_main_type_driver()
                 # Check if driver exists by phone number (unique constraint)
-                existing_driver = driver_model.search([('phone', '=', driver_phone), ('type', '=', ResPartnerService.PARTNER_TYPE_DRIVER)], limit=1)
+                existing_driver = driver_model.search([('phone', '=', driver_phone), ('partner_main_type_id', '=', partner_main_type_driver.id)], limit=1)
                 
                 # Generate unique temporary values
                 temp_suffix = driver_phone if driver_phone else f'TEMP_{index}'
                 driver_vals = {
-                    'type': ResPartnerService.PARTNER_TYPE_DRIVER,
+                    'partner_main_type_id': partner_main_type_driver.id,
                     'name': driver_name,
                     'phone': driver_phone,
                     'ref': f'DUMMY_CCCD_{temp_suffix}',  # Temporary value, needs manual update
