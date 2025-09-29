@@ -108,7 +108,7 @@
                                             <strong>3. Thông tin về người thuê vận tải</strong><br/>
                                             Tên người thuê vận chuyển: <strong><span t-field="trip_order.plan_line_id.client_id.name"/></strong><br/>
 <!--                                            Tên người thuê vận chuyển: <strong><span t-field="trip_order.client_id.name"/></strong><br/>-->
-                                            Địa chỉ: <strong><span t-field="trip_order.client_id.address"/></strong><br/>
+                                            Địa chỉ: <strong><span t-field="trip_order.client_id.street"/></strong><br/>
                                         </div>
 
                                         <div class="mb-3">
