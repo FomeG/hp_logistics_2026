@@ -130,7 +130,7 @@
                         <notebook>
                             <page string="Route">
                                 <group>
-                                    <field name="route_id"/>
+                                    <field name="route_id" context="{'client_id': client_id}"/>
                                     <field name="actual_source_location_id" readonly="1"
                                         widget="many2one_new_tab" />
                                     <field name="actual_destination_location_id" readonly="1"

@@ -69,6 +69,21 @@ class Route(models.Model):
         ('import','Import'),
     ],default='export',)
 
+    @api.model
+    def name_search(self, name='', args=None, operator='ilike', limit=100):
+        res = super().name_search(name=name, args=args, operator=operator, limit=limit)
+        client_id = self.env.context.get('client_id')
+        if client_id:
+            client_routes = self.env['trucking_planning.plan.line'].search([
+                ('client_id', '=', client_id),
+                ('route_id', '!=', False)
+            ]).mapped('route_id').ids
+
+            if client_routes:
+                # Đưa route của client lên đầu danh sách
+                res = sorted(res, key=lambda x: 0 if x[0] in client_routes else 1)
+        return res
+
     @api.depends('road_fee','trip_salary')
     def _compute_total_cost(self):
         for route in self:
