@@ -7,5 +7,13 @@
             action="action_cs_department_type"
             groups="base.group_system"
             sequence="11"/>
+
+        <menuitem
+            id="hr_branch_menu"
+            name="Branches"
+            parent="hr.menu_hr_root"
+            action="hr_branch_action"
+            groups="base.group_system"
+            sequence="10" />
     </data>
 </odoo>

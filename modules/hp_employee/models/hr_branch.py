@@ -16,6 +16,12 @@ class HrBranch(models.Model):
         tracking=True,
     )
 
+    department_ids = fields.One2many(
+        comodel_name='hr.department',
+        inverse_name='branch_id',
+        string='Departments'
+    )
+
     _sql_constraints = [
         ('unique_plan_prefix', 'UNIQUE(plan_prefix)','Plan prefix must be unique!'),
     ]
