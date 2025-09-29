@@ -62,11 +62,6 @@ class FleetVehicleHpl(models.Model):
             required=True,
     )
 
-    branch_id = fields.Many2one(
-        comodel_name='hr.branch',
-        index=True,
-    )
-
     is_trailer = fields.Boolean(
         compute='_compute_is_trailer',
         store=False,

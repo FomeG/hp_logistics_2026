@@ -21,4 +21,3 @@ from . import fleet_vehicle_inherit
 # from . import fleet_vehicle_model_inherit
 from . import fleet_vehicle_hpl
 from . import fleet_vehicle_assignation_log_inherit
-from . import hr_branch_inherit

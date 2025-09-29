@@ -20,6 +20,12 @@ class ResPartnerClient(models.Model):
         domain=lambda self: self._get_assign_user_domain(),
         tracking=True,
     )
+    trucking_branch_id = fields.Many2one(
+        comodel_name='trucking_planning.branch',
+        index=True,
+        string='Branch',
+        default=lambda self: self.env.user.branch_ids[:1].id,
+    )
 
     # compute field
     can_edit_assign_user = fields.Boolean(compute="_compute_can_edit_assign_user", store=False)
