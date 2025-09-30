@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Demo Department Types -->
+    <record id="department_type_sale" model="department.type">
+        <field name="name">Sale</field>
+        <field name="code">sale</field>
+    </record>
+
+    <record id="department_type_pricing" model="department.type">
+        <field name="name">Pricing</field>
+        <field name="code">pricing</field>
+    </record>
+
+    <record id="department_type_cs" model="department.type">
+        <field name="name">CS</field>
+        <field name="code">cs</field>
+    </record>
+
+    <record id="department_type_trucking" model="department.type">
+        <field name="name">Trucking</field>
+        <field name="code">trucking</field>
+    </record>
+
+    <record id="department_type_account" model="department.type">
+        <field name="name">Account</field>
+        <field name="code">account</field>
+    </record>
+</odoo>
