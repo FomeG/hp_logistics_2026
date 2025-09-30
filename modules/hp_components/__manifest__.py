@@ -9,6 +9,7 @@
     'depends': ['base','project','sale','mail','component','component_event', 'queue_job'],
     'data': [
         'data/partner_main_type_data.xml',
+        'data/department_type_demo.xml',
     ],
     'assets': {
         'web.assets_backend': [
