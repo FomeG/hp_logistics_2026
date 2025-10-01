@@ -61,6 +61,12 @@
                         string="Activate" type="object" data-hotkey="g"
                         invisible="state != 'draft' or not id" class="btn-primary"
                         context="{'validate_analytic': True}"/>
+                   <button name="action_bypass_to_sale" string="confirm to invoice"  type="object"   class="btn-primary"/>
+                <button name="action_convert_to_cs_job"
+        type="object"
+        string="Convert to CS Job"
+        class="btn-primary"/>
+
             </xpath>
 
             <!-- Add buttons for each state transition -->
@@ -152,7 +158,9 @@
                     placeholder="Select Client ..."
                     options="{'no_create': True, 'no_create_edit': True}"
                     context="{'show_ref': True}" />
-
+                 <field name="booking_id"
+                    widget="many2one"
+                    placeholder="Select Client ..." />
             </xpath>
         </field>
     </record>

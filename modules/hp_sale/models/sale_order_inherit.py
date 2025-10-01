@@ -29,6 +29,11 @@ class SaleOrderInherrit(models.Model):
         required=True,
         tracking=True,
     )
+    booking_id = fields.Many2one(
+        'freight.purchase.booking',
+        string="Freight Booking",
+        ondelete="set null"
+    )
 
     @api.onchange("client_id")
     def _onchange_client_id(self):
@@ -55,6 +60,38 @@ class SaleOrderInherrit(models.Model):
         self.write({'state': 'activated'})
 
         return True
+
+    def action_bypass_to_sale(self):
+        self.ensure_one()
+        self.write({'state': 'sale'})
+
+    def action_convert_to_cs_job(self):
+        self.ensure_one()
+
+        # Kiểm tra xem đã có booking chưa
+        if not self.booking_id:
+            raise UserError("Vui lòng chọn Booking trước khi convert sang Job.")
+
+        # Tạo Job mới từ thông tin booking
+        job = self.env['cs.job'].create({
+            'job_number': "001",
+            'booking_id': self.booking_id.id,
+            'service_type': 'door-cy',  # hoặc map từ sale order
+            'department_code': 'JP01',  # hoặc custom based on user
+            'staff_sales': self.user_id.name if hasattr(self, 'user_id') else '',
+            'booking_number': self.booking_id.name,
+            'shipping_line_id': self.booking_id.shipping_line_id.id,
+        })
+
+        # Mở form view Job vừa tạo
+        return {
+            'name': 'Customer Service Job',
+            'type': 'ir.actions.act_window',
+            'res_model': 'cs.job',
+            'view_mode': 'form',
+            'res_id': job.id,
+            'target': 'current',
+        }
 
     # When customer confirmed => click button to change state and create task for sale leader to confirm
     def action_customer_confirm(self):
