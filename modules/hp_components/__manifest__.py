@@ -8,6 +8,7 @@
     "license": "LGPL-3",
     'depends': ['base','project','sale','mail','component','component_event', 'queue_job'],
     'data': [
+        'security/ir.model.access.csv',
         'data/partner_main_type_data.xml',
         'data/department_type_demo.xml',
     ],
