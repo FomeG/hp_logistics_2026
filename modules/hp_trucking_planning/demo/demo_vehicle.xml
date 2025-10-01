@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Vehicle Model Categories -->
+        <record id="vehicle_category_truck" model="fleet.vehicle.model.category">
+            <field name="name">Truck</field>
+        </record>
+
+        <record id="vehicle_category_trailer" model="fleet.vehicle.model.category">
+            <field name="name">Trailer</field>
+        </record>
+
+        <!-- Trucks (HPL Vehicles) -->
+        <record id="vehicle_truck_29c66666" model="fleet.vehicle.hpl">
+            <field name="license_plate">29C-66666</field>
+            <field name="fake_category_type">truck</field>
+            <field name="fake_engine_type">big</field>
+            <field name="driver_id" ref="driver_nguyen_van_a"/>
+            <field name="trucking_branch_id" ref="branch_hanoi"/>
+        </record>
+
+        <record id="vehicle_truck_306646" model="fleet.vehicle.hpl">
+            <field name="license_plate">30G-66456</field>
+            <field name="fake_category_type">truck</field>
+            <field name="fake_engine_type">small</field>
+            <field name="driver_id" ref="driver_tran_van_b"/>
+            <field name="trucking_branch_id" ref="branch_haiphong"/>
+        </record>
+
+        <!-- Trailers -->
+        <record id="vehicle_trailer_29r11111" model="fleet.vehicle.hpl">
+            <field name="license_plate">29R-11111</field>
+            <field name="fake_category_type">trailer</field>
+            <field name="fake_engine_type">small</field>
+            <field name="trucking_branch_id" ref="branch_hanoi"/>
+        </record>
+
+        <record id="vehicle_trailer_30r22222" model="fleet.vehicle.hpl">
+            <field name="license_plate">30R-22222</field>
+            <field name="fake_category_type">trailer</field>
+            <field name="fake_engine_type">big</field>
+            <field name="trucking_branch_id" ref="branch_hochiminh"/>
+        </record>
+
+        <!-- Assign Trailers to Trucks -->
+        <record id="vehicle_truck_29c66666" model="fleet.vehicle.hpl">
+            <field name="trailer_id" ref="vehicle_trailer_29r11111"/>
+        </record>
+
+        <record id="vehicle_trailer_29r11111" model="fleet.vehicle.hpl">
+            <field name="trailer_id" ref="vehicle_trailer_30r22222"/>
+        </record>
+
+    </data>
+</odoo>

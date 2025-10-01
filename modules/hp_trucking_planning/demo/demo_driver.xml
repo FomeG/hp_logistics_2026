@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="driver_nguyen_van_a" model="res.partner.driver">
+            <field name="name">Nguyễn Văn A</field>
+            <field name="phone">0912345678</field>
+            <field name="email">nguyenvana@example.com</field>
+            <field name="license_number">79C1-123456</field>
+            <field name="license_type">C</field>
+            <field name="license_issue_date">2018-01-15</field>
+            <field name="license_expiry_date">2028-01-15</field>
+        </record>
+
+        <record id="driver_tran_van_b" model="res.partner.driver">
+            <field name="name">Trần Văn B</field>
+            <field name="phone">0923456789</field>
+            <field name="email">tranvanb@example.com</field>
+            <field name="license_number">79C1-234567</field>
+            <field name="license_type">C</field>
+            <field name="license_issue_date">2017-05-20</field>
+            <field name="license_expiry_date">2027-05-20</field>
+        </record>
+
+        <record id="driver_le_van_c" model="res.partner.driver">
+            <field name="name">Lê Văn C</field>
+            <field name="phone">0934567890</field>
+            <field name="email">levanc@example.com</field>
+            <field name="license_number">79C1-345678</field>
+            <field name="license_type">CE</field>
+            <field name="license_issue_date">2019-03-10</field>
+            <field name="license_expiry_date">2029-03-10</field>
+        </record>
+
+    </data>
+</odoo>

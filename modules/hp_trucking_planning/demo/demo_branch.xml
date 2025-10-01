@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="branch_hanoi" model="trucking_planning.branch">
+            <field name="name">Chi nhánh Hà Nội</field>
+            <field name="code">HN</field>
+            <field name="plan_prefix">HN</field>
+        </record>
+
+        <record id="branch_haiphong" model="trucking_planning.branch">
+            <field name="name">Chi nhánh Hải Phòng</field>
+            <field name="code">HP</field>
+            <field name="plan_prefix">HP</field>
+        </record>
+
+        <!-- Chi nhánh TP.HCM -->
+        <record id="branch_hochiminh" model="trucking_planning.branch">
+            <field name="name">Chi nhánh TP. Hồ Chí Minh</field>
+            <field name="code">HCM</field>
+            <field name="plan_prefix">HCM</field>
+        </record>
+
+    </data>
+</odoo>
