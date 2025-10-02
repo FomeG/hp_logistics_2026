@@ -1,5 +1,9 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+from datetime import datetime, timedelta
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class ZaloConfirmationWizard(models.TransientModel):
@@ -26,6 +30,16 @@ class ZaloConfirmationWizard(models.TransientModel):
     driver_phone = fields.Char(
         string='Driver Phone',
         help='Phone number of the driver (if applicable)'
+    )
+    
+    send_option = fields.Selection([
+        ('now', 'Send Now'),
+        ('schedule', 'Schedule Later')
+    ], string='Send Option', default='now', required=True)
+    
+    scheduled_date = fields.Datetime(
+        string='Scheduled Date & Time',
+        help='When to send the message'
     )
 
     @api.model
@@ -54,8 +68,23 @@ class ZaloConfirmationWizard(models.TransientModel):
         
         return res
 
+    @api.onchange('send_option')
+    def _onchange_send_option(self):
+        if self.send_option == 'now':
+            self.scheduled_date = False
+        elif self.send_option == 'schedule' and not self.scheduled_date:
+            # Default to 1 hour from now
+            self.scheduled_date = fields.Datetime.now() + timedelta(hours=1)
+
     def action_send_message(self):
-        """Send the message via Zalo API"""
+        """Send immediately or schedule for later"""
+        if self.send_option == 'now':
+            return self._send_immediately()
+        else:
+            return self._schedule_message()
+    
+    def _send_immediately(self):
+        """Send the message immediately via Zalo API"""
         try:
             # Handle bulk trips case (special case)
             if self.record_model == 'trucking_planning.trip.bulk':
@@ -122,6 +151,80 @@ class ZaloConfirmationWizard(models.TransientModel):
             
         except Exception as e:
             raise UserError(f"Failed to send message: {str(e)}")
+    
+    def _schedule_message(self):
+        """Schedule message using queue_job"""
+        if not self.scheduled_date:
+            raise UserError("Please select a scheduled date and time.")
+        
+        if self.scheduled_date <= fields.Datetime.now():
+            raise UserError("Scheduled date must be in the future.")
+        
+        # Calculate delay in seconds
+        now = fields.Datetime.now()
+        delay_seconds = int((self.scheduled_date - now).total_seconds())
+        
+        # Get bulk trip IDs for bulk case
+        bulk_trip_ids = self.env.context.get('bulk_trip_ids', []) if self.record_model == 'trucking_planning.trip.bulk' else []
+        
+        # Schedule the job using queue_job
+        job = self.with_delay(eta=delay_seconds).send_scheduled_message(
+            self.record_id,
+            self.record_model, 
+            self.message_content,
+            self.driver_phone,
+            bulk_trip_ids
+        )
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Success',
+                'message': f'Message scheduled for {self.scheduled_date.strftime("%Y-%m-%d %H:%M")}. Job ID: {job.uuid}',
+                'type': 'success',
+            }
+        }
+    
+    def send_scheduled_message(self, record_id, record_model, message_content, driver_phone, bulk_trip_ids=None):
+        """Method that will be executed by queue_job at scheduled time"""
+        try:
+            # Handle bulk trips case (special case)
+            if record_model == 'trucking_planning.trip.bulk':
+                if bulk_trip_ids:
+                    trips = self.env['trucking_planning.trip'].browse(bulk_trip_ids)
+                    self.env['zalo.service'].send_bulk_messages(trips)
+                    _logger.info(f"Scheduled Zalo messages sent successfully to {len(trips)} trip(s)")
+                else:
+                    raise UserError("No trips found for bulk sending")
+                return
+            
+            # Get the record for other cases
+            record = self.env[record_model].browse(record_id)
+            if not record.exists():
+                raise UserError("Record not found")
+            
+            # Send the message using same logic as immediate send
+            if record_model == 'trucking_planning.trip':
+                self.env['zalo.service'].send_message_with_logging(
+                    record, message_content, phone=driver_phone
+                )
+            elif record_model == 'trucking_planning.plan.line':
+                self.env['zalo.service'].send_bulk_messages(record.trip_ids)
+            elif record_model == 'trucking_planning.plan':
+                all_trips = record.mapped('plan_line_ids.trip_ids')
+                self.env['zalo.service'].send_bulk_messages(all_trips)
+            else:
+                self.env['zalo.service'].send_message_with_logging(
+                    record, message_content, phone=driver_phone
+                )
+                
+            # Log success
+            _logger.info(f"Scheduled Zalo message sent successfully for {record_model} #{record_id}")
+            
+        except Exception as e:
+            _logger.error(f"Failed to send scheduled Zalo message: {str(e)}")
+            raise
 
     def action_close(self):
         """Close the wizard without sending message"""
