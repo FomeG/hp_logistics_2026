@@ -13,18 +13,18 @@
 
         <!-- Trucks (HPL Vehicles) -->
         <record id="vehicle_truck_29c66666" model="fleet.vehicle.hpl">
-            <field name="license_plate">29C-66666</field>
+            <field name="license_plate">29C-612666</field>
             <field name="fake_category_type">truck</field>
             <field name="fake_engine_type">big</field>
-            <field name="driver_id" ref="driver_nguyen_van_a"/>
+            <field name="driver_id" ref="partner_nguyen_van_a"/>
             <field name="trucking_branch_id" ref="branch_hanoi"/>
         </record>
 
         <record id="vehicle_truck_306646" model="fleet.vehicle.hpl">
-            <field name="license_plate">30G-66456</field>
+            <field name="license_plate">30G-61341256</field>
             <field name="fake_category_type">truck</field>
             <field name="fake_engine_type">small</field>
-            <field name="driver_id" ref="driver_tran_van_b"/>
+            <field name="driver_id" ref="partner_tran_van_b"/>
             <field name="trucking_branch_id" ref="branch_haiphong"/>
         </record>
 
