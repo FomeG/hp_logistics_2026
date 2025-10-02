@@ -19,7 +19,7 @@
         <menuitem id="menu_plan_line" name="Jobs" parent="menu_trucking_operations" action="action_plan_line" sequence="20"/>
         <!-- Trips -->
         <menuitem id="menu_trip" name="Trips" parent="menu_trucking_operations" action="action_trip" sequence="30"/>
-<!-- Menu Items -->
+        <!-- Menu Items -->
         <menuitem id="menu_trip_checkpoint_root"
                   name="GPS Tracking"
                   parent="menu_trucking_root"
@@ -31,7 +31,11 @@
                   action="action_trip_checkpoint"
                   sequence="10"/>
 
-
+        <menuitem id="menu_trucking_dashboard"
+                  name="Dashboard"
+                  parent="menu_trucking_root"
+                  action="action_trucking_dashboard"
+                  sequence="1"/>
         <!-- Shipping Lines -->
         <menuitem id="menu_shipping_line" name="Shipping Lines" parent="menu_trucking_master_data" action="action_shipping_line"/>
 
