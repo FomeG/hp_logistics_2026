@@ -1,0 +1,11 @@
+<odoo>
+    <data noupdate="1">
+        <record id="cs_job_sequence" model="ir.sequence">
+            <field name="name">CS Job Sequence</field>
+            <field name="code">cs.job.sequence</field>
+            <field name="prefix"></field> <!-- Nếu muốn có tiền tố thì thêm VD: JOB/ -->
+            <field name="padding">5</field> <!-- Số lượng số 0 -->
+            <field name="number_next">1</field> <!-- Bắt đầu từ 00001 -->
+        </record>
+    </data>
+</odoo>
