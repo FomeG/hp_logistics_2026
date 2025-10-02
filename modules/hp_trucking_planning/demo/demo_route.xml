@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="route_hanoi_haiphong" model="trucking_planning.route">
+            <field name="from_location_id" ref="location_route_hanoi"/>
+            <field name="to_location_id" ref="location_route_haiphong"/>
+            <field name="distance_km">120</field>
+            <field name="road_fee">200000</field>
+            <field name="trip_salary">800000</field>
+            <field name="ticket_fee">50000</field>
+            <field name="direction">export</field>
+        </record>
+
+        <record id="route_hanoi_danang" model="trucking_planning.route">
+            <field name="from_location_id" ref="location_route_haiphong"/>
+            <field name="to_location_id" ref="location_route_hochiminh"/>
+            <field name="distance_km">764</field>
+            <field name="road_fee">1500000</field>
+            <field name="trip_salary">3500000</field>
+            <field name="ticket_fee">200000</field>
+            <field name="direction">export</field>
+        </record>
+
+        <record id="route_hanoi_hochiminh" model="trucking_planning.route">
+            <field name="from_location_id" ref="location_route_hanoi"/>
+            <field name="to_location_id" ref="location_route_hochiminh"/>
+            <field name="distance_km">1710</field>
+            <field name="road_fee">3000000</field>
+            <field name="trip_salary">7000000</field>
+            <field name="ticket_fee">400000</field>
+            <field name="direction">export</field>
+        </record>
+    </data>
+</odoo>
