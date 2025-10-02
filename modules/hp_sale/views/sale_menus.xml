@@ -10,7 +10,7 @@
         name="Tools"
         parent="sale.sale_menu_root"
         sequence="100"
-        groups="base.group_system" />
+        groups="sales_team.group_sale_manager" />
 
     <record id="sale.res_partner_menu" model="ir.ui.menu">
         <field name="active">False</field>
@@ -30,6 +30,6 @@
         parent="menu_sale_tools"
         sequence="10"
         action="action_import_client_wizard"
-        groups="base.group_system" />
+        groups="sales_team.group_sale_manager" />
 
 </odoo>
