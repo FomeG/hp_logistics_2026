@@ -11,7 +11,17 @@
                         <div class="alert alert-info" role="alert">
                             <strong>Message Preview:</strong> Please review the message content below before sending.
                         </div>
-                        <group>
+                        
+                        <!-- Send Options -->
+                        <group string="Send Options">
+                            <field name="send_option" widget="radio" options="{'horizontal': true}"/>
+                            <field name="scheduled_date" 
+                                   invisible="send_option == 'now'"
+                                   required="send_option == 'schedule'"/>
+                        </group>
+                        
+                        <!-- Message Content -->
+                        <group string="Message Content">
                             <field name="message_content"
                                    placeholder="Message content will appear here..."
                                    style="font-family: monospace; white-space: pre-wrap; min-height: 300px; background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; border-radius: 4px;"/>
@@ -19,7 +29,10 @@
                     </sheet>
                     <footer>
                         <button name="action_close" string="Close" type="object" class="btn-secondary"/>
-                        <button name="action_send_message" string="Send Message" type="object" class="btn-primary"/>
+                        <button name="action_send_message" type="object" class="btn-primary">
+                            <span invisible="send_option == 'schedule'">Send Now</span>
+                            <span invisible="send_option == 'now'">Schedule Message</span>
+                        </button>
                     </footer>
                 </form>
             </field>
