@@ -31,11 +31,11 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-<button name="action_print_HBL_bill" string="Print HBL Bill"
-        type="object" class="btn-primary"/>
-<button name="action_print_debit" string="Print Debit"
-        type="object" class="btn-primary"/>
-</header>
+                    <button name="action_print_HBL_bill" string="Print HBL Bill"
+                            type="object" class="btn-primary"/>
+                    <button name="action_print_debit" string="Print Debit"
+                            type="object" class="btn-primary"/>
+                </header>
 
                 <sheet>
     <!-- Nhóm 2 cột -->
@@ -52,12 +52,15 @@
         <field name="voyage"/>
         <field name="service_type"/>
         <field name="department_code"/>
+        <field name="mbl_number"/>
+        <field name="hbl_number"/>
         <field name="master_bl_date"/>
         <field name="date_of_master_bl_date"/>
     </group>
 
     <group>
         <field name="booking_id" options="{'no_create': True, 'no_create_edit': True}"/>
+        <field name="booking_line_id"/>
         <field name="port_loading"/>
         <field name="port_discharge"/>
         <field name="port_transit"/>
@@ -68,10 +71,11 @@
     <group>
         <field name="etd"/>
         <field name="eta"/>
-        <field name="staff_sales"/>
-        <field name="staff_customs"/>
-        <field name="company_account"/>
-        <field name="personal_account"/>
+        <field name="salesman_id"/>
+        <field name="customer_id"/>
+        <field name="quantity"/>
+<!--        <field name="company_account"/>-->
+<!--        <field name="personal_account"/>-->
 
     </group></group>
                     <notebook>

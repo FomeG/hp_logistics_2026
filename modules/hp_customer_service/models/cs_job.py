@@ -33,8 +33,7 @@ class CSJob(models.Model):
     shipping_line_id = fields.Many2one(
         'res.partner',
         string="Shipping Line",
-        domain="[('partner_main_type_id.code', '=', 'shipping_line')]",
-        help="Chọn Shipping Line cho Job này"
+        related='booking_id.shipping_line_id'
     )
     vessel = fields.Many2one(
         'freight.purchase.vessel',
@@ -45,6 +44,12 @@ class CSJob(models.Model):
     )
     voyage = fields.Char(string="Voyage",related="booking_id.quotation_id.code",)
     booking_id = fields.Many2one('freight.purchase.booking', string="Booking")
+    booking_line_id = fields.Many2one(
+        'freight.purchase.booking.line',
+        string="Booking Line (Customer)",
+        domain="[('booking_id', '=', booking_id)]",  # lọc chỉ các line thuộc booking đang chọn
+        required=True
+    )
 
     port_loading = fields.Many2one(
         'freight.purchase.port',
@@ -58,7 +63,10 @@ class CSJob(models.Model):
         related='booking_id.pod_id'
 
     )
-
+    quantity = fields.Integer(
+        string="Numbers of Container",
+        related = 'booking_line_id.quantity'
+    )
     port_transit = fields.Char(string="Port of Transit")
     pre_carriage_by = fields.Char(string="Pre-Carriage By")
     commodity = fields.Char(string="Commodity")
@@ -71,8 +79,9 @@ class CSJob(models.Model):
     )
     etd = fields.Date(related="booking_id.etd", store=True)
     eta = fields.Datetime(string="ETA")
-    staff_sales = fields.Char(string="Staff Sales")   # thay vì Many2one
-    staff_customs = fields.Char(string="Staff Customs")
+    customer_id = fields.Many2one('res.partner', related='booking_line_id.customer_id', string='Customer')
+    salesman_id = fields.Many2one('res.users', related='booking_line_id.salesman_id', string='Salesperson')
+
     date_of_master_bl_date = fields.Char(string="date of master bl date")
     detail_ids = fields.One2many(
         'cs.job.detail',  # model chứa chi tiết
@@ -84,14 +93,17 @@ class CSJob(models.Model):
     port_receipt =  fields.Char(string="port_receipt")
     pre_carriage_vessel = fields.Char(string="Pre-Carriage Vessel")
     pre_carriage_voy = fields.Char(string="Pre-Carriage Voyage")
-    company_account= fields.Selection(
-        selection=lambda self: self._get_bank_selection('company'),
-        string="Company Bank Account",
-    )
-    personal_account = fields.Selection(
-        selection=lambda self: self._get_bank_selection('personal'),
-        string="Personal Bank Account",
-    )
+    mbl_number = fields.Char(string="Master B/L Number")
+    hbl_number = fields.Char(string="House B/L Number")
+
+    # company_account= fields.Selection(
+    #     selection=lambda self: self._get_bank_selection('company'),
+    #     string="Company Bank Account",
+    # )
+    # personal_account = fields.Selection(
+    #     selection=lambda self: self._get_bank_selection('personal'),
+    #     string="Personal Bank Account",
+    # )
     @api.model
     def create(self, vals):
         if not vals.get('job_number'):
@@ -101,17 +113,17 @@ class CSJob(models.Model):
         return self.env.ref('hp_customer_service.action_report_HBL_bill').report_action(self)
     def action_print_debit(self):
         return self.env.ref('hp_customer_service.action_report_debit_note').report_action(self)
-    def _get_bank_selection(self, bank_type=None):
-        param = self.env['ir.config_parameter'].sudo().get_param('hp_bank')
-        banks = []
-        if param:
-            try:
-                data = json.loads(param)
-                for i, bank in enumerate(data):
-                    # lọc theo type + active
-                    if bank.get('type') == bank_type and bank.get('active', True):
-                        name = f"{bank.get('bank_name')} - {bank.get('bank_account')} ({bank.get('bank_holder_name')})"
-                        banks.append((str(i), name))
-            except Exception:
-                pass
-        return banks
+    # def _get_bank_selection(self, bank_type=None):
+    #     param = self.env['ir.config_parameter'].sudo().get_param('hp_bank')
+    #     banks = []
+    #     if param:
+    #         try:
+    #             data = json.loads(param)
+    #             for i, bank in enumerate(data):
+    #                 # lọc theo type + active
+    #                 if bank.get('type') == bank_type and bank.get('active', True):
+    #                     name = f"{bank.get('bank_name')} - {bank.get('bank_account')} ({bank.get('bank_holder_name')})"
+    #                     banks.append((str(i), name))
+    #         except Exception:
+    #             pass
+    #     return banks
