@@ -49,6 +49,11 @@ class TruckingDashboard(models.Model):
         string="Top truck - driver (by trips)",
         compute="_compute_top_truck_driver")
 
+    all_drivers_stats = fields.Text(
+        string="All Drivers Statistics",
+        compute="_compute_all_drivers_stats"
+    )
+
     @api.depends()
     def _compute_totals_trip_month(self):
         Trip = self.env['trucking_planning.trip']
@@ -137,3 +142,45 @@ class TruckingDashboard(models.Model):
                 lines = [f"{r['truck']} - {r['driver']}: {r['total']} trips" for r in rows]
                 rec.top_truck_driver = "\n".join(lines)
 
+    @api.depends('filter_month', 'filter_year')
+    def _compute_all_drivers_stats(self):
+        for rec in self:
+            start_date, end_date = rec._get_date_range()
+            self.env.cr.execute("""
+                    SELECT 
+                        d.name AS driver,
+                        f.name AS truck,
+                        COUNT(t.id) AS total_trips,
+                        COALESCE(SUM(t.fuel_liters), 0) AS total_fuel
+                    FROM trucking_planning_trip t
+                    LEFT JOIN fleet_vehicle f ON f.id = t.truck_id
+                    LEFT JOIN res_partner d ON d.id = t.driver_id
+                    WHERE t.status != 'cancelled'
+                        AND t.plan_date >= %s
+                        AND t.plan_date < %s
+                        AND d.id IS NOT NULL
+                    GROUP BY d.name, f.name
+                    ORDER BY total_trips DESC, d.name
+                """, (start_date, end_date))
+
+            rows = self.env.cr.dictfetchall()
+
+            if not rows:
+                rec.all_drivers_stats = "Không có dữ liệu."
+            else:
+                total_trips_sum = sum(r['total_trips'] for r in rows)
+                total_fuel_sum = sum(r['total_fuel'] for r in rows)
+
+                lines = []
+                for r in rows:
+                    driver = r['driver'] or 'N/A'
+                    truck = r['truck'] or 'N/A'
+                    trips = r['total_trips']
+                    fuel = r['total_fuel']
+
+                    line = f"{driver} - {truck}: {trips} chuyến, {fuel:.1f} lít"
+                    lines.append(line)
+
+                footer = f"\nTỔNG CỘNG: {total_trips_sum} chuyến, {total_fuel_sum:.1f} lít"
+
+                rec.all_drivers_stats = "\n".join(lines) + footer

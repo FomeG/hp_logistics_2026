@@ -75,6 +75,24 @@
                                        options="{'style': 'font-family: monospace; white-space: pre;'}"/>
                             </group>
                         </page>
+                        <page string="Tất cả Tài xế" name="all_drivers">
+                            <group string="Thống kê chi tiết tất cả Tài xế">
+                                <field name="all_drivers_stats"
+                                       nolabel="1"
+                                       readonly="1"
+                                       widget="text"
+                                       options="{'style': 'font-family: monospace; white-space: pre; font-size: 13px;'}"/>
+                            </group>
+                            <div class="alert alert-info mt-3" role="alert">
+                                <strong>Lưu ý:</strong>
+                                <ul>
+                                    <li>Bảng thống kê hiển thị tất cả tài xế đã thực hiện chuyến trong kỳ</li>
+                                    <li>Số chuyến: Tổng số chuyến không bao gồm chuyến bị hủy</li>
+                                    <li>Lít dầu: Tổng lượng nhiên liệu được tính cho các chuyến</li>
+                                    <li>Dữ liệu được sắp xếp theo số chuyến giảm dần</li>
+                                </ul>
+                            </div>
+                        </page>
                     </notebook>
 
                 </sheet>
