@@ -26,10 +26,13 @@ class DepartmentService:
     def get_sale_department_leader(self):
         return self._get_department_leader_by_type(HpDepartmentInherit.TYPE_SALE)
 
-    def get_user_by_department_type(self, department_type):
-        employees = self.env['hr.employee'].sudo().search([
+    def get_user_by_department_type(self, department_type, branch_id=False):
+        domain = [
             ('department_id.department_type_id.code', '=', department_type),
             ('user_id', '!=', False),
-        ])
+        ]
 
-        return employees.mapped('user_id')
+        if branch_id:
+            domain.append(('department_id.branch_id', '=', branch_id))
+
+        return self.env['hr.employee'].sudo().search(domain).mapped('user_id')

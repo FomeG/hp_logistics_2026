@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="action_import_client_wizard" model="ir.actions.act_window">
+        <field name="name">Import Client</field>
+        <field name="res_model">sale.import_client_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="hp_sale.view_import_client_wizard_form" />
+        <field name="context">{'default_action_type': 'trucking'}</field>
+    </record>
+
+</odoo>

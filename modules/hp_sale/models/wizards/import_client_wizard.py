@@ -27,14 +27,15 @@ class ImportClientWizard(models.TransientModel):
     file_name = fields.Char(string='File Name')
     sheet_name = fields.Char(string='Sheet Name',help='Select the Excel sheet to import')
     available_sheets = fields.Text(string='Available Sheets', readonly=True)
+    action_type = fields.Selection([
+        (DepartmentService.DEPARTMENT_TYPE_SALE, 'Sale'),
+        (DepartmentService.DEPARTMENT_TYPE_TRUCKING, 'Trucking')
+    ], string='Action Type')
 
-    def _get_trucking_users(self):
-        return DepartmentService(self.env).get_user_by_department_type(DepartmentService.DEPARTMENT_TYPE_TRUCKING)
-
-    @api.depends('branch_id')
+    @api.depends('branch_id', 'action_type')
     def _compute_allowed_user_ids(self):
         for wizard in self:
-            wizard.allowed_user_ids = wizard._get_trucking_users()
+            wizard.allowed_user_ids = DepartmentService(self.env).get_user_by_department_type(self.action_type, self.branch_id.id)
 
     @api.onchange('branch_id')
     def _onchange_branch_id(self):
@@ -134,6 +135,7 @@ class ImportClientWizard(models.TransientModel):
         return result
 
     def _create_clients(self, data_array):
+        trucking_branch = self.env['trucking_planning.branch'].search([('code', '=', self.branch_id.code)], limit=1)
         Client = self.env['res.partner.client']
         tax_numbers = [data['vat'] for data in data_array]
         refs = [data['ref'] for data in data_array]
@@ -156,23 +158,23 @@ class ImportClientWizard(models.TransientModel):
             if vat in existing_vats and vat not in existing_clients_map:
                 skipped_vats.append(vat)
                 continue
+
             partner_service = PartnerService(self.env)
             partner_main_type = partner_service.get_partner_main_type_client()
             vals.update({
                 'partner_main_type_id': partner_main_type.id,
                 'branch_id': self.branch_id.id,
-                'assign_trucking_manager_id': self.assign_user_id.id,
+                'user_id':  self.assign_user_id.id if self.action_type == DepartmentService.DEPARTMENT_TYPE_SALE else False,
+                'trucking_branch_id': trucking_branch.id if trucking_branch else False,
+                'assign_trucking_manager_id': self.assign_user_id.id if self.action_type == DepartmentService.DEPARTMENT_TYPE_TRUCKING else False,
             })
 
-            existing_client = existing_clients_map.get(vat)
+            existing_client = existing_clients_map.get(vat) or Client.search([('ref', '=', ref)], limit=1)
             if existing_client:
                 clients_to_update.append((existing_client, vals))
             else:
-                existing_client = Client.search([('ref', '=', ref)], limit=1)
-                if existing_client:
-                    clients_to_update.append((existing_client, vals))
-                else:
-                    clients_to_create.append(vals)
+                clients_to_create.append(vals)
+                   
 
         imported_count = 0
         updated_count = 0
@@ -184,6 +186,14 @@ class ImportClientWizard(models.TransientModel):
 
         if clients_to_update:
             for existing_client, vals in clients_to_update:
+                if self.action_type == DepartmentService.DEPARTMENT_TYPE_TRUCKING:
+                    vals.pop('user_id')
+                
+                if self.action_type == DepartmentService.DEPARTMENT_TYPE_SALE:
+                    vals.pop('assign_trucking_manager_id')
+                    if existing_client.user_id:
+                        vals.pop('user_id')
+
                 existing_client.write(vals)
             updated_count = len(clients_to_update)
 

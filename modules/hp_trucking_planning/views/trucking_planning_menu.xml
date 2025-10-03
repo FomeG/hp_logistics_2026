@@ -105,5 +105,11 @@
                   action="action_import_route_wizard"
                   sequence="30"
         />
+        <menuitem id="menu_import_client"
+            name="Import Client"
+            parent="menu_trucking_import_tools"
+            action="action_import_client_wizard"
+            sequence="40"
+        />
     </data>
 </odoo>
