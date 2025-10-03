@@ -72,10 +72,11 @@
                             <field name="code" required="1"/>
                             <field name="client_id"
                                 context="{
+                                    'form_view_ref': 'hp_trucking_planning.view_client_form',
                                     'list_view_ref': 'hp_trucking_planning.view_client_tree',
                                     'search_view_ref': 'hp_trucking_planning.view_client_search',                    
                                 }"
-                                options="{'no_create': True, 'no_edit': True}"
+                                options="{'no_quick_create': True}"
                                 widget="many2one_new_tab" />
                             <field name="tax_number" readonly="1"/>
                             <field name="status"/>
