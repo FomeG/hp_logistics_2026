@@ -213,12 +213,10 @@ class PlanLine(models.Model):
     # declaration_number = fields.Char(string="Số tờ khai")
     # price_code = fields.Char(string="Mã bảng giá")
 
-
-    @api.depends('trip_ids')
+    @api.depends('trip_ids.active')
     def _compute_truck_count(self):
-        """Compute the number of trucks (trips) for this customer"""
         for record in self:
-            record.truck_count = len(record.trip_ids)
+            record.truck_count = len(record.trip_ids.filtered(lambda t: t.active))
 
     @api.depends('plan_type', 'route_id')
     def _compute_actual_locations(self):
