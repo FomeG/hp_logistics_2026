@@ -302,6 +302,22 @@ class Trip(models.Model):
         default=True,
         help='Uncheck this to archive the trip instead of deleting it'
     )
+    is_external_vehicle = fields.Boolean(
+        string="Rented Vehicle",
+        default=False,
+        tracking=True,
+    )
+
+    is_combined_vehicle = fields.Boolean(
+        string="Combined Vehicle",
+        default=False,
+        tracking=True,
+    )
+
+    special_note = fields.Text(
+        string="Special note for external/combined vehicle",
+        help="Special notes when using rented or combined vehicles",
+    )
 
     def toggle_active(self):
         for trip in self:

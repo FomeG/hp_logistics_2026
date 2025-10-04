@@ -36,6 +36,8 @@
                 <field name="driver_id"/>
                 <field name="trailer_id"/>
                 <field name="weight_class"/>
+                <field name="is_external_vehicle" widget="boolean_toggle"/>
+                <field name="is_combined_vehicle" widget="boolean_toggle"/>
                 <field name="freeway"/>
                 <field name="is_current" widget="boolean_toggle"/>
                 <field name="fuel_liters"/>
@@ -161,6 +163,11 @@
                         <field name="trailer_id"/>
                         <field name="weight_class"/>
                         <field name="freeway"/>
+                        <field name="is_external_vehicle" widget="boolean_toggle" string="External Vehicle (Xe Ngoài)"/>
+                        <field name="is_combined_vehicle" widget="boolean_toggle" string="Combined Vehicle (Xe Kết Hợp)"/>
+                        <field name="special_note"
+                               invisible="not is_external_vehicle and not is_combined_vehicle"
+                               placeholder="Enter special notes for rented or combined vehicles..."/>
                     </group>
                     <group string ="Container Information">
                         <field name="container_number"/>
