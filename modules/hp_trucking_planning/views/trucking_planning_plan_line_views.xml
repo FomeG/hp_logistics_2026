@@ -20,6 +20,9 @@
                     <field name="status"/>
                     <field name="plan_type" string="Direction"/>
                     <field name="route_id"/>
+                    <field name="container_summary" string="Container Type/Size"/>
+                    <field name="container_number_summary" string="Cont Number"/>
+                    <field name="weight_class_summary" string="Weight Class"/>
                     <field name="actual_source_location_id"/>
                     <field name="actual_destination_location_id"/>
                     <field name="estimate_time_departure" string="Estimate Time Departure"/>
@@ -29,6 +32,10 @@
                     <field name="goods_name"/>
                     <field name="goods_weight"/>
                     <field name="truck_count" string="Trucks" widget="integer"/>
+                    <field name="assigned_trucks" string="Assigned Trucks"/>
+                    <field name="unassigned_trucks" string="Unassigned Trucks"/>
+                    <field name="external_vehicles" string="External Vehicles"/>
+                    <field name="combined_vehicles" string="Combined Vehicles"/>
                     <button name="action_export_plan_line_excel" 
                             string="Export Excel" 
                             type="object" 

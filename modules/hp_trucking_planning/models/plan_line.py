@@ -125,6 +125,84 @@ class PlanLine(models.Model):
         help="Location where goods will be delivered (Export) or picked up (Import)"
     )
 
+    combined_vehicles = fields.Integer(
+        string="Combined Vehicles",
+        computed='_compute_vehicle_count',
+        store=False,
+        help="Number of combined vehicles"
+    )
+    external_vehicles = fields.Integer(
+        string="External Vehicles",
+        compute='_compute_vehicle_counts',
+        store=False,
+        help="Number of external vehicles in this job"
+    )
+
+    assigned_trucks = fields.Integer(
+        string="Assigned Trucks",
+        compute='_compute_vehicle_counts',
+        store=False,
+        help="Number of trips with assigned trucks"
+    )
+
+    unassigned_trucks = fields.Integer(
+        string="Unassigned Trucks",
+        compute='_compute_vehicle_counts',
+        store=False,
+        help="Number of trips without assigned trucks"
+    )
+
+    container_summary = fields.Char(
+        string="Container Summary",
+        compute='_compute_container_summary',
+        store=False
+    )
+
+    container_number_summary = fields.Char(
+        string="Container Numbers (Số Cont)",
+        compute='_compute_container_number_summary',
+        store=False,
+        help="Comma-separated container numbers from trips"
+    )
+
+    weight_class_summary = fields.Char(
+        string="Weight Class",
+        compute='_compute_weight_class_summary',
+        store=False,
+        help="Comma-separated weight classes from trips"
+    )
+
+    @api.depends('trip_ids.container_number')
+    def _compute_container_number_summary(self):
+        for record in self:
+            trips = record.trip_ids.filtered(lambda t: t.active and t.container_number)
+            numbers = ', '.join(sorted(set(trips.mapped('container_number')))) if trips else 'N/A'
+            record.container_number_summary = numbers
+
+    @api.depends('trip_ids.weight_class')
+    def _compute_weight_class_summary(self):
+        for record in self:
+            trips = record.trip_ids.filtered(lambda t: t.active and t.weight_class)
+            classes = ', '.join(sorted(set(trips.mapped('weight_class')))) if trips else 'N/A'
+            record.weight_class_summary = classes
+
+    @api.depends('trip_ids.container_type', 'trip_ids.container_size')
+    def _compute_container_summary(self):
+        for record in self:
+            trips = record.trip_ids.filtered(lambda t: t.active)
+            types = ', '.join(trips.mapped('container_type')) if trips.mapped('container_type') else 'N/A'
+            sizes = ', '.join(trips.mapped('container_size')) if trips.mapped('container_size') else 'N/A'
+            record.container_summary = f"{types} ({sizes})"
+
+    @api.depends('trip_ids.is_combined_vehicle', 'trip_ids.is_external_vehicle', 'trip_ids.truck_id', 'trip_ids.active')
+    def _compute_vehicle_counts(self):
+        for record in self:
+            trips = record.trip_ids.filtered(lambda t: t.active)
+            record.combined_vehicles = len(trips.filtered(lambda t: t.is_combined_vehicle))
+            record.external_vehicles = len(trips.filtered(lambda t: t.is_external_vehicle))
+            record.assigned_trucks = len(trips.filtered(lambda t: t.truck_id))
+            record.unassigned_trucks = len(trips) - record.assigned_trucks
+
     @api.constrains('code')
     def _check_unique_job_number(self):
         for record in self:
