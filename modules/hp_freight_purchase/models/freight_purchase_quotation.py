@@ -23,6 +23,12 @@ class FreightPurchaseQuotation(models.Model):
         required=True,
         tracking=True
     )
+    route_transit_id = fields.Many2one(
+        'freight.purchase.route',
+        required=True,
+        tracking=True,
+        string = "Route transit"
+    )
     pol_id = fields.Many2one(
         related='route_id.pol_id',
         string='POL',

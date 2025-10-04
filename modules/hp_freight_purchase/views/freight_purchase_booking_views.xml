@@ -29,6 +29,7 @@
                         </group>
                         <group invisible="not id and booking_mode == 'without_quotation'" >
                             <field name="route_id" widget="many2one_new_tab" />
+                            <field name="route_transit_id"/>
                             <field name="shipping_line_id" widget="many2one_new_tab"  />
                         </group>
 
