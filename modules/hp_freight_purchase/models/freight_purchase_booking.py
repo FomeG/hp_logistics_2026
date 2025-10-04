@@ -52,6 +52,11 @@ class FreightPurchaseBooking(models.Model):
         related='quotation_id.route_id',
         store=True
     )
+    route_transit_id = fields.Many2one(
+        'freight.purchase.route',
+        related = 'quotation_id.route_transit_id',
+        string = "Route transit"
+    )
     pol_id = fields.Many2one(
         related='route_id.pol_id',
         store=True

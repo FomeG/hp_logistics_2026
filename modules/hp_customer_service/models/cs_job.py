@@ -35,6 +35,15 @@ class CSJob(models.Model):
         string="Shipping Line",
         related='booking_id.shipping_line_id'
     )
+    container_ids = fields.One2many(
+        'cs.job.container',
+        'job_id',
+        string="Shipping Line",
+    )
+    vessel_transit = fields.Many2one(
+        'freight.purchase.vessel',
+        string="Vessel transit",
+    )
     vessel = fields.Many2one(
         'freight.purchase.vessel',
         string="Vessel",
@@ -67,6 +76,14 @@ class CSJob(models.Model):
         string="Numbers of Container",
         related = 'booking_line_id.quantity'
     )
+    container_type_id = fields.Many2one(
+        'container.type',
+        string="Container Type",
+        related='booking_line_id.container_type_id',
+        store=True
+    )
+    container_summary = fields.Char(string="Numbers of Container", compute="_compute_container_summary")
+
     port_transit = fields.Char(string="Port of Transit")
     pre_carriage_by = fields.Char(string="Pre-Carriage By")
     commodity = fields.Char(string="Commodity")
@@ -78,6 +95,7 @@ class CSJob(models.Model):
         default='hbl'
     )
     etd = fields.Date(related="booking_id.etd", store=True)
+    mother_etd = fields.Date(string="Mother Vessel ETD")
     eta = fields.Datetime(string="ETA")
     customer_id = fields.Many2one('res.partner', related='booking_line_id.customer_id', string='Customer')
     salesman_id = fields.Many2one('res.users', related='booking_line_id.salesman_id', string='Salesperson')
@@ -96,6 +114,43 @@ class CSJob(models.Model):
     mbl_number = fields.Char(string="Master B/L Number")
     hbl_number = fields.Char(string="House B/L Number")
 
+    stuffed_containers = fields.Integer(
+        string="Stuffed Containers",
+        compute="_compute_container_progress",
+        store=False
+    )
+
+    total_containers = fields.Integer(
+        string="Total Containers",
+        compute="_compute_container_progress",
+        store=False
+    )
+
+    container_progress = fields.Char(
+        string="Container Progress",
+        compute="_compute_container_progress",
+        store=False
+    )
+
+    @api.depends('container_ids', 'container_ids.status', 'booking_line_id.quantity')
+    def _compute_container_progress(self):
+        for job in self:
+            total_planned = job.booking_line_id.quantity or 0
+
+            # Lấy tất cả Job khác dùng cùng Booking Line
+            related_jobs = self.env['cs.job'].search([
+                ('booking_line_id', '=', job.booking_line_id.id)
+            ])
+
+            # Đếm container đã có trong tất cả job liên quan
+            stuffed = sum(len(j.container_ids.filtered(
+                lambda c: c.status in ['stuffing', 'loaded', 'completed']
+            )) for j in related_jobs)
+
+            job.stuffed_containers = stuffed
+            job.total_containers = total_planned
+            job.container_progress = f"{stuffed}/{total_planned}"
+
     # company_account= fields.Selection(
     #     selection=lambda self: self._get_bank_selection('company'),
     #     string="Company Bank Account",
@@ -104,6 +159,18 @@ class CSJob(models.Model):
     #     selection=lambda self: self._get_bank_selection('personal'),
     #     string="Personal Bank Account",
     # )
+    @api.depends('quantity', 'container_type_id')
+    def _compute_container_summary(self):
+        for rec in self:
+            if rec.quantity and rec.container_type_id:
+                rec.container_summary = f"{rec.quantity} x {rec.container_type_id.name}"
+            else:
+                rec.container_summary = "-"
+    @api.onchange('booking_id')
+    def _onchange_booking_id(self):
+        if self.booking_id:
+            self.port_transit = self.booking_id.route_transit_id.name or ''
+
     @api.model
     def create(self, vals):
         if not vals.get('job_number'):
@@ -127,3 +194,21 @@ class CSJob(models.Model):
     #         except Exception:
     #             pass
     #     return banks
+    @api.onchange('booking_line_id')
+    def _onchange_booking_line_id_generate_containers(self):
+        if self.booking_line_id:
+            # Xóa container cũ nếu muốn reset
+            self.container_ids = [(5, 0, 0)]
+
+            # Lấy số lượng container của Booking Line
+            total_qty = self.booking_line_id.quantity or 0
+            container_type = self.booking_line_id.container_type_id
+
+            # Tạo các container line tự động
+            containers = []
+            for i in range(total_qty):
+                containers.append((0, 0, {
+                    'container_type_id': container_type.id,
+                    'status': 'pending',
+                }))
+            self.container_ids = containers

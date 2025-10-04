@@ -16,6 +16,7 @@
                 <field name="service_type"/>
                 <field name="shipping_line_id"/>
                 <field name="vessel"/>
+                <field name="vessel_transit"/>
                 <field name="voyage"/>
                 <field name="port_loading"/>
                 <field name="port_discharge"/>
@@ -49,6 +50,7 @@
     <!-- Nhóm nhiều cột -->
     <group>
         <field name="vessel"/>
+        <field name="vessel_transit"/>
         <field name="voyage"/>
         <field name="service_type"/>
         <field name="department_code"/>
@@ -70,10 +72,12 @@
 
     <group>
         <field name="etd"/>
+        <field name="mother_etd"/>
         <field name="eta"/>
         <field name="salesman_id"/>
         <field name="customer_id"/>
-        <field name="quantity"/>
+        <field name="container_summary"/>
+        <field name="container_progress"/>
 <!--        <field name="company_account"/>-->
 <!--        <field name="personal_account"/>-->
 
@@ -95,6 +99,30 @@
             </list>
         </field>
     </page>
+   <page string="Container Details">
+    <field name="container_ids">
+        <list editable="bottom">
+            <field name="container_number"/>
+            <field name="container_type_id"/>
+            <field name="seal_number"/>
+            <field name="gross_weight"/>
+            <field name="net_weight"/>
+            <field name="description"/>
+            <field name="package_type"/>
+            <field name="uom_id"/>
+            <field name="quantity"/>
+            <field name="unit_price"/>
+            <field name="volume_cbm"/>
+            <field name="pickup_instruction"/>
+            <field name="pickup_address" string="Pickup address"/>
+            <field name="pickup_date" string="Pickup date"/>
+            <field name="status" string="status"/>
+            <field name="booking_line_id" string="booking_line_id"/>
+
+        </list>
+    </field>
+</page>
+
 </notebook>
 
 </sheet>
