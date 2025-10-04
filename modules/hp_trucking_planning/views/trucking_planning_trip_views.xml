@@ -230,7 +230,7 @@
                 <filter string="Current GPS Trip" name="current_gps" domain="[('is_current', '=', True)]"/>
                 <filter string="Not Cancelled" name="not_cancelled" domain="[('status', '!=', 'cancelled')]" />
                 <filter string="⚠️ Nearing ETA" name="nearing_eta" domain="[('is_eta_near', '=', True)]" />
-
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
                 <group expand="0" string="Group By">
                     <filter string="Job" name="group_by_plan_line" context="{'group_by':'plan_line_id'}"/>
                     <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>

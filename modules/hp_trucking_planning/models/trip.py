@@ -297,6 +297,18 @@ class Trip(models.Model):
         order='create_date desc'
     )
 
+    active = fields.Boolean(
+        string='Active',
+        default=True,
+        help='Uncheck this to archive the trip instead of deleting it'
+    )
+
+    def toggle_active(self):
+        for trip in self:
+            if trip.status not in ['draft', 'cancelled']:
+                raise UserError("You only deleted trips when status is draft or cancelled'.")
+        return super(Trip, self).toggle_active()
+
     @api.depends('vehicle_assignment_log_id.vehicle_id')
     def _compute_truck_id(self):
         for rec in self:
@@ -346,6 +358,7 @@ class Trip(models.Model):
 
         domain = [
             ("id", "!=", self.id),
+            ("active", "=", True),
             ("vehicle_assignment_log_id", "=", vehicle_assignment_log.id),
             ("plan_estimate_time_departure", "<=", self.plan_estimate_time_arrival),
             ("plan_estimate_time_arrival", ">=", self.plan_estimate_time_departure),
