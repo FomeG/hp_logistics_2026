@@ -5,5 +5,6 @@ class ResPartner(models.Model):
 
     branch_id = fields.Many2one(
         comodel_name='hr.branch',
+        string='Sales Branch',
         index=True,
     )
