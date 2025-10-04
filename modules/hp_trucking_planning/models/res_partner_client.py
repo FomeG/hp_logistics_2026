@@ -23,7 +23,7 @@ class ResPartnerClient(models.Model):
     trucking_branch_id = fields.Many2one(
         comodel_name='trucking_planning.branch',
         index=True,
-        string='Branch',
+        string='Trucking Branch',
         default=lambda self: self.env.user.branch_ids[:1].id,
     )
 
