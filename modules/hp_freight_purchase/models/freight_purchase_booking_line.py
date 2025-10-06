@@ -90,13 +90,13 @@ class FreightPurchaseBookingLine(models.Model):
         store=False
     )
 
-    @api.depends('quotation_line_id')
+    @api.depends('customer_id', 'container_type_id', 'quantity')
     def _compute_name(self):
-        for record in self:
-            if record.quotation_line_id:
-                record.name = f"Booking line of: {record.quotation_line_id.name}"
-            else:
-                record.name = ''
+        for rec in self:
+            customer = rec.customer_id.name or 'N/A'
+            container = rec.container_type_id.name or ''
+            qty = rec.quantity or 1
+            rec.name = f"{customer} - {container} x {qty}"
 
     @api.depends('remind_id.without_booking_line_ids')
     def _compute_remind_enabled(self):
