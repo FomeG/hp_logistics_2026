@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="hr_work_shift_tree_view" model="ir.ui.view">
+        <field name="name">hr.work.shift.tree</field>
+        <field name="model">hr.work.shift</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name" />
+                <field name="shift_type" />
+                <field name="display_time" />
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_work_shift_form" model="ir.ui.view">
+        <field name="name">hr.work.shift.form</field>
+        <field name="model">hr.work.shift</field>
+        <field name="arch" type="xml">
+            <form string="Work Shift">
+                <sheet>
+                    <group>
+                        <field name="name" />
+                        <field name="shift_type" />
+                    </group>
+
+                    <!-- Fixed shift -->
+                    <group invisible="shift_type != 'fixed'">
+                        <field name="fixed_start_time" widget="float_time" />
+                        <field name="fixed_end_time" widget="float_time" />
+                    </group>
+
+                    <!-- Flexible shift -->
+                    <group invisible="shift_type != 'flexible'">
+                        <field name="flexible_start_from" widget="float_time" />
+                        <field name="flexible_start_to" widget="float_time" />
+                        <field name="flexible_end_time" widget="float_time" />
+                    </group>
+
+                    <field name="display_time" readonly="1" />
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="hr_work_shift_action" model="ir.actions.act_window">
+        <field name="name">Work Shift</field>
+        <field name="res_model">hr.work.shift</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

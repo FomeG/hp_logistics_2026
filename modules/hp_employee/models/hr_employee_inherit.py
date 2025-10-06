@@ -1,10 +1,17 @@
 from odoo import models, api, fields, _
+from ...hp_components.models import constants
 from odoo.exceptions import ValidationError, UserError
 
 class HrEmployeeInherit(models.Model):
     _inherit = 'hr.employee'
 
     dept_manager_id = fields.Many2one('hr.employee', compute='_compute_manager_id', store=False)
+
+    work_shift_id = fields.Many2one(
+        comodel_name="hr.work.shift",
+        string="Work Shift",
+        default=lambda self: self.env['hr.work.shift'].search([('shift_type', '=', constants.WorkShiftType.FIXED)], limit=1)
+    )
 
     @api.depends('department_id')
     def _compute_manager_id(self):

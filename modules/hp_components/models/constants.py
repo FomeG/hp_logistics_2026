@@ -18,3 +18,7 @@ class VehicleTag:
 class PartnerMainTypeCode:
     DRIVER = 'driver'
     CLIENT = 'client'
+
+class WorkShiftType:
+    FIXED = 'fixed'
+    FLEXIBLE = 'flexible'

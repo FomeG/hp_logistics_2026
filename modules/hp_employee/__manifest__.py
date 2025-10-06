@@ -24,6 +24,7 @@ HP Employee App
         'views/hr_employee_form_views.xml',
         'views/cs_department_type_views.xml',
         'views/hr_branch_views.xml',
+        'views/hp_work_shift_views.xml',
         'views/menu.xml',
 
     ],

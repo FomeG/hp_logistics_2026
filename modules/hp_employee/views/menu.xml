@@ -15,5 +15,13 @@
             action="hr_branch_action"
             groups="base.group_system"
             sequence="10" />
+        
+        <menuitem
+            id="menu_hp_work_shift"
+            name="Work Shift"
+            action="hr_work_shift_action"
+            parent="hr.menu_config_employee"
+            sequence="11"
+            groups="hr.group_hr_user" />
     </data>
 </odoo>
