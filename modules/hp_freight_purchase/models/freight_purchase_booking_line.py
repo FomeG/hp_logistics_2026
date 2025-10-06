@@ -3,6 +3,7 @@ from odoo import models, fields, api, exceptions, _
 from ..services.freight_purchase_booking_inventory_service import FreightPurchaseBookingInventoryService
 from ..services.freight_purchase_booking_line_service import FreightPurchaseBookingLineService
 from odoo.exceptions import UserError
+from odoo.exceptions import ValidationError
 
 class FreightPurchaseBookingLine(models.Model):
     _name = 'freight.purchase.booking.line'
@@ -93,9 +94,13 @@ class FreightPurchaseBookingLine(models.Model):
     @api.depends('customer_id', 'container_type_id', 'quantity')
     def _compute_name(self):
         for rec in self:
+            if not rec.container_type_id:
+                raise ValidationError(f"Booking Line {rec.id} is invalid: container is required.")
+            if not rec.quantity or rec.quantity <= 0:
+                raise ValidationError(f"Booking Line {rec.id} is invalid: quantity must be greater than 0.")
             customer = rec.customer_id.name or 'N/A'
-            container = rec.container_type_id.name or ''
-            qty = rec.quantity or 1
+            container = rec.container_type_id.name
+            qty = rec.quantity
             rec.name = f"{customer} - {container} x {qty}"
 
     @api.depends('remind_id.without_booking_line_ids')
