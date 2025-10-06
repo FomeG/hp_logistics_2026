@@ -112,7 +112,7 @@ class ZaloGPSWebhookController(http.Controller):
 
             # Find current trip for this driver
             trip = request.env['trucking_planning.trip'].sudo().search([
-                ('driver_id', '=', driver.id),
+                ('driver_id', '=', driver.partner_id.id),
                 ('is_current', '=', True),
                 ('status', 'not in', ['cancelled', 'done'])
             ], limit=1)
@@ -147,7 +147,7 @@ class ZaloGPSWebhookController(http.Controller):
                     'message': f'GPS location recorded successfully for trip {trip.code or trip.id}',
                     'checkpoint_id': checkpoint.id,
                     'trip_id': trip.id,
-                    'driver_id': driver.id,
+                    'driver_id': driver.partner_id.id,
                     'trip_code': trip.code or f'Trip {trip.id}',
                     'driver_name': driver.name
                 }),
