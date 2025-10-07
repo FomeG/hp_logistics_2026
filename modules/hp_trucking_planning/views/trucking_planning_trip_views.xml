@@ -153,18 +153,22 @@
                         <field name="status"/>
                     </group>
                     <group string="Vehicle Information">
+                        <field name="is_external_vehicle" widget="boolean_toggle" string="External Vehicle (Xe Ngoài)"/>
+                        <field name="is_combined_vehicle" widget="boolean_toggle" string="Combined Vehicle (Xe Kết Hợp)"/>
                         <button name="action_open_vehicle_driver_pair_popup"
                             type="object"
                             string="Assign Driver - Vehicle"
-                            class="oe_highlight"/>
+                            class="oe_highlight"
+                            invisible="is_external_vehicle"/>
                         <field name="vehicle_assignment_log_id" options="{'no_create': True, 'no_create_edit': True}" invisible="True"/>
-                        <field name="truck_id"/>
-                        <field name="driver_id"/>
-                        <field name="trailer_id"/>
+                        <field name="truck_id"
+                               invisible="is_external_vehicle"/>
+                        <field name="driver_id"
+                               invisible="is_external_vehicle"/>
+                        <field name="trailer_id"
+                               invisible="is_external_vehicle"/>
                         <field name="weight_class"/>
                         <field name="freeway"/>
-                        <field name="is_external_vehicle" widget="boolean_toggle" string="External Vehicle (Xe Ngoài)"/>
-                        <field name="is_combined_vehicle" widget="boolean_toggle" string="Combined Vehicle (Xe Kết Hợp)"/>
                         <field name="special_note"
                                invisible="not is_external_vehicle and not is_combined_vehicle"
                                placeholder="Enter special notes for rented or combined vehicles..."/>
