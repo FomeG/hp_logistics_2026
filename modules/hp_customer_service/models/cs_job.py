@@ -57,7 +57,7 @@ class CSJob(models.Model):
         'freight.purchase.booking.line',
         string="Booking Line (Customer)",
         domain="[('booking_id', '=', booking_id)]",  # lọc chỉ các line thuộc booking đang chọn
-        required=True
+        # required=True
     )
 
     port_loading = fields.Many2one(
