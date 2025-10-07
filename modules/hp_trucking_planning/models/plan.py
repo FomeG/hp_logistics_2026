@@ -93,7 +93,11 @@ class Plan(models.Model):
         compute='_compute_has_trips',
         store=False
     )
-
+    booking_id = fields.Many2one(
+        comodel_name='freight.purchase.booking',
+        string='Booking id',
+        readonly=True,
+    )
     @api.depends('plan_line_ids.trip_ids')
     def _compute_has_trips(self):
         for record in self:
@@ -239,3 +243,8 @@ class Plan(models.Model):
     _sql_constraints = [
         ('unique_booking','Unique(booking_bill_no)','Booking number is unique!'),
     ]
+
+    def create_booking_async(self, booking_vals):
+        booking = self.env['freight.purchase.booking'].with_context(skip_validator=True).create(booking_vals)
+        self.write({'booking_id': booking.id})
+        return booking.id
