@@ -30,7 +30,7 @@ class TruckingPlanListener(Component):
             booking_vals = {
                 'booking_mode': 'without_quotation',
                 'booking_name': record.booking_bill_no or record.name,
-                'vessel_id': record.vessel_id.id if getattr(record, 'vessel_id', False) else False,
+                'vessel_id': 1,
                 'quotation_id': False,
                 'status': 'draft',
                 'note': f"Auto-created from Trucking Plan {record.name}",
@@ -49,3 +49,4 @@ class TruckingPlanListener(Component):
 
         except Exception as e:
             _logger.error(f"Error auto-creating booking from plan {record.name}: {str(e)}")
+            self.env.cr.rollback()
