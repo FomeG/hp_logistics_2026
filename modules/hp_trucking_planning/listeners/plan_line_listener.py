@@ -32,3 +32,4 @@ class PlanLineListener(Component):
             record.message_post(body=f"CS Job <b>{job.job_number}</b> was auto-created from this plan line.")
         except Exception as e:
             _logger.error(f"Error auto-creating CS Job from plan line {record.code}: {str(e)}")
+            self.env.cr.rollback()

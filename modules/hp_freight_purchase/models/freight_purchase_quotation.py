@@ -25,7 +25,7 @@ class FreightPurchaseQuotation(models.Model):
     )
     route_transit_id = fields.Many2one(
         'freight.purchase.route',
-        required=True,
+        # required=True,
         tracking=True,
         string = "Route transit"
     )
