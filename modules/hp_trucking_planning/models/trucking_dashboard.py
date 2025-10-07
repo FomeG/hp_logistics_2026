@@ -54,7 +54,7 @@ class TruckingDashboard(models.Model):
         compute="_compute_all_drivers_stats"
     )
 
-    @api.depends()
+    @api.depends('filter_month', 'filter_year')
     def _compute_totals_trip_month(self):
         Trip = self.env['trucking_planning.trip']
 
@@ -121,20 +121,23 @@ class TruckingDashboard(models.Model):
 
         return start_date, end_date
 
-    @api.depends()
+    @api.depends('filter_month', 'filter_year')
     def _compute_top_truck_driver(self):
         """Top 5 xe - tài xế theo số chuyến"""
         for rec in self:
+            start_date, end_date = rec._get_date_range()
             self.env.cr.execute("""
                 SELECT f.name AS truck, d.name AS driver, COUNT(t.id) AS total
                 FROM trucking_planning_trip t
                 LEFT JOIN fleet_vehicle f ON f.id = t.truck_id
                 LEFT JOIN res_partner d ON d.id = t.driver_id
                 WHERE t.status != 'cancelled'
+                    AND t.plan_date >= %s
+                    AND t.plan_date < %s
                 GROUP BY f.name, d.name
                 ORDER BY total DESC
                 LIMIT 5
-            """)
+            """, (start_date, end_date))
             rows = self.env.cr.dictfetchall()
             if not rows:
                 rec.top_truck_driver = "No data available."

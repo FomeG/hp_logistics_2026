@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="trucking_dashboard_default" model="trucking.dashboard">
+        <field name="name">Dashboard</field>
+    </record>
+
     <record id="action_trip_analysis" model="ir.actions.act_window">
         <field name="name">Trip Analysis</field>
         <field name="res_model">trucking_planning.trip</field>
@@ -106,6 +110,7 @@
         <field name="res_model">trucking.dashboard</field>
         <field name="view_mode">form</field>
         <field name="target">current</field>
+        <field name="res_id" ref="trucking_dashboard_default"/>
         <field name="context">{'create': False, 'delete': False}</field>
     </record>
 
