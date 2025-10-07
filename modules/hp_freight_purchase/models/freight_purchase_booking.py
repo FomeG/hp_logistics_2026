@@ -130,10 +130,12 @@ class FreightPurchaseBooking(models.Model):
     @api.model_create_multi
     def create(self, vals_list: list[ValuesType]) -> Self:
         for vals in vals_list:
-            validated, errors = BookingCreateValidator.validate(vals, self.env)
-            if errors:
-                raise ValidationError("\n".join([f"• {e}" for e in errors]))
-        
+            # Skip validation if creating automatically
+            if not self.env.context.get('skip_validator'):
+                validated, errors = BookingCreateValidator.validate(vals, self.env)
+                if errors:
+                    raise ValidationError("\n".join([f"• {e}" for e in errors]))
+
             if vals.get('booking_mode') == 'without_quotation':
                 # If booking without quotation → create a quotation
                 quotation = self.env['freight.purchase.quotation'].create_from_booking_form(vals)
