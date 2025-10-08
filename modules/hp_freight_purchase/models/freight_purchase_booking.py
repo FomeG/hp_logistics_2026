@@ -224,7 +224,39 @@ class FreightPurchaseBooking(models.Model):
                                 f"No available inventory for container {container.name}. Please check the booking inventory."
                             )
                         else:
-                             raise ValidationError(f"Total quantity of container {container.name} must be less than or equal to {container_avaliable}.")
+                            raise ValidationError(f"Total quantity of container {container.name} must be less than or equal to {container_available}.")
+
+            if 'booking_inventory_ids' in vals and record.booking_mode == 'without_quotation' and record.quotation_id:
+                container_types = set()
+                for inv in vals.get('booking_inventory_ids', []):
+                    if inv[0] in (0, 1):  # Create or update
+                        data = inv[2]
+                        if data.get('action') in (FreightPurchaseBookingInventory.ACTION_IN, FreightPurchaseBookingInventory.ACTION_RETURN):
+                            container_types.add(data['container_type_id'])
+                        elif data.get('action') == FreightPurchaseBookingInventory.ACTION_OUT:
+                            # Skip if action is OUT, as it reduces inventory
+                            continue
+
+                # Sync with quotation lines
+                quotation = record.quotation_id
+                existing_lines = {line.container_type_id.id: line for line in quotation.line_ids}
+                new_lines = []
+                for container_id in container_types:
+                    if container_id not in existing_lines:
+                        # Create new quotation line for container type
+                        new_lines.append({
+                            'quotation_id': quotation.id,
+                            'container_type_id': container_id,
+                            'cost': 0.0,  # Default cost, can be updated later
+                            'price': 0.0,  # Default price, can be updated later
+                        })
+                if new_lines:
+                    self.env['freight.purchase.quotation.line'].create(new_lines)
+
+                # Remove quotation lines for container types no longer in inventory
+                for line in quotation.line_ids:
+                    if line.container_type_id.id not in container_types:
+                        line.unlink()
 
         return super().write(vals)
 

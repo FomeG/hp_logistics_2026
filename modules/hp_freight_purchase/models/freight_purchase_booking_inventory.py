@@ -1,8 +1,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from ..validators.booking_inventory_validator import BookingInventoryValidator
-import logging
-_logger = logging.getLogger(__name__)
+
 class FreightPurchaseBookingInventory(models.Model):
     _name = 'freight.purchase.booking.inventory'
     _description = 'Booking - Container Relation'
@@ -43,29 +42,8 @@ class FreightPurchaseBookingInventory(models.Model):
             validated, errors = BookingInventoryValidator.validate_create(vals, self.env)
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
-        records = super().create(vals_list)
-        for record in records:
-            booking = record.booking_id
-            if (
-                booking
-                and booking.booking_mode == 'without_quotation'
-                and booking.quotation_id
-            ):
-                quotation = booking.quotation_id
-                quotation_line_model = self.env['freight.purchase.quotation.line']
+        return super().create(vals_list)
 
-                quotation_line_model.create({
-                    'quotation_id': quotation.id,
-                    'container_type_id': record.container_type_id.id,
-                    'price':1,
-                    'cost': 2,
-                    # Có thể thêm các field khác nếu cần:
-                    # 'action': record.action,
-                    # 'booking_line_id': record.booking_line_id.id,
-                })
-                _logger.info(f"[AUTO] Created quotation line for container {record.container_type_id.display_name}")
-
-        return records
     @api.depends('booking_id.quotation_id.line_ids.container_type_id', 'booking_id.booking_mode')
     def _compute_allow_container_type_ids(self):
         for rec in self:
