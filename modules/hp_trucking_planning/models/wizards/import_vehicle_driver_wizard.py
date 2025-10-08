@@ -141,96 +141,127 @@ class ImportVehicleDriverWizard(models.TransientModel):
         skipped_rows = 0
 
         for index, row in df.iterrows():
-            # Skip rows with empty license plate (required for vehicle)
-            license_plate = str(row['Biển số']).strip() if pd.notna(row['Biển số']) else ''
-            if not license_plate:
-                skipped_rows += 1
-                continue
+            try:
+                # Skip rows with empty license plate (required for vehicle)
+                license_plate = str(row['Biển số']).strip() if pd.notna(row['Biển số']) else ''
+                if not license_plate:
+                    skipped_rows += 1
+                    continue
 
-            # Process Driver Data
-            driver_name = str(row['Họ tên lái xe']).strip() if pd.notna(row['Họ tên lái xe']) else ''
-            driver_phone = str(row['điện thoại']).strip() if pd.notna(row['điện thoại']) else ''
-            
-            driver_record = None
-            if driver_name and driver_phone:
-                partner_service = PartnerService(self.env)
-                partner_main_type_driver = partner_service.get_partner_main_type_driver()
-                # Check if driver exists by phone number (unique constraint)
-                existing_driver = driver_model.search([('phone', '=', driver_phone), ('partner_main_type_id', '=', partner_main_type_driver.id)], limit=1)
-                
-                # Generate unique temporary values
-                temp_suffix = driver_phone if driver_phone else f'TEMP_{index}'
-                driver_vals = {
-                    'partner_main_type_id': partner_main_type_driver.id,
-                    'name': driver_name,
-                    'phone': driver_phone,
-                    'ref': f'DUMMY_CCCD_{temp_suffix}',  # Temporary value, needs manual update
-                    'license_number': f'DUMMY_LICENSE_{temp_suffix}',  # Temporary value, needs manual update
-                }
-                
-                if existing_driver:
-                    existing_driver.write(driver_vals)
-                    driver_record = existing_driver
-                    updated_drivers += 1
-                else:
-                    driver_record = driver_model.create(driver_vals)
-                    imported_drivers += 1
+                # Clean license plate
+                license_plate = vehicle_model._clean_license_plate(license_plate)
 
-            # Process Vehicle Data
-            trailer_number = str(row['số mooc']).strip() if pd.notna(row['số mooc']) else ''
-            machine_type = str(row['loại máy']).strip() if pd.notna(row['loại máy']) else ''
-            
-            # Map machine type to engine type
-            engine_type = self._get_engine_type(machine_type)
-            
-            # Process Trailer first (if exists) so we can assign it to the truck
-            trailer_record = None
-            if trailer_number:
-                existing_trailer = vehicle_model.search([
-                    ('license_plate', '=', trailer_number),
-                    ('fake_category_type', '=', constants.VehicleModelCategory.TRAILER),
+                # Check if vehicle exists first
+                existing_vehicle = vehicle_model.search([
+                    ('license_plate', '=', license_plate),
+                    ('fake_category_type', '=', constants.VehicleModelCategory.TRUCK),
                 ], limit=1)
 
-                trailer_vals = {
-                    'license_plate': trailer_number,
-                    'fake_category_type': constants.VehicleModelCategory.TRAILER,
-                    'fake_engine_type': constants.VehicleEngineType.SMALL,  # Trailer doesn't need engine type
+                # Process Driver Data
+                driver_name = str(row['Họ tên lái xe']).strip() if pd.notna(row['Họ tên lái xe']) else ''
+                driver_phone = str(row['điện thoại']).strip() if pd.notna(row['điện thoại']) else ''
+
+                driver_record = None
+                if driver_name and driver_phone:
+                    partner_service = PartnerService(self.env)
+                    partner_main_type_driver = partner_service.get_partner_main_type_driver()
+                    # Check if driver exists by phone number (unique constraint)
+                    existing_driver = None
+                    if existing_vehicle and existing_vehicle.driver_id:
+                        existing_driver = driver_model.search([
+                            ('partner_id', '=', existing_vehicle.driver_id.id),
+                            ('partner_main_type_id', '=', partner_main_type_driver.id)
+                        ], limit=1)
+
+                    if not existing_driver:
+                        existing_driver = driver_model.search([('phone', '=', driver_phone),('partner_main_type_id', '=', partner_main_type_driver.id)], limit=1)
+
+                    # Generate unique temporary values
+                    temp_suffix = driver_phone if driver_phone else f'TEMP_{index}'
+                    driver_vals = {
+                        'partner_main_type_id': partner_main_type_driver.id,
+                        'name': driver_name,
+                        'phone': driver_phone,
+                        'ref': f'DUMMY_CCCD_{temp_suffix}',  # Temporary value, needs manual update
+                        'license_number': f'DUMMY_LICENSE_{temp_suffix}',  # Temporary value, needs manual update
+                    }
+
+                    if existing_driver:
+                        conflicting_driver = driver_model.search([
+                            ('phone', '=', driver_phone),
+                            ('id', '!=', existing_driver.id),
+                            ('partner_main_type_id', '=', partner_main_type_driver.id)
+                        ], limit=1)
+
+                        if conflicting_driver:
+                            _logger.warning(
+                                f"Phone {driver_phone} already used by another driver. Skipping driver update for vehicle {license_plate}")
+                            driver_record = existing_driver
+                            updated_drivers += 1
+                        else:
+                            existing_driver.write(driver_vals)
+                            driver_record = existing_driver
+                            updated_drivers += 1
+                    else:
+                        driver_record = driver_model.create(driver_vals)
+                        imported_drivers += 1
+
+                # Process Vehicle Data
+                trailer_number = str(row['số mooc']).strip() if pd.notna(row['số mooc']) else ''
+                machine_type = str(row['loại máy']).strip() if pd.notna(row['loại máy']) else ''
+
+                # Map machine type to engine type
+                engine_type = self._get_engine_type(machine_type)
+
+                # Process Trailer first (if exists) so we can assign it to the truck
+                trailer_record = None
+                if trailer_number:
+                    trailer_number = vehicle_model._clean_license_plate(trailer_number)
+                    existing_trailer = vehicle_model.search([
+                        ('license_plate', '=', trailer_number),
+                        ('fake_category_type', '=', constants.VehicleModelCategory.TRAILER),
+                    ], limit=1)
+
+                    trailer_vals = {
+                        'license_plate': trailer_number,
+                        'fake_category_type': constants.VehicleModelCategory.TRAILER,
+                        'fake_engine_type': constants.VehicleEngineType.SMALL,
+                        'trucking_branch_id': self.branch_id.id,
+                    }
+
+                    if existing_trailer:
+                        existing_trailer.write(trailer_vals)
+                        trailer_record = existing_trailer
+                    else:
+                        trailer_record = vehicle_model.create(trailer_vals)
+
+                vehicle_vals = {
+                    'license_plate': license_plate,
+                    'fake_category_type': constants.VehicleModelCategory.TRUCK,
+                    'fake_engine_type': engine_type,
                     'trucking_branch_id': self.branch_id.id,
                 }
-                
-                if existing_trailer:
-                    existing_trailer.write(trailer_vals)
-                    trailer_record = existing_trailer
+
+                # Set primary driver if we have a driver record
+                if driver_record:
+                    vehicle_vals['driver_id'] = driver_record.partner_id.id
+
+                # Assign trailer to the truck (if we have a trailer record)
+                if trailer_record:
+                    vehicle_vals['trailer_id'] = trailer_record.vehicle_id.id
+
+                if existing_vehicle:
+                    existing_vehicle.write(vehicle_vals)
+                    updated_vehicles += 1
                 else:
-                    trailer_record = vehicle_model.create(trailer_vals)
-            
-            # Check if vehicle exists by normalized name (to handle unique constraint)
-            existing_vehicle = vehicle_model.search([
-                ('license_plate', '=', license_plate),
-                ('fake_category_type', '=', constants.VehicleModelCategory.TRUCK),
-            ], limit=1)
-            
-            vehicle_vals = {
-                'license_plate': license_plate,
-                'fake_category_type': constants.VehicleModelCategory.TRUCK,
-                'fake_engine_type': engine_type,
-                'trucking_branch_id': self.branch_id.id,
-            }
-            
-            # Set primary driver if we have a driver record
-            if driver_record:
-                vehicle_vals['driver_id'] = driver_record.partner_id.id
+                    vehicle_model.create(vehicle_vals)
+                    imported_vehicles += 1
 
-            # Assign trailer to the truck (if we have a trailer record)
-            if trailer_record:
-                vehicle_vals['trailer_id'] = trailer_record.vehicle_id.id
-
-            if existing_vehicle:
-                existing_vehicle.write(vehicle_vals)
-                updated_vehicles += 1
-            else:
-                vehicle_model.create(vehicle_vals)
-                imported_vehicles += 1
+            except Exception as e:
+                _logger.warning(f"Error processing row {index}: {str(e)}")
+                self.env.cr.rollback()
+                skipped_rows += 1
+                continue
 
         message_parts = [
             _('Import completed from sheet "%s"') % sheet_to_import,
