@@ -7,6 +7,7 @@
             <list>
                 <field name="name" />
                 <field name="shift_type" />
+                <field name="break_time" />
                 <field name="display_time" />
             </list>
         </field>
@@ -21,6 +22,7 @@
                     <group>
                         <field name="name" />
                         <field name="shift_type" />
+                        <field name="break_time" />
                     </group>
 
                     <!-- Fixed shift -->

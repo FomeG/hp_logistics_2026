@@ -10,6 +10,7 @@ class HrWorkShift(models.Model):
         (constants.WorkShiftType.FIXED, 'Fixed'),
         (constants.WorkShiftType.FLEXIBLE, 'Flexible'),
     ], string="Shift Type", required=True, default=constants.WorkShiftType.FIXED)
+    break_time = fields.Float(string="Break Time", required=True) 
 
     # Fixed shift
     fixed_start_time = fields.Float(string="Start Time (Fixed)")
