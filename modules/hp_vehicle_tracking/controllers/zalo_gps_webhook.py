@@ -17,7 +17,7 @@ class ZaloGPSWebhookController(http.Controller):
         try:
             # Get JSON data from request
             response_data = json.loads(request.httprequest.data.decode('utf-8'))
-            print(f'response_data: {response_data}')
+            _logger.info(f'GPS Webhook received data: {response_data}')
             
             if not response_data:
                 return http.Response(
@@ -74,82 +74,19 @@ class ZaloGPSWebhookController(http.Controller):
                     status=400
                 )
 
-            # Find driver by phone number (handle both international and local formats)
-            driver = None
+            # Use service layer for business logic (following hp_trucking_planning convention)
+            tracking_service = request.env['vehicle.tracking.service'].sudo()
+            result = tracking_service.create_gps_checkpoint(phone, latitude, longitude)
             
-            # First try exact match
-            driver = request.env['res.partner.driver'].sudo().search([
-                ('phone', '=', phone)
-            ], limit=1)
-            
-            # If not found and phone starts with '84', try converting to local format
-            if not driver and phone.startswith('84'):
-                # Convert 84965774192 -> 0965774192
-                local_phone = '0' + phone[2:]  # Remove '84' prefix and add '0'
-                driver = request.env['res.partner.driver'].sudo().search([
-                    ('phone', '=', local_phone)
-                ], limit=1)
-                if driver:
-                    _logger.info(f"GPS webhook: Found driver using local format {local_phone} for international phone {phone}")
-            
-            # If still not found and phone starts with '0', try converting to international format
-            elif not driver and phone.startswith('0'):
-                # Convert 0965774192 -> 84965774192
-                international_phone = '84' + phone[1:]  # Remove '0' prefix and add '84'
-                driver = request.env['res.partner.driver'].sudo().search([
-                    ('phone', '=', international_phone)
-                ], limit=1)
-                if driver:
-                    _logger.info(f"GPS webhook: Found driver using international format {international_phone} for local phone {phone}")
-            
-            if not driver:
-                _logger.warning(f"GPS webhook: Driver not found for phone {phone}")
-                return http.Response(
-                    json.dumps(self._error_response(f"Driver not found for phone number: {phone}")),
-                    content_type='application/json',
-                    status=404
-                )
-
-            # Find current trip for this driver
-            trip = request.env['trucking_planning.trip'].sudo().search([
-                ('driver_id', '=', driver.partner_id.id),
-                ('is_current', '=', True),
-                ('status', 'not in', ['cancelled', 'done'])
-            ], limit=1)
-            
-            if not trip:
-                _logger.warning(f"GPS webhook: No current trip found for driver {driver.name} (phone: {phone})")
-                return http.Response(
-                    json.dumps(self._error_response(f"No current trip found for driver {driver.name}")),
-                    content_type='application/json',
-                    status=404
-                )
-
-            # Prepare checkpoint data - simplified to only trip_id and location
-            checkpoint_data = {
-                'trip_id': trip.id,
-                'longitude': longitude,
-                'latitude': latitude,
-            }
-
-            # Create checkpoint record
-            checkpoint = request.env['trucking_planning.trip_checkpoint'].sudo().create(checkpoint_data)
-
-            _logger.info(
-                f"GPS checkpoint created successfully: "
-                f"Checkpoint ID: {checkpoint.id}, Trip ID: {trip.id}, "
-                f"Driver: {driver.name}, Location: {latitude}, {longitude}"
-            )
-
             return http.Response(
                 json.dumps({
                     'success': True,
-                    'message': f'GPS location recorded successfully for trip {trip.code or trip.id}',
-                    'checkpoint_id': checkpoint.id,
-                    'trip_id': trip.id,
-                    'driver_id': driver.partner_id.id,
-                    'trip_code': trip.code or f'Trip {trip.id}',
-                    'driver_name': driver.name
+                    'message': f'GPS location recorded successfully for trip {result["trip_code"]}',
+                    'checkpoint_id': result['checkpoint_id'],
+                    'trip_id': result['trip_id'],
+                    'driver_id': result['driver_id'],
+                    'trip_code': result['trip_code'],
+                    'driver_name': result['driver_name']
                 }),
                 content_type='application/json',
                 status=200
@@ -182,7 +119,6 @@ class ZaloGPSWebhookController(http.Controller):
         }
 
     @http.route('/zalo/test', type='http', auth='public', methods=['GET'], cors='*', csrf=False)
-
     def test_zalo_webhook(self):
         """Test endpoint to verify webhook is working"""
         return http.Response(
@@ -193,3 +129,4 @@ class ZaloGPSWebhookController(http.Controller):
             }),
             content_type='application/json'
         )
+
