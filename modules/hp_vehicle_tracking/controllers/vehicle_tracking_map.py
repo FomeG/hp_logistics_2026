@@ -54,62 +54,62 @@ class VehicleTrackingMapController(http.Controller):
                 'count': 0
             }
 
-    @http.route('/vehicle_tracking/api/trip_route/<int:trip_id>', type='json', auth='user', methods=['POST'])
-    def get_trip_route(self, trip_id, **kwargs):
-        """
-        Get all checkpoints for a specific trip to display route history
-        Uses service layer for business logic
-        
-        Args:
-            trip_id: ID of the trip
-            
-        Returns:
-            List of all checkpoints ordered by time
-        """
-        try:
-            # Use service layer for business logic
-            tracking_service = request.env['vehicle.tracking.service']
-            route_points = tracking_service.get_trip_route_history(trip_id)
-            
-            return {
-                'success': True,
-                'trip_id': trip_id,
-                'route_points': route_points,
-                'count': len(route_points)
-            }
-            
-        except Exception as e:
-            _logger.error(f"Error fetching trip route: {str(e)}", exc_info=True)
-            return {
-                'success': False,
-                'error': str(e),
-                'route_points': []
-            }
-
-    @http.route('/vehicle_tracking/api/stats', type='json', auth='user', methods=['POST'])
-    def get_tracking_stats(self, **kwargs):
-        """
-        Get statistics for the tracking dashboard
-        Uses service layer for business logic
-        
-        Returns:
-            Dashboard statistics
-        """
-        try:
-            # Use service layer for business logic
-            tracking_service = request.env['vehicle.tracking.service']
-            stats = tracking_service.get_tracking_statistics()
-            
-            return {
-                'success': True,
-                'stats': stats
-            }
-            
-        except Exception as e:
-            _logger.error(f"Error fetching tracking stats: {str(e)}", exc_info=True)
-            return {
-                'success': False,
-                'error': str(e),
-                'stats': {}
-            }
+    # @http.route('/vehicle_tracking/api/trip_route/<int:trip_id>', type='json', auth='user', methods=['POST'])
+    # def get_trip_route(self, trip_id, **kwargs):
+    #     """
+    #     Get all checkpoints for a specific trip to display route history
+    #     Uses service layer for business logic
+    #
+    #     Args:
+    #         trip_id: ID of the trip
+    #
+    #     Returns:
+    #         List of all checkpoints ordered by time
+    #     """
+    #     try:
+    #         # Use service layer for business logic
+    #         tracking_service = request.env['vehicle.tracking.service']
+    #         route_points = tracking_service.get_trip_route_history(trip_id)
+    #
+    #         return {
+    #             'success': True,
+    #             'trip_id': trip_id,
+    #             'route_points': route_points,
+    #             'count': len(route_points)
+    #         }
+    #
+    #     except Exception as e:
+    #         _logger.error(f"Error fetching trip route: {str(e)}", exc_info=True)
+    #         return {
+    #             'success': False,
+    #             'error': str(e),
+    #             'route_points': []
+    #         }
+    #
+    # @http.route('/vehicle_tracking/api/stats', type='json', auth='user', methods=['POST'])
+    # def get_tracking_stats(self, **kwargs):
+    #     """
+    #     Get statistics for the tracking dashboard
+    #     Uses service layer for business logic
+    #
+    #     Returns:
+    #         Dashboard statistics
+    #     """
+    #     try:
+    #         # Use service layer for business logic
+    #         tracking_service = request.env['vehicle.tracking.service']
+    #         stats = tracking_service.get_tracking_statistics()
+    #
+    #         return {
+    #             'success': True,
+    #             'stats': stats
+    #         }
+    #
+    #     except Exception as e:
+    #         _logger.error(f"Error fetching tracking stats: {str(e)}", exc_info=True)
+    #         return {
+    #             'success': False,
+    #             'error': str(e),
+    #             'stats': {}
+    #         }
 
