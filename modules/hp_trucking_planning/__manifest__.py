@@ -23,6 +23,7 @@
         'views/wizards/add_draft_trip_wizard.xml',
         'views/wizards/zalo_confirmation_wizard_views.xml',
         'views/wizards/import_client_wizard.xml',
+        'views/wizards/mass_assign_trucking_client_wizard.xml',
 
         # views
         'views/trucking_planning_shipping_line_views.xml',

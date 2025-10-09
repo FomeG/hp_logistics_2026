@@ -63,3 +63,7 @@ access_freight_purchase_quotation_member,trucking.freight_purchase_quotation.mem
 
 access_trucking_dashboard_member,trucking.dashboard.member,model_trucking_dashboard,group_hp_trucking_planning_member,1,1,1,0
 access_trucking_dashboard_manager,trucking.dashboard.manager,model_trucking_dashboard,base.group_system,1,1,1,1
+
+access_assign_trucking_client_wizard_manager,trucking.assign_trucking_client_wizard.manager,model_assign_trucking_client_wizard,base.group_system,1,1,1,1
+access_assign_trucking_client_wizard_member,trucking.assign_trucking_client_wizard.member,model_assign_trucking_client_wizard,group_hp_trucking_planning_member,1,1,1,0
+
