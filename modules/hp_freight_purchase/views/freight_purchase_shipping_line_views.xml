@@ -4,7 +4,7 @@
 
     <record id="freight_purchase_shipping_line_form_view" model="ir.ui.view">
         <field name="name">freight.purchase.shipping.line.form</field>
-        <field name="model">res.partner</field>
+        <field name="model">res.partner.shipping.line</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
             <form string="Shipping Line">
@@ -147,7 +147,7 @@
     
     <record id="freight_purchase_shipping_line_list_view" model="ir.ui.view">
         <field name="name">freight.purchase.shipping.line.list</field>
-        <field name="model">res.partner</field>
+        <field name="model">res.partner.shipping.line</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
             <list string="Shipping Lines">
@@ -195,7 +195,7 @@
     <record id="freight_purchase_shipping_line_action" model="ir.actions.act_window">
         <field name="name">Shipping Lines</field>
         <field name="view_mode">list,form</field>
-        <field name="res_model">res.partner</field>
+        <field name="res_model">res.partner.shipping.line</field>
         <field name="domain">[('partner_main_type_id.code', '=', 'shipping_line')]</field>
     <field name="context" eval="{'default_partner_main_type_id': ref('hp_freight_purchase.partner_main_type_shipping_line')}"/>
         <field name="search_view_id" ref="freight_purchase_shipping_line_search_view"/>
