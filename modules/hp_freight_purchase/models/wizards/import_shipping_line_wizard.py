@@ -106,7 +106,7 @@ class ImportShippingLineWizard(models.TransientModel):
         }
 
     def _create_shipping_lines(self, data_array):
-        Partner = self.env['res.partner.shipping.line']
+        Partner = self.env['res.partner']
         domain = [('partner_main_type_id.code', '=', 'shipping_line')]
 
         existing_partners = Partner.search(domain)
