@@ -311,6 +311,7 @@ class VehicleTrackingService(models.AbstractModel):
         
         # Try exact match first (phone field is inherited from res.partner)
         driver = Driver.search([('phone', '=', phone)], limit=1)
+        _logger.info(f"Phone lookup for '{phone}': exact match = {'found' if driver else 'not found'}")
         
         if not driver and phone.startswith('84'):
             # Convert international to local: 84965774192 -> 0965774192
@@ -318,6 +319,13 @@ class VehicleTrackingService(models.AbstractModel):
             driver = Driver.search([('phone', '=', local_phone)], limit=1)
             if driver:
                 _logger.info(f"Found driver using local format {local_phone} for international phone {phone}")
+            
+            # Also try 9-digit format: 84965774192 -> 965774192
+            if not driver and len(phone) == 11:  # 84 + 9 digits
+                nine_digit_phone = phone[2:]  # Remove '84' prefix
+                driver = Driver.search([('phone', '=', nine_digit_phone)], limit=1)
+                if driver:
+                    _logger.info(f"Found driver using 9-digit format {nine_digit_phone} for international phone {phone}")
         
         elif not driver and phone.startswith('0'):
             # Convert local to international: 0965774192 -> 84965774192
