@@ -24,6 +24,7 @@
     <record id="view_client_form" model="ir.ui.view">
         <field name="name">partner.client.form</field>
         <field name="model">res.partner.client</field>
+        <field name="priority" eval="1" />
         <field name="arch" type="xml">
             <form>
                 <sheet>

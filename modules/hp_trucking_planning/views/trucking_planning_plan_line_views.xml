@@ -81,7 +81,8 @@
                                 context="{
                                     'form_view_ref': 'hp_trucking_planning.view_client_form',
                                     'list_view_ref': 'hp_trucking_planning.view_client_tree',
-                                    'search_view_ref': 'hp_trucking_planning.view_client_search',                    
+                                    'search_view_ref': 'hp_trucking_planning.view_client_search',
+                                    'default_partner_main_type_id': %(hp_components.partner_main_type_client)d,
                                 }"
                                 options="{'no_quick_create': True}"
                                 widget="many2one_new_tab" />
