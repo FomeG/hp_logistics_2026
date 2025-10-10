@@ -177,14 +177,14 @@
                                 <span class="icon">🟢</span>
                                 <div>
                                     <div class="value" id="stat-fresh">-</div>
-                                    <div class="label">New updated(&lt; 30m)</div>
+                                    <div class="label">New checkpoints(&lt; 30m)</div>
                                 </div>
                             </div>
                             <div class="stat-box">
                                 <span class="icon">🔴</span>
                                 <div>
                                     <div class="value" id="stat-stale">-</div>
-                                    <div class="label">Long updated (&gt; 1h)</div>
+                                    <div class="label">Old checkpoints (&gt; 1h)</div>
                                 </div>
                             </div>
                         </div>
