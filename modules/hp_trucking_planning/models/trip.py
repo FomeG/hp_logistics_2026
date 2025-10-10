@@ -293,8 +293,7 @@ class Trip(models.Model):
         comodel_name='trucking_planning.trip_checkpoint',
         inverse_name='trip_id',
         string='GPS Checkpoints',
-        help='GPS location checkpoints for this trip',
-        order='create_date desc'
+        help='GPS location checkpoints for this trip'
     )
 
     active = fields.Boolean(
