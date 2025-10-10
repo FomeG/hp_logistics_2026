@@ -12,3 +12,4 @@ access_product_product_sale_director,access_product_product_sale_director,produc
 access_partner_client_sale_member,access_partner_client_sale_member,model_res_partner_client,base.group_user,1,1,1,1
 
 access_import_client_wizard_manager,sale.import_client_wizard.manager,model_sale_import_client_wizard,base.group_system,1,1,1,1
+access_mass_assign_user_wizard_manager,sale.mass_assign_user_wizard.manager,model_res_partner_client_assign_sale_wizard,base.group_system,1,1,1,1

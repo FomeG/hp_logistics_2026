@@ -19,6 +19,7 @@
 
         # wizards
         'views/wizards/import_client_wizard.xml',
+        'views/wizards/mass_assign_sale_client_wizard.xml',
 
         # security
         'security/hp_sale_security.xml',

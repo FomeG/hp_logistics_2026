@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Wizard cho Trucking -->
+    <record id="view_mass_assign_trucking_user_wizard_form" model="ir.ui.view">
+        <field name="name">res.partner.client.mass.assign.trucking.user.wizard.form</field>
+        <field name="model">assign.trucking.client.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Bulk assign user to trucking clients">
+                <group>
+                    <field name="client_ids" widget="many2many_tags" readonly="1"/>
+                    <field name="branch_id" options="{'no_create': True}"/>
+                    <field name="assign_user_id" options="{'no_create': True}"/>
+                </group>
+                <footer>
+                    <button name="action_assign_trucking_users" type="object" string="Assign User" class="btn-primary"/>
+                    <button string="Hủy" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_mass_assign_trucking_user_wizard" model="ir.actions.act_window">
+        <field name="name">Bulk Assign User</field>
+        <field name="res_model">assign.trucking.client.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>
