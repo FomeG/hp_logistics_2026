@@ -159,7 +159,7 @@ class Trip(models.Model):
     )
 
     driver_id = fields.Many2one(
-        comodel_name='res.partner',
+        comodel_name='res.partner.driver',
         string='Driver',
         compute='_compute_driver_id',
         store=True,
@@ -332,7 +332,13 @@ class Trip(models.Model):
     @api.depends('vehicle_assignment_log_id.driver_id')
     def _compute_driver_id(self):
         for rec in self:
-            rec.driver_id = rec.vehicle_assignment_log_id.driver_id if rec.vehicle_assignment_log_id else False
+            if rec.vehicle_assignment_log_id and rec.vehicle_assignment_log_id.driver_id:
+                driver = self.env['res.partner.driver'].search([
+                    ('partner_id', '=', rec.vehicle_assignment_log_id.driver_id.id)
+                ], limit=1)
+                rec.driver_id = driver.id if driver else False
+            else:
+                rec.driver_id = False
 
     @api.depends('truck_id')
     def _compute_trailer_id(self):
