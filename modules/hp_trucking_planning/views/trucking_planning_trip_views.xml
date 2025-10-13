@@ -53,6 +53,14 @@
         <field name="arch" type="xml">
             <form>
                 <header>
+                    <button name="action_start" string="Start" type="object" class="oe_highlight"
+                            invisible="status not in ('draft','stopped')"/>
+                    <button name="action_stop" string="Stop" type="object" class="oe_highlight"
+                            invisible="status != 'in_progress'"/>
+                    <button name="action_end" string="End" type="object" class="oe_highlight"
+                            invisible="status not in ('in_progress','stopped')"/>
+                    <button name="action_cancel" string="Cancel" type="object" class="btn-danger"
+                            invisible="status in ('done','cancelled')"/>
                     <button name="action_export_trip_docx" string="Export" type="object" class="btn-primary" invisible="not id"/>
                     <button name="action_preview_trip_order" string="Preview" type="object" class="btn-secondary" invisible="not id"/>
                     <button name="action_send_message" 
@@ -61,7 +69,9 @@
                             class="btn-success" 
                             icon="fa-paper-plane"
                             invisible="not id"/>
-                    <field name="status" widget="statusbar" statusbar_visible="draft,checking,confirmed,done"/>
+<!--                    <field name="status" widget="statusbar" statusbar_visible="draft,checking,confirmed,done"/> need to check -->
+                        <field name="status" widget="statusbar" statusbar_visible="draft,in_progress,done,stopped,cancelled,"/>
+
                 </header>
                 <sheet>
                     <!-- Current Trip Status - Always Visible at Top -->

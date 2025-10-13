@@ -1,4 +1,4 @@
-from odoo import models, api, fields
+from odoo import models, api, fields, _
 from odoo.exceptions import UserError, ValidationError
 import base64
 import math
@@ -111,10 +111,12 @@ class Trip(models.Model):
     )
     status = fields.Selection([
         ('draft', 'Draft'),
-        ('cancelled', 'Cancelled'),
-        ('confirmed', 'Confirmed'),
-        ('checking', 'Checking'),
-        ('done', 'Done'),
+        # ('checking', 'Checking'), # need to check
+        ('in_progress', 'In Progress'), #start
+        # ('confirmed', 'Confirmed'), # need to check
+        ('done', 'Done'), #end
+        ('stopped', 'Stopped'), #stop
+        ('cancelled', 'Cancelled'), #cancel
     ],
         default='draft',
         string='Status',
@@ -317,7 +319,42 @@ class Trip(models.Model):
         string="Special note for external/combined vehicle",
         help="Special notes when using rented or combined vehicles",
     )
+    def action_start(self):
+        self.ensure_one()
+        if self.status not in ['draft', 'stopped']:
+            raise UserError(_("It can only be started when the trip is in Draft or Stopped status."))
+        return self._open_operation_wizard('start')
 
+    def action_stop(self):
+        self.ensure_one()
+        if self.status != 'in_progress':
+            raise UserError(_("It can only be stopped when the trip is in In Progress status."))
+        return self._open_operation_wizard('stop')
+
+    def action_end(self):
+        self.ensure_one()
+        if self.status not in ['in_progress', 'stopped']:
+            raise UserError(_("It can only be stopped when the trip is in In Progres or Stopped status."))
+        return self._open_operation_wizard('end')
+
+    def action_cancel(self):
+        self.ensure_one()
+        if self.status in ['done', 'cancelled']:
+            raise UserError(_("It cannot be cancelled if the trip is already in Done or Cancelled status."))
+        return self._open_operation_wizard('cancel')
+
+    def _open_operation_wizard(self, operation):
+        return {
+            'name': _(f"{operation.capitalize()} Trip"),
+            'type': 'ir.actions.act_window',
+            'res_model': 'trucking_planning.trip.operation.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_trip_id': self.id,
+                'default_operation': operation,
+            },
+        }
     def toggle_active(self):
         for trip in self:
             if trip.status not in ['draft', 'cancelled']:
