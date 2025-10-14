@@ -1,5 +1,5 @@
 from odoo import models, api, fields, _
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError, ValidationError, AccessError
 import base64
 import math
 import logging
@@ -112,9 +112,9 @@ class Trip(models.Model):
     status = fields.Selection([
         ('draft', 'Draft'),
         # ('checking', 'Checking'), # need to check
-        ('in_progress', 'In Progress'), #start
+        ('on_route', 'On Route'), #start - in_progress
         # ('confirmed', 'Confirmed'), # need to check
-        ('done', 'Done'), #end
+        ('done', 'Done'), #end, lock the trip
         ('stopped', 'Stopped'), #stop
         ('cancelled', 'Cancelled'), #cancel
     ],
@@ -122,6 +122,18 @@ class Trip(models.Model):
         string='Status',
         tracking=True,
     )
+    is_admin_user = fields.Boolean(
+        string='Is Admin User',
+        compute='_compute_is_admin_user',
+        store=False,
+    )
+
+    @api.depends_context('uid')
+    def _compute_is_admin_user(self):
+        for trip in self:
+            trip.is_admin_user = self.env.user.has_group(
+                'hp_trucking_planning.group_hp_trucking_planning_administrator')
+
     container_number = fields.Char(
         string="Container Number",
         tracking=True,
@@ -319,29 +331,66 @@ class Trip(models.Model):
         string="Special note for external/combined vehicle",
         help="Special notes when using rented or combined vehicles",
     )
-    def action_start(self):
+
+    def _set_status_via_wizard(self, new_status, note=''):
         self.ensure_one()
-        if self.status not in ['draft', 'stopped']:
-            raise UserError(_("It can only be started when the trip is in Draft or Stopped status."))
-        return self._open_operation_wizard('start')
+        from_wizard = self.env.context.get('from_wizard', False)
+        from_zalo = self.env.context.get('from_zalo_driver', False)
+
+        # Check điều kiện chung
+        if new_status == 'on_route':
+            if self.status in ['done', 'cancelled']:
+                raise UserError("Cannot start a trip that is already done or cancelled.")
+            if not from_zalo and not self.env.user.has_group('hp_trucking_planning.group_hp_trucking_planning_lead'):
+                raise AccessError("Only the leader can start the trip.")
+        elif new_status == 'done':
+            if self.status in ['done', 'cancelled']:
+                raise UserError("Cannot reset a trip that is already done or cancelled.")
+            if not self.env.user.has_group('hp_trucking_planning.group_hp_trucking_planning_lead'):
+                raise AccessError("Only the leader can mark done the trip.")
+            if self.status not in ['on_route', 'stopped']:
+                raise UserError("You can only mark the trip as done when it is on route or stopped.")
+
+        old_status = self.status
+        self.write({'status': new_status})
+
+        # Post message
+        log_body = f"Status changed from {old_status} to {new_status} lúc {fields.Datetime.now()}."
+        if note:
+            log_body += f"\nNote: {note}"
+        if from_zalo:
+            log_body += "\n(Via Zalo driver checkpoint)"
+        elif from_wizard:
+            log_body += "\n(Via wizard confirm)"
+        self.message_post(body=log_body, message_type='notification')
+
+        _logger.info(f"Status updated for trip {self.id}: {old_status} -> {new_status} (from={'zalo' if from_zalo else 'wizard' if from_wizard else 'direct'})")
+
+        return True
+
+    def action_start_trip(self):
+        self.ensure_one()
+        if self.status == 'on_route':
+            raise UserError("Trip đã On Route.")
+        return self._open_operation_wizard('on_route')
+
+    def action_mark_done(self):
+        self.ensure_one()
+        if self.status == 'done':
+            raise UserError("Trip đã done.")
+        return self._open_operation_wizard('done')
 
     def action_stop(self):
         self.ensure_one()
-        if self.status != 'in_progress':
-            raise UserError(_("It can only be stopped when the trip is in In Progress status."))
-        return self._open_operation_wizard('stop')
-
-    def action_end(self):
-        self.ensure_one()
-        if self.status not in ['in_progress', 'stopped']:
-            raise UserError(_("It can only be stopped when the trip is in In Progres or Stopped status."))
-        return self._open_operation_wizard('end')
+        if self.status != 'on_route':
+            raise UserError(_("It can only be stopped when the trip is in On Route status."))
+        return self._open_operation_wizard('stopped')
 
     def action_cancel(self):
         self.ensure_one()
         if self.status in ['done', 'cancelled']:
             raise UserError(_("It cannot be cancelled if the trip is already in Done or Cancelled status."))
-        return self._open_operation_wizard('cancel')
+        return self._open_operation_wizard('cancelled')
 
     def _open_operation_wizard(self, operation):
         return {
