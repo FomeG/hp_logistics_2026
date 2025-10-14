@@ -91,17 +91,17 @@ class FreightPurchaseBookingLine(models.Model):
         store=False
     )
 
-    @api.depends('customer_id', 'container_type_id', 'quantity')
+    @api.depends('quotation_line_id')
     def _compute_name(self):
-        for rec in self:
-            if not rec.container_type_id:
-                raise ValidationError(f"Booking Line {rec.id} is invalid: container is required.")
-            if not rec.quantity or rec.quantity <= 0:
-                raise ValidationError(f"Booking Line {rec.id} is invalid: quantity must be greater than 0.")
-            customer = rec.customer_id.name or 'N/A'
-            container = rec.container_type_id.name
-            qty = rec.quantity
-            rec.name = f"{customer} - {container} x {qty}"
+        for record in self:
+            if record.quotation_line_id:
+                customer = record.customer_id.name or 'N/A'
+                container = record.quotation_line_id.container_type_id.name
+                qty = record.quantity
+                record.name = f"{customer} - {container} x {qty}"
+
+            else:
+                record.name = ''
 
     @api.depends('remind_id.without_booking_line_ids')
     def _compute_remind_enabled(self):
