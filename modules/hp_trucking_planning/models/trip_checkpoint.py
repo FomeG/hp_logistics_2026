@@ -98,11 +98,13 @@ class TripCheckpoint(models.Model):
             
             # Post message to trip chatter
             if record.trip_id:
-                record.trip_id.message_post(
-                    body=f"GPS location received: {record.latitude}, {record.longitude}",
-                    message_type='notification',
-                    subtype_xmlid='mail.mt_note'
-                )
+                if record.trip_id.status in ['draft']:
+                    record.trip_id.with_context(from_zalo_driver=True)._set_status_via_wizard('on_route', note='Driver start via first Zalo checkpoint.')
+                    record.trip_id.message_post(
+                        body=f"GPS location received: {record.latitude}, {record.longitude}",
+                        message_type='notification',
+                        subtype_xmlid='mail.mt_note'
+                    )
         
         return records
 
