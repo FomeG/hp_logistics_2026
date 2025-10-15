@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import models, fields ,api
 
 
 class ResPartnerInherit(models.AbstractModel):
@@ -10,3 +10,8 @@ class ResPartnerInherit(models.AbstractModel):
         string='Main Partner Type',
         index=True,
     )
+    is_client = fields.Boolean(compute="_compute_is_client", store=True)
+
+    def _compute_is_client(self):
+        for rec in self:
+            rec.is_client = rec.partner_main_type_id.code == 'shipping_line'
