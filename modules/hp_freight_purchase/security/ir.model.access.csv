@@ -89,5 +89,3 @@ hp_freight_purchase_country_lead,hp_freight_purchase_country_lead,base.model_res
 hp_freight_purchase_country_admin,hp_freight_purchase_country_admin,base.model_res_country,group_hp_freight_purchase_administrator,1,1,1,1
 
 access_import_shipping_line_manager,access.import.shipping.line.manager,model_freight_purchase_import_shipping_line_wizard,base.group_system,1,1,1,1
-
-access_shipping_line_all_users,res_partner_shipping_line_all_users,model_res_partner_shipping_line,base.group_user,1,1,1,1

@@ -25,4 +25,3 @@ from . import product_template_inherit
 from . import wizards
 from . import freight_purchase_remind
 from . import sale_order_inherit
-from . import res_partner_shipping_line
