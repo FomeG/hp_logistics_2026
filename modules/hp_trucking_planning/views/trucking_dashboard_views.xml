@@ -37,6 +37,14 @@
                                            name="total_trip_month"
                                            widget="statinfo"/>
                                 </button>
+                                <button type="object"
+                                        name="action_view_on_route_trips"
+                                        class="oe_stat_button"
+                                        icon="fa-truck">
+                                    <field string="Trips On Route"
+                                           name="total_trip_on_route"
+                                           widget="statinfo"/>
+                                </button>
                             </div>
                     <!-- Filter Section -->
                     <group string="Filter">
@@ -57,9 +65,12 @@
                                     <field name="total_trip_month"
                                            readonly="1"
                                            string="Total Trip (Not cancelled)"/>
-                                    <field name="total_trip_confirmed"
+                                    <field name="total_trip_on_route"
                                            readonly="1"
-                                           string="Trip Confirmed"/>
+                                           string="Trip On Route"/>
+                                    <field name="total_trip_stopped"
+                                           readonly="1"
+                                           string="Trip Stopped"/>"
                                     <field name="total_trip_done"
                                            readonly="1"
                                            string="Trip Done"/>

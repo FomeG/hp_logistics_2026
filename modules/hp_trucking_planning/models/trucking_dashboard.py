@@ -30,11 +30,6 @@ class TruckingDashboard(models.Model):
         string="Total Trip month",
         compute="_compute_totals_trip_month")
 
-    total_trip_confirmed = fields.Integer(
-        string="Trip confirmed",
-        compute="_compute_totals_trip_month"
-    )
-
     total_trip_done = fields.Integer(
         string="Trip done",
         compute="_compute_totals_trip_month"
@@ -54,6 +49,16 @@ class TruckingDashboard(models.Model):
         compute="_compute_all_drivers_stats"
     )
 
+    total_trip_on_route = fields.Integer(
+        string="Trip On Route",
+        compute="_compute_totals_trip_month"
+    )
+
+    total_trip_stopped = fields.Integer(
+        string="Trip Stopped",
+        compute="_compute_totals_trip_month"
+    )
+
     @api.depends('filter_month', 'filter_year')
     def _compute_totals_trip_month(self):
         Trip = self.env['trucking_planning.trip']
@@ -71,11 +76,6 @@ class TruckingDashboard(models.Model):
                 base_domain + [('status', '!=', 'cancelled')]
             )
 
-            # Confirmed trips
-            rec.total_trip_confirmed = Trip.search_count(
-                base_domain + [('status', '=', 'confirmed')]
-            )
-
             # Done trips
             rec.total_trip_done = Trip.search_count(
                 base_domain + [('status', '=', 'done')]
@@ -86,6 +86,15 @@ class TruckingDashboard(models.Model):
                 base_domain + [('status', '=', 'cancelled')]
             )
 
+            # On Route trips
+            rec.total_trip_on_route = Trip.search_count(
+                base_domain + [('status', '=', 'on_route')]
+            )
+
+            # Stopped trips
+            rec.total_trip_stopped = Trip.search_count(
+                base_domain + [('status', '=', 'stopped')]
+            )
 
     @api.model
     def _get_month_selection(self):
@@ -127,17 +136,18 @@ class TruckingDashboard(models.Model):
         for rec in self:
             start_date, end_date = rec._get_date_range()
             self.env.cr.execute("""
-                SELECT f.name AS truck, d.name AS driver, COUNT(t.id) AS total
-                FROM trucking_planning_trip t
-                LEFT JOIN fleet_vehicle f ON f.id = t.truck_id
-                LEFT JOIN res_partner d ON d.id = t.driver_id
-                WHERE t.status != 'cancelled'
-                    AND t.plan_date >= %s
-                    AND t.plan_date < %s
-                GROUP BY f.name, d.name
-                ORDER BY total DESC
-                LIMIT 5
-            """, (start_date, end_date))
+                    SELECT f.name AS truck, rp.name AS driver, COUNT(t.id) AS total
+                    FROM trucking_planning_trip t
+                    LEFT JOIN fleet_vehicle f ON f.id = t.truck_id
+                    LEFT JOIN res_partner_driver rpd ON rpd.id = t.driver_id
+                    LEFT JOIN res_partner rp ON rp.id = rpd.partner_id
+                    WHERE t.status != 'cancelled'
+                        AND t.plan_date >= %s
+                        AND t.plan_date < %s
+                    GROUP BY f.name, rp.name
+                    ORDER BY total DESC
+                    LIMIT 5
+                """, (start_date, end_date))
             rows = self.env.cr.dictfetchall()
             if not rows:
                 rec.top_truck_driver = "No data available."
@@ -150,21 +160,22 @@ class TruckingDashboard(models.Model):
         for rec in self:
             start_date, end_date = rec._get_date_range()
             self.env.cr.execute("""
-                    SELECT 
-                        d.name AS driver,
-                        f.name AS truck,
-                        COUNT(t.id) AS total_trips,
-                        COALESCE(SUM(t.fuel_liters), 0) AS total_fuel
-                    FROM trucking_planning_trip t
-                    LEFT JOIN fleet_vehicle f ON f.id = t.truck_id
-                    LEFT JOIN res_partner d ON d.id = t.driver_id
-                    WHERE t.status != 'cancelled'
-                        AND t.plan_date >= %s
-                        AND t.plan_date < %s
-                        AND d.id IS NOT NULL
-                    GROUP BY d.name, f.name
-                    ORDER BY total_trips DESC, d.name
-                """, (start_date, end_date))
+                        SELECT 
+                            rp.name AS driver,
+                            f.name AS truck,
+                            COUNT(t.id) AS total_trips,
+                            COALESCE(SUM(t.fuel_liters), 0) AS total_fuel
+                        FROM trucking_planning_trip t
+                        LEFT JOIN fleet_vehicle f ON f.id = t.truck_id
+                        LEFT JOIN res_partner_driver rpd ON rpd.id = t.driver_id
+                        LEFT JOIN res_partner rp ON rp.id = rpd.partner_id
+                        WHERE t.status != 'cancelled'
+                            AND t.plan_date >= %s
+                            AND t.plan_date < %s
+                            AND rpd.id IS NOT NULL
+                        GROUP BY rp.name, f.name
+                        ORDER BY total_trips DESC, rp.name
+                    """, (start_date, end_date))
 
             rows = self.env.cr.dictfetchall()
 
@@ -187,3 +198,22 @@ class TruckingDashboard(models.Model):
                 footer = f"\nTỔNG CỘNG: {total_trips_sum} chuyến, {total_fuel_sum:.1f} lít"
 
                 rec.all_drivers_stats = "\n".join(lines) + footer
+
+    def action_view_on_route_trips(self):
+        """Mở view danh sách các trip đang on route"""
+        self.ensure_one()
+        start_date, end_date = self._get_date_range()
+
+        return {
+            'name': 'Trips On Route',
+            'type': 'ir.actions.act_window',
+            'res_model': 'trucking_planning.trip',
+            'view_mode': 'list,form',
+            'domain': [
+                ('plan_date', '>=', start_date),
+                ('plan_date', '<', end_date),
+                ('status', '=', 'on_route')
+            ],
+            'context': {'create': False},
+            'target': 'current',
+        }
