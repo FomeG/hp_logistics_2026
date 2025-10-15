@@ -2,17 +2,34 @@
 <odoo>
     <data noupdate="0">
 
-    <record id="freight_purchase_shipping_line_form_view" model="ir.ui.view">
-        <field name="name">freight.purchase.shipping.line.form</field>
-        <field name="model">res.partner.shipping.line</field>
-        <field name="priority">1</field>
-        <field name="arch" type="xml">
-            <form string="Shipping Line">
-                <group>
-                    <field name="name" string="Shipping Line Name" placeholder="e.g. Global Shipping Co." class="oe_form_field" required="1"/>
-                    <field name="email" string="Shipping Line Email" widget="email" placeholder="e.g. contact@shippingline.com" class="oe_form_field" required="1"/>
-                    <field name="partner_main_type_id" invisible="1" />
-                    <notebook invisible="not id">
+<record id="view_partner_shipping_line_form" model="ir.ui.view">
+    <field name="name">res.partner.shipping.line.form</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="arch" type="xml">
+
+<!-- Ẩn toàn bộ group gốc khi là Shipping Line -->
+        <xpath expr="//sheet/group" position="attributes">
+            <attribute name="invisible">is_client</attribute>
+        </xpath>
+
+        <xpath expr="//sheet/notebook" position="attributes">
+            <attribute name="invisible">is_client</attribute>
+        </xpath>
+        <xpath expr="//div[@class='oe_title mb24']" position="attributes">
+            <attribute name="invisible">is_client</attribute>
+        </xpath>
+<!--      <xpath expr="//header" position="replace">-->
+
+<!--            </xpath>-->
+        <!-- Thêm group riêng cho Shipping Line -->
+        <xpath expr="//sheet" position="inside">
+              <group invisible="not is_client">
+                <field name="name" string="Shipping Line Name" placeholder="e.g. Global Shipping Co." required="1"/>
+                <field name="email" string="Shipping Line Email" widget="email" placeholder="e.g. contact@shippingline.com" required="1"/>
+                <field name="partner_main_type_id" invisible="1"/>
+                <field name="is_client"/>
+                <notebook invisible="not id">
                        <page string="Contacts &amp; Addresses" name="contact_addresses" autofocus="autofocus">
                             <field name="child_ids" mode="kanban" context="{'default_parent_id': id, 'default_street': street, 'default_street2': street2, 'default_city': city, 'default_state_id': state_id, 'default_zip': zip, 'default_country_id': country_id, 'default_lang': lang, 'default_user_id': user_id, 'default_type': 'other'}">
                                 <kanban color="color">
@@ -106,10 +123,14 @@
                             />
                         </page>
                     </notebook>
-                </group>
-            </form>
-        </field>
-    </record>
+            </group>
+        </xpath>
+
+           <xpath expr="//div[@name='button_box']" position="replace">
+
+        </xpath>
+    </field>
+</record>
 
     <!-- Quotation List Short View -->
     <record id="freight_purchase_quotation_short_list_view" model="ir.ui.view">
@@ -147,7 +168,7 @@
     
     <record id="freight_purchase_shipping_line_list_view" model="ir.ui.view">
         <field name="name">freight.purchase.shipping.line.list</field>
-        <field name="model">res.partner.shipping.line</field>
+        <field name="model">res.partner</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
             <list string="Shipping Lines">
@@ -195,14 +216,16 @@
     <record id="freight_purchase_shipping_line_action" model="ir.actions.act_window">
         <field name="name">Shipping Lines</field>
         <field name="view_mode">list,form</field>
-        <field name="res_model">res.partner.shipping.line</field>
+        <field name="res_model">res.partner</field>
         <field name="domain">[('partner_main_type_id.code', '=', 'shipping_line')]</field>
     <field name="context" eval="{'default_partner_main_type_id': ref('hp_freight_purchase.partner_main_type_shipping_line')}"/>
         <field name="search_view_id" ref="freight_purchase_shipping_line_search_view"/>
         <field name="views" eval="[
             (ref('freight_purchase_shipping_line_list_view'), 'list'),
-            (ref('freight_purchase_shipping_line_form_view'), 'form'),
+            (ref('view_partner_shipping_line_form'), 'form'),
         ]"/>
     </record>
+
+
 </data>
 </odoo>
