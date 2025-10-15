@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="trip_operation_wizard_form" model="ir.ui.view">
+        <field name="name">trucking_planning.trip.operation.wizard.form</field>
+        <field name="model">trucking_planning.trip.operation.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Confirm Operation">
+                <group>
+                    <field name="operation" invisible="context.get('default_operation')"/>
+                    <field name="operation_time"/>
+                    <field name="note" required="operation == 'cancelled'"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Confirm" type="object" class="oe_highlight"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

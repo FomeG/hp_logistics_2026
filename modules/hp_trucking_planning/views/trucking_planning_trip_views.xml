@@ -53,6 +53,20 @@
         <field name="arch" type="xml">
             <form>
                 <header>
+                    <button name="action_start_trip"
+                            string="Start Trip"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="not id or status == 'on_route' or status in ['done', 'cancelled']"/>
+                    <button name="action_mark_done"
+                            string="Mark Done"
+                            type="object"
+                            class="oe_highlight"
+                            invisible="not id or status != 'on_route' and status != 'stopped'"/>
+                    <button name="action_stop" string="Stop" type="object" class="oe_highlight"
+                            invisible="not id or status != 'on_route'"/>
+                    <button name="action_cancel" string="Cancel" type="object" class="btn-danger"
+                            invisible="not id or status in ['done','cancelled']"/>
                     <button name="action_export_trip_docx" string="Export" type="object" class="btn-primary" invisible="not id"/>
                     <button name="action_preview_trip_order" string="Preview" type="object" class="btn-secondary" invisible="not id"/>
                     <button name="action_send_message" 
@@ -61,7 +75,9 @@
                             class="btn-success" 
                             icon="fa-paper-plane"
                             invisible="not id"/>
-                    <field name="status" widget="statusbar" statusbar_visible="draft,checking,confirmed,done"/>
+<!--                    <field name="status" widget="statusbar" statusbar_visible="draft,checking,confirmed,done"/> need to check -->
+                        <field name="status" widget="statusbar" statusbar_visible="draft,on_route,done,stopped,cancelled,"/>
+
                 </header>
                 <sheet>
                     <!-- Current Trip Status - Always Visible at Top -->
@@ -150,46 +166,54 @@
                         <field name="client_tax_number" string="Client Tax Number" readonly="1"/>
                         <field name="plan_estimate_time_departure" />
                         <field name="plan_estimate_time_arrival" />
-                        <field name="status"/>
+                        <field name="status" readonly="1"/>
                     </group>
                     <group string="Vehicle Information">
-                        <field name="is_external_vehicle" widget="boolean_toggle" string="External Vehicle (Xe Ngoài)"/>
-                        <field name="is_combined_vehicle" widget="boolean_toggle" string="Combined Vehicle (Xe Kết Hợp)"/>
+                        <field name="is_external_vehicle" widget="boolean_toggle" string="External Vehicle (Xe Ngoài)"
+                               readonly="status in ['on_route', 'done'] and not is_admin_user"/>
+                        <field name="is_combined_vehicle" widget="boolean_toggle" string="Combined Vehicle (Xe Kết Hợp)"
+                               readonly="status == 'on_route' or status == 'done' and not is_admin_user"/>
                         <button name="action_open_vehicle_driver_pair_popup"
                             type="object"
                             string="Assign Driver - Vehicle"
                             class="oe_highlight"
-                            invisible="is_external_vehicle"/>
+                            invisible="is_external_vehicle or status == 'on_route' or status == 'done' and not is_admin_user"/>
                         <field name="vehicle_assignment_log_id" options="{'no_create': True, 'no_create_edit': True}" invisible="True"/>
                         <field name="truck_id"
-                               invisible="is_external_vehicle"/>
+                               invisible="is_external_vehicle or status == 'on_route' or status == 'done' and not is_admin_user"/>
                         <field name="driver_id"
-                               invisible="is_external_vehicle"/>
+                               invisible="is_external_vehicle or status == 'on_route' or status == 'done' and not is_admin_user"/>
                         <field name="trailer_id"
-                               invisible="is_external_vehicle"/>
-                        <field name="weight_class"/>
-                        <field name="freeway"/>
+                               invisible="is_external_vehicle or status == 'on_route' or status == 'done' and not is_admin_user"/>
+                        <field name="weight_class"
+                               readonly="status == 'on_route' or status == 'done' and not is_admin_user"/>
+                        <field name="freeway"
+                               readonly="status == 'on_route' or status == 'done' and not is_admin_user"/>
                         <field name="special_note"
-                               invisible="not is_external_vehicle and not is_combined_vehicle"
+                               invisible="not is_external_vehicle and not is_combined_vehicle or status == 'done' and not is_admin_user"
                                placeholder="Enter special notes for rented or combined vehicles..."/>
                     </group>
                     <group string ="Container Information">
-                        <field name="container_number"/>
-                        <field name="seal_number"/>
+                        <field name="container_number"
+                               readonly="status == 'on_route' or status == 'done' and not is_admin_user"/>
+                        <field name="seal_number"
+                               readonly="status == 'on_route' or status == 'done' and not is_admin_user"/>
                         <field name="container_type"/>
-                        <field name="container_size"/>
+                        <field name="container_size" readonly="status == 'on_route' or status == 'done' and not is_admin_user"/>
                     </group>
 
                     <notebook>
-                        <page string="Costs">
+                        <page string="Costs" invisible="status == 'done' and not is_admin_user">
                             <group>
-                                <field name="extra_charge"/>
-                                <field name="extra_fuel"/>
-                                <field name="fuel_liters" readonly="1"/>
+                                <field name="extra_charge"
+                                       readonly="status == 'done' and not is_admin_user"/>
+                                <field name="extra_fuel"
+                                       readonly="status == 'done' and not is_admin_user "/>
+                                <field name="fuel_liters" readonly="1 or status == 'done' and not is_admin_user"/>
                                 <field name="total_cost" readonly="1"/>
                             </group>
                         </page>
-                        <page string="Goods Info" invisible="not id">
+                        <page string="Goods Info" invisible="not id or status == 'on_route' or status == 'done' and not is_admin_user">
                             <group>
                                 <field name="goods_name"/>
                                 <field name="goods_weight"/>
@@ -205,7 +229,7 @@
                         </page>
 
                         <page string="Notes">
-                            <field name="note"/>
+                            <field name="note" readonly="status == 'done'"/>
                         </page>
                     </notebook>
                 </sheet>

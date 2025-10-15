@@ -24,6 +24,7 @@
         'views/wizards/zalo_confirmation_wizard_views.xml',
         'views/wizards/import_client_wizard.xml',
         'views/wizards/mass_assign_trucking_client_wizard.xml',
+        'views/wizards/trip_operation_wizard.xml',
 
         # views
         'views/trucking_planning_shipping_line_views.xml',

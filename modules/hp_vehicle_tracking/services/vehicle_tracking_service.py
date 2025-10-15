@@ -254,9 +254,9 @@ class VehicleTrackingService(models.AbstractModel):
                 raise UserError(f"Driver not found for phone number: {phone}")
             
             # Find driver's current trip
-            # trip.driver_id is res.partner, driver.partner_id is res.partner
+            # trip.driver_id is res.partner.driver
             current_trip = Trip.search([
-                ('driver_id', '=', driver.partner_id.id),  # Use partner_id to match with trip.driver_id
+                ('driver_id', '=', driver.id),  # Use res_partner_driver
                 ('is_current', '=', True),
                 ('status', 'not in', ['cancelled', 'done'])
             ], limit=1)
@@ -284,7 +284,7 @@ class VehicleTrackingService(models.AbstractModel):
                 'checkpoint_id': checkpoint.id,
                 'trip_id': current_trip.id,
                 'trip_code': current_trip.code or f'Trip-{current_trip.id}',
-                'driver_id': driver.partner_id.id,  # Return partner_id (res.partner)
+                'driver_id': driver.id,  # Return res.partner.driver
                 'driver_name': driver.name
             }
             
