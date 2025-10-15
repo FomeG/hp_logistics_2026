@@ -255,8 +255,8 @@
                 <field name="weight_class"/>
 
                 <filter string="Draft" name="draft" domain="[('status', '=', 'draft')]"/>
-                <filter string="Confirmed" name="confirmed" domain="[('status', '=', 'confirmed')]"/>
-                <filter string="Checking" name="checking" domain="[('status', '=', 'checking')]"/>
+                <filter string="On Route" name="on_route" domain="[('status', '=', 'on_route')]"/>
+                <filter string="Stopped" name="stopped" domain="[('status', '=', 'stopped')]"/>
                 <filter string="Done" name="done" domain="[('status', '=', 'done')]"/>
                 <filter string="Cancelled" name="cancelled" domain="[('status', '=', 'cancelled')]"/>
                 <filter string="Export" name="export" domain="[('plan_type', '=', 'export')]"/>
