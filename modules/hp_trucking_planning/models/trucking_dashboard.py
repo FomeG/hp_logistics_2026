@@ -217,3 +217,25 @@ class TruckingDashboard(models.Model):
             'context': {'create': False},
             'target': 'current',
         }
+    @api.model
+    def get_dashboard_data(self, month=None, year=None):
+        """Method hỗ trợ controller: Trả về dict dữ liệu dashboard cho web template"""
+        # Tạo record tạm để compute
+        dashboard = self.create({
+            'filter_month': month or str(fields.Date.today().month),
+            'filter_year': year or str(fields.Date.today().year),
+        })
+        data = {
+            'selected_period': dashboard.selected_period,
+            'total_trip_month': dashboard.total_trip_month,
+            'total_trip_done': dashboard.total_trip_done,
+            'total_trip_cancelled': dashboard.total_trip_cancelled,
+            'total_trip_on_route': dashboard.total_trip_on_route,
+            'total_trip_stopped': dashboard.total_trip_stopped,
+            'top_truck_driver': dashboard.top_truck_driver,
+            'all_drivers_stats': dashboard.all_drivers_stats,
+            'filter_month': month or str(fields.Date.today().month),
+            'filter_year': year or str(fields.Date.today().year),
+        }
+        dashboard.unlink()  # Xóa record tạm
+        return data
