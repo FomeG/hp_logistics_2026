@@ -10,10 +10,10 @@ class ResPartnerInherit(models.AbstractModel):
         string='Main Partner Type',
         index=True,
     )
-    is_client = fields.Boolean(compute="_compute_is_client", store=True)
+    is_shipping_line = fields.Boolean(compute="_compute_is_shipping_line", store=True)
 
     @api.depends('partner_main_type_id', 'partner_main_type_id.code')
-    def _compute_is_client(self):
+    def _compute_is_shipping_line(self):
         for rec in self:
-            rec.is_client = (rec.partner_main_type_id.code == 'shipping_line')
+            rec.is_shipping_line = (rec.partner_main_type_id.code == 'shipping_line')
 

@@ -10,25 +10,25 @@
 
 <!-- Ẩn toàn bộ group gốc khi là Shipping Line -->
         <xpath expr="//sheet/group" position="attributes">
-            <attribute name="invisible">is_client</attribute>
+            <attribute name="invisible">is_shipping_line</attribute>
         </xpath>
 
         <xpath expr="//sheet/notebook" position="attributes">
-            <attribute name="invisible">is_client</attribute>
+            <attribute name="invisible">is_shipping_line</attribute>
         </xpath>
         <xpath expr="//div[@class='oe_title mb24']" position="attributes">
-            <attribute name="invisible">is_client</attribute>
+            <attribute name="invisible">is_shipping_line</attribute>
         </xpath>
 <!--      <xpath expr="//header" position="replace">-->
 
 <!--            </xpath>-->
         <!-- Thêm group riêng cho Shipping Line -->
         <xpath expr="//sheet" position="inside">
-              <group invisible="not is_client">
+              <group invisible="not is_shipping_line">
                 <field name="name" string="Shipping Line Name" placeholder="e.g. Global Shipping Co." required="1"/>
                 <field name="email" string="Shipping Line Email" widget="email" placeholder="e.g. contact@shippingline.com" required="1"/>
                 <field name="partner_main_type_id" invisible="1"/>
-                <field name="is_client"/>
+                <field name="is_shipping_line"/>
                 <notebook invisible="not id">
                        <page string="Contacts &amp; Addresses" name="contact_addresses" autofocus="autofocus">
                             <field name="child_ids" mode="kanban" context="{'default_parent_id': id, 'default_street': street, 'default_street2': street2, 'default_city': city, 'default_state_id': state_id, 'default_zip': zip, 'default_country_id': country_id, 'default_lang': lang, 'default_user_id': user_id, 'default_type': 'other'}">
