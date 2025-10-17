@@ -4,7 +4,7 @@
 
 {
     'name': 'HP Recruitment',
-    'version': '1.0',
+    'version': '1.7',
     'author': 'HPL',
     'category': 'HP',
     "license": "LGPL-3",

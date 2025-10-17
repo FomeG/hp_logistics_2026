@@ -1,0 +1,109 @@
+from odoo import api, SUPERUSER_ID
+
+def migrate(cr, version):
+    env = api.Environment(cr, SUPERUSER_ID, {})
+    cr.execute("""
+        SELECT id
+        FROM mail_template
+        WHERE model = 'calendar.event' AND name::text ILIKE %s
+        LIMIT 1
+    """, ['%Calendar: Event Update%'])
+    record = cr.fetchone()
+    if not record:
+        return
+
+    template = env['mail.template'].browse(record[0])
+
+    body_html = """
+<div>
+    <t t-set="colors" t-value="{'needsAction': 'grey', 'accepted': 'green', 'tentative': '#FFFF00', 'declined': 'red'}" />
+    <t t-set="is_online" t-value="'appointment_type_id' in object and object.appointment_type_id" />
+    <t t-set="target_responsible" t-value="object.partner_id == object.partner_id" />
+    <t t-set="target_customer" t-value="object.partner_id == customer" />
+    <t t-set="recurrent" t-value="object.recurrence_id and not ctx.get('calendar_template_ignore_recurrence')" />
+    <t t-set="mail_tz" t-value="object._get_mail_tz() or ctx.get('mail_tz')" />
+    <div>
+        <table border="0" cellpadding="0" cellspacing="0">
+            <tr>
+                <td width="130px;" style="min-width: 130px;">
+                    <div style="border-top-start-radius: 3px; border-top-end-radius: 3px; font-size: 12px; border-collapse: separate; text-align: center; font-weight: bold; color: #ffffff; min-height: 18px; background-color: #875A7B; border: 1px solid #875A7B;">
+                        <t t-out="format_datetime(dt=object.start, tz=mail_tz if not object.allday else None, dt_format='EEEE', lang_code=object.env.lang) ">Tuesday</t>
+                    </div>
+                    <div style="font-size: 48px; min-height: auto; font-weight: bold; text-align: center; color: #5F5F5F; background-color: #F8F8F8; border: 1px solid #875A7B;">
+                        <t t-out="format_datetime(dt=object.start, tz=mail_tz if not object.allday else None, dt_format='d', lang_code=object.env.lang)">4</t>
+                    </div>
+                    <div style='font-size: 12px; text-align: center; font-weight: bold; color: #ffffff; background-color: #875A7B;'>
+                        <t t-out="format_datetime(dt=object.start, tz=mail_tz if not object.allday else None, dt_format='MMMM y', lang_code=object.env.lang)">May 2021</t>
+                    </div>
+                    <div style="border-collapse: separate; color: #5F5F5F; text-align: center; font-size: 12px; border-bottom-end-radius: 3px; font-weight: bold; border: 1px solid #875A7B; border-bottom-start-radius: 3px;">
+                        <t t-if="not object.allday">
+                            <div>
+                                <t t-out="format_time(time=object.start, tz=mail_tz, time_format='short', lang_code=object.env.lang)">11:00 AM</t>
+                            </div>
+                            <t t-if="mail_tz">
+                                <div style="font-size: 10px; font-weight: normal">
+                                    (<t t-out="mail_tz"> Europe/Brussels</t>)
+                                </div>
+                            </t>
+                        </t>
+                    </div>
+                </td>
+                <td width="20px;"/>
+                <td style="padding-top: 5px;">
+                    <p>
+                        <strong>Details of the event</strong>
+                    </p>
+                    <ul>
+                        <t t-if="not is_html_empty(object.description)">
+                            <li>Description:
+                            <t t-out="object.description">Internal meeting for discussion for new pricing for product and services.</t></li>
+                        </t>
+                        <t t-if="object.videocall_location">
+                            <li>
+                                How to Join:
+                                <t t-if="object.get_base_url() in object.videocall_location"> Join with Odoo Discuss</t>
+                                <t t-else=""> Join at</t><br/>
+                                <a t-att-href="object.videocall_location" target="_blank" t-out="object.videocall_location or ''">www.mycompany.com/calendar/join_videocall/xyz</a>
+                            </li>
+                        </t>
+                        <t t-if="object.location">
+                            <li>Location: <t t-out="object.location or ''">Bruxelles</t>
+                                <a target="_blank"
+                                    t-if="not is_online or is_online and object.location != object.appointment_type_id.location_id.name"
+                                    t-attf-href="http://maps.google.com/maps?oi=map&amp;q={{object.location}}">(View Map)</a>
+                            </li>
+                        </t>
+                        <t t-if="recurrent">
+                            <li>When: <t t-out="object.recurrence_id.get_recurrence_name()">Every 1 Weeks, for 3 events</t></li>
+                        </t>
+                        <t t-if="not object.allday and object.duration">
+                            <li>Duration:
+                                <t t-out="('%dH%02d' % (object.duration,round(object.duration*60)%60))">0H30</t>
+                            </li>
+                        </t>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="user_input">
+        <hr/>
+        <p placeholder="Enter your message here">
+            Thank you for your interest in applying for the {{ object.name }}.
+            After reviewing your application, we have found that you meet the requirements of this position and would like to invite you to attend an interview to discuss further details.
+            Please reply to this email to confirm your attendance or suggest another time if you are unable to make the above schedule.
+        <br/></p>
+    </div>
+    <t t-if="object.user_id.signature">
+        <br />
+        <p>We look forward to meeting you at your upcoming interview.</p>
+        <p>Best regards,<br/>Human Resources Department</p>
+    </t>
+</div>
+    """
+
+    if template:
+        template.write({
+            'subject': 'Interview invitation letter {{ object.name }}',
+            'body_html': body_html,
+        })
