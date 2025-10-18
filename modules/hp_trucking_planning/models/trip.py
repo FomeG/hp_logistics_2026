@@ -906,8 +906,8 @@ class Trip(models.Model):
     def _cancel_inactive_trip(self):
         planning_service(self.env).update_trip_statuses('cancelled')
     
-    def _close_done_trip(self):
-        planning_service(self.env).update_trip_statuses('done')
+    # def _close_done_trip(self):
+    #     planning_service(self.env).update_trip_statuses('done')
     
     @api.model
     def recompute_eta_near_status(self):
