@@ -4,17 +4,23 @@ from odoo.http import request
 
 class TruckingDashboardController(http.Controller):
 
-    @http.route('/trucking/dashboard', type='http', auth='user', website=True)
-    def trucking_dashboard(self, month=None, year=None, **kw):
-        """Route chính cho dashboard web"""
+    def _get_dashboard(self, month=None, year=None):
         # Đảm bảo month và year được convert sang string nếu cần
         if month:
             month = str(month)
         if year:
             year = str(year)
 
-        # Lấy dữ liệu từ model với month và year từ URL parameters
-        dashboard_data = request.env['trucking.dashboard'].get_dashboard_data(month, year)
+        # Gọi model service
+        dashboard_model = request.env['trucking.dashboard']
+        dashboard_data = dashboard_model.get_dashboard_data(month, year)
+
+        return dashboard_data
+
+    @http.route('/trucking/dashboard', type='http', auth='user', website=True)
+    def trucking_dashboard(self, month=None, year=None, **kw):
+        """Route chính cho dashboard web"""
+        dashboard_data = self._get_dashboard(month, year)
 
         # Lấy ID actions (nếu tồn tại, tránh lỗi ref)
         action_trip_analysis_id = request.env.ref('hp_trucking_planning.action_trip_analysis', raise_if_not_found=False)
@@ -32,12 +38,7 @@ class TruckingDashboardController(http.Controller):
     @http.route('/trucking/dashboard/filter', type='json', auth='user', website=True, methods=['POST'])
     def filter_dashboard(self, month, year, **kw):
         """Xử lý filter động qua AJAX"""
-        # Convert sang string để đảm bảo consistency
-        month = str(month) if month else None
-        year = str(year) if year else None
-
-        dashboard_data = request.env['trucking.dashboard'].get_dashboard_data(month, year)
-
+        dashboard_data = self._get_dashboard(month, year)
         # Return JSON data thay vì render template
         return {
             'success': True,

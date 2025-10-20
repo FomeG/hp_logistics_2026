@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="trucking_dashboard_default" model="trucking.dashboard">
-        <field name="name">Dashboard</field>
-    </record>
 
     <record id="action_trip_analysis" model="ir.actions.act_window">
         <field name="name">Trip Analysis</field>
@@ -179,4 +176,4 @@
         </div>
     </template>
 
-</odoo>9*
+</odoo>
