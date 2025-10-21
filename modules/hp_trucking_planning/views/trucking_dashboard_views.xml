@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="trucking_dashboard_default" model="trucking.dashboard">
-        <field name="name">Dashboard</field>
-    </record>
 
     <record id="action_trip_analysis" model="ir.actions.act_window">
         <field name="name">Trip Analysis</field>
@@ -16,102 +13,167 @@
         <field name="target">current</field>
     </record>
 
-    <record id="view_trucking_dashboard_form" model="ir.ui.view">
-        <field name="name">trucking.dashboard.form</field>
-        <field name="model">trucking.dashboard</field>
-        <field name="arch" type="xml">
-            <form string="Trucking Dashboard" create="false" delete="false">
-                <sheet>
-                    <div class="oe_title">
-                        <h1>
-                            <i class="fa fa-dashboard"/> Dashboard Trucking
-                        </h1>
-                    </div>
-                    <!-- Smart buttons -->
-                            <div class="oe_button_box" name="button_box">
-                                <button type="action"
-                                        name="%(action_trip_analysis)d"
-                                        class="oe_stat_button"
-                                        icon="fa-line-chart">
-                                    <field string="Detailed Trip Analysis"
-                                           name="total_trip_month"
-                                           widget="statinfo"/>
+    <record id="action_trip_on_route" model="ir.actions.act_window">
+        <field name="name">Trips On Route</field>
+        <field name="res_model">trucking_planning.trip</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('status', '=', 'on_route')]</field>
+        <field name="context">{'create': False}</field>
+        <field name="target">current</field>
+    </record>
+
+    <record id="action_trucking_dashboard_web" model="ir.actions.act_url">
+        <field name="name">Dashboard Web</field>
+        <field name="url">/trucking/dashboard</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- QWeb Template cho Web Dashboard -->
+    <template id="trucking_dashboard_template" name="Trucking Dashboard Web">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <div class="container">
+                    <h1 class="mt-4"><i class="fa fa-dashboard"/> Dashboard Trucking</h1>
+
+                    <!-- Filter Form -->
+                    <form method="get" action="/trucking/dashboard" id="filter_form">
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <label>Tháng:</label>
+                                <select name="month" id="filter_month" class="form-control">
+                                    <t t-foreach="[('1', 'Tháng 1'), ('2', 'Tháng 2'), ('3', 'Tháng 3'), ('4', 'Tháng 4'), ('5', 'Tháng 5'), ('6', 'Tháng 6'),
+                                                   ('7', 'Tháng 7'), ('8', 'Tháng 8'), ('9', 'Tháng 9'), ('10', 'Tháng 10'), ('11', 'Tháng 11'), ('12', 'Tháng 12')]" t-as="m">
+                                        <option t-att-value="m[0]" t-att-selected="'selected' if m[0] == dashboard_data.get('filter_month') else None">
+                                            <t t-esc="m[1]"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label>Năm:</label>
+                                <select name="year" id="filter_year" class="form-control">
+                                    <t t-foreach="request.env['trucking.dashboard']._get_year_selection()" t-as="y">
+                                        <option t-att-value="y[0]" t-att-selected="'selected' if y[0] == dashboard_data.get('filter_year') else None">
+                                            <t t-esc="y[1]"/>
+                                        </option>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary" id="filter_btn">
+                                    <i class="fa fa-filter"/> Lọc Dữ Liệu
                                 </button>
                             </div>
-                    <!-- Filter Section -->
-                    <group string="Filter">
-                        <group>
-                            <field name="filter_month" widget="selection"/>
-                            <field name="filter_year" widget="selection"/>
-                        </group>
-                        <group>
-                            <field name="selected_period" readonly="1"/>
-                        </group>
-                    </group>
-
-                    <notebook>
-                        <page string="General" name="overview">
-                            <!-- Statistics Cards -->
-                            <group>
-                                <group string="Trip Statistics">
-                                    <field name="total_trip_month"
-                                           readonly="1"
-                                           string="Total Trip (Not cancelled)"/>
-                                    <field name="total_trip_confirmed"
-                                           readonly="1"
-                                           string="Trip Confirmed"/>
-                                    <field name="total_trip_done"
-                                           readonly="1"
-                                           string="Trip Done"/>
-                                    <field name="total_trip_cancelled"
-                                           readonly="1"
-                                           string="Trip Cancelled"/>
-                                </group>
-                            </group>
-                        </page>
-
-                        <page string="Top Truck - Driver" name="top_performers">
-                            <group string="🏆 Top 5 Truck - Driver (by Completed Trips)">
-                                <field name="top_truck_driver"
-                                       nolabel="1"
-                                       readonly="1"
-                                       widget="text"
-                                       options="{'style': 'font-family: monospace; white-space: pre;'}"/>
-                            </group>
-                        </page>
-                        <page string="Tất cả Tài xế" name="all_drivers">
-                            <group string="Thống kê chi tiết tất cả Tài xế">
-                                <field name="all_drivers_stats"
-                                       nolabel="1"
-                                       readonly="1"
-                                       widget="text"
-                                       options="{'style': 'font-family: monospace; white-space: pre; font-size: 13px;'}"/>
-                            </group>
-                            <div class="alert alert-info mt-3" role="alert">
-                                <strong>Lưu ý:</strong>
-                                <ul>
-                                    <li>Bảng thống kê hiển thị tất cả tài xế đã thực hiện chuyến trong kỳ</li>
-                                    <li>Số chuyến: Tổng số chuyến không bao gồm chuyến bị hủy</li>
-                                    <li>Lít dầu: Tổng lượng nhiên liệu được tính cho các chuyến</li>
-                                    <li>Dữ liệu được sắp xếp theo số chuyến giảm dần</li>
-                                </ul>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <span class="text-muted">Kỳ: <strong><t t-esc="dashboard_data.get('selected_period', 'N/A')"/></strong></span>
                             </div>
-                        </page>
-                    </notebook>
+                        </div>
+                    </form>
 
-                </sheet>
-            </form>
-        </field>
-    </record>
+                    <!-- Nội dung động -->
+                    <div id="dashboard-content">
+                        <t t-call="hp_trucking_planning.trucking_dashboard_content">
+                            <t t-set="dashboard_data" t-value="dashboard_data"/>
+                        </t>
+                    </div>
 
-    <!-- Action mở dashboard -->
-    <record id="action_trucking_dashboard" model="ir.actions.act_window">
-        <field name="name">Dashboard</field>
-        <field name="res_model">trucking.dashboard</field>
-        <field name="view_mode">form</field>
-        <field name="target">current</field>
-        <field name="res_id" ref="trucking_dashboard_default"/>
-        <field name="context">{'create': False, 'delete': False}</field>
-    </record>
+                    <!-- Smart Buttons -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <t t-if="action_trip_analysis_id">
+                                <a t-att-href="'/web#action=' + str(action_trip_analysis_id)" class="btn btn-info btn-lg btn-block">
+                                    <i class="fa fa-line-chart"/> Phân Tích Chi Tiết Chuyến Đi (<t t-esc="dashboard_data.get('total_trip_month', 0)"/>)
+                                </a>
+                            </t>
+                        </div>
+                        <div class="col-md-6">
+                            <t t-if="action_trip_on_route_id">
+                                <a t-att-href="'/web#action=' + str(action_trip_on_route_id)" class="btn btn-warning btn-lg btn-block">
+                                    <i class="fa fa-truck"/> Chuyến Đang Trên Đường (<t t-esc="dashboard_data.get('total_trip_on_route', 0)"/>)
+                                </a>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Partial Template cho Content động -->
+    <template id="trucking_dashboard_content" name="Dashboard Content">
+        <div class="row">
+            <!-- Statistics Cards -->
+            <div class="col-md-12 mb-4">
+                <h3>Thống Kê Chuyến Đi</h3>
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="card text-white bg-primary mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Tổng Chuyến (Không Hủy)</h5>
+                                <p class="card-text fs-3"><t t-esc="dashboard_data.get('total_trip_month', 0)"/></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-white bg-success mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Chuyến Hoàn Thành</h5>
+                                <p class="card-text fs-3"><t t-esc="dashboard_data.get('total_trip_done', 0)"/></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-white bg-danger mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Chuyến Hủy</h5>
+                                <p class="card-text fs-3"><t t-esc="dashboard_data.get('total_trip_cancelled', 0)"/></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-white bg-warning mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Chuyến Trên Đường</h5>
+                                <p class="card-text fs-3"><t t-esc="dashboard_data.get('total_trip_on_route', 0)"/></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-white bg-secondary mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Chuyến Dừng</h5>
+                                <p class="card-text fs-3"><t t-esc="dashboard_data.get('total_trip_stopped', 0)"/></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Performers -->
+            <div class="col-md-6 mb-4">
+                <h3>🏆 Top 5 Xe - Tài Xế (Theo Số Chuyến Hoàn Thành)</h3>
+                <div class="bg-light p-3" style="font-family: monospace; white-space: pre; border: 1px solid #ddd; max-height: 300px; overflow-y: auto;">
+                    <t t-esc="dashboard_data.get('top_truck_driver', 'Không có dữ liệu')"/>
+                </div>
+            </div>
+
+            <!-- All Drivers -->
+            <div class="col-md-6 mb-4">
+                <h3>Thống Kê Chi Tiết Tất Cả Tài Xế</h3>
+                <div class="bg-light p-3" style="font-family: monospace; white-space: pre; font-size: 13px; border: 1px solid #ddd; max-height: 400px; overflow-y: auto;">
+                    <t t-esc="dashboard_data.get('all_drivers_stats', 'Không có dữ liệu')"/>
+                </div>
+                <div class="alert alert-info mt-2" role="alert">
+                    <strong>Lưu ý:</strong>
+                    <ul>
+                        <li>Bảng thống kê hiển thị tất cả tài xế đã thực hiện chuyến trong kỳ</li>
+                        <li>Số chuyến: Tổng số chuyến không bao gồm chuyến bị hủy</li>
+                        <li>Lít dầu: Tổng lượng nhiên liệu được tính cho các chuyến</li>
+                        <li>Dữ liệu được sắp xếp theo số chuyến giảm dần</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </template>
 
 </odoo>
