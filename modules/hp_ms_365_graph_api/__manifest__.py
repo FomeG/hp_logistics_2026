@@ -17,13 +17,16 @@ Long description of module's purpose
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base'],
+    'depends': ['base', 'mail'],  # nếu dùng mail.mail hoặc mail.message
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
         'views/ms_user_view.xml',
-        'data/cron_job.xml'
+        'data/cron_job.xml',
+        'views/mail_message_view.xml',
+        'views/menu.xml',
+
     ],
     # only loaded in demonstration mode
     'demo': [
