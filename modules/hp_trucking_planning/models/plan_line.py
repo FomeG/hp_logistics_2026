@@ -172,6 +172,27 @@ class PlanLine(models.Model):
         help="Comma-separated weight classes from trips"
     )
 
+    trip_status_summary = fields.Char(
+        string="Trip Status",
+        compute='_compute_trip_status_summary',
+        store=False,
+        help="Summary of trip statuses: Incomplete (Draft, On Route, Stopped) / Done"
+    )
+
+    @api.depends('trip_ids.status', 'trip_ids.active')
+    def _compute_trip_status_summary(self):
+        for record in self:
+            active_trips = record.trip_ids.filtered(lambda t: t.active)
+            # Đếm số chuyến chưa hoàn thành (draft, on_route, stopped)
+            incomplete_trips = active_trips.filtered(
+                lambda t: t.status in ['draft', 'on_route', 'stopped']
+            )
+            # Đếm số chuyến đã hoàn thành (done)
+            done_trips = active_trips.filtered(
+                lambda t: t.status == 'done'
+            )
+            record.trip_status_summary = f"{len(incomplete_trips)} Incomplete / {len(done_trips)} Done"
+
     @api.depends('trip_ids.container_number')
     def _compute_container_number_summary(self):
         for record in self:
