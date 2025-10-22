@@ -336,24 +336,9 @@ class Trip(models.Model):
         from_wizard = self.env.context.get('from_wizard', False)
         from_zalo = self.env.context.get('from_zalo_driver', False)
 
-        # Check điều kiện chung
-        if new_status == constants.TripStatus.ON_ROUTE:
-            if self.status in [constants.TripStatus.DONE, constants.TripStatus.CANCELLED]:
-                raise UserError("Cannot start a trip that is already done or cancelled.")
-            if not from_zalo and not self.env.user.has_group('hp_trucking_planning.group_hp_trucking_planning_lead'):
-                raise AccessError("Only the leader can start the trip.")
-        elif new_status == constants.TripStatus.DONE:
-            if self.status in [constants.TripStatus.DONE, constants.TripStatus.CANCELLED]:
-                raise UserError("Cannot reset a trip that is already done or cancelled.")
-            if not self.env.user.has_group('hp_trucking_planning.group_hp_trucking_planning_lead'):
-                raise AccessError("Only the leader can mark done the trip.")
-            if self.status not in [constants.TripStatus.ON_ROUTE, constants.TripStatus.STOPPED]:
-                raise UserError("You can only mark the trip as done when it is on route or stopped.")
-
         old_status = self.status
         self.write({'status': new_status})
 
-        # Post message
         log_body = f"Status changed from {old_status} to {new_status} lúc {fields.Datetime.now()}."
         if note:
             log_body += f"\nNote: {note}"
@@ -369,26 +354,18 @@ class Trip(models.Model):
 
     def action_start_trip(self):
         self.ensure_one()
-        if self.status == constants.TripStatus.ON_ROUTE:
-            raise UserError("Trip đã On Route.")
         return self._open_operation_wizard(constants.TripStatus.ON_ROUTE)
 
     def action_mark_done(self):
         self.ensure_one()
-        if self.status == constants.TripStatus.DONE:
-            raise UserError("Trip đã done.")
         return self._open_operation_wizard(constants.TripStatus.DONE)
 
     def action_stop(self):
         self.ensure_one()
-        if self.status != constants.TripStatus.ON_ROUTE:
-            raise UserError(_("It can only be stopped when the trip is in On Route status."))
         return self._open_operation_wizard(constants.TripStatus.STOPPED)
 
     def action_cancel(self):
         self.ensure_one()
-        if self.status in [constants.TripStatus.DONE, constants.TripStatus.CANCELLED]:
-            raise UserError(_("It cannot be cancelled if the trip is already in Done or Cancelled status."))
         return self._open_operation_wizard(constants.TripStatus.CANCELLED)
 
     def _open_operation_wizard(self, operation):
