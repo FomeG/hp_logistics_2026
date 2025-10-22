@@ -4,7 +4,9 @@ import pandas as pd
 import io
 import base64
 import re
+import logging
 
+_logger = logging.getLogger(__name__)
 
 class ImportShippingLineWizard(models.TransientModel):
     _name = 'freight.purchase.import_shipping_line_wizard'
@@ -105,13 +107,35 @@ class ImportShippingLineWizard(models.TransientModel):
             'data': data
         }
 
-    def _create_shipping_lines(self, data_array):
+    def _create_shipping_lines(self, data_array, batch_size=500):
         Partner = self.env['res.partner']
         domain = [('partner_main_type_id.code', '=', 'shipping_line')]
 
-        existing_partners = Partner.search(domain)
-        existing_by_email = {p.email.lower(): p for p in existing_partners if p.email}
-        existing_by_name = {p.name.lower(): p for p in existing_partners}
+        # Lấy danh sách email + name để query theo batch
+        emails = [d.get('email').lower() for d in data_array if d.get('email')]
+        names = [d.get('name').lower() for d in data_array if d.get('name')]
+
+        existing_by_email = {}
+        existing_by_name = {}
+
+        # Query theo batch email
+        for i in range(0, len(emails), batch_size):
+            batch_emails = emails[i:i + batch_size]
+            partners = Partner.search(domain + [('email', 'in', batch_emails)])
+            _logger.info("[IMPORT][Email Batch %s/%s] Found %s partners by email",
+                         i // batch_size + 1, (len(emails) - 1) // batch_size + 1, len(partners))
+            for p in partners:
+                if p.email:
+                    existing_by_email[p.email.lower()] = p
+
+        # Query theo batch name
+        for i in range(0, len(names), batch_size):
+            batch_names = names[i:i + batch_size]
+            partners = Partner.search(domain + [('name', 'in', batch_names)])
+            _logger.info("[IMPORT][Name Batch %s/%s] Found %s partners by name",
+                         i // batch_size + 1, (len(names) - 1) // batch_size + 1, len(partners))
+            for p in partners:
+                existing_by_name[p.name.lower()] = p
 
         to_create = []
         to_update = {}
@@ -131,23 +155,24 @@ class ImportShippingLineWizard(models.TransientModel):
                     'comment': data.get('comment'),
                 }
             else:
-                if '@fake-shipping.com' in email_lower:
-                    if name_lower in existing_by_name:
-                        skipped.append(data.get('name'))
-                        continue
+                if name_lower in existing_by_name:
+                    skipped.append(data.get('name'))
+                    continue
                 to_create.append(data)
 
-        # Multi create
         created_count = 0
+        updated_count = 0
+
         if to_create:
             created_partners = Partner.create(to_create)
             created_count = len(created_partners)
+            _logger.info("[IMPORT] Created %s new partners in this batch.", created_count)
 
-        updated_count = 0
         if to_update:
             for partner_id, vals in to_update.items():
                 Partner.browse(partner_id).write(vals)
             updated_count = len(to_update)
+            _logger.info("[IMPORT] Updated %s existing partners in this batch.", updated_count)
 
         return {
             'created': created_count,
@@ -158,26 +183,43 @@ class ImportShippingLineWizard(models.TransientModel):
     def action_import(self):
         self.ensure_one()
 
-        try:
-            if not self.file:
-                raise UserError(_('Vui lòng tải file lên.'))
+        if not self.file:
+            raise UserError(_('Vui lòng tải file lên.'))
 
+        try:
             file_content = base64.b64decode(self.file)
 
-            # Validate file
             validate = self._validate_file(file_content)
             if not validate['status']:
                 raise UserError(validate['message'])
 
             data = validate['data']
-            result = self._create_shipping_lines(data)
+            batch_size = 1000
+
+            total_created = 0
+            total_updated = 0
+            total_skipped = []
+
+            _logger.info("[IMPORT] Start processing %s records (batch size: %s)", len(data), batch_size)
+
+            for i in range(0, len(data), batch_size):
+                batch_data = data[i:i + batch_size]
+                _logger.info("[IMPORT] Processing batch %s/%s (%s records)",
+                             i // batch_size + 1, (len(data) - 1) // batch_size + 1, len(batch_data))
+                result = self._create_shipping_lines(batch_data)
+                total_created += result['created']
+                total_updated += result['updated']
+                total_skipped.extend(result['skipped'])
+
+            _logger.info("[IMPORT] Completed: created=%s, updated=%s, skipped=%s",
+                         total_created, total_updated, len(total_skipped))
 
             message = _("Import thành công!\n"
                         "- Đã tạo mới: %s hãng tàu\n"
-                        "- Đã cập nhật: %s hãng tàu") % (result['created'], result['updated'])
+                        "- Đã cập nhật: %s hãng tàu") % (total_created, total_updated)
 
-            if result['skipped']:
-                message += _("\n- Bỏ qua (trùng tên): %s") % ", ".join(set(result['skipped']))  # Dedup skipped
+            if total_skipped:
+                message += _("\n- Bỏ qua (trùng tên): %s") % ", ".join(set(total_skipped))
 
             return {
                 'type': 'ir.actions.client',
@@ -189,5 +231,7 @@ class ImportShippingLineWizard(models.TransientModel):
                     'type': 'success',
                 }
             }
+
         except Exception as e:
+            _logger.exception("[IMPORT] Error during import: %s", e)
             raise UserError(_('Lỗi: %s') % str(e))
