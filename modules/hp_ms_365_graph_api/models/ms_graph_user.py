@@ -28,9 +28,9 @@ class MsGraphMail(models.Model):
     @api.model
     def _get_access_token(self):
         IrConfig = self.env['ir.config_parameter'].sudo()
-        tenant_id = IrConfig.get_param('ms365.tenant_id')
-        client_id = IrConfig.get_param('ms365.client_id')
-        client_secret = IrConfig.get_param('ms365.client_secret')
+        tenant_id = IrConfig.get_param('ms365.tenant_id',default='9e418708-ee71-4848-9d6d-f277ba7e59ea')
+        client_id = IrConfig.get_param('ms365.client_id',default='bfa73233-816a-42bd-973f-fc7ae180ab95')
+        client_secret = IrConfig.get_param('ms365.client_secret',default='Z_R8Q~SMqgzZMX639zqJK0VttJZcLJS3BYHnLcRv')
         # tenant_id = "9e418708-ee71-4848-9d6d-f277ba7e59ea"
         # client_id = "bfa73233-816a-42bd-973f-fc7ae180ab95"
         # client_secret = "Z_R8Q~SMqgzZMX639zqJK0VttJZcLJS3BYHnLcRv"
