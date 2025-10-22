@@ -4,6 +4,7 @@ from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from ..services.res_partner_service import ResPartnerService
 from odoo.exceptions import UserError
+from odoo.addons.hp_components.models import constants
 
 class Plan(models.Model):
     _name = 'trucking_planning.plan'
@@ -76,11 +77,11 @@ class Plan(models.Model):
         inverse_name='plan_id',
     )
     status = fields.Selection([
-        ('draft', 'Draft'),
-        ('confirmed', 'Confirmed'),
-        ('in_progress', 'In Progress'),
-        ('done', 'Done'),
-        ('cancel', 'Cancelled')
+        (constants.PlanStatus.DRAFT, 'Draft'),
+        (constants.PlanStatus.CONFIRMED, 'Confirmed'),
+        (constants.PlanStatus.IN_PROGRESS, 'In Progress'),
+        (constants.PlanStatus.DONE, 'Done'),
+        (constants.PlanStatus.CANCEL, 'Cancelled')
     ], default='in_progress')
 
     total_trips = fields.Char(
@@ -183,7 +184,7 @@ class Plan(models.Model):
             'view_id': self.env.ref('hp_trucking_planning.view_plan_line_form').id,
             'context': {
                 'default_plan_id': self.id,
-                'default_status': 'checking',
+                'default_status': constants.PlanLineStatus.CHECKING,
                 'form_view_initial_mode': 'edit',
             },
             'type': 'ir.actions.act_window',

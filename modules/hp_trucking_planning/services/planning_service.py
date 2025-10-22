@@ -1,4 +1,5 @@
 from odoo import fields
+from odoo.addons.hp_components.models import constants
 
 class planning_service:
     _name = "trucking_planning.plan.service"
@@ -9,7 +10,7 @@ class planning_service:
     def remove_vehicle_driver_by_vehicle_and_date_plan(self, vehicle_id, date_plan, exclude_trip_id):
         trips = self.env['trucking_planning.trip'].search([
             ('id', '!=', exclude_trip_id),
-            ('status', 'not in', ['cancelled']),
+            ('status', 'not in', [constants.TripStatus.CANCELLED]),
             ('truck_id', '=', vehicle_id),
             ('plan_date', '=', date_plan),
         ])
@@ -25,24 +26,24 @@ class planning_service:
         today = fields.Date.today()
 
         match status:
-            case 'cancelled':
+            case constants.TripStatus.CANCELLED:
                 domain = [
                     ('truck_id', '=', False),
                     '|', '|',
                         ('goods_cut_off', '<', now),
                         ('plan_date', '<', today),
                         ('plan_estimate_time_departure', '<', now),
-                    ('status', '!=', 'cancelled'),
+                    ('status', '!=', constants.TripStatus.CANCELLED),
                 ]
 
-            case 'done':
+            case constants.TripStatus.DONE:
                 domain = [
                     ('truck_id', '!=', False),
                     '|', '|',
                         ('goods_cut_off', '<', now),
                         ('plan_date', '<', today),
                         ('plan_estimate_time_arrival', '<', now),
-                    ('status', '!=', 'done'),
+                    ('status', '!=', constants.TripStatus.DONE),
                 ]
             case _:
                 return False

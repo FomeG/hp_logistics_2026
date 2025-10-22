@@ -18,3 +18,25 @@ class VehicleTag:
 class PartnerMainTypeCode:
     DRIVER = 'driver'
     CLIENT = 'client'
+
+class PlanStatus:
+    DRAFT = 'draft'
+    CONFIRMED = 'confirmed'
+    IN_PROGRESS = 'in_progress'
+    DONE = 'done'
+    CANCEL = 'cancel'
+
+class PlanLineStatus:
+    HPL_REJECT = 'hpl_reject'
+    CLIENT_CANCEL = 'client_cancel'
+    CHECKING = 'checking'
+    TRANSFER = 'transfer'
+    RENTED = 'rented'
+
+class TripStatus:
+    DRAFT = 'draft'
+    ON_ROUTE = 'on_route'
+    STOPPED = 'stopped'
+    DONE = 'done'
+    CANCELLED = 'cancelled'
+

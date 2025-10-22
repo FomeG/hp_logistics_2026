@@ -27,7 +27,7 @@
             <form string="Plan">
                 <sheet>
                     <header>
-                        <field name="status" widget="statusbar" statusbar_visible="draft,confirmed,completed"/>
+                        <field name="status" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
 <!--                        <button name="action_export_plan_docx" string="Export Plan" type="object" class="btn-primary" invisible="not id"/>-->
                         <button name="action_send_message_to_all_trips" 
                                 string="Send Message to All Trips" 
