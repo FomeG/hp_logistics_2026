@@ -8,5 +8,9 @@
                   parent="menu_ms_graph_root"
                   action="action_view_all_fetched_messages"
                   />
+        <menuitem id="menu_my_attachments"
+                  name="My Attachments"
+                  parent="menu_ms_graph_root"
+                  action="action_all_attachments"/>
     </data>
 </odoo>

@@ -1,11 +1,19 @@
 <odoo>
     <data>
-        <record id="action_view_all_fetched_messages" model="ir.actions.act_window">
+        <record id="action_my_attachments" model="ir.actions.act_window">
             <field name="name">Fetched Emails</field>
             <field name="res_model">mail.mail</field>
             <field name="view_mode">list,form</field>
 <!--            <field name="domain">[('x_ms365_fetch', '=', True), '|', ('email_from', 'ilike', user.email), ('x_ms365_account', '=', user.email)]</field>-->
             <field name="domain">[('x_ms365_fetch', '=', True), ('create_uid', '=', uid)]</field>
+
+        </record>
+         <record id="action_view_all_fetched_messages" model="ir.actions.act_window">
+            <field name="name">Fetched Emails</field>
+            <field name="res_model">mail.mail</field>
+            <field name="view_mode">list,form</field>
+<!--            <field name="domain">[('x_ms365_fetch', '=', True), '|', ('email_from', 'ilike', user.email), ('x_ms365_account', '=', user.email)]</field>-->
+<!--            <field name="domain">[('x_ms365_fetch', '=', True), ('create_uid', '=', uid)]</field>-->
 
         </record>
     <record model="ir.ui.view" id="view_mail_from_inherit_365">

@@ -24,7 +24,7 @@ class IrAttachmentInherit(models.Model):
         ('co', 'Certificate of Origin'),
         ('other', 'Other')
     ], string='Document Type')
-    department = fields.Char(string="Department",compute='_compute_department')
+    department = fields.Char(string="Department",compute='_compute_department',store=True)
     s3_path = fields.Char(string="S3 Path", readonly=False, store=True)
 
     @api.depends('res_model')

@@ -191,6 +191,8 @@ class MsGraphMail(models.Model):
                 # 'create_uid' : user.id,
             })
 
+            employee = self.env['hr.employee'].sudo().search([('user_id', '=', mail_mail.create_uid.id)], limit=1)
+
             # 2 Tạo mail.message (con) và liên kết với mail.mail
             message = self.env['mail.message'].create({
                 'message_type': 'email',
@@ -240,15 +242,22 @@ class MsGraphMail(models.Model):
                                 with open(file_path, "rb") as f:
                                     file_bytes = f.read()
 
-                                self.env['ir.attachment'].sudo().create({
+
+                                attachment  = self.env['ir.attachment'].sudo().create({
                                     'name': file_name_safe,
-                                    'res_model': 'mail.message',
-                                    'res_id': message.id,
+                                    'res_model': 'mail.mail',
+                                    'res_id': mail_mail.id,
                                     'mimetype': mimetype,
                                     'store_fname': file_path,
                                     'file_size': os.path.getsize(file_path),
                                     'datas': base64.b64encode(file_bytes).decode('utf-8'),
+                                    # 'department': employee.department_id.name if employee.department_id else '',
                                 })
+                                attachment.sudo().write({
+                                    'department': employee.department_id.name if employee.department_id else '',
+                                })
+                                # mail_mail.invalidate_recordset()
+                                mail_mail.write({'unrestricted_attachment_ids': [(4, attachment.id)]})
 
                             except Exception as e:
                                 _logger.warning(" Lỗi khi lưu attachment %s: %s", file_name, e)

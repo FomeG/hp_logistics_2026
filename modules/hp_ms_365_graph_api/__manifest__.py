@@ -25,6 +25,7 @@ Long description of module's purpose
         'views/ms_user_view.xml',
         'data/cron_job.xml',
         'views/mail_message_view.xml',
+        'views/ir_attachment_views.xml',
         'views/menu.xml',
 
     ],
