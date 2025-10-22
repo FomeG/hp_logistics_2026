@@ -255,7 +255,7 @@
                                     </form>
                                 </field>
                             </page>
-                            <page string="Details By Salary Rule Category">
+                            <!-- <page string="Details By Salary Rule Category">
                                 <field name="details_by_salary_rule_category"
                                        context="{'search_default_category_id':1}"
                                        domain="[('appears_on_payslip', '=', True)]">
@@ -266,7 +266,7 @@
                                         <field name="total"/>
                                     </list>
                                 </field>
-                            </page>
+                            </page> -->
                             <page string="Accounting Information">
                                 <group>
                                     <group string="Miscellaneous">

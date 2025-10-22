@@ -1,14 +1,13 @@
 from odoo import fields
 from ..models.constants import WorkShiftType
-from datetime import date, datetime, time, timedelta
-import pytz
+from datetime import datetime, time, timedelta
 from odoo.exceptions import UserError, ValidationError
 
 import logging
 _logger = logging.getLogger(__name__)
 
 class HrAttendanceService:
-    _name = 'custom_component.partner.service'
+    _name = 'custom_component.attendance.service'
 
     def __init__(self, env):
         self.env = env
@@ -91,3 +90,39 @@ class HrAttendanceService:
     
     def datetime_to_float(self, dt):
         return round(dt.hour + dt.minute / 60.0 + dt.second / 3600.0, 2)
+    
+
+    def calculate_work_time(self, contract, date_from, date_to):
+        weekly_hours = contract.resource_calendar_id.full_time_required_hours
+        daily_hours = contract.resource_calendar_id.hours_per_day
+
+        full_days = int(weekly_hours // daily_hours)
+        remainder = weekly_hours - full_days * daily_hours
+        partial_fraction = remainder / daily_hours if daily_hours else 0.0
+        partial_weekday = full_days if (partial_fraction > 0 and full_days < 7) else None
+
+        total_days = 0.0
+        total_hours = 0.0
+        cur = date_from
+        details = []
+        while cur <= date_to:
+            wd = cur.weekday()
+            if wd < full_days:
+                added_days, added_hours = 1.0, daily_hours
+            elif partial_weekday is not None and wd == partial_weekday:
+                added_days, added_hours = partial_fraction, partial_fraction * daily_hours
+            else:
+                added_days, added_hours = 0.0, 0.0
+
+            if added_days:
+                details.append((cur.isoformat(), added_days, added_hours))
+
+            total_days += added_days
+            total_hours += added_hours
+            cur += timedelta(days=1)
+
+        return {
+            "days": total_days,
+            "hours": total_hours,
+            "details": details,
+        }

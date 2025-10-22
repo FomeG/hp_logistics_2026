@@ -4,8 +4,10 @@ from dateutil.relativedelta import relativedelta
 from pytz import timezone
 from odoo import api, fields, models, tools, _
 from odoo.exceptions import UserError, ValidationError
-from ...hp_components.services.hr_attendance_service import HrAttendanceService
+from ..services.payroll_service import PayrollService
 
+import logging
+_logger = logging.getLogger(__name__)
 
 class HrPayslip(models.Model):
     _name = 'hr.payslip'
@@ -182,37 +184,22 @@ class HrPayslip(models.Model):
         @return: returns a list of dict containing the input that should be applied for the given contract between date_from and date_to
         """
         res = []
+        payroll_service = PayrollService(self.env)
         # fill only if the contract as a working schedule linked
         for contract in contracts.filtered(lambda contract: contract.resource_calendar_id):
-            day_from = datetime.combine(fields.Date.from_string(date_from), time.min)
-            day_to = datetime.combine(fields.Date.from_string(date_to), time.max)
-
             # compute leave days
-            leaves = {}
-            calendar = contract.resource_calendar_id
-            tz = timezone(calendar.tz)
-            day_leave_intervals = contract.employee_id.list_leaves(day_from, day_to, calendar=contract.resource_calendar_id)
-            for day, hours, leave in day_leave_intervals:
-                holiday = leave.holiday_id
-                current_leave_struct = leaves.setdefault(holiday.holiday_status_id, {
-                    'name': holiday.holiday_status_id.name or _('Global Leaves'),
-                    'sequence': 5,
-                    'code': holiday.holiday_status_id.code or 'GLOBAL',
-                    'number_of_days': 0.0,
-                    'number_of_hours': 0.0,
-                    'contract_id': contract.id,
-                })
-                current_leave_struct['number_of_hours'] -= hours
-                work_hours = calendar.get_work_hours_count(
-                    tz.localize(datetime.combine(day, time.min)),
-                    tz.localize(datetime.combine(day, time.max)),
-                    compute_leaves=False,
-                )
-                if work_hours:
-                    current_leave_struct['number_of_days'] -= hours / work_hours
+            time_off = payroll_service.get_total_time_unpaid_by_employee(contract.employee_id, date_from, date_to)
+            leaves = {
+                'name': _("Unpaid Leave"),
+                'sequence': 5,
+                'code': 'UNPAID_LEAVE',
+                'number_of_days': -time_off['days'],
+                'number_of_hours': -time_off['hours'],
+                'contract_id': contract.id,
+            }
 
             # compute worked days
-            work_data = HrAttendanceService(self.env).get_total_time_attendace_by_employee(contract.employee_id, date_from, date_to)
+            work_data = payroll_service.calculate_work_time(contract, date_from, date_to)
             attendances = {
                 'name': _("Normal Working Days paid at 100%"),
                 'sequence': 1,
@@ -223,7 +210,7 @@ class HrPayslip(models.Model):
             }
 
             res.append(attendances)
-            res.extend(leaves.values())
+            res.append(leaves)
         return res
 
     @api.model
@@ -322,6 +309,11 @@ class HrPayslip(models.Model):
         for input_line in payslip.input_line_ids:
             inputs_dict[input_line.code] = input_line
 
+        payslip_worked_hours = sum(payslip.worked_days_line_ids.mapped('number_of_hours'))
+        attendance_lines = payslip.worked_days_line_ids.filtered(lambda l: l.code == 'ATTENDANCE')
+        total_attendance_hours = sum(attendance_lines.mapped('number_of_hours'))
+        actual_rate = round((payslip_worked_hours / total_attendance_hours) * 100, 2) if total_attendance_hours else 0.0
+
         categories = BrowsableObject(payslip.employee_id.id, {}, self.env)
         inputs = InputLine(payslip.employee_id.id, inputs_dict, self.env)
         worked_days = WorkedDays(payslip.employee_id.id, worked_days_dict, self.env)
@@ -348,7 +340,7 @@ class HrPayslip(models.Model):
                 key = rule.code + '-' + str(contract.id)
                 localdict['result'] = None
                 localdict['result_qty'] = 1.0
-                localdict['result_rate'] = 100
+                localdict['result_rate'] = actual_rate
                 #check if the rule can be applied
                 if rule._satisfy_condition(localdict) and rule.id not in blacklist:
                     #compute the amount of the rule
