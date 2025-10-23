@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from ..services.planning_service import planning_service
 from ..services.res_partner_service import ResPartnerService
 from ...hp_components.services.partner_service import PartnerService
+from odoo.addons.hp_components.models import constants
 
 _logger = logging.getLogger(__name__)
 
@@ -110,15 +111,13 @@ class Trip(models.Model):
         tracking=True,
     )
     status = fields.Selection([
-        ('draft', 'Draft'),
-        # ('checking', 'Checking'), # need to check
-        ('on_route', 'On Route'), #start - in_progress
-        # ('confirmed', 'Confirmed'), # need to check
-        ('done', 'Done'), #end, lock the trip
-        ('stopped', 'Stopped'), #stop
-        ('cancelled', 'Cancelled'), #cancel
+        (constants.TripStatus.DRAFT, 'Draft'),
+        (constants.TripStatus.ON_ROUTE, 'On Route'),
+        (constants.TripStatus.DONE, 'Done'),
+        (constants.TripStatus.STOPPED, 'Stopped'),
+        (constants.TripStatus.CANCELLED, 'Cancelled'),
     ],
-        default='draft',
+        default=constants.TripStatus.DRAFT,
         string='Status',
         tracking=True,
     )
@@ -337,24 +336,9 @@ class Trip(models.Model):
         from_wizard = self.env.context.get('from_wizard', False)
         from_zalo = self.env.context.get('from_zalo_driver', False)
 
-        # Check điều kiện chung
-        if new_status == 'on_route':
-            if self.status in ['done', 'cancelled']:
-                raise UserError("Cannot start a trip that is already done or cancelled.")
-            if not from_zalo and not self.env.user.has_group('hp_trucking_planning.group_hp_trucking_planning_lead'):
-                raise AccessError("Only the leader can start the trip.")
-        elif new_status == 'done':
-            if self.status in ['done', 'cancelled']:
-                raise UserError("Cannot reset a trip that is already done or cancelled.")
-            if not self.env.user.has_group('hp_trucking_planning.group_hp_trucking_planning_lead'):
-                raise AccessError("Only the leader can mark done the trip.")
-            if self.status not in ['on_route', 'stopped']:
-                raise UserError("You can only mark the trip as done when it is on route or stopped.")
-
         old_status = self.status
         self.write({'status': new_status})
 
-        # Post message
         log_body = f"Status changed from {old_status} to {new_status} lúc {fields.Datetime.now()}."
         if note:
             log_body += f"\nNote: {note}"
@@ -370,27 +354,19 @@ class Trip(models.Model):
 
     def action_start_trip(self):
         self.ensure_one()
-        if self.status == 'on_route':
-            raise UserError("Trip đã On Route.")
-        return self._open_operation_wizard('on_route')
+        return self._open_operation_wizard(constants.TripStatus.ON_ROUTE)
 
     def action_mark_done(self):
         self.ensure_one()
-        if self.status == 'done':
-            raise UserError("Trip đã done.")
-        return self._open_operation_wizard('done')
+        return self._open_operation_wizard(constants.TripStatus.DONE)
 
     def action_stop(self):
         self.ensure_one()
-        if self.status != 'on_route':
-            raise UserError(_("It can only be stopped when the trip is in On Route status."))
-        return self._open_operation_wizard('stopped')
+        return self._open_operation_wizard(constants.TripStatus.STOPPED)
 
     def action_cancel(self):
         self.ensure_one()
-        if self.status in ['done', 'cancelled']:
-            raise UserError(_("It cannot be cancelled if the trip is already in Done or Cancelled status."))
-        return self._open_operation_wizard('cancelled')
+        return self._open_operation_wizard(constants.TripStatus.CANCELLED)
 
     def _open_operation_wizard(self, operation):
         return {
@@ -406,7 +382,7 @@ class Trip(models.Model):
         }
     def toggle_active(self):
         for trip in self:
-            if trip.status not in ['draft', 'cancelled']:
+            if trip.status not in [constants.TripStatus.DRAFT, constants.TripStatus.CANCELLED]:
                 raise UserError("You only deleted trips when status is draft or cancelled'.")
         return super(Trip, self).toggle_active()
 
@@ -453,7 +429,7 @@ class Trip(models.Model):
                 'extra_fuel': trip.extra_fuel,
                 # reset unique fields
                 'vehicle_assignment_log_id': False,
-                'status': 'draft',
+                'status': constants.TripStatus.DRAFT,
             }
             new_trip = self.create(new_vals)
 
@@ -496,7 +472,7 @@ class Trip(models.Model):
                         ('plan_line_id', '=', trip.plan_line_id.id),
                         ('truck_id', '=', vals['truck_id']),
                         ('id', '!=', trip.id),
-                        ('status', 'not in', ['cancelled']),
+                        ('status', 'not in', [constants.TripStatus.CANCELLED]),
                     ])
                     if used_truck_ids:
                         raise ValidationError(
@@ -510,7 +486,7 @@ class Trip(models.Model):
                             ('plan_date', '<', fields.Datetime.to_string(datetime.combine(plan_date + timedelta(days=1), datetime.min.time()))),
                             ('truck_id', '=', vals['truck_id']),
                             ('id', '!=', trip.id),
-                            ('status', 'not in', ['cancelled']),
+                            ('status', 'not in', [constants.TripStatus.CANCELLED]),
                         ])
                         if used_truck_ids_in_date:
                             raise ValidationError(
@@ -877,7 +853,7 @@ class Trip(models.Model):
         
         for trip in self:
             # Only consider active trips (not cancelled or done)
-            if trip.status in ['cancelled', 'done']:
+            if trip.status in [constants.TripStatus.CANCELLED, constants.TripStatus.DONE]:
                 trip.is_eta_near = False
                 continue
                 
@@ -904,7 +880,7 @@ class Trip(models.Model):
         }
     
     def _cancel_inactive_trip(self):
-        planning_service(self.env).update_trip_statuses('cancelled')
+        planning_service(self.env).update_trip_statuses(constants.TripStatus.CANCELLED)
     
     # def _close_done_trip(self):
     #     planning_service(self.env).update_trip_statuses('done')
@@ -930,7 +906,7 @@ class Trip(models.Model):
                         ('id', '!=', trip.id),
                         ('driver_id', '=', trip.driver_id.id),
                         ('is_current', '=', True),
-                        ('status', 'not in', ['cancelled', 'done'])
+                        ('status', 'not in', [constants.TripStatus.DONE, constants.TripStatus.CANCELLED])
                     ])
                     if other_current_trips:
                         other_current_trips.write({'is_current': False})

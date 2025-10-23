@@ -36,6 +36,7 @@
                     <field name="unassigned_trucks" string="Unassigned Trucks"/>
                     <field name="external_vehicles" string="External Vehicles"/>
                     <field name="combined_vehicles" string="Combined Vehicles"/>
+                    <field name="trip_status_summary" string="Trip Status"/>
                     <button name="action_export_plan_line_excel" 
                             string="Export Excel" 
                             type="object" 
@@ -52,6 +53,7 @@
                 <form>
                     <header>
                         <field name="status" widget="statusbar" statusbar_visible="hpl_reject,client_cancel,checking,transfer,rented"/>
+                        <field name="trip_status_summary" widget="statinfo" string="Trip Status" class="oe_inline"/>
                         <button name="action_export_plan_line_excel" 
                                 string="Export Excel" 
                                 type="object" 

@@ -6,6 +6,7 @@ import io
 from datetime import datetime
 from ..services.zalo_service import ZaloService
 from ..services.res_partner_service import ResPartnerService
+from odoo.addons.hp_components.models import constants
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -38,11 +39,11 @@ class PlanLine(models.Model):
         store=False,
     )
     status = fields.Selection([
-        ('hpl_reject', 'HPL Reject'),
-        ('client_cancel', 'Client Cancel'),
-        ('checking', 'Checking'),
-        ('transfer', 'Transfer'),
-        ('rented', 'Rented')
+        (constants.PlanLineStatus.HPL_REJECT, 'HPL Reject'),
+        (constants.PlanLineStatus.CLIENT_CANCEL, 'Client Cancel'),
+        (constants.PlanLineStatus.CHECKING, 'Checking'),
+        (constants.PlanLineStatus.TRANSFER, 'Transfer'),
+        (constants.PlanLineStatus.RENTED, 'Rented')
     ],
         string='Status',
         required=True,
@@ -171,6 +172,27 @@ class PlanLine(models.Model):
         store=False,
         help="Comma-separated weight classes from trips"
     )
+
+    trip_status_summary = fields.Char(
+        string="Trip Status",
+        compute='_compute_trip_status_summary',
+        store=False,
+        help="Summary of trip statuses: Incomplete (Draft, On Route, Stopped) / Done"
+    )
+
+    @api.depends('trip_ids.status', 'trip_ids.active')
+    def _compute_trip_status_summary(self):
+        for record in self:
+            active_trips = record.trip_ids.filtered(lambda t: t.active)
+            # Đếm số chuyến chưa hoàn thành (draft, on_route, stopped)
+            incomplete_trips = active_trips.filtered(
+                lambda t: t.status in [constants.TripStatus.DRAFT, constants.TripStatus.ON_ROUTE, constants.TripStatus.STOPPED]
+            )
+            # Đếm số chuyến đã hoàn thành (done)
+            done_trips = active_trips.filtered(
+                lambda t: t.status == constants.TripStatus.DONE
+            )
+            record.trip_status_summary = f"{len(incomplete_trips)} Incomplete / {len(done_trips)} Done"
 
     @api.depends('trip_ids.container_number')
     def _compute_container_number_summary(self):
@@ -392,7 +414,7 @@ class PlanLine(models.Model):
                 'container_type': self.plan_id.container_type,
                 'container_size': '40',
                 'weight_class': 'mix',
-                'status': 'draft',
+                'status': constants.TripStatus.DRAFT,
             }
             trip = self.env['trucking_planning.trip'].create(truck_vals)
             trucks_created.append(trip.id)

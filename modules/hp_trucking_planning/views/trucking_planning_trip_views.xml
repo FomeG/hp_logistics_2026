@@ -57,13 +57,16 @@
                             string="Start Trip"
                             type="object"
                             class="oe_highlight"
+                            groups="hp_trucking_planning.group_hp_trucking_planning_lead"
                             invisible="not id or status == 'on_route' or status in ['done', 'cancelled']"/>
                     <button name="action_mark_done"
                             string="Mark Done"
                             type="object"
                             class="oe_highlight"
+                            groups="hp_trucking_planning.group_hp_trucking_planning_lead"
                             invisible="not id or status != 'on_route' and status != 'stopped'"/>
                     <button name="action_stop" string="Stop" type="object" class="oe_highlight"
+                            groups="hp_trucking_planning.group_hp_trucking_planning_lead"
                             invisible="not id or status != 'on_route'"/>
                     <button name="action_cancel" string="Cancel" type="object" class="btn-danger"
                             invisible="not id or status in ['done','cancelled']"/>

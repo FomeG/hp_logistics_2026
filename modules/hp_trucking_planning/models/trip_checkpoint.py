@@ -1,6 +1,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 import logging
+from odoo.addons.hp_components.models import constants
 
 _logger = logging.getLogger(__name__)
 
@@ -98,8 +99,8 @@ class TripCheckpoint(models.Model):
             
             # Post message to trip chatter
             if record.trip_id:
-                if record.trip_id.status in ['draft']:
-                    record.trip_id.with_context(from_zalo_driver=True)._set_status_via_wizard('on_route', note='Driver start via first Zalo checkpoint.')
+                if record.trip_id.status in [constants.TripStatus.DRAFT]:
+                    record.trip_id.with_context(from_zalo_driver=True)._set_status_via_wizard(constants.TripStatus.ON_ROUTE, note='Driver start via first Zalo checkpoint.')
                     record.trip_id.message_post(
                         body=f"GPS location received: {record.latitude}, {record.longitude}",
                         message_type='notification',

@@ -1,5 +1,6 @@
 from odoo import models, fields, _
 from odoo.exceptions import UserError, ValidationError
+from odoo.addons.hp_components.models import constants
 
 
 class TripOperationWizard(models.TransientModel):
@@ -8,10 +9,10 @@ class TripOperationWizard(models.TransientModel):
 
     trip_id = fields.Many2one('trucking_planning.trip', required=True)
     operation = fields.Selection([
-        ('on_route', 'Start Trip (On Route)'),
-        ('done', 'Mark Done'),
-        ('stopped', 'Stopped'),
-        ('cancelled', 'Cancelled'),
+        (constants.TripStatus.ON_ROUTE, 'Start Trip (On Route)'),
+        (constants.TripStatus.DONE, 'Mark Done'),
+        (constants.TripStatus.STOPPED, 'Stopped'),
+        (constants.TripStatus.CANCELLED, 'Cancelled'),
     ], required=True, string='Operation')
     operation_time = fields.Datetime(string="Time", default=fields.Datetime.now, required=True)
     note = fields.Text(string="Note")
@@ -20,15 +21,15 @@ class TripOperationWizard(models.TransientModel):
         self.ensure_one()
         trip = self.trip_id
         operation_map = {
-            'on_route': {'status': 'on_route', 'log': 'Trip started'},
-            'done': {'status': 'done', 'log': 'Trip marked Done'},
-            'stopped': {'status': 'stopped', 'log': 'Trip stopped'},
-            'cancelled': {'status': 'cancelled', 'log': 'Trip cancelled'},
+            constants.TripStatus.ON_ROUTE: {'status': constants.TripStatus.ON_ROUTE, 'log': 'Trip started'},
+            constants.TripStatus.DONE: {'status': constants.TripStatus.DONE, 'log': 'Trip marked Done'},
+            constants.TripStatus.STOPPED: {'status': constants.TripStatus.STOPPED, 'log': 'Trip stopped'},
+            constants.TripStatus.CANCELLED: {'status': constants.TripStatus.CANCELLED, 'log': 'Trip cancelled'},
         }
         if self.operation not in operation_map:
             raise UserError(_("Operation not found."))
 
-        if self.operation == 'cancel' and not self.note:
+        if self.operation == constants.TripStatus.CANCELLED and not self.note:
             raise ValidationError(_("Note is required when cancelling the trip."))
 
         trip.with_context(from_wizard=True)._set_status_via_wizard(self.operation, self.note)

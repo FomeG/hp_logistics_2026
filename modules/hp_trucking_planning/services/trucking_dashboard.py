@@ -1,6 +1,7 @@
 from odoo import models, fields, api
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from odoo.addons.hp_components.models import constants
 
 
 class TruckingDashboard(models.AbstractModel):
@@ -48,19 +49,19 @@ class TruckingDashboard(models.AbstractModel):
 
         return {
             'total_trip_month': Trip.search_count(
-                base_domain + [('status', '!=', 'cancelled')]
+                base_domain + [('status', '!=', constants.TripStatus.CANCELLED)]
             ),
             'total_trip_done': Trip.search_count(
-                base_domain + [('status', '=', 'done')]
+                base_domain + [('status', '=', constants.TripStatus.DONE)]
             ),
             'total_trip_cancelled': Trip.search_count(
-                base_domain + [('status', '=', 'cancelled')]
+                base_domain + [('status', '=', constants.TripStatus.CANCELLED)]
             ),
             'total_trip_on_route': Trip.search_count(
-                base_domain + [('status', '=', 'on_route')]
+                base_domain + [('status', '=', constants.TripStatus.ON_ROUTE)]
             ),
             'total_trip_stopped': Trip.search_count(
-                base_domain + [('status', '=', 'stopped')]
+                base_domain + [('status', '=', constants.TripStatus.STOPPED)]
             ),
         }
 
