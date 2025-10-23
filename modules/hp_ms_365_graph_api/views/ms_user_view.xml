@@ -29,6 +29,4 @@
         <field name="target">current</field>
     </record>
 
-    <menuitem id="menu_ms_graph_root" name="Microsoft 365"/>
-    <menuitem id="menu_ms_graph_user" name="My Profile" parent="menu_ms_graph_root" action="action_ms_graph_user"/>
 </odoo>
