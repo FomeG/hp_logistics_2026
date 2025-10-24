@@ -29,7 +29,13 @@ class FreightPurchaseBooking(models.Model):
         tracking=True
     )
     vessel_id = fields.Many2one('freight.purchase.vessel', string="Vessel",required=True,  tracking=True)
-    quotation_id = fields.Many2one('freight.purchase.quotation',required=True, string="Quotation",  tracking=True, ondelete = "cascade")
+    quotation_id = fields.Many2one(
+        'freight.purchase.quotation',
+        required=False,
+        string="Quotation",
+        tracking=True,
+        ondelete = "cascade"
+    )
     etd = fields.Date(required=True, index=True,  tracking=True)
     status = fields.Selection(
         string="Status",
