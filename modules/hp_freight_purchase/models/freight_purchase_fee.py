@@ -66,7 +66,10 @@ class FreightPurchaseFee(models.Model):
         domain=[('fee_type_id.apply_on', '=', 'port')]
     )
     country_id = fields.Many2one('res.country', string='Country')
-
+    notification = fields.Boolean(
+        string="Send Notification",
+        help="If checked, send notification to all members in Pricing department."
+    )
     @api.depends('line_ids')
     def _compute_total_container_fees(self):
         for record in self:
@@ -100,6 +103,8 @@ class FreightPurchaseFee(models.Model):
         if "country_id" in vals:
             for fee in self:
                 fee._create_fee_lines_from_country()
+        if "notification" in vals and vals['notification']:
+            self._send_pricing_notification()
         return res
 
 
@@ -176,3 +181,29 @@ class FreightPurchaseFee(models.Model):
                 "port_id": port.id,
                 "country_id": self.country_id.id,
             }) for port in ports]
+
+    def _send_pricing_notification(self):
+        pricing_dept = self.env['hr.department'].sudo().search([('department_type_id.code', '=', 'pricing')], limit=1)
+        if not pricing_dept:
+            return
+
+        users = pricing_dept.member_ids.mapped('user_id')
+        if not users:
+            return
+
+        message_title = "Freight Fee Notification"
+        message_body = f"New Fee '{self.name}' has been updated and requires your attention."
+
+        # Gửi popup notification tới tất cả user trong phòng Pricing
+        for user in users:
+            self.env['bus.bus']._sendone(
+                user.partner_id,  # gửi tới partner
+                'simple_notification',  # channel name (client side listener)
+                {
+                    'title': message_title,
+                    'message': message_body,
+                    'sticky': False,
+                    'warning': False,
+                    'type': 'success',
+                }
+            )
