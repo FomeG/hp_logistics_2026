@@ -123,7 +123,11 @@ class VehicleTrackingService(models.AbstractModel):
                         status = 'stale'
                     else:
                         status = 'old'
-                    
+
+                    # Lấy tọa độ Start và Destination
+                    start_location = trip.actual_source_location_id
+                    dest_location = trip.actual_destination_location_id
+
                     location_data = {
                         'driver_id': trip.driver_id.id,
                         'driver_name': trip.driver_id.name,
@@ -139,8 +143,15 @@ class VehicleTrackingService(models.AbstractModel):
                         'status': status,
                         'container_number': getattr(trip, 'container_number', '') or '',
                         'plan_type': getattr(trip, 'plan_type', '') or '',
+                        # Thêm Start và Destination
+                        'start_lat': start_location.latitude if start_location and start_location.latitude else None,
+                        'start_lng': start_location.longitude if start_location and start_location.longitude else None,
+                        'start_name': start_location.name if start_location else 'Unknown Start',
+                        'dest_lat': dest_location.latitude if dest_location and dest_location.latitude else None,
+                        'dest_lng': dest_location.longitude if dest_location and dest_location.longitude else None,
+                        'dest_name': dest_location.name if dest_location else 'Unknown Destination',
                     }
-                    
+
                     driver_locations.append(location_data)
                     _logger.info(f"Added location for trip {trip.id}: {location_data['driver_name']} at {location_data['latitude']}, {location_data['longitude']}")
                 else:
