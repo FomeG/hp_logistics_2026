@@ -50,7 +50,7 @@ class PayrollService:
             ('number_of_days', '!=', 0),
             ('number_of_hours', '!=', 0),
             ('overtime_id', '=', False),
-            ('state', '=', 'validate'),
+            ('state', 'in', ['validate', 'validate1']),
             ('holiday_status_id.unpaid', '=', False),
         ])
 
@@ -73,7 +73,7 @@ class PayrollService:
             ('number_of_days', '!=', 0),
             ('number_of_hours', '!=', 0),
             ('overtime_id', '=', False),
-            ('state', '=', 'validate'),
+            ('state', 'in', ['validate', 'validate1']),
             ('holiday_status_id.unpaid', '=', True),
         ])
 

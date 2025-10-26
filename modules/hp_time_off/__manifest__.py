@@ -15,6 +15,7 @@ HP Employee App
     'depends': ['hr_holidays'],
     'data': [
         'views/hr_leave_type_views.xml',
+        'views/hr_leave_views.xml',
     ],
     "assets": {
         "web.assets_backend": [
