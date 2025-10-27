@@ -10,9 +10,12 @@ class HrLeaveListener(Component):
 
 
     def on_record_write(self, record, fields=None):
-        if 'state' in fields and record.state == 'refuse':
-            record.sudo().write({
-                'request_refuse': False,
-            })
+        if 'state' in fields:
+            record.with_delay()._handle_record_write()
+
+            if record.state == 'refuse':
+                record.sudo().write({
+                    'request_refuse': False,
+                })
 
         return 

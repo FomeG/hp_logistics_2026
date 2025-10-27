@@ -340,7 +340,7 @@ class HrPayslip(models.Model):
                 key = rule.code + '-' + str(contract.id)
                 localdict['result'] = None
                 localdict['result_qty'] = 1.0
-                localdict['result_rate'] = actual_rate
+                localdict['result_rate'] = actual_rate if rule.code == 'BASIC' else 100
                 #check if the rule can be applied
                 if rule._satisfy_condition(localdict) and rule.id not in blacklist:
                     #compute the amount of the rule

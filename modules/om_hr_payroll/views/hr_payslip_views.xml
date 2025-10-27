@@ -238,7 +238,7 @@
                                         <field name="rate"/>
                                         <field name="salary_rule_id"/>
                                         <field name="amount"/>
-                                        <field name="total"/>
+                                        <field name="total" sum="Total Amount"/>
                                     </list>
                                     <form string="Payslip Line">
                                         <group col="4">
