@@ -49,7 +49,7 @@ class FreightPurchaseBookingInventory(models.Model):
         for rec in self:
             if not rec.booking_id or not rec.booking_id.quotation_id:
                 rec.allow_container_type_ids = False
-            elif rec.booking_id.booking_mode == 'with_quotation':
+            elif rec.booking_id.quotation_id.line_ids:
                 # Original logic: Only allow container types from quotation lines
                 rec.allow_container_type_ids = rec.booking_id.quotation_id.line_ids.mapped('container_type_id')
             elif rec.booking_id.booking_mode == 'without_quotation':
