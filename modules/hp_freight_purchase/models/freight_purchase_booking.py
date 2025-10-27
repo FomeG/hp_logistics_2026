@@ -132,68 +132,75 @@ class FreightPurchaseBooking(models.Model):
         for record in self:
             if record.booking_mode == 'without_quotation':
                 record.quotation_id = False
+    #to remove later
+        # Skip validation if creating automatically
+        # if not self.env.context.get('skip_validator'):
+        #     validated, errors = BookingCreateValidator.validate(vals, self.env)
+        #     if errors:
+        #         raise ValidationError("\n".join([f"• {e}" for e in errors]))
+        #
+        # if vals.get('booking_mode') == 'without_quotation':
+        # If booking without quotation → create a quotation
+
+        # Prepare name using temporary fields
+        # shipping_name = ''
+        # route_name = ''
+        # etd_str = ''
+        #
+        # if vals.get('quotation_shipping_line_id'):
+        #     shipping_name = self.env['res.partner'].browse(vals.get('quotation_shipping_line_id')).name or ''
+        # if vals.get('quotation_route_id'):
+        #     route_name = self.env['freight.purchase.route'].browse(vals.get('quotation_route_id')).name or ''
+        # if vals.get('etd'):
+        #     etd_str = fields.Date.to_date(vals['etd']).strftime('%d-%m-%Y')
+        #
+        # if shipping_name and route_name and etd_str:
+        #     vals['name'] = f"Booking - {shipping_name} - {route_name} - {etd_str}"
+        # else:
+        #     vals['name'] = False  # Leave empty if not enough info
+
+        # else:
+        #     # Booking with quotation → use related quotation fields
+        #     shipping_name = ''
+        #     route_name = ''
+        #     etd_str = ''
+        #
+        #     if vals.get('quotation_id'):
+        #         quotation = self.env['freight.purchase.quotation'].browse(vals['quotation_id'])
+        #         shipping_name = quotation.shipping_line_id.name or ''
+        #         route_name = quotation.route_id.name or ''
+        #     if vals.get('etd'):
+        #         etd_str = fields.Date.to_date(vals['etd']).strftime('%d-%m-%Y')
+    # if shipping_name and route_name and etd_str:
+    #     vals['name'] = f"Booking - {shipping_name} - {route_name} - {etd_str}"
+    # else:
+    #     vals['name'] = False  # Leave empty if not enough info
+
+    # self._event('on_booking_without_quotation_created').notify(
+    #     record=self,
+    #     route_id=booking_form.get('quotation_route_id'),
+    # 'shipping_line_id': booking_form.get('quotation_shipping_line_id'),
+    # 'available_from': fields.Date.today(),
+    # 'available_to': booking_form.get('etd'),
+    # )
+
+    # project_task_id = self._context.get('default_project_task_id')
+    # if project_task_id:
+    #     project_task = self.env['project.task'].browse(project_task_id)
+    #     if project_task.exists():
+    #         booking = records[0]
+    #         booking_line = FreightPurchaseBookingLineService(self.env).create_booking_line_by_task(project_task, booking.id)
+    #         if booking_line:
+    #             project_task.booking_id = records[0].id
 
     @api.model_create_multi
     def create(self, vals_list: list[ValuesType]) -> Self:
         for vals in vals_list:
-            # Skip validation if creating automatically
-            if not self.env.context.get('skip_validator'):
-                validated, errors = BookingCreateValidator.validate(vals, self.env)
-                if errors:
-                    raise ValidationError("\n".join([f"• {e}" for e in errors]))
-
-            if vals.get('booking_mode') == 'without_quotation':
-                # If booking without quotation → create a quotation
-                quotation = self.env['freight.purchase.quotation'].create_from_booking_form(vals)
-                vals['quotation_id'] = quotation.id
-
-                # Prepare name using temporary fields
-                shipping_name = ''
-                route_name = ''
-                etd_str = ''
-
-                if vals.get('quotation_shipping_line_id'):
-                    shipping_name = self.env['res.partner'].browse(vals.get('quotation_shipping_line_id')).name or ''
-                if vals.get('quotation_route_id'):
-                    route_name = self.env['freight.purchase.route'].browse(vals.get('quotation_route_id')).name or ''
-                if vals.get('etd'):
-                    etd_str = fields.Date.to_date(vals['etd']).strftime('%d-%m-%Y')
-
-                if shipping_name and route_name and etd_str:
-                    vals['name'] = f"Booking - {shipping_name} - {route_name} - {etd_str}"
-                else:
-                    vals['name'] = False  # Leave empty if not enough info
-
-                print(f"name: {vals['name']}")
-
-            else:
-                # Booking with quotation → use related quotation fields
-                shipping_name = ''
-                route_name = ''
-                etd_str = ''
-
-                if vals.get('quotation_id'):
-                    quotation = self.env['freight.purchase.quotation'].browse(vals['quotation_id'])
-                    shipping_name = quotation.shipping_line_id.name or ''
-                    route_name = quotation.route_id.name or ''
-                if vals.get('etd'):
-                    etd_str = fields.Date.to_date(vals['etd']).strftime('%d-%m-%Y')
-
-                if shipping_name and route_name and etd_str:
-                    vals['name'] = f"Booking - {shipping_name} - {route_name} - {etd_str}"
-                else:
-                    vals['name'] = False  # Leave empty if not enough info
-            
-            records = super().create(vals_list)
-            project_task_id = self._context.get('default_project_task_id')
-            if project_task_id:
-                project_task = self.env['project.task'].browse(project_task_id)
-                if project_task.exists():
-                    booking = records[0]
-                    booking_line = FreightPurchaseBookingLineService(self.env).create_booking_line_by_task(project_task, booking.id)
-                    if booking_line:
-                        project_task.booking_id = records[0].id
-
+            today = fields.Date.today().strftime('%Y%m%d')
+            seq_number = self.env['ir.sequence'].next_by_code('freight.purchase.booking')
+            vals['name'] = f"Booking/{today}/{seq_number}"
+        records = super().create(vals_list)
+        records._notify_booking_created(vals_list)
         return records
 
     def write(self, vals):
@@ -372,3 +379,24 @@ class FreightPurchaseBooking(models.Model):
         for record in self:
             # Nếu record đã lưu thì record.id khác False
             record.has_booking_id = bool(record.id)
+
+    def _notify_booking_created(self, booking_form):
+        for i, record in enumerate(self):
+            self._event('on_booking_created').notify(
+                record=record,
+                booking_form=booking_form[i],
+            )
+    def create_quotation(self, booking_form):
+        QuotationModel = self.env['freight.purchase.quotation']
+        for record in self:
+            try:
+                quotation = QuotationModel.create({
+                    'route_id': booking_form['quotation_route_id'],
+                    'shipping_line_id': booking_form['quotation_shipping_line_id'],
+                    'available_from': fields.Date.today(),
+                    'available_to': booking_form['etd'],
+                    'is_active': True
+                })
+                record.quotation_id = quotation.id
+            except Exception as e:
+                _logger.error("Error in create_quotation: %s", str(e))
