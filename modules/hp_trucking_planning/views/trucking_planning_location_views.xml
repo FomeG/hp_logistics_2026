@@ -37,6 +37,10 @@
                             widget="many2one_new_tab"
                         />
                     </group>
+                    <group name="location_info">
+                            <field name="latitude"/>
+                            <field name="longitude"/>
+                    </group>
                 </sheet>
                 <chatter />
             </form>

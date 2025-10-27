@@ -50,7 +50,26 @@ class Location(models.Model):
            ]""",
         index=True,
     )
+    latitude = fields.Float(
+        string="Latitude",
+        digits=(10, 7),
+        help="Latitude coordinate (-90 to 90)"
+    )
+    longitude = fields.Float(
+        string="Longitude",
+        digits=(10, 7),
+        help="Longitude coordinate (-180 to 180)"
+    )
 
+    # Thêm constraint để validate tọa độ (tương tự trip_checkpoint.py)
+    @api.constrains('latitude', 'longitude')
+    def _check_coordinates(self):
+        for record in self:
+            if record.latitude and not -90 <= record.latitude <= 90:
+                raise ValidationError('Latitude phải nằm trong khoảng -90 đến 90.')
+            if record.longitude and not -180 <= record.longitude <= 180:
+                raise ValidationError('Longitude phải nằm trong khoảng -180 đến 180.')
+            
     @api.model
     def default_get(self, fields):
         res = super(Location, self).default_get(fields)

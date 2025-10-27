@@ -103,6 +103,13 @@
                         text-align: center;
                         line-height: 1;
                     }
+                    .custom-marker {
+                        font-size: 20px;
+                        text-align: center;
+                        line-height: 1;
+                        background: transparent;
+                        border: none;
+                    }
                     /* Popup styles */
                     .leaflet-popup-content-wrapper {
                         border-radius: 8px;
@@ -256,6 +263,8 @@
                 // Store markers
                 let markers = {};
                 let autoRefreshInterval = null;
+                let startMarkers = {};  // Lưu markers cho Start
+                let destMarkers = {};   // Lưu markers cho Destination
 
                 // Custom icon for different statuses with driver and vehicle info
                 function getMarkerIcon(status, driverName = '', vehiclePlate = '') {
@@ -361,7 +370,66 @@
                         </div>
                     `;
                 }
+                function getStartIcon() {
+                    return L.divIcon({
+                        className: 'custom-marker',
+                        html: '🚩<div style="color: green; font-size: 10px; margin-top: 2px;">Start</div>',
+                        iconSize: [25, 35],
+                        iconAnchor: [12, 35]
+                    });
+                }
 
+                // Icon cho Destination (đỏ)
+                function getDestIcon() {
+                    return L.divIcon({
+                        className: 'custom-marker',
+                        html: '🎯<div style="color: red; font-size: 10px; margin-top: 2px;">Dest</div>',
+                        iconSize: [25, 35],
+                        iconAnchor: [12, 35]
+                    });
+                }
+
+                // Popup cho Start
+                function formatStartPopup(location) {
+                    return `
+                        <div class="popup-content">
+                            <h3>🚩 Điểm Xuất Phát</h3>
+                            <div class="info-row">
+                                <span class="label">📍 Tên:</span>
+                                <span class="value">${location.start_name}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">📱 Driver:</span>
+                                <span class="value">${location.driver_name}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">🚛 Trip:</span>
+                                <span class="value">${location.trip_code}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Popup cho Destination
+                function formatDestPopup(location) {
+                    return `
+                        <div class="popup-content">
+                            <h3>🎯 Điểm Đến</h3>
+                            <div class="info-row">
+                                <span class="label">📍 Tên:</span>
+                                <span class="value">${location.dest_name}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">📱 Driver:</span>
+                                <span class="value">${location.driver_name}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">🚛 Trip:</span>
+                                <span class="value">${location.trip_code}</span>
+                            </div>
+                        </div>
+                    `;
+                }
                 // Fetch and update driver locations
                 async function fetchDriverLocations() {
                     try {
@@ -402,31 +470,65 @@
                             delete markers[driverId];
                         }
                     });
-
+                    Object.keys(startMarkers).forEach(tripId => {
+                        if (!locations.find(loc => loc.trip_id == tripId)) {
+                            map.removeLayer(startMarkers[tripId]);
+                            delete startMarkers[tripId];
+                        }
+                    });
+                    Object.keys(destMarkers).forEach(tripId => {
+                        if (!locations.find(loc => loc.trip_id == tripId)) {
+                            map.removeLayer(destMarkers[tripId]);
+                            delete destMarkers[tripId];
+                        }
+                    });
                     // Add or update markers
                     locations.forEach(location => {
                         const driverId = location.driver_id;
-                        
-                        if (markers[driverId]) {
-                            // Update existing marker position
-                            markers[driverId].setLatLng([location.latitude, location.longitude]);
-                            markers[driverId].setIcon(getMarkerIcon(location.status, location.driver_name, location.vehicle_plate));
-                            markers[driverId].setPopupContent(formatPopup(location));
-                        } else {
-                            // Create new marker
-                            const marker = L.marker([location.latitude, location.longitude], {
-                                icon: getMarkerIcon(location.status, location.driver_name, location.vehicle_plate)
-                            }).addTo(map);
-                            
-                            marker.bindPopup(formatPopup(location));
-                            markers[driverId] = marker;
+                        if (location.latitude &amp;&amp; location.longitude) {  // Current
+                            if (markers[driverId]) {
+                                markers[driverId].setLatLng([location.latitude, location.longitude]);
+                                markers[driverId].setPopupContent(formatPopup(location));
+                            } else {
+                                const marker = L.marker([location.latitude, location.longitude], {
+                                    icon: getMarkerIcon(location.status, location.driver_name, location.vehicle_plate)
+                                }).addTo(map);
+                                marker.bindPopup(formatPopup(location));
+                                markers[driverId] = marker;
+                            }
+                        }
+
+                        const tripId = location.trip_id;
+                        // Start marker
+                        if (location.start_lat &amp;&amp; location.start_lng) {
+                            if (startMarkers[tripId]) {
+                                startMarkers[tripId].setLatLng([location.start_lat, location.start_lng]);
+                            } else {
+                                const startMarker = L.marker([location.start_lat, location.start_lng], { icon: getStartIcon() }).addTo(map);
+                                startMarker.bindPopup(formatStartPopup(location));
+                                startMarkers[tripId] = startMarker;
+                            }
+                        }
+
+                        // Dest marker
+                        if (location.dest_lat &amp;&amp; location.dest_lng) {
+                            if (destMarkers[tripId]) {
+                                destMarkers[tripId].setLatLng([location.dest_lat, location.dest_lng]);
+                            } else {
+                                const destMarker = L.marker([location.dest_lat, location.dest_lng], { icon: getDestIcon() }).addTo(map);
+                                destMarker.bindPopup(formatDestPopup(location));
+                                destMarkers[tripId] = destMarker;
+                            }
                         }
                     });
 
-                    // Fit map bounds to show all markers if there are any
-                    if (locations.length > 0 &amp;&amp; Object.keys(markers).length > 0) {
-                        const group = new L.featureGroup(Object.values(markers));
-                        map.fitBounds(group.getBounds().pad(0.1));
+                    // Fit bounds tất cả
+                    if (locations.length > 0) {
+                        const allMarkers = [...Object.values(markers), ...Object.values(startMarkers), ...Object.values(destMarkers)].filter(m => m);
+                        if (allMarkers.length > 0) {
+                            const group = new L.featureGroup(allMarkers);
+                            map.fitBounds(group.getBounds().pad(0.1));
+                        }
                     }
                 }
 
@@ -434,10 +536,12 @@
                 function updateStats(locations) {
                     const freshCount = locations.filter(loc => loc.status === 'fresh').length;
                     const staleCount = locations.filter(loc => loc.status === 'old').length;
+                    const fullRouteCount = locations.filter(loc => loc.start_lat &amp;&amp; loc.dest_lat).length;
                     
                     document.getElementById('stat-active').textContent = locations.length;
                     document.getElementById('stat-fresh').textContent = freshCount;
                     document.getElementById('stat-stale').textContent = staleCount;
+                    document.getElementById('stat-full-route').textContent = fullRouteCount;
                 }
 
                 // Update last refresh time
@@ -492,19 +596,33 @@
                 }
 
                 // Search functionality
-                document.getElementById('search-box').addEventListener('input', function(e) {
+                document.getElementById('search-box')?.addEventListener('input', function(e) {
                     const searchText = e.target.value.toLowerCase();
-                    
-                    // Filter and show/hide markers based on search
+
+                    // Start markers
+                    Object.entries(startMarkers).forEach(([tripId, marker]) => {
+                        const popup = marker.getPopup();
+                        if (popup) {
+                            const content = popup.getContent().toLowerCase();
+                            marker.setOpacity(content.includes(searchText) ? 1 : (searchText === '' ? 1 : 0.3));
+                        }
+                    });
+
+                    // Dest markers
+                    Object.entries(destMarkers).forEach(([tripId, marker]) => {
+                        const popup = marker.getPopup();
+                        if (popup) {
+                            const content = popup.getContent().toLowerCase();
+                            marker.setOpacity(content.includes(searchText) ? 1 : (searchText === '' ? 1 : 0.3));
+                        }
+                    });
+
+                    // Current markers
                     Object.entries(markers).forEach(([driverId, marker]) => {
                         const popup = marker.getPopup();
                         if (popup) {
                             const content = popup.getContent().toLowerCase();
-                            if (content.includes(searchText)) {
-                                marker.setOpacity(1);
-                            } else {
-                                marker.setOpacity(searchText === '' ? 1 : 0.3);
-                            }
+                            marker.setOpacity(content.includes(searchText) ? 1 : (searchText === '' ? 1 : 0.3));
                         }
                     });
                 });
