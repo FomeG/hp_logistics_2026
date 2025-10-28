@@ -69,14 +69,14 @@
                                 <form>
                                     <group>
                                         <field name="booking_id" invisible="context.get('from_booking_form')" />
-                                        <field name="quotation_line_id" options="{'no_create':True,'no_create_edit':True}"/>
-                                        <field name="container_type_id" />
-                                        <field name="quantity" />
-                                        <field name="unit_price" />
-                                        <field name="price" />
-                                        <field name="status" />
+                                        <field name="quotation_line_id" options="{'no_create':True,'no_create_edit':True}" required="1"/>
+                                        <field name="container_type_id" invisible="not quotation_line_id"/>
+                                        <field name="quantity" invisible="not quotation_line_id"/>
+                                        <field name="unit_price" invisible="not quotation_line_id"/>
+                                        <field name="price" invisible="not quotation_line_id"/>
+                                        <field name="status" invisible="not quotation_line_id"/>
                                     </group>
-                                    <group string="Fees">
+                                    <group string="Fees" invisible="not quotation_line_id">
                                         <field name="fee_line_ids" invisible="not id">
                                             <list editable="bottom">
                                                 <field name="fee_line_id"/>
