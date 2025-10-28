@@ -16,11 +16,13 @@ class FreightPurchaseQuotationLine(models.Model):
     )
     quotation_id = fields.Many2one(
         comodel_name='freight.purchase.quotation',
+        index=True,
         required=True,
         ondelete='cascade'
     )
     container_type_id = fields.Many2one(
         comodel_name='container.type',
+        index=True,
         required=True
     )
     cost = fields.Float(

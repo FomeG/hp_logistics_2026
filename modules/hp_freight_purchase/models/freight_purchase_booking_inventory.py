@@ -1,6 +1,9 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from ..validators.booking_inventory_validator import BookingInventoryValidator
+import logging
+
+_logger = logging.getLogger(__name__)
 
 class FreightPurchaseBookingInventory(models.Model):
     _name = 'freight.purchase.booking.inventory'
@@ -36,13 +39,24 @@ class FreightPurchaseBookingInventory(models.Model):
         store=False
     )
 
+    tempo_container_price = fields.Float(
+        string='price',
+        store=False,
+    )
+    #todo: invisibility should depends on booking mode, quotation line and container
+    can_create_quotation_line = fields.Boolean(
+        store=False,
+        compute='_compute_can_create_quotation_line',
+    )
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             validated, errors = BookingInventoryValidator.validate_create(vals, self.env)
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
-        return super().create(vals_list)
+        records = super().create(vals_list)
+        records._notify_booking_inventory_created(vals_list)
+        return records
     
     @api.depends('booking_id.quotation_id.line_ids.container_type_id', 'booking_id.booking_mode')
     def _compute_allow_container_type_ids(self):
@@ -66,3 +80,40 @@ class FreightPurchaseBookingInventory(models.Model):
                 rec.str_inventory_booking_line = f"Booking Line #{rec.booking_line_id.id}"
             else:
                 rec.str_inventory_booking_line = False
+
+    @api.depends('booking_id.quotation_id.line_ids')
+    def _compute_can_create_quotation_line(self):
+        for rec in self:
+            rec.can_create_quotation_line = rec.booking_id.quotation_id and not rec.booking_id.quotation_id.line_ids
+
+    def _notify_booking_inventory_created(self, booking_inventory_form):
+        for i, record in enumerate(self):
+            self._event('on_booking_inventory_create').notify(
+                record=record,
+                booking_inventory_form=booking_inventory_form[i],
+            )
+
+    def create_quotation_line(self, booking_inventory_form):
+        if 'tempo_container_price' not in booking_inventory_form:
+            return False
+        QuotationLineModel = self.env['freight.purchase.quotation.line']
+        for record in self:
+            try:
+                quotation_id = record.booking_id.quotation_id.id
+                container_id = record.container_type_id.id
+                price = booking_inventory_form['tempo_container_price']
+                quotation_line = QuotationLineModel.search([
+                    ('quotation_id', '=', quotation_id),
+                    ('container_type_id', '=', container_id),
+                ])
+                if quotation_line:
+                    _logger.info('ALREADY HAVING QUOTATION LINES')
+                    continue
+                QuotationLineModel.create({
+                    'quotation_id': quotation_id,
+                    'container_type_id': container_id,
+                    'cost': price,
+                    'price': price
+                })
+            except Exception as e:
+                _logger.error("Error in create_quotation_line: %s", str(e))
