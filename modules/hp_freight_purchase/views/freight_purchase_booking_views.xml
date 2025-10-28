@@ -153,7 +153,7 @@
         <field name="model">freight.purchase.booking</field>
         <field name="arch" type="xml">
             <search string="Booking List">
-                <field name="name" />
+                <field name="code" />
                 <field name="status" />
                 <field name="vessel_id"/>
                 <field name="route_id"/>
