@@ -16,8 +16,19 @@ class FreightPurchaseBookingLine(models.Model):
     pod_id = fields.Many2one(related='booking_id.quotation_id.route_id.pod_id',store=True,readonly=True,string='Port of Discharge (POD)')
 
     #keep ref with quotation line in order to track the price of    preorder vs order
-    quotation_line_id = fields.Many2one('freight.purchase.quotation.line', required=False, string='Quotation Line', tracking=True, domain="[('quotation_id', '=', quotation_id)]")
-    container_type_id = fields.Many2one(related='quotation_line_id.container_type_id',store=True,readonly=True, string='Container Type DB')
+    quotation_line_id = fields.Many2one(
+        comodel_name='freight.purchase.quotation.line',
+        required=False,
+        string='Quotation Line',
+        tracking=True,
+        domain="[('quotation_id', '=', quotation_id)]"
+    )
+    container_type_id = fields.Many2one(
+        related='quotation_line_id.container_type_id',
+        store=True,
+        readonly=True,
+        string='Container related'
+    )
 
     # pre-order
     quantity = fields.Integer(string="Quantity",required=True, default=1, tracking=True)

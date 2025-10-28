@@ -69,7 +69,7 @@
                                 <form>
                                     <group>
                                         <field name="booking_id" invisible="context.get('from_booking_form')" />
-                                        <field name="quotation_line_id" groups="base.group_system"/>
+                                        <field name="quotation_line_id"/>
                                         <field name="container_type_id" />
                                         <field name="quantity" />
                                         <field name="unit_price" />
