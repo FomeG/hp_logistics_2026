@@ -146,10 +146,14 @@ class VehicleTrackingService(models.AbstractModel):
                         # Thêm Start và Destination
                         'start_lat': start_location.latitude if start_location and start_location.latitude else None,
                         'start_lng': start_location.longitude if start_location and start_location.longitude else None,
+                        'start_address': start_location.address if start_location and start_location.address else '',
+                        'start_contact_phone': start_location.contact_phone if start_location and start_location.contact_phone else '',
                         'start_name': start_location.name if start_location else 'Unknown Start',
                         'dest_lat': dest_location.latitude if dest_location and dest_location.latitude else None,
                         'dest_lng': dest_location.longitude if dest_location and dest_location.longitude else None,
                         'dest_name': dest_location.name if dest_location else 'Unknown Destination',
+                        'dest_address': dest_location.address if dest_location and dest_location.address else '',
+                        'dest_contact_phone': dest_location.contact_phone if dest_location and dest_location.contact_phone else '',
                     }
 
                     driver_locations.append(location_data)
@@ -222,13 +226,24 @@ class VehicleTrackingService(models.AbstractModel):
             stale_count = len([loc for loc in locations if loc['status'] == 'stale'])
             old_count = len([loc for loc in locations if loc['status'] == 'old'])
             no_location_count = len(current_trips) - len(locations)
-            
+            missing_location_count = 0
+            for trip in current_trips:
+                start_location = trip.actual_source_location_id
+                dest_location = trip.actual_destination_location_id
+
+                # Kiểm tra nếu thiếu latitude/longitude ở start hoặc dest
+                start_missing = not (start_location and start_location.latitude and start_location.longitude)
+                dest_missing = not (dest_location and dest_location.latitude and dest_location.longitude)
+
+                if start_missing or dest_missing:
+                    missing_location_count += 1
             return {
                 'active_trips': len(current_trips),
                 'fresh_locations': fresh_count,
                 'stale_locations': stale_count,
                 'old_locations': old_count,
-                'no_location': no_location_count
+                'no_location': no_location_count,
+                'missing_location': missing_location_count
             }
             
         except Exception as e:
@@ -237,7 +252,8 @@ class VehicleTrackingService(models.AbstractModel):
                 'active_trips': 0,
                 'fresh_locations': 0,
                 'stale_locations': 0,
-                'no_location': 0
+                'no_location': 0,
+                'missing_location': 0
             }
 
     @api.model
