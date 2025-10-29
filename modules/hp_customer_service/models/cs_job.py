@@ -132,6 +132,10 @@ class CSJob(models.Model):
         store=False
     )
 
+    _sql_constraints = [
+        ('unique_job_number', 'unique(job_number)', 'The job_number must be unique.')
+    ]
+
     @api.depends('container_ids', 'container_ids.status', 'booking_line_id.quantity')
     def _compute_container_progress(self):
         for job in self:

@@ -7,7 +7,8 @@ class PlanLineListener(Component):
     _apply_on = ['trucking_planning.plan.line']
 
     def on_record_create(self, record, fields=None):
-        pass
+        JobModel = self.env['trucking_planning.cs.job']
+        JobModel.sudo().create_job_from_plan_line(record)
 
     def on_record_write(self, record, fields=None):
         pass

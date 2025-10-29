@@ -23,6 +23,11 @@ class PlanLine(models.Model):
         required=True,
         readonly=True,
     )
+    job_id = fields.Many2one(
+        comodel_name='cs.job',
+        string='Job',
+        index=True,
+    )
     code = fields.Char(
         string='Job Number',
         tracking=True,
