@@ -86,30 +86,30 @@ class VehicleTrackingMapController(http.Controller):
     #             'route_points': []
     #         }
     #
-    # @http.route('/vehicle_tracking/api/stats', type='json', auth='user', methods=['POST'])
-    # def get_tracking_stats(self, **kwargs):
-    #     """
-    #     Get statistics for the tracking dashboard
-    #     Uses service layer for business logic
-    #
-    #     Returns:
-    #         Dashboard statistics
-    #     """
-    #     try:
-    #         # Use service layer for business logic
-    #         tracking_service = request.env['vehicle.tracking.service']
-    #         stats = tracking_service.get_tracking_statistics()
-    #
-    #         return {
-    #             'success': True,
-    #             'stats': stats
-    #         }
-    #
-    #     except Exception as e:
-    #         _logger.error(f"Error fetching tracking stats: {str(e)}", exc_info=True)
-    #         return {
-    #             'success': False,
-    #             'error': str(e),
-    #             'stats': {}
-    #         }
+    @http.route('/vehicle_tracking/api/stats', type='json', auth='user', methods=['POST'])
+    def get_tracking_stats(self, **kwargs):
+        """
+        Get statistics for the tracking dashboard
+        Uses service layer for business logic
+
+        Returns:
+            Dashboard statistics
+        """
+        try:
+            # Use service layer for business logic
+            tracking_service = request.env['vehicle.tracking.service']
+            stats = tracking_service.get_tracking_statistics()
+
+            return {
+                'success': True,
+                'stats': stats
+            }
+
+        except Exception as e:
+            _logger.error(f"Error fetching tracking stats: {str(e)}", exc_info=True)
+            return {
+                'success': False,
+                'error': str(e),
+                'stats': {}
+            }
 
