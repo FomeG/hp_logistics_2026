@@ -40,3 +40,14 @@ class TripStatus:
     DONE = 'done'
     CANCELLED = 'cancelled'
 
+class BookingMode:
+    WITHOUT_QUOTATION = 'without_quotation'
+    WITH_QUOTATION = 'with_quotation'
+
+class BookingStatus:
+    DRAFT = 'draft'
+    PENDING = 'pending'
+    CONFIRMED = 'confirmed'
+    SHIPPED = 'shipped'
+    CANCELLED = 'cancelled'
+    EXPIRED = 'expired'
