@@ -1,3 +1,5 @@
+import secrets
+
 from odoo import models, api, fields, _
 from odoo.exceptions import UserError, ValidationError, AccessError
 import base64
@@ -330,6 +332,71 @@ class Trip(models.Model):
         string="Special note for external/combined vehicle",
         help="Special notes when using rented or combined vehicles",
     )
+
+    access_token = fields.Char(
+        string='Access Token',
+        copy=False,
+        index=True,
+        default=lambda self: secrets.token_urlsafe(32),
+        help='Token for public access without login'
+    )
+
+    access_token_expires = fields.Datetime(
+        string='Token Expires At',
+        copy=False,
+        help='Token expiration time (30 minutes from creation)'
+    )
+
+    def get_public_url(self):
+        """
+        Get public URL for trip tracking
+        ✅ Auto refresh token if expired or missing
+        """
+        self.ensure_one()
+
+        # ✅ Auto refresh token if:
+        # - No token
+        # - No expiry date
+        # - Already expired
+        if not self.access_token or \
+                not self.access_token_expires or \
+                self.access_token_expires < fields.Datetime.now():
+            # Generate new token (30 minutes validity)
+            self.write({
+                'access_token': secrets.token_urlsafe(32),
+                'access_token_expires': fields.Datetime.now() + timedelta(minutes=30)
+            })
+
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        return f"{base_url}/trip/view/{self.access_token}"
+
+    def is_token_valid(self, token):
+        """
+        Check if token is valid and not expired
+        """
+        self.ensure_one()
+
+        if not self.access_token or self.access_token != token:
+            return False
+
+        if not self.access_token_expires:
+            return False
+
+        return self.access_token_expires > fields.Datetime.now()
+
+    def refresh_access_token(self):
+        """
+        ✅ Manual refresh token (for button or scheduled action)
+        Generates new token with 30 minutes validity
+        """
+        for trip in self:
+            trip.write({
+                'access_token': secrets.token_urlsafe(32),
+                'access_token_expires': fields.Datetime.now() + timedelta(minutes=30)
+            })
+
+        return True
+
 
     def _set_status_via_wizard(self, new_status, note=''):
         self.ensure_one()

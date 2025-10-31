@@ -29,6 +29,7 @@
     ],
     'data': [
         'security/ir.model.access.csv',
+        'views/trip_public_map_template.xml',
         'views/vehicle_tracking_map_views.xml',
         'views/res_config_settings_views.xml',
     ],

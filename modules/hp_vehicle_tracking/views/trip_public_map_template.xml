@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="trip_public_map_template" name="Trip Public Map View">
+        <t t-call="web.layout">
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+                <!-- Leaflet CSS -->
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+                <style>
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        overflow: hidden;
+                    }
+                    #map {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100vh;
+                        z-index: 1;
+                    }
+                    .trip-info-panel {
+                        position: absolute;
+                        top: 20px;
+                        right: 20px;
+                        background: white;
+                        padding: 20px;
+                        border-radius: 10px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                        z-index: 1000;
+                        max-width: 300px;
+                    }
+                    .trip-info-panel h3 {
+                        margin: 0 0 15px 0;
+                        color: #333;
+                        font-size: 18px;
+                        border-bottom: 2px solid #667eea;
+                        padding-bottom: 10px;
+                    }
+                    .info-row {
+                        margin: 10px 0;
+                        font-size: 14px;
+                    }
+                    .info-label {
+                        color: #666;
+                        font-weight: 500;
+                    }
+                    .info-value {
+                        color: #333;
+                        font-weight: 600;
+                    }
+                    .status-badge {
+                        display: inline-block;
+                        padding: 4px 12px;
+                        border-radius: 12px;
+                        font-size: 12px;
+                        font-weight: 600;
+                    }
+                    .status-fresh {
+                        background: #4caf50;
+                        color: white;
+                    }
+                    .status-stale {
+                        background: #ff9800;
+                        color: white;
+                    }
+                    .status-old {
+                        background: #f44336;
+                        color: white;
+                    }
+                    .custom-vehicle-marker {
+                        background: transparent;
+                        border: none;
+                    }
+                    .leaflet-popup-content-wrapper {
+                        border-radius: 8px;
+                    }
+                </style>
+            </t>
+
+            <t t-set="body_classname" select="'o_public_map'"/>
+
+            <div id="map"></div>
+
+            <!-- Trip Info Panel -->
+            <div class="trip-info-panel">
+                <h3>🚛 <t t-esc="trip_data['trip_code']"/></h3>
+
+                <div class="info-row">
+                    <span class="info-label">👤 Driver:</span>
+                    <span class="info-value"><t t-esc="trip_data['driver_name']"/></span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">🚚 Vehicle:</span>
+                    <span class="info-value"><t t-esc="trip_data['vehicle_plate']"/></span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">📞 Phone:</span>
+                    <span class="info-value"><t t-esc="trip_data['driver_phone']"/></span>
+                </div>
+
+                <t t-if="trip_data.get('container_number')">
+                    <div class="info-row">
+                        <span class="info-label">📦 Container:</span>
+                        <span class="info-value"><t t-esc="trip_data['container_number']"/></span>
+                    </div>
+                </t>
+
+                <div class="info-row">
+                    <span class="info-label">📍 Status:</span>
+                    <span t-attf-class="status-badge status-{{trip_data['status']}}">
+                        <t t-if="trip_data['status'] == 'fresh'">Active</t>
+                        <t t-if="trip_data['status'] == 'stale'">Stale</t>
+                        <t t-if="trip_data['status'] == 'old'">Old</t>
+                    </span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">🕐 Updated:</span>
+                    <span class="info-value"><t t-esc="trip_data['minutes_ago']"/> min ago</span>
+                </div>
+
+                <t t-if="route_points">
+                    <div class="info-row" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                        <span class="info-label">📊 Checkpoints:</span>
+                        <span class="info-value"><t t-esc="len(route_points)"/> points</span>
+                    </div>
+                </t>
+            </div>
+
+            <!-- Leaflet JS -->
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', async function() {
+                    // Trip data from server
+                    const tripData = <t t-raw="json.dumps(trip_data)"/>;
+                    const routePoints = <t t-raw="json.dumps(route_points or [])"/>;
+
+                    console.log('Trip data:', tripData);
+                    console.log('Route points:', routePoints.length);
+
+                    // Initialize map
+                    const map = L.map('map').setView([tripData.current_lat, tripData.current_lng], 13);
+
+                    // Add tile layer
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors',
+                        maxZoom: 19
+                    }).addTo(map);
+
+                    // ✅ DRAW ROUTE USING OSRM (like vehicle tracking map)
+                    async function drawRoute(startLat, startLng, currentLat, currentLng, destLat, destLng) {
+                        try {
+                            // Create waypoints array: Start -> Current -> Dest
+                            const waypoints = [];
+                            if (startLat &amp;&amp; startLng) {
+                                waypoints.push(`${startLng},${startLat}`);
+                            }
+                            if (currentLat &amp;&amp; currentLng) {
+                                waypoints.push(`${currentLng},${currentLat}`);
+                            }
+                            if (destLat &amp;&amp; destLng) {
+                                waypoints.push(`${destLng},${destLat}`);
+                            }
+
+                            // Need at least 2 points
+                            if (waypoints.length &lt; 2) {
+                                console.log('Not enough points to draw route');
+                                return;
+                            }
+
+                            // Call OSRM API
+                            const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${waypoints.join(';')}?overview=full&amp;geometries=geojson`;
+
+                            const response = await fetch(osrmUrl);
+                            const data = await response.json();
+
+                            if (data.code === 'Ok' &amp;&amp; data.routes &amp;&amp; data.routes.length > 0) {
+                                const route = data.routes[0];
+                                const coordinates = route.geometry.coordinates;
+
+                                // Convert [lng, lat] to [lat, lng] for Leaflet
+                                const latLngs = coordinates.map(coord => [coord[1], coord[0]]);
+
+                                // Draw polyline
+                                const routeLine = L.polyline(latLngs, {
+                                    color: '#2563eb',
+                                    weight: 4,
+                                    opacity: 0.7,
+                                    lineJoin: 'round'
+                                }).addTo(map);
+
+                                // Add popup with route info
+                                const distance = (route.distance / 1000).toFixed(1); // km
+                                const duration = (route.duration / 60).toFixed(0); // minutes
+                                routeLine.bindPopup(
+                                    '&lt;strong&gt;Route Info&lt;/strong&gt;&lt;br/&gt;' +
+                                    'Distance: ' + distance + ' km&lt;br/&gt;' +
+                                    'Duration: ' + duration + ' minutes'
+                                );
+
+                                console.log(`✅ Route drawn: ${distance}km, ${duration}min`);
+                            } else {
+                                console.warn('⚠️ OSRM could not find route');
+                            }
+                        } catch (error) {
+                            console.error('❌ Error drawing route:', error);
+                        }
+                    }
+
+                    // Draw checkpoint dots (actual GPS history)
+                    if (routePoints.length > 0) {
+                        console.log(`Drawing ${routePoints.length} checkpoint dots`);
+
+                        routePoints.forEach(function(point, index) {
+                            // Show every 5th checkpoint (or first/last)
+                            if (index % 5 === 0 || index === 0 || index === routePoints.length - 1) {
+                                const marker = L.circleMarker([point.latitude, point.longitude], {
+                                    radius: 4,
+                                    fillColor: '#667eea',
+                                    color: '#fff',
+                                    weight: 1,
+                                    opacity: 1,
+                                    fillOpacity: 0.8
+                                }).addTo(map);
+
+                                marker.bindPopup('Checkpoint ' + (index + 1));
+                            }
+                        });
+                    }
+
+                    // Create vehicle icon
+                    const vehicleIcon = L.divIcon({
+                        html: '&lt;div style="text-align: center;"&gt;&lt;div style="font-size: 30px;"&gt;🚛&lt;/div&gt;&lt;div style="background: white; padding: 4px 8px; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); margin-top: 2px;"&gt;&lt;div style="color: #2563eb; font-size: 10px; font-weight: bold;"&gt;' + tripData.driver_name.substring(0, 12) + '&lt;/div&gt;&lt;div style="color: #dc2626; font-size: 9px;"&gt;' + tripData.vehicle_plate + '&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;',
+                        className: 'custom-vehicle-marker',
+                        iconSize: [45, 65],
+                        iconAnchor: [22, 32]
+                    });
+
+                    // Add vehicle marker
+                    const vehicleMarker = L.marker([tripData.current_lat, tripData.current_lng], {
+                        icon: vehicleIcon,
+                        zIndexOffset: 1000
+                    }).addTo(map);
+
+                    vehicleMarker.bindPopup('&lt;h4&gt;🚛 ' + tripData.vehicle_name + '&lt;/h4&gt;&lt;div&gt;Driver: ' + tripData.driver_name + '&lt;/div&gt;&lt;div&gt;Updated: ' + tripData.minutes_ago + ' min ago&lt;/div&gt;');
+
+                    // Add start marker
+                    if (tripData.start_lat &amp;&amp; tripData.start_lng) {
+                        const startIcon = L.divIcon({
+                            html: '🚩',
+                            className: 'custom-marker',
+                            iconSize: [25, 35],
+                            iconAnchor: [12, 35]
+                        });
+
+                        L.marker([tripData.start_lat, tripData.start_lng], {
+                            icon: startIcon
+                        }).addTo(map).bindPopup('🚩 Start: ' + tripData.start_name);
+                    }
+
+                    // Add destination marker
+                    if (tripData.dest_lat &amp;&amp; tripData.dest_lng) {
+                        const destIcon = L.divIcon({
+                            html: '🎯',
+                            className: 'custom-marker',
+                            iconSize: [25, 35],
+                            iconAnchor: [12, 35]
+                        });
+
+                        L.marker([tripData.dest_lat, tripData.dest_lng], {
+                            icon: destIcon
+                        }).addTo(map).bindPopup('🎯 Destination: ' + tripData.dest_name);
+                    }
+
+                    // ✅ Draw OSRM route (after markers are added)
+                    await drawRoute(
+                        tripData.start_lat,
+                        tripData.start_lng,
+                        tripData.current_lat,
+                        tripData.current_lng,
+                        tripData.dest_lat,
+                        tripData.dest_lng
+                    );
+
+                    // Fit map bounds
+                    const bounds = [];
+
+                    if (routePoints.length > 0) {
+                        routePoints.forEach(function(point) {
+                            bounds.push([point.latitude, point.longitude]);
+                        });
+                    }
+
+                    bounds.push([tripData.current_lat, tripData.current_lng]);
+
+                    if (tripData.start_lat &amp;&amp; tripData.start_lng) {
+                        bounds.push([tripData.start_lat, tripData.start_lng]);
+                    }
+                    if (tripData.dest_lat &amp;&amp; tripData.dest_lng) {
+                        bounds.push([tripData.dest_lat, tripData.dest_lng]);
+                    }
+
+                    if (bounds.length > 1) {
+                        map.fitBounds(bounds, { padding: [80, 80] });
+                    }
+
+                    console.log('✅ Map initialized');
+                });
+            </script>
+        </t>
+    </template>
+</odoo>
