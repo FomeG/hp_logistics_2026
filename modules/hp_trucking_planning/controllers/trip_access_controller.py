@@ -5,7 +5,7 @@ from odoo.http import request
 _logger = logging.getLogger(__name__)
 
 
-class SimpleTripAccessController(http.Controller):
+class TripAccessController(http.Controller):
     """Controller show map với trip data - Portal user"""
 
     @http.route('/trip/view/<string:token>', type='http', auth='public', website=True)
@@ -26,7 +26,7 @@ class SimpleTripAccessController(http.Controller):
 
             if not trip:
                 _logger.warning(f"Trip not found for token: {token[:10]}...")
-                return self._render_error("Không tìm thấy chuyến đi hợp lệ.")
+                return request.not_found("Không tìm thấy chuyến đi hợp lệ.")
 
             if not trip.is_token_valid(token):
                 _logger.warning(f"Invalid/expired token for trip {trip.id}")
@@ -46,12 +46,12 @@ class SimpleTripAccessController(http.Controller):
 
                     return request.redirect(new_url)
 
-                return self._render_error("Liên kết đã hết hạn hoặc không hợp lệ.")
+                return request.render('http_routing.403', status=403)
 
             checkpoint_count = len(trip.checkpoint_ids)
             if checkpoint_count == 0:
                 _logger.warning(f"Trip {trip.id} has no checkpoints")
-                return self._render_error(
+                return request.not_found(
                     "Chuyến đi này chưa có dữ liệu GPS.<br><br>"
                     "📍 GPS tracking sẽ khả dụng khi chuyến đi bắt đầu và tài xế gửi vị trí."
                 )
@@ -59,7 +59,7 @@ class SimpleTripAccessController(http.Controller):
             start_location = trip.actual_source_location_id or trip.plan_goods_pickup_location_id
             if not start_location:
                 _logger.warning(f"Trip {trip.id} has no start location")
-                return self._render_error(
+                return request.not_found(
                     "Chuyến đi này chưa có thông tin điểm đi.<br><br>"
                     "📍 Vui lòng liên hệ để cập nhật thông tin."
                 )
@@ -67,7 +67,7 @@ class SimpleTripAccessController(http.Controller):
             dest_location = trip.actual_destination_location_id or trip.plan_goods_delivery_location_id
             if not dest_location:
                 _logger.warning(f"Trip {trip.id} has no destination location")
-                return self._render_error(
+                return request.not_found(
                     "Chuyến đi này chưa có thông tin điểm đến.<br><br>"
                     "📍 Vui lòng liên hệ để cập nhật thông tin."
                 )
@@ -87,7 +87,7 @@ class SimpleTripAccessController(http.Controller):
             route_points = tracking_service.get_trip_route_history(trip.id)
 
             if not trip_data:
-                return self._render_error("Không có dữ liệu định vị cho chuyến đi này.")
+                return request.not_found("Không có dữ liệu định vị cho chuyến đi này.")
 
             if not route_points:
                 _logger.warning(f"Trip {trip.id} has no route history")
@@ -104,7 +104,7 @@ class SimpleTripAccessController(http.Controller):
 
         except Exception as e:
             _logger.error(f"Controller error: {e}", exc_info=True)
-            return self._render_error(f"Lỗi hệ thống: {str(e)}")
+            return request.render('http_routing.500', status=500)
 
     def _get_portal_user(self):
         """Lấy hoặc tạo portal user cho viewing"""
@@ -132,76 +132,3 @@ class SimpleTripAccessController(http.Controller):
         except Exception as e:
             _logger.error(f"Error creating portal user: {e}", exc_info=True)
             return None
-
-    def _render_error(self, message):
-        """Render simple error page"""
-        return request.make_response(
-            f'''
-            <!DOCTYPE html>
-            <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Thông Báo</title>
-                    <style>
-                        body {{
-                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            height: 100vh;
-                            margin: 0;
-                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        }}
-                        .error-container {{
-                            background: white;
-                            padding: 50px;
-                            border-radius: 15px;
-                            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-                            text-align: center;
-                            max-width: 500px;
-                        }}
-                        .error-icon {{ 
-                            font-size: 70px; 
-                            margin-bottom: 20px;
-                            animation: pulse 2s ease-in-out infinite;
-                        }}
-                        @keyframes pulse {{
-                            0%, 100% {{ transform: scale(1); }}
-                            50% {{ transform: scale(1.1); }}
-                        }}
-                        .error-title {{ 
-                            color: #333; 
-                            font-size: 24px; 
-                            margin: 20px 0;
-                            font-weight: 600;
-                        }}
-                        .error-message {{ 
-                            color: #666; 
-                            font-size: 16px; 
-                            line-height: 1.8;
-                            margin: 20px 0;
-                        }}
-                        .footer {{
-                            margin-top: 30px;
-                            padding-top: 20px;
-                            border-top: 1px solid #eee;
-                            color: #999;
-                            font-size: 13px;
-                        }}
-                    </style>
-                </head>
-                <body>
-                    <div class="error-container">
-                        <div class="error-icon">📍</div>
-                        <h1 class="error-title">Không Thể Hiển Thị Bản Đồ</h1>
-                        <div class="error-message">{message}</div>
-                        <div class="footer">
-                            HP Logistics - Vehicle Tracking System
-                        </div>
-                    </div>
-                </body>
-            </html>
-            ''',
-            status=403
-        )
