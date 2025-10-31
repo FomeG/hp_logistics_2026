@@ -3,13 +3,13 @@ from odoo.http import request
 
 class HpEmployeeRedirect(http.Controller):
 
-    @http.route(['/web', '/odoo'], type='http', auth='user')
+    @http.route(['/'], type='http', auth='user', website=False)
     def redirect_by_department(self, **kw):
         user = request.env.user
         employee = user.sudo().employee_id
         department = employee.department_id if employee else False
 
-        redirect_url = '/odoo/discuss'
+        redirect_url = '/web'
 
         redirect_map = {
             'trucking': 'hp_trucking_planning.action_trucking_dashboard',
@@ -22,6 +22,6 @@ class HpEmployeeRedirect(http.Controller):
             if xml_id:
                 action = request.env.ref(xml_id, raise_if_not_found=False)
                 if action:
-                    redirect_url = f"/odoo/action-{action.id}"
+                    redirect_url = f"/web#action={action.id}"
 
         return request.redirect(redirect_url)
