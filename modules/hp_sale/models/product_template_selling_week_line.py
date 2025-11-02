@@ -29,4 +29,7 @@ class ProductTemplateSellingWeekLine(models.Model):
         string="Price",
         currency_field='currency_id'
     )
-    note = fields.Char(string="Note")
+    product_tag_ids = fields.Many2many(
+        string="Fee",
+        comodel_name='product.tag'
+    )

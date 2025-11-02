@@ -8,7 +8,7 @@
                 <field name="name" />
                 <field name="selling_week_id" />
                 <field name="product_template_id" />
-                <field name="fee" />
+                <field name="note" />
             </list>
         </field>
     </record>
@@ -25,7 +25,6 @@
                         <field name="goods_info"/>
                         <field name="selling_week_id"/>
                         <field name="product_template_id"/>
-                        <field name="fee"/>
                         <field name="note"/>
                     </group>
                     <notebook>
@@ -35,7 +34,7 @@
                                     <field name="shipping_line_id"/>
                                     <field name="container_type_id"/>
                                     <field name="price"/>
-                                    <field name="note"/>
+                                    <field name="product_tag_ids" widget="many2many_tags"/>
                                 </list>
                             </field>
                         </page>
@@ -54,10 +53,11 @@
                 <field name="name"/>
                 <field name="goods_info"/>
                 <field name="product_template_id"/>
-                <field name="fee"/>
 
+                <field name="region_id"/>
                 <field name="selling_week_id"/>
                 <searchpanel>
+                    <field name="region_id" enable_counters="1"/>
                     <field name="selling_week_id" enable_counters="1"/>
                 </searchpanel>
             </search>

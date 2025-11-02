@@ -20,12 +20,16 @@ class ProductTemplateSellingWeek(models.Model):
         string="Product",
         tracking=True
     )
+    region_id = fields.Many2one(
+        'freight.purchase.region',
+        string="Region",
+        related='product_template_id.region_id'
+    )
     line_ids = fields.One2many(
         'product.template.selling.week.line',
         'product_template_selling_week_id',
         tracking=True
     )
-    fee = fields.Char()
     note = fields.Char()
 
     name = fields.Text(string="Name", compute="_compute_name", store=True)
@@ -41,9 +45,10 @@ class ProductTemplateSellingWeek(models.Model):
             for line in record.line_ids:
                 container = line.container_type_id.name or ''
                 price = str(line.price or '')
-                note = line.note or ''
+                fees =  line.product_tag_ids.mapped('name')
+                fee_string = ', '.join(fees) if fees else ''
                 ship = line.shipping_line_id.name or ''
-                line_parts.append(f"{container}/{price} {note} ({ship})")
+                line_parts.append(f"{container}/{price} {fee_string} ({ship})")
 
             lines_text = ', '.join(line_parts) if line_parts else ''
 
