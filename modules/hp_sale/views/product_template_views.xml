@@ -56,6 +56,13 @@
                         </group>
                 </group>
             </xpath>
+
+            <!-- Add reigion product -->
+            <xpath expr="//div[@class='oe_title']" position="after">
+                <group>
+                    <field name="region_id" options="{'no_create': True, 'no_edit': True}"/>
+                </group>
+            </xpath>
         </field>
     </record>
 
@@ -69,6 +76,9 @@
                 <xpath expr="//field[@name='categ_id']/following-sibling::field[@name='default_code']" position="replace"/>
                 <xpath expr="//field[@name='categ_id']/following-sibling::field[@name='valid_product_template_attribute_line_ids']" position="replace"/>
                 <xpath expr="//field[@name='categ_id']/following-sibling::field[@name='barcode']" position="replace"/>
+                <xpath expr="//page[@name='variants']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
             </field>
         </record>
 
@@ -132,6 +142,10 @@
                 <filter string="Trucking" name="type_trucking" domain="[('type', '=', 'trucking')]"/>
                 <filter string="Common" name="type_common" domain="[('type', '=', 'common')]"/>
                 <filter string="Custom" name="type_custom" domain="[('type', '=', 'custom')]"/>
+                <field name="region_id"/>
+                <searchpanel>
+                    <field name="region_id" enable_counters="1"/>
+                </searchpanel>
             </xpath>
 
             <!-- For group by, find the existing group element -->

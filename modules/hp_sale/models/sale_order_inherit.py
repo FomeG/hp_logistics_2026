@@ -78,7 +78,7 @@ class SaleOrderInherrit(models.Model):
             'booking_id': self.booking_id.id,
             'service_type': 'door-cy',  # hoặc map từ sale order
             'department_code': 'JP01',  # hoặc custom based on user
-            'staff_sales': self.user_id.name if hasattr(self, 'user_id') else '',
+            # 'staff_sales': self.user_id.name if hasattr(self, 'user_id') else '',
             'booking_number': self.booking_id.name,
             'shipping_line_id': self.booking_id.shipping_line_id.id,
         })

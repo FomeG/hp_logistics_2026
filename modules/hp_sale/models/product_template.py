@@ -29,9 +29,8 @@ class ProductTemplate(models.Model):
         ('tiered', 'Tiered Pricing'),
     ], string='Price Type', default='common')
 
-    # route_id = fields.Many2one('freight.purchase.route', string='Route')
-    # booking_id = fields.Many2one(
-    #     'freight.purchase.booking',
-    #     string="Booking",
-    #     tracking=True
-    # )
+    region_id = fields.Many2one(
+        'freight.purchase.region',
+        string="Region",
+        tracking=True
+    )

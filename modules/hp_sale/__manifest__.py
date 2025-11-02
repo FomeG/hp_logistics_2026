@@ -34,6 +34,8 @@
         'views/sale_order.xml',
         # 'views/pricing_booking_form_views_inherit.xml',
         'views/res_partner_client_views.xml',
+        'views/selling_week_views.xml',
+        'views/product_template_selling_week_views.xml',
 
         'views/sale_menus.xml',
 

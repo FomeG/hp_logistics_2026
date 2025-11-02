@@ -5,3 +5,6 @@ from . import res_partner_inherit
 from . import sale_order_inherit
 from . import res_partner_client
 from . import wizards
+from . import selling_week
+from . import product_template_selling_week
+from . import product_template_selling_week_line

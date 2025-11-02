@@ -13,3 +13,8 @@ access_partner_client_sale_member,access_partner_client_sale_member,model_res_pa
 
 access_import_client_wizard_manager,sale.import_client_wizard.manager,model_sale_import_client_wizard,base.group_system,1,1,1,1
 access_mass_assign_user_wizard_manager,sale.mass_assign_user_wizard.manager,model_res_partner_client_assign_sale_wizard,base.group_system,1,1,1,1
+
+access_freight_purchase_region,access.freight.purchase.region,hp_freight_purchase.model_freight_purchase_region,sales_team.group_sale_salesman,1,1,1,0
+access_selling_week,access.selling.week,model_selling_week,sales_team.group_sale_salesman,1,1,1,1
+access_product_template_selling_week,access.product.template.selling.week,model_product_template_selling_week,sales_team.group_sale_salesman,1,1,1,1
+access_product_template_selling_week_line,access.product.template.selling.week.line,model_product_template_selling_week_line,sales_team.group_sale_salesman,1,1,1,1
