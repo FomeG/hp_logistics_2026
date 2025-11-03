@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+        <record model="ir.module.category" id="module_category_hp_customer_service">
+            <field name="name">HP Customer Service</field>
+            <field name="description">HP Customer Service Department</field>
+            <field name="sequence">7</field>
+        </record>
+
+        <!-- CS Member -->
+        <record id="group_hp_customer_service_member" model="res.groups">
+            <field name="name">Member</field>
+            <field name="category_id" ref="module_category_hp_customer_service"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">CS Member can create and manage jobs in their department</field>
+        </record>
+
+        <!-- CS Leader -->
+        <record id="group_hp_customer_service_leader" model="res.groups">
+            <field name="name">Leader</field>
+            <field name="category_id" ref="module_category_hp_customer_service"/>
+            <field name="implied_ids" eval="[(4, ref('group_hp_customer_service_member'))]"/>
+            <field name="comment">CS Leader can manage all jobs across departments</field>
+            <field name="users" eval="[(4, ref('base.user_admin')), (4, ref('base.user_root'))]"/>
+        </record>
+
+        <!-- CS Job: Member - Chỉ thao tác với job của mình tạo -->
+        <record id="cs_job_rule_member" model="ir.rule">
+            <field name="name">CS Job: Member</field>
+            <field name="model_id" ref="model_cs_job"/>
+            <field name="groups" eval="[(4, ref('group_hp_customer_service_member'))]"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+            <field name="global" eval="True"/>
+        </record>
+
+        <!-- CS Job: Leader - Toàn quyền -->
+        <record id="cs_job_rule_leader" model="ir.rule">
+            <field name="name">CS Job: Leader</field>
+            <field name="model_id" ref="model_cs_job"/>
+            <field name="groups" eval="[(4, ref('group_hp_customer_service_leader'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- CS Job Detail: Member - chỉnh sửa chi tiết job của mình -->
+        <record id="cs_job_detail_rule_member" model="ir.rule">
+            <field name="name">CS Job Detail: Member</field>
+            <field name="model_id" ref="model_cs_job_detail"/>
+            <field name="groups" eval="[(4, ref('group_hp_customer_service_member'))]"/>
+            <field name="domain_force">[('job_id.create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+            <field name="global" eval="True"/>
+        </record>
+
+        <!-- CS Job Detail: Leader -->
+        <record id="cs_job_detail_rule_leader" model="ir.rule">
+            <field name="name">CS Job Detail: Leader</field>
+            <field name="model_id" ref="model_cs_job_detail"/>
+            <field name="groups" eval="[(4, ref('group_hp_customer_service_leader'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- CS Job Container: Member - Chỉnh sửa container job của mình -->
+        <record id="cs_job_container_rule_member" model="ir.rule">
+            <field name="name">CS Job Container: Member</field>
+            <field name="model_id" ref="model_cs_job_container"/>
+            <field name="groups" eval="[(4, ref('group_hp_customer_service_member'))]"/>
+            <field name="domain_force">[('job_id.create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+            <field name="global" eval="True"/>
+        </record>
+
+        <!-- CS Job Container: Leader -->
+        <record id="cs_job_container_rule_leader" model="ir.rule">
+            <field name="name">CS Job Container: Leader</field>
+            <field name="model_id" ref="model_cs_job_container"/>
+            <field name="groups" eval="[(4, ref('group_hp_customer_service_leader'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+    </data>
+</odoo>

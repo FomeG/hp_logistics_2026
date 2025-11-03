@@ -1,4 +1,16 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_hp_customer_service_cs_job,hp_customer_service.hp_customer_service,model_cs_job,base.group_user,1,1,1,1
-access_hp_customer_service_cs_detail_job,hp_customer_service.hp_cs_job_detail,model_cs_job_detail,base.group_user,1,1,1,1
-access_cs_job_container_user,cs.job.container user,model_cs_job_container,base.group_user,1,1,1,1
+access_hp_customer_service_cs_job,hp_customer_service.hp_customer_service,model_cs_job,base.group_user,1,1,1,0
+access_cs_job_member,cs.job.member,model_cs_job,group_hp_customer_service_member,1,1,1,0
+access_cs_job_leader,cs.job.leader,model_cs_job,group_hp_customer_service_leader,1,1,1,1
+
+access_hp_customer_service_cs_detail_job,hp_customer_service.hp_cs_job_detail,model_cs_job_detail,base.group_user,1,1,1,0
+access_cs_job_detail_member,cs.job.detail.member,model_cs_job_detail,group_hp_customer_service_member,1,1,1,0
+access_cs_job_detail_leader,cs.job.detail.leader,model_cs_job_detail,group_hp_customer_service_leader,1,1,1,1
+
+access_cs_job_container_user,cs.job.container user,model_cs_job_container,base.group_user,1,1,1,0
+access_cs_job_container_member,cs.job.container.member,model_cs_job_container,group_hp_customer_service_member,1,1,1,0
+access_cs_job_container_leader,cs.job.container.leader,model_cs_job_container,group_hp_customer_service_leader,1,1,1,1
+
+access_hp_bank_wizard_manager,hp.bank.wizard.manager,model_hp_bank_wizard,base.group_system,1,1,1,1
+access_hp_bank_wizard_member,hp.bank.wizard.member,model_hp_bank_wizard,group_hp_customer_service_member,1,1,1,0
+access_hp_bank_wizard_leader,hp.bank.wizard.leader,model_hp_bank_wizard,group_hp_customer_service_leader,1,1,1,1
