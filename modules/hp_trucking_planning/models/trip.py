@@ -370,19 +370,41 @@ class Trip(models.Model):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         return f"{base_url}/trip/view/{self.access_token}"
 
-    def is_token_valid(self, token):
+    def is_token_valid(self, token, auto_refresh=False):
         """
         Check if token is valid and not expired
         """
         self.ensure_one()
 
         if not self.access_token or self.access_token != token:
+            if auto_refresh:
+                return (False, None)
             return False
 
         if not self.access_token_expires:
+            if auto_refresh:
+                return (False, None)
             return False
 
-        return self.access_token_expires > fields.Datetime.now()
+        # Check if expired
+        is_expired = self.access_token_expires <= fields.Datetime.now()
+
+        if is_expired and auto_refresh:
+            _logger.info(f"Token expired for trip {self.id}, auto-refreshing...")
+            # Generate new token
+            new_token = secrets.token_urlsafe(32)
+            self.write({
+                'access_token': new_token,
+                'access_token_expires': fields.Datetime.now() + timedelta(minutes=30)
+            })
+
+            _logger.info(f"New token generated for trip {self.id}")
+            return (True, new_token)  # Valid after refresh, return new token
+
+        if auto_refresh:
+            return (not is_expired, None)  # (valid, no new token)
+        else:
+            return not is_expired
 
     def refresh_access_token(self):
         """

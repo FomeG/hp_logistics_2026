@@ -28,26 +28,19 @@ class TripAccessController(http.Controller):
                 _logger.warning(f"Trip not found for token: {token[:10]}...")
                 return request.not_found("Không tìm thấy chuyến đi hợp lệ.")
 
-            if not trip.is_token_valid(token):
-                _logger.warning(f"Invalid/expired token for trip {trip.id}")
+            is_valid, new_token = trip.is_token_valid(token, auto_refresh=True)
 
-                # ✅ Nếu token match nhưng expired → auto refresh và redirect
-                if trip.access_token == token and \
-                        trip.access_token_expires and \
-                        trip.access_token_expires < request.env['odoo'].fields.Datetime.now():
-                    _logger.info(f"Token expired for trip {trip.id}, refreshing...")
-
-                    # Refresh token
-                    trip.refresh_access_token()
-
-                    # Redirect to new URL
-                    new_url = trip.get_public_url()
-                    _logger.info(f"Redirecting to new URL: {new_url}")
-
-                    return request.redirect(new_url)
-
+            if not is_valid:
+                _logger.warning(f"Invalid token for trip {trip.id}")
                 return request.render('http_routing.403', status=403)
 
+            # If token was refreshed, redirect to new URL
+            if new_token:
+                new_url = trip.get_public_url()
+                _logger.info(f"Token refreshed, redirecting to: {new_url}")
+                return request.redirect(new_url)
+
+            # Validate trip data
             checkpoint_count = len(trip.checkpoint_ids)
             if checkpoint_count == 0:
                 _logger.warning(f"Trip {trip.id} has no checkpoints")
@@ -57,19 +50,19 @@ class TripAccessController(http.Controller):
                 )
 
             start_location = trip.actual_source_location_id or trip.plan_goods_pickup_location_id
-            if not start_location:
-                _logger.warning(f"Trip {trip.id} has no start location")
+            if not start_location.latitude or not start_location.longitude:
+                _logger.warning(f"Trip {trip.id} start location {start_location.id} missing GPS coordinates")
                 return request.not_found(
-                    "Chuyến đi này chưa có thông tin điểm đi.<br><br>"
-                    "📍 Vui lòng liên hệ để cập nhật thông tin."
+                    f"Điểm đi '{start_location.name}' chưa có tọa độ GPS.<br><br>"
+                    "📍 Vui lòng liên hệ để cập nhật tọa độ cho điểm này."
                 )
 
             dest_location = trip.actual_destination_location_id or trip.plan_goods_delivery_location_id
-            if not dest_location:
-                _logger.warning(f"Trip {trip.id} has no destination location")
+            if not dest_location.latitude or not dest_location.longitude:
+                _logger.warning(f"Trip {trip.id} dest location {dest_location.id} missing GPS coordinates")
                 return request.not_found(
-                    "Chuyến đi này chưa có thông tin điểm đến.<br><br>"
-                    "📍 Vui lòng liên hệ để cập nhật thông tin."
+                    f"Điểm đến '{dest_location.name}' chưa có tọa độ GPS.<br><br>"
+                    "📍 Vui lòng liên hệ để cập nhật tọa độ cho điểm này."
                 )
 
             _logger.info(f"Trip {trip.id} validation passed: {checkpoint_count} checkpoints, "
