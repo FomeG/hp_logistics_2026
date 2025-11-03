@@ -127,6 +127,7 @@ class VehicleTrackingService(models.AbstractModel):
                     # Lấy tọa độ Start và Destination
                     start_location = trip.actual_source_location_id
                     dest_location = trip.actual_destination_location_id
+                    trip_url = trip.get_public_url()  # This auto-refreshes token
 
                     location_data = {
                         'driver_id': trip.driver_id.id,
@@ -134,6 +135,8 @@ class VehicleTrackingService(models.AbstractModel):
                         'driver_phone': getattr(trip.driver_id, 'phone_number', '') or getattr(trip.driver_id, 'phone', ''),
                         'trip_id': trip.id,
                         'trip_code': trip.code or f'Trip-{trip.id}',
+                        'trip_token': trip.access_token,  # Use refreshed token
+                        'trip_url': trip_url,
                         'vehicle_name': trip.truck_id.name if trip.truck_id else 'No Vehicle',
                         'vehicle_plate': trip.truck_id.license_plate if trip.truck_id else '',
                         'latitude': latest_checkpoint.latitude,
@@ -370,3 +373,85 @@ class VehicleTrackingService(models.AbstractModel):
             'vehicle_tracking.stale_threshold', default='60'
         ))
 
+    def get_trip_location_data(self, trip_id):
+        """Get location data for a specific trip"""
+        Trip = self.env['trucking_planning.trip'].sudo()
+        trip = Trip.browse(trip_id)
+
+        if not trip.exists():
+            return None
+
+        # Get latest checkpoint
+        checkpoint = self.env['trucking_planning.trip_checkpoint'].sudo().search([
+            ('trip_id', '=', trip_id)
+        ], order='create_date desc', limit=1)
+
+        # Get start/dest locations (ưu tiên actual, fallback về plan)
+        start_location = trip.actual_source_location_id or trip.plan_goods_pickup_location_id
+        dest_location = trip.actual_destination_location_id or trip.plan_goods_delivery_location_id
+
+        if not checkpoint:
+            # Không có checkpoint, dùng start location
+            default_lat = start_location.latitude if start_location else ''
+            default_lng = start_location.longitude if start_location else ''
+
+            return {
+                'trip_id': trip.id,
+                'trip_code': trip.code or f"Trip {trip.id}",
+                'driver_name': trip.driver_id.name if trip.driver_id else '',
+                'driver_phone': trip.driver_id.phone if trip.driver_id else '',
+                'vehicle_name': trip.truck_id.name if trip.truck_id else '',
+                'vehicle_plate': trip.truck_id.license_plate if trip.truck_id else '',
+                'container_number': trip.container_number or '',
+                'status': 'old',
+                'minutes_ago': 0,
+                'latitude': default_lat,
+                'longitude': default_lng,
+                'current_lat': default_lat,
+                'current_lng': default_lng,
+                'start_lat': start_location.latitude if start_location else None,
+                'start_lng': start_location.longitude if start_location else None,
+                'start_name': start_location.name if start_location else '',
+                'start_address': start_location.address if start_location else '',
+                'dest_lat': dest_location.latitude if dest_location else None,
+                'dest_lng': dest_location.longitude if dest_location else None,
+                'dest_name': dest_location.name if dest_location else '',
+                'dest_address': dest_location.address if dest_location else '',
+            }
+
+        # Calculate time difference
+        now = fields.Datetime.now()
+        time_diff = now - checkpoint.create_date
+        minutes_ago = int(time_diff.total_seconds() / 60)
+
+        # Determine status
+        if minutes_ago <= 5:
+            status = 'fresh'
+        elif minutes_ago <= 30:
+            status = 'stale'
+        else:
+            status = 'old'
+
+        return {
+            'trip_id': trip.id,
+            'trip_code': trip.code or f"Trip {trip.id}",
+            'driver_name': trip.driver_id.name if trip.driver_id else '',
+            'driver_phone': trip.driver_id.phone if trip.driver_id else '',
+            'vehicle_name': trip.truck_id.name if trip.truck_id else '',
+            'vehicle_plate': trip.truck_id.license_plate if trip.truck_id else '',
+            'container_number': trip.container_number or '',
+            'status': status,
+            'minutes_ago': minutes_ago,
+            'latitude': checkpoint.latitude,
+            'longitude': checkpoint.longitude,
+            'current_lat': checkpoint.latitude,
+            'current_lng': checkpoint.longitude,
+            'start_lat': start_location.latitude if start_location else None,
+            'start_lng': start_location.longitude if start_location else None,
+            'start_name': start_location.name if start_location else '',
+            'start_address': start_location.address if start_location else '',
+            'dest_lat': dest_location.latitude if dest_location else None,
+            'dest_lng': dest_location.longitude if dest_location else None,
+            'dest_name': dest_location.name if dest_location else '',
+            'dest_address': dest_location.address if dest_location else '',
+        }

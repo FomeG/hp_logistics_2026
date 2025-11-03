@@ -719,6 +719,7 @@
                     const statusClass = 'status-' + location.status;
                     const statusText = location.status === 'fresh' ? 'New Updated' :
                                      location.status === 'stale' ? 'Stale' : 'Long Updated';
+                    const tripUrl = `/trip/view/${location.trip_token}`;
 
                     return `
                         <div class="popup-content">
@@ -753,6 +754,14 @@
                                 <span class="value">${location.container_number}</span>
                             </div>
                             ` : ''}
+                            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #e5e7eb;">
+                                <a href="${tripUrl}"
+                                   target="_blank"
+                                   class="trip-link-btn"
+                                   style="display: inline-block; width: 100%; text-align: center; padding: 8px 12px; background: #667eea; color: white; text-decoration: none; border-radius: 4px; font-weight: 500; transition: all 0.3s;">
+                                    📋 Xem Chi Tiết Trip
+                                </a>
+                            </div>
                         </div>
                     `;
                 }

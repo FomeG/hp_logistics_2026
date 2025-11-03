@@ -3,3 +3,4 @@
 
 from . import portal
 from . import trucking_dashboard_controller
+from . import trip_access_controller
