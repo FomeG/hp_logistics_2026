@@ -7,11 +7,12 @@ class HpDepartmentInherit(models.Model):
     TYPE_SALE = 'sale'
     TYPE_PRICING = 'pricing'
     TYPE_TRUCKING = 'trucking'
+    TYPE_CS = 'cs'
 
     ROLE_MANAGER = 'manager'
     ROLE_MEMBER = 'member'
 
-    ARRAY_TYPE = [TYPE_SALE, TYPE_PRICING, TYPE_TRUCKING]
+    ARRAY_TYPE = [TYPE_SALE, TYPE_PRICING, TYPE_TRUCKING, TYPE_CS]
 
     name = fields.Char(
         string='Department Name',
@@ -109,11 +110,13 @@ class HpDepartmentInherit(models.Model):
                 self.TYPE_SALE: 'sales_team.group_sale_salesman_all_leads',
                 self.TYPE_PRICING: 'hp_freight_purchase.group_hp_freight_purchase_lead',
                 self.TYPE_TRUCKING: 'hp_trucking_planning.group_hp_trucking_planning_lead',
+                self.TYPE_CS: 'hp_customer_service.group_hp_customer_service_leader',
             },
             self.ROLE_MEMBER: {
                 self.TYPE_SALE: 'sales_team.group_sale_salesman',
                 self.TYPE_PRICING: 'hp_freight_purchase.group_hp_freight_purchase_member',
                 self.TYPE_TRUCKING: 'hp_trucking_planning.group_hp_trucking_planning_member',
+                self.TYPE_CS: 'hp_customer_service.group_hp_customer_service_member',
             }
         }
 
