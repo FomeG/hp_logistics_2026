@@ -27,7 +27,10 @@ class SaleOrderLineInherit(models.Model):
         tracking=True
     )
 
-    etd_sale = fields.Date(string="ETD Sale", help="Estimated Time of Departure for this Sale Order Line")
+    etd_sale = fields.Date(
+        string="ETD Sale",
+        related='order_id.etd_sale'
+    )
     base_price = fields.Float(string="Base Price", default=0.0)
     commission = fields.Float(string="Commission (%)", default=0.0)
     active = fields.Boolean(string="Active", default=True, track_visibility='onchange')

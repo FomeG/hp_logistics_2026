@@ -36,6 +36,8 @@
         'views/res_partner_client_views.xml',
         'views/selling_week_views.xml',
         'views/product_template_selling_week_views.xml',
+        'views/product_template_selling_week_line_views.xml',
+
 
         'views/sale_menus.xml',
 

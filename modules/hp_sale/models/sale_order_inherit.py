@@ -161,6 +161,27 @@ class SaleOrderInherrit(models.Model):
             }
         }
     
+    def select_sale_order_line(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Select Product Selling Week Line',
+            'res_model': 'product.template.selling.week.line',
+            'view_mode': 'list,search',
+            'views': [
+                (self.env.ref('hp_sale.view_product_template_selling_week_line_list').id, 'list'),
+                (self.env.ref('hp_sale.view_product_template_selling_week_line_search').id, 'search'),
+            ],
+            'target': 'new',
+            'domain': [],
+            'context': {
+                'sale_order_id': self.id,
+                'default_shipping_line_id': self.shipping_line_id.id,
+                'dialog_size': 'extra-large',
+                'create': False,
+                'select_mode': True,
+            },
+        }
+
     def _handle_quotation_activated(self):
         TaskService(self.env)._handle_task_with_quotation_activated(self)
 
