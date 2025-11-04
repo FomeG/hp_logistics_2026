@@ -2,6 +2,7 @@
     <menuitem id="menu_cs_root"
               name="Customer Service"
               web_icon="hp_pricing,static/description/icon.png"
+              groups="hp_customer_service.group_hp_customer_service_member"
               sequence="36"/>
     <menuitem id="menu_cs_job"
               name="Jobs"
