@@ -53,9 +53,6 @@
                 <field name="name"/>
                 <field name="goods_info"/>
                 <field name="product_template_id"/>
-
-                <field name="region_id"/>
-                <field name="selling_week_id"/>
                 <searchpanel>
                     <field name="region_id" enable_counters="1"/>
                     <field name="selling_week_id" enable_counters="1"/>

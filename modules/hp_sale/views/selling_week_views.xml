@@ -9,6 +9,7 @@
                 <field name="name"/>
                 <field name="start_date"/>
                 <field name="end_date"/>
+                <field name="state"/>
                 <field name="is_active" />
                 <field name="create_date"/>
             </list>
@@ -26,6 +27,7 @@
                         <field name="name"/>
                         <field name="start_date"/>
                         <field name="end_date"/>
+                        <field name="state"/>
                         <field name="is_active" invisible="not id"/>
                     </group>
                 </sheet>
@@ -41,10 +43,16 @@
         <field name="arch" type="xml">
             <search string="Search Selling Week">
                 <field name="name" string="Name"/>
+                <field name="year"/>
                 <field name="start_date"/>
                 <field name="end_date"/>
                 <filter string="Active" name="filter_active" domain="[('is_active', '=', True)]"/>
                 <filter string="Inactive" name="filter_inactive" domain="[('is_active', '=', False)]"/>
+
+                <field name="state"/>
+                <searchpanel>
+                    <field name="state" enable_counters="1"/>
+                </searchpanel>
             </search>
         </field>
     </record>

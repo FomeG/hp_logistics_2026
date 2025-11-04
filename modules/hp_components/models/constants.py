@@ -51,3 +51,8 @@ class BookingStatus:
     SHIPPED = 'shipped'
     CANCELLED = 'cancelled'
     EXPIRED = 'expired'
+
+class SellingWeekState:
+    INCOMING = 'incoming'
+    CURRENT = 'current'
+    PASS = 'past'
