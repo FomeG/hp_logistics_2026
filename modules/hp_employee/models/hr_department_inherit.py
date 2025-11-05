@@ -115,27 +115,13 @@ class HpDepartmentInherit(models.Model):
         return super().copy(default)
     
     def _get_group_by_role(self, role):
-        group_map = {
-            self.ROLE_MANAGER: {
-                'sale': 'sales_team.group_sale_salesman_all_leads',
-                'pricing': 'hp_freight_purchase.group_hp_freight_purchase_lead',
-                'trucking': 'hp_trucking_planning.group_hp_trucking_planning_lead',
-                'cs': 'hp_customer_service.group_hp_customer_service_leader',
-            },
-            self.ROLE_MEMBER: {
-                'sale': 'sales_team.group_sale_salesman',
-                'pricing': 'hp_freight_purchase.group_hp_freight_purchase_member',
-                'trucking': 'hp_trucking_planning.group_hp_trucking_planning_member',
-                'cs': 'hp_customer_service.group_hp_customer_service_member',
-            }
-        }
-
-        group_dict = group_map.get(role)
-        if not group_dict:
+        if role == self.ROLE_MANAGER:
+            group_xml_id = self.department_type_id.manager_group_xml_id
+        elif role == self.ROLE_MEMBER:
+            group_xml_id = self.department_type_id.member_group_xml_id
+        else:
             raise ValidationError(_(f"Unknown group role: {role}"))
 
-        dept_type_code = self.department_type_id.code
-        group_xml_id = group_dict.get(dept_type_code)
         if not group_xml_id:
             raise ValidationError(_(f"Unknown group {role} for department type: {self.department_type_id}"))
 
