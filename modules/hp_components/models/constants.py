@@ -55,4 +55,4 @@ class BookingStatus:
 class SellingWeekState:
     INCOMING = 'incoming'
     CURRENT = 'current'
-    PASS = 'past'
+    PAST = 'past'

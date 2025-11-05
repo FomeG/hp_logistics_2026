@@ -21,11 +21,11 @@ class SellingWeek(models.Model):
     state = fields.Selection([
         (SellingWeekState.CURRENT, 'Current'),
         (SellingWeekState.INCOMING, 'Incoming'),
-        (SellingWeekState.PASS, 'Past')
+        (SellingWeekState.PAST, 'Past')
     ],
         string="State",
-        default=SellingWeekState.CURRENT,
-        required=True
+        compute="_compute_state",
+        store=True
     )
 
     _sql_constraints = [
@@ -36,3 +36,15 @@ class SellingWeek(models.Model):
     def _compute_year(self):
         for rec in self:
             rec.year = rec.start_date.strftime('%Y') if rec.start_date else ''
+
+    @api.depends('start_date', 'end_date')
+    def _compute_state(self):
+        today = fields.Date.today()
+        for record in self:
+            record.state = False
+            if record.end_date and today <= record.end_date:
+                record.state = SellingWeekState.CURRENT
+            elif record.start_date and today < record.start_date:
+                record.state = SellingWeekState.INCOMING
+            else:
+                record.state = SellingWeekState.PAST
