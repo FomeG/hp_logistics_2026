@@ -51,6 +51,8 @@
                     domain="[('department_type_id.code','=','pricing')]" />
                 <filter string="Trucking" name="trucking"
                     domain="[('department_type_id.code','=','trucking')]" />
+                <filter string="Customer Service" name="cs"
+                    domain="[('department_type_id.code','=','cs')]" />
             </xpath>
         </field>
     </record>

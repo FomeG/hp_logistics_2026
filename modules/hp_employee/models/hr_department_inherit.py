@@ -4,14 +4,15 @@ from odoo.exceptions import UserError, ValidationError
 class HpDepartmentInherit(models.Model):
     _inherit = 'hr.department'
 
-    TYPE_SALE = 'sale'
-    TYPE_PRICING = 'pricing'
-    TYPE_TRUCKING = 'trucking'
+    # TYPE_SALE = 'sale'
+    # TYPE_PRICING = 'pricing'
+    # TYPE_TRUCKING = 'trucking'
+    # TYPE_CS = 'cs'
 
     ROLE_MANAGER = 'manager'
     ROLE_MEMBER = 'member'
 
-    ARRAY_TYPE = [TYPE_SALE, TYPE_PRICING, TYPE_TRUCKING]
+    # ARRAY_TYPE = [TYPE_SALE, TYPE_PRICING, TYPE_TRUCKING, TYPE_CS]
 
     name = fields.Char(
         string='Department Name',
@@ -40,9 +41,19 @@ class HpDepartmentInherit(models.Model):
     ]
 
     @api.model
-    def can_create_department(self):
-        count = self.sudo().search_count([('department_type_id', 'in', self.ARRAY_TYPE)])
-        return count < len(self.ARRAY_TYPE)
+    def can_create_department(self, branch_id=None):
+        # count = self.sudo().search_count([('department_type_id', 'in', self.ARRAY_TYPE)])
+        # return count < len(self.ARRAY_TYPE)
+        all_types = self.env['department.type'].search([])
+
+        if not branch_id:
+            return len(all_types) > 0
+
+        used_types = self.sudo().search([
+            ('branch_id', '=', branch_id)
+        ]).mapped('department_type_id')
+
+        return len(used_types) < len(all_types)
 
     @api.depends('department_type_id', 'branch_id')
     def _compute_department_name(self):
@@ -104,24 +115,13 @@ class HpDepartmentInherit(models.Model):
         return super().copy(default)
     
     def _get_group_by_role(self, role):
-        group_map = {
-            self.ROLE_MANAGER: {
-                self.TYPE_SALE: 'sales_team.group_sale_salesman_all_leads',
-                self.TYPE_PRICING: 'hp_freight_purchase.group_hp_freight_purchase_lead',
-                self.TYPE_TRUCKING: 'hp_trucking_planning.group_hp_trucking_planning_lead',
-            },
-            self.ROLE_MEMBER: {
-                self.TYPE_SALE: 'sales_team.group_sale_salesman',
-                self.TYPE_PRICING: 'hp_freight_purchase.group_hp_freight_purchase_member',
-                self.TYPE_TRUCKING: 'hp_trucking_planning.group_hp_trucking_planning_member',
-            }
-        }
-
-        group_dict = group_map.get(role)
-        if not group_dict:
+        if role == self.ROLE_MANAGER:
+            group_xml_id = self.department_type_id.manager_group_xml_id
+        elif role == self.ROLE_MEMBER:
+            group_xml_id = self.department_type_id.member_group_xml_id
+        else:
             raise ValidationError(_(f"Unknown group role: {role}"))
 
-        group_xml_id = group_dict.get(self.department_type_id.code)
         if not group_xml_id:
             raise ValidationError(_(f"Unknown group {role} for department type: {self.department_type_id}"))
 
