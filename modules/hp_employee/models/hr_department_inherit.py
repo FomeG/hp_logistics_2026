@@ -123,7 +123,18 @@ class HpDepartmentInherit(models.Model):
             raise ValidationError(_(f"Unknown group role: {role}"))
 
         if not group_xml_id:
-            raise ValidationError(_(f"Unknown group {role} for department type: {self.department_type_id}"))
+            raise ValidationError(
+                _("No %(role)s group configured for department type '%(type)s' (code: %(code)s).\n\n"
+                  "Please configure security groups in:\n"
+                  "Configuration → Department Types → %(type)s\n\n"
+                  "Add the following fields:\n"
+                  "- Manager Group (XML ID)\n"
+                  "- Member Group (XML ID)") % {
+                    'role': role.title(),
+                    'type': self.department_type_id.name,
+                    'code': self.department_type_id.code,
+                }
+            )
 
         return group_xml_id
     
