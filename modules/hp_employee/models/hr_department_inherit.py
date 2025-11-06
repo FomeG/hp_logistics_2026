@@ -32,6 +32,12 @@ class HpDepartmentInherit(models.Model):
         ondelete='cascade',
     )
 
+    team_ids = fields.One2many(
+        'hr.team',
+        'department_id',
+        string="Teams"
+    )
+
     _sql_constraints = [
         (
             'uniq_department_branch_type',

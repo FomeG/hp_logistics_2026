@@ -15,5 +15,13 @@
             action="hr_branch_action"
             groups="base.group_system"
             sequence="10" />
+
+        <menuitem
+            id="hr_team_menu"
+            name="Teams"
+            parent="hr.menu_hr_root"
+            action="hr_team_action"
+            groups="base.group_system"
+            sequence="12" />
     </data>
 </odoo>
