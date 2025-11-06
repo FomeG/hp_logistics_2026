@@ -10,7 +10,7 @@ class Plan(models.Model):
     _name = 'trucking_planning.plan'
     _description = 'Plan'
     _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin']
-    _order = 'date asc'
+    _order = 'create_date asc'
 
     name = fields.Char(
         string="Name",
@@ -43,11 +43,11 @@ class Plan(models.Model):
         required=True,
         domain=[('partner_main_type_id.code', '=', ResPartnerService.SHIPPING_LINE)]
     )
-    date = fields.Datetime(
-        string='Load / Return Date',
-        index=True,
-        tracking=True,
-    )
+    # date = fields.Datetime(
+    #     string='Load / Return Date',
+    #     index=True,
+    #     tracking=True,
+    # )
     container_type = fields.Selection([
             ('dry','Dry'),
             ('cool','Cool'),

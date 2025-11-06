@@ -10,7 +10,7 @@
                 <field name="location_id" string="Port"/>
                 <field name="plan_type" string="Plan Type"/>
                 <field name="shipping_line_id" string="Shipping Line"/>
-                <field name="date"/>
+<!--                <field name="date"/>-->
                 <field name="container_type" string="Container Type"/>
                 <field name="goods_cut_off" string="Goods Cut Off Date"/>
                 <field name="status"/>
@@ -58,7 +58,7 @@
 
                             <field name="container_type" string="Container Type"/>
                             <field name="location_id" string="Port" context="{'default_type':'port', 'hide_type':True}"/>
-                            <field name="date"/>
+<!--                            <field name="date"/>-->
                             <field name="goods_cut_off" string="Goods Cut Off Date"/>
                             <field name="status"/>
                         </group>
@@ -157,7 +157,7 @@
                     <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
                     <filter string="Plan Type" name="group_by_plan_type" context="{'group_by':'plan_type'}"/>
                     <filter string="Container Type" name="group_by_container_type" context="{'group_by':'container_type'}"/>
-                    <filter string="Load/Return Date" name="group_by_date" context="{'group_by':'date'}"/>
+<!--                    <filter string="Load/Return Date" name="group_by_date" context="{'group_by':'date'}"/>-->
                 </group>
             </search>
         </field>
