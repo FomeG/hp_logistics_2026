@@ -98,6 +98,13 @@ class PlanLine(models.Model):
         store=True,
         help="Number of trucks assigned to this customer"
     )
+    date = fields.Datetime(
+        string='Load / Return Date',
+        required=True,
+        index=True,
+        tracking=True,
+        help="Date when goods are loaded (Export) or returned (Import)"
+    )
     estimate_time_departure = fields.Datetime(
         string="ETD (Estimated Time of Departure)",
         required=True,

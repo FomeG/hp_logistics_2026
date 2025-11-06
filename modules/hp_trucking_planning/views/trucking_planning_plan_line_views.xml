@@ -25,6 +25,7 @@
                     <field name="weight_class_summary" string="Weight Class"/>
                     <field name="actual_source_location_id"/>
                     <field name="actual_destination_location_id"/>
+                    <field name="date"/>
                     <field name="estimate_time_departure" string="Estimate Time Departure"/>
                     <field name="estimate_time_arrival" string="Estimate Time Arrival"/>
                     <field name="goods_pickup_location_id" string="Place of Pickup" invisible="plan_type == 'import'" required="plan_type == 'export'"/>
@@ -53,8 +54,7 @@
                 <form>
                     <header>
                         <field name="status" widget="statusbar" statusbar_visible="hpl_reject,client_cancel,checking,transfer,rented"/>
-                        <field name="trip_status_summary" widget="statinfo" string="Trip Status" class="oe_inline"/>
-                        <button name="action_export_plan_line_excel" 
+                        <button name="action_export_plan_line_excel"
                                 string="Export Excel" 
                                 type="object" 
                                 class="btn-primary" 
@@ -90,6 +90,7 @@
                                 widget="many2one_new_tab" />
                             <field name="tax_number" readonly="1"/>
                             <field name="status"/>
+                            <field name="date" required="1"/>
                             <field name="estimate_time_departure" string="Estimate Time Departure" required="1"/>
                             <field name="estimate_time_arrival" string="Estimate Time Arrival" required="1"/>
                             <field name="goods_pickup_location_id" string="Place of Pickup" invisible="plan_type == 'import' or not route_id" required="plan_type == 'export' and route_id" context="{'default_type':'goods_pickup_delivery','hide_type':True}"/>
@@ -248,6 +249,7 @@
                         <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
                         <filter string="Client" name="group_by_client" context="{'group_by':'client_id'}"/>
                         <filter string="Plan" name="group_by_plan" context="{'group_by':'plan_id'}"/>
+                        <filter string="Date" name="group_by_date" context="{'group_by':'date'}"/>
                         <filter string="Tax Number" name="group_by_tax_number" context="{'group_by':'tax_number'}"/>
                         <filter string="Route" name="group_by_route" context="{'group_by':'route_id'}"/>
                         <filter string="Direction" name="group_by_direction" context="{'group_by':'plan_type'}"/>

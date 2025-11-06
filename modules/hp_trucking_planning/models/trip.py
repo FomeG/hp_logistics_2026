@@ -47,7 +47,7 @@ class Trip(models.Model):
         store=True,
     )
     plan_date = fields.Datetime(
-        related='plan_line_id.plan_id.date',
+        related='plan_line_id.date',
         string='Plan Date',
         readonly=True,
         store=True,
