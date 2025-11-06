@@ -1,6 +1,6 @@
 from email.policy import default
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from ..services.res_partner_service import ResPartnerService
 from odoo.exceptions import UserError
@@ -104,6 +104,51 @@ class Plan(models.Model):
         for record in self:
             record.has_trips = any(line.trip_ids for line in record.plan_line_ids)
 
+    @api.onchange('booking_bill_no')
+    def _check_booking_bill_no_unique(self):
+        """Check if booking/bill number already exists with detailed info"""
+        for record in self:
+            if record.booking_bill_no:
+                # Tìm plan khác có cùng booking number
+                existing = self.search([
+                    ('booking_bill_no', '=', record.booking_bill_no),
+                    ('id', '!=', record.id)
+                ], limit=1)
+
+                if existing:
+                    # ✅ Build view URL
+                    base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                    view_url = f"{base_url}/web#id={existing.id}&model=trucking_planning.plan&view_type=form"
+
+                    # ✅ Format detailed error message
+                    error_message = _(
+                        "❌ Booking/Bill Number Already Exists!\n\n"
+                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        "📋 EXISTING PLAN DETAILS:\n"
+                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                        "🔖 Booking/Bill No: %(booking)s\n"
+                        "📝 Plan Name: %(name)s\n"
+                        "📦 Plan Type: %(plan_type)s\n"
+                        "🚢 Shipping Line: %(shipping_line)s\n"
+                        "📦 Container Type: %(container_type)s\n"
+                        "🏢 Port: %(port)s\n"
+                        "📅 Cut Off Date: %(cut_off)s\n"
+                        "🔄 Status: %(status)s\n\n"
+                        "🔗 View URL:\n%(url)s\n\n"
+                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        "Please use a different booking number."
+                    ) % {
+                            'booking': existing.booking_bill_no,
+                            'name': existing.name or 'N/A',
+                            'plan_type': dict(existing._fields['plan_type'].selection).get(existing.plan_type, 'N/A'),
+                            'shipping_line': existing.shipping_line_id.name if existing.shipping_line_id else 'N/A',
+                            'container_type': dict(existing._fields['container_type'].selection).get(existing.container_type, 'N/A'),
+                            'port': existing.location_id.name if existing.location_id else 'N/A',
+                            'cut_off': existing.goods_cut_off.strftime('%Y-%m-%d %H:%M') if existing.goods_cut_off else 'N/A',
+                            'status': dict(existing._fields['status'].selection).get(existing.status,'N/A'),
+                            'url': view_url,
+                                }
+                    raise ValidationError(error_message)
     # @api.depends('date')
     # def _compute_month_year(self):
     #     for record in self:
@@ -241,9 +286,9 @@ class Plan(models.Model):
     def action_export_plan_docx(self):
         pass # Placeholder for the new method
 
-    _sql_constraints = [
-        ('unique_booking','Unique(booking_bill_no)','Booking number is unique!'),
-    ]
+    # _sql_constraints = [
+    #     ('unique_booking','Unique(booking_bill_no)','Booking number is unique!'),
+    # ]
 
     def create_booking_async(self, booking_vals):
         booking = self.env['freight.purchase.booking'].with_context(skip_validator=True).create(booking_vals)

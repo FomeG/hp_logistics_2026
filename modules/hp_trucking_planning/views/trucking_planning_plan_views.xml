@@ -40,13 +40,13 @@
                             <field name="name" string="Reference" readonly="True"/>
                         </group>
                         <group>
-                            <field name="plan_type" string="Plan Type"/>
                             <field name="booking_bill_no"
                                    string="Booking No"
                                    invisible="plan_type == 'import'"/>
                             <field name="booking_bill_no"
                                    string="Bill No"
                                    invisible="plan_type == 'export'"/>
+                            <field name="plan_type" string="Plan Type"/>
                             <field name="shipping_line_id"
                                 string="Shipping Line"
                                 context="{
