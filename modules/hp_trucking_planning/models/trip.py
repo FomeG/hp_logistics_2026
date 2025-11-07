@@ -777,9 +777,9 @@ class Trip(models.Model):
             result['goods_weight'] = f"{plan_line.goods_weight} Tấn"
 
         # 2. Đóng hàng/ Hạ Hàng
-        if plan and plan.date:
+        if plan_line and plan_line.date:
             user_tz = self.env.user.tz or 'Asia/Ho_Chi_Minh'
-            localized_date = fields.Datetime.context_timestamp(self, plan.date)
+            localized_date = fields.Datetime.context_timestamp(self, plan_line.date)
             result['loading_time'] = localized_date.strftime("%d/%m/%Y %H:%M")
         loading_location = None
         contact_number = ''
@@ -890,7 +890,7 @@ class Trip(models.Model):
                 driver_name = trip.driver_id.name if trip.driver_id else 'N_A'
                 safe_driver_name = re.sub(r'[^\w\s-]', '', driver_name).strip()
                 safe_driver_name = re.sub(r'[-\s]+', '_', safe_driver_name)
-                trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else fields.Datetime.now()
+                trip_date = trip.plan_line_id.date if trip.plan_line_id else fields.Datetime.now()
                 if isinstance(trip_date, datetime):
                     filename = f"GiayVanTai_{safe_driver_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
                 else:

@@ -21,7 +21,7 @@ class HpDocumentService(models.AbstractModel):
         if not trip.driver_id:
             raise UserError("No driver id specified")
 
-        if not trip.plan_id.date:
+        if not trip.plan_line_id.date:
             raise UserError("Please fill in the Load / Return Date in the related Plan before exporting the DOCX file.")
 
         try:
@@ -39,7 +39,7 @@ class HpDocumentService(models.AbstractModel):
             import re
             safe_driver_name = re.sub(r'[^\w\s-]', '', driver_name).strip()
             safe_driver_name = re.sub(r'[-\s]+', '_', safe_driver_name)
-            trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else fields.Datetime.now()
+            trip_date = trip.plan_line_id.date if trip.plan_line_id else fields.Datetime.now()
             if isinstance(trip_date, datetime):
                 filename = f"GiayVanTai_{safe_driver_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
             else:
@@ -140,8 +140,8 @@ class HpDocumentService(models.AbstractModel):
             # Prepare row data
             row_data = [
                 '',  # STT (sequence - disabled)
-                plan_line.plan_id.date.strftime('%d/%m/%Y %H:%M') if plan_line.plan_id and plan_line.plan_id.date else '',  # Ngày tiếp nhận
-                plan_line.plan_id.date.strftime('%d/%m/%Y %H:%M') if plan_line.plan_id and plan_line.plan_id.date else '',  # Ngày xe chạy
+                plan_line.date.strftime('%d/%m/%Y %H:%M') if plan_line.plan_id and plan_line.date else '',  # Ngày tiếp nhận
+                plan_line.date.strftime('%d/%m/%Y %H:%M') if plan_line.plan_id and plan_line.date else '',  # Ngày xe chạy
                 plan_line.plan_id.goods_cut_off.strftime('%d/%m/%Y %H:%M') if plan_line.plan_id and plan_line.plan_id.goods_cut_off else '',  # Cut off
                 plan_line.client_id.code if plan_line.client_id and hasattr(plan_line.client_id, 'code') else '',  # Mã đối tượng
                 plan_line.client_id.name if plan_line.client_id else '',  # Tên đối tượng
@@ -421,7 +421,7 @@ class HpDocumentService(models.AbstractModel):
         bold_run.bold = True
         info_para.add_run("    ")
         info_para.add_run("\nNgày đóng/trả hàng: ")
-        trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else fields.Datetime.now()
+        trip_date = trip.plan_line_id.date if trip.plan_line_id else fields.Datetime.now()
         bold_run = info_para.add_run(f"{trip_date.strftime('%d/%m/%Y %H:%M')}")
         bold_run.bold = True
 
@@ -595,7 +595,7 @@ class HpDocumentService(models.AbstractModel):
 
             content_para.add_run("\nThời gian vận chuyển dự kiến:")
             content_para.add_run("\nBắt đầu từ : ")
-            trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else trip.env['ir.fields.date'].today()
+            trip_date = trip.plan_line_id.date if trip.plan_line_id else fields.Datetime.now()
             etd_str = trip.plan_line_id.estimate_time_departure.strftime('%d/%m/%Y %H:%M') if trip.plan_line_id.estimate_time_departure else ' '
             bold_run = content_para.add_run(f"{etd_str}")
             bold_run.bold = True
