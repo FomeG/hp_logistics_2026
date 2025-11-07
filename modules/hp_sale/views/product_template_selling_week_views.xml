@@ -25,6 +25,7 @@
                         <field name="goods_info"/>
                         <field name="selling_week_id"/>
                         <field name="product_template_id"/>
+                        <field name="team_id" options="{'no_quick_create': True}"/>
                         <field name="note"/>
                     </group>
                     <notebook>
@@ -52,10 +53,10 @@
             <search string="Search Selling Weeks">
                 <field name="name"/>
                 <field name="goods_info"/>
-                <field name="product_template_id"/>
                 <searchpanel>
                     <field name="region_id" enable_counters="1"/>
-                    <field name="selling_week_id" enable_counters="1"/>
+                    <field name="team_id" enable_counters="1"/>
+                    <field name="selling_week_id" enable_counters="1"/>         
                 </searchpanel>
             </search>
         </field>

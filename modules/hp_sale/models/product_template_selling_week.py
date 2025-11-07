@@ -20,6 +20,11 @@ class ProductTemplateSellingWeek(models.Model):
         string="Product",
         tracking=True
     )
+    team_id = fields.Many2one(
+        'hr.team',
+        string="Team",
+        tracking=True
+    )
     region_id = fields.Many2one(
         'freight.purchase.region',
         string="Region",
@@ -33,7 +38,6 @@ class ProductTemplateSellingWeek(models.Model):
     note = fields.Char()
 
     name = fields.Text(string="Name", compute="_compute_name", store=True)
-
 
     @api.depends('goods_info', 'product_template_id', 'line_ids')
     def _compute_name(self):

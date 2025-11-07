@@ -17,6 +17,11 @@ class FreightPurchaseRegion(models.Model):
         'region_id',
         string='Countries'
     )
+    team_ids = fields.One2many(
+        'hr.team',
+        'region_id',
+        string="Teams"
+    )
     employee_string = fields.Char(string="Employees in Region", compute='_compute_employee_string', store=False)
     port_string = fields.Char(string="Ports in Region", compute='_compute_port_string', store=False)
 
