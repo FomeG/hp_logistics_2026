@@ -724,7 +724,19 @@ class Trip(models.Model):
         }
 
     def get_route_info(self):
-        """Common method to get route and location information for a trip"""
+        """Common method to get route and location information for a trip
+        Get route and location information
+        IMPORT:
+            - Nơi lấy cont: Port Drop (plan.location_id - port)
+            - Nơi hạ công: Place of Delivery (goods_delivery_location_id)
+            - Địa điểm đóng hàng: To Location (actual_destination_location_id)
+            - Nơi trả vỏ: Empty Depot Pickup (container_port_location_id - depot)
+        EXPORT:
+            - Nơi lấy cont: Port Pickup (plan.location_id - port)
+            - Nơi hạ công: Empty Depot Return (container_port_location_id - depot)
+            - Địa điểm đóng hàng: Place of Pickup (goods_pickup_location_id)
+            - Nơi lấy vỏ: Empty Depot Return (container_port_location_id - depot)"""
+
         plan_line = self.plan_line_id
         plan = plan_line.plan_id if plan_line else None
 
@@ -732,8 +744,9 @@ class Trip(models.Model):
             'booking_bill': 'N/A',
             'container_info': 'N/A',
             'shipping_line': 'N/A',
-            'pickup_port': 'N/A',
-            'delivery_port': 'N/A',
+            'pickup_port': 'N/A',          # Nơi lấy cont
+            'delivery_port': 'N/A',        # Nơi hạ công
+            'empty_depot': 'N/A',          # Nơi trả vỏ/lấy vỏ
             'goods_weight': '',
             'loading_time': 'N/A',
             'loading_location': 'N/A',
@@ -758,20 +771,35 @@ class Trip(models.Model):
 
         # Fix location mapping according to user requirements
         # Nơi lấy công (Pickup Port): Always port
-        if plan and plan.location_id:
-            result['pickup_port'] = plan.location_id.name or 'N/A'
+        # if plan and plan.location_id:
+        #     result['pickup_port'] = plan.location_id.name or 'N/A'
 
         # Nơi hạ công (Delivery Port): Different logic for import vs export
         if plan and plan.plan_type == 'import':
+            # Nơi lấy cont: Port Drop
+            if plan.location_id:
+                result['pickup_port'] = plan.location_id.name or 'N/A'
             # Import: Nơi hạ công = place of delivery
             location = plan_line.goods_delivery_location_id if plan_line else None
             if location:
                 address = location.address or ''
                 delivery_port = f"{location.name} ({address})" if address else location.name
             result['delivery_port'] = delivery_port
+            # Nơi trả vỏ: Empty Depot Pickup
+            if plan_line and plan_line.container_port_location_id:
+                result['empty_depot'] = plan_line.container_port_location_id.name or 'N/A'
         else:
-            # Export: Nơi hạ công = same port
-            result['delivery_port'] = plan.location_id.name if plan and plan.location_id else 'N/A'
+            # Nơi lấy cont: Port Pickup
+            if plan.location_id:
+                result['pickup_port'] = plan.location_id.name or 'N/A'
+            # Nơi hạ công: Empty Depot Return
+            if plan_line and plan_line.container_port_location_id:
+                result['delivery_port'] = plan_line.container_port_location_id.name or 'N/A'
+            # Nơi lấy vỏ: Empty Depot Return (same as delivery_port)
+            if plan_line and plan_line.container_port_location_id:
+                result['empty_depot'] = plan_line.container_port_location_id.name or 'N/A'
+            # # Export: Nơi hạ công = same port
+            # result['delivery_port'] = plan.location_id.name if plan and plan.location_id else 'N/A'
 
         if plan_line and plan_line.goods_weight:
             result['goods_weight'] = f"{plan_line.goods_weight} Tấn"
@@ -810,13 +838,17 @@ class Trip(models.Model):
         route_info = self.get_route_info()
         plan = self.plan_line_id.plan_id if self.plan_line_id else None
         section_title = "Đóng hàng" if plan and plan.plan_type == 'import' else "Hạ hàng"
-
+        if plan and plan.plan_type == 'import':
+            depot_label = "Nơi trả vỏ"  # Empty Depot Pickup
+        else:
+            depot_label = "Nơi lấy vỏ"  # Empty Depot Return
         message = f"""1. Thông tin đóng trả hàng:
 
         Số booking/số bill: {route_info['booking_bill']}
         Loại container: {route_info['container_info']} - hãng tầu ({route_info['shipping_line']})
         Nơi lấy Cont: {route_info['pickup_port']}
         Nơi hạ cont: {route_info['delivery_port']}
+        {depot_label}: {route_info['empty_depot']}
         Trọng lượng hàng: {route_info['goods_weight']}
 
 2. {section_title}:

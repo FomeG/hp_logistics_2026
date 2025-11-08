@@ -129,13 +129,37 @@
                                     <strong>5. Thông tin về chuyến đi</strong><br/>
                                     Tuyến vận chuyển: <span t-field="trip.plan_line_id.route_id.name"/><br/>
                                     <!-- Điểm xếp hàng: logic từ loading_location -->
-                                    Điểm xếp hàng: <strong t-if="trip.plan_type == 'import'" t-field="trip.actual_destination_location_id.address"/>
-                                                   <strong t-if="trip.plan_type == 'export'" t-field="trip.plan_goods_pickup_location_id.address"/><br/>
+                                    Điểm xếp hàng: <strong><span t-field="trip.plan_id.location_id.name"/></strong><br/>
+<!--                                    Điểm xếp hàng: <strong t-if="trip.plan_type == 'import'" t-field="trip.actual_destination_location_id.address"/>-->
+<!--                                                   <strong t-if="trip.plan_type == 'export'" t-field="trip.plan_goods_pickup_location_id.address"/><br/>-->
                                 <!-- Điểm giao hàng: logic từ pickup_port -->
-                                    Điểm giao hàng: <strong t-field="trip.plan_id.location_id.name"/><br/>
+                                    Điểm giao hàng:
+                                        <strong t-if="trip.plan_type == 'import'">
+                                            <span t-field="trip.plan_goods_delivery_location_id.name"/>
+                                        </strong>
+                                        <strong t-if="trip.plan_type == 'export'">
+                                            <span t-field="trip.plan_line_id.container_port_location_id.name"/>
+                                        </strong><br/>
+                                    Nơi trả hàng:
+                                        <strong t-if="trip.plan_type == 'import'">
+                                            <span t-field="trip.actual_destination_location_id.name"/>
+                                            <span t-if="trip.actual_destination_location_id.address">
+                                                (<span t-field="trip.actual_destination_location_id.address"/>)
+                                            </span>
+                                        </strong>
+                                        <strong t-if="trip.plan_type == 'export'">
+                                            <span t-field="trip.plan_goods_pickup_location_id.name"/>
+                                            <span t-if="trip.plan_goods_pickup_location_id.address">
+                                                (<span t-field="trip.plan_goods_pickup_location_id.address"/>)
+                                            </span>
+                                        </strong><br/>
+<!--                                    Điểm giao hàng: <strong t-field="trip.plan_id.location_id.name"/><br/>-->
                                 <!-- Nơi trả vỏ: logic từ delivery_port -->
-                                    Nơi trả vỏ: <strong t-if="trip.plan_type == 'import'" t-field="trip.plan_goods_delivery_location_id.name"/>
-                                                <strong t-if="trip.plan_type == 'export'" t-field="trip.plan_id.location_id.name"/><br/>
+                                    <span t-if="trip.plan_type == 'import'">Nơi trả vỏ:</span>
+                                    <span t-if="trip.plan_type == 'export'">Nơi lấy vỏ:</span>
+                                    <strong><span t-field="trip.plan_line_id.container_port_location_id.name"/></strong><br/>
+<!--                                    Nơi trả vỏ: <strong t-if="trip.plan_type == 'import'" t-field="trip.plan_goods_delivery_location_id.name"/>-->
+<!--                                                <strong t-if="trip.plan_type == 'export'" t-field="trip.plan_id.location_id.name"/><br/>-->
 <!--                                    Điểm xếp hàng: <span t-field="trip.plan_line_id.actual_source_location_id.name"/><br/>-->
 <!--                                    Điểm giao hàng: <span t-field="trip.plan_line_id.actual_destination_location_id.name"/><br/>-->
 <!--                                    Nơi trả vỏ: <span t-field="trip.plan_line_id.actual_source_location_id.name"/><br/>-->

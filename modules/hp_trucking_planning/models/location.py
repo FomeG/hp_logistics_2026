@@ -13,6 +13,7 @@ class Location(models.Model):
         ('container_delivery', 'Container Delivery'),
         ('route_point', 'Route Point'),
         ('port', 'Port'),
+        ('depot', 'Depot'), # Bãi chứa container, thường nằm trong cảng
         ('warehouse', 'Warehouse'),
         ('factory', 'Factory'),
         ('other', 'Other')

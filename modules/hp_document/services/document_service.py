@@ -578,19 +578,28 @@ class HpDocumentService(models.AbstractModel):
             content_para.add_run("\nĐiểm xếp hàng: ")
 
             route_info = trip.get_route_info()
-            loading_location = route_info['loading_location']
-            bold_run = content_para.add_run(f"{loading_location}")
-            bold_run.bold = True
-
-            content_para.add_run("\nĐiểm giao hàng: ")
-
             pickup_port = route_info['pickup_port']
             bold_run = content_para.add_run(f"{pickup_port}")
             bold_run.bold = True
 
-            content_para.add_run("\nNơi trả hàng: ")
+            content_para.add_run("\nĐiểm giao hàng: ")
             delivery_port = route_info['delivery_port']
             bold_run = content_para.add_run(f"{delivery_port}")
+            bold_run.bold = True
+
+            content_para.add_run("\nNơi trả hàng: ")
+            loading_location = route_info['loading_location']
+            bold_run = content_para.add_run(f"{loading_location}")
+            bold_run.bold = True
+
+            #Nơi trả/lấy vỏ (Empty Depot)
+            if trip.plan_type == 'import':
+                content_para.add_run("\nNơi trả vỏ: ")
+            else:
+                content_para.add_run("\nNơi lấy vỏ: ")
+
+            empty_depot = route_info['empty_depot']
+            bold_run = content_para.add_run(f"{empty_depot}")
             bold_run.bold = True
 
             content_para.add_run("\nThời gian vận chuyển dự kiến:")
@@ -614,6 +623,7 @@ class HpDocumentService(models.AbstractModel):
             content_para.add_run("\nĐiểm xếp hàng:")
             content_para.add_run("\nĐiểm giao hàng:")
             content_para.add_run("\nNơi trả hàng:")
+            content_para.add_run("\nNơi trả/lấy vỏ:")
             content_para.add_run("\nThời gian vận chuyển dự kiến:")
             content_para.add_run("\nBắt đầu từ: ")
             content_para.add_run("\nđến: ")

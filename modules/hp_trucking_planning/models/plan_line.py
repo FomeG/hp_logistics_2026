@@ -194,10 +194,10 @@ class PlanLine(models.Model):
 
     container_port_location_id = fields.Many2one(
         comodel_name='trucking_planning.location',
-        string="Container Port Location",
-        domain=[('type', '=', 'port')],
+        string="Empty Container Depot",
+        domain=[('type', '=', 'depot')],
         tracking=True,
-        help="Empty container port pickup for export/Empty container port return for import"
+        help="Depot where empty container is picked up (Export) or returned (Import)"
     )
 
     route_direction = fields.Selection(

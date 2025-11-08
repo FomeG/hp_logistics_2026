@@ -29,7 +29,7 @@
                     <field name="date"/>
                     <field name="estimate_time_departure" string="Estimate Time Departure"/>
                     <field name="estimate_time_arrival" string="Estimate Time Arrival"/>
-                    <field name="container_port_location_id" string="Container Port Location"/>
+                    <field name="container_port_location_id" string="Empty Container Depot"/>
                     <field name="goods_pickup_location_id" string="Place of Pickup" invisible="plan_type == 'import'" required="plan_type == 'export'"/>
                     <field name="goods_delivery_location_id" string="Place of Delivery" invisible="plan_type == 'export'" required="plan_type == 'import'"/>
                     <field name="goods_name"/>
@@ -96,15 +96,15 @@
                             <field name="estimate_time_departure" string="Estimate Time Departure" required="1"/>
                             <field name="estimate_time_arrival" string="Estimate Time Arrival" required="1"/>
                             <field name="container_port_location_id"
-                                   string="Empty Container Port Pickup "
+                                   string="Empty Container Depot Pickup "
                                    invisible="plan_type == 'import'"
-                                   context="{'default_type':'port', 'hide_type':True}"
-                                   domain="[('type', '=', 'port')]"/>
+                                   context="{'default_type':'depot', 'hide_type':True}"
+                                   domain="[('type', '=', 'depot')]"/>
                             <field name="container_port_location_id"
-                                   string="Empty Container Port Return "
+                                   string="Empty Container Depot Return "
                                    invisible="plan_type == 'export'"
-                                   context="{'default_type':'port', 'hide_type':True}"
-                                   domain="[('type', '=', 'port')]"/>
+                                   context="{'default_type':'depot', 'hide_type':True}"
+                                   domain="[('type', '=', 'depot')]"/>
                             <field name="goods_pickup_location_id" string="Place of Pickup" invisible="plan_type == 'import' or not route_id" required="plan_type == 'export' and route_id" context="{'default_type':'goods_pickup_delivery','hide_type':True}"/>
                             <field name="goods_delivery_location_id" string="Place of Delivery" invisible="plan_type == 'export' or not route_id" required="plan_type == 'import' and route_id" context="{'default_type':'port','hide_type':True}"/>
                         </group>
