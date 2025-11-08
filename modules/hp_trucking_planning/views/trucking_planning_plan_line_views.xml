@@ -18,7 +18,8 @@
                     <field name="client_id"/>
                     <field name="tax_number" />
                     <field name="status"/>
-                    <field name="plan_type" string="Direction"/>
+                    <field name="route_direction" string="Direction"/>
+<!--                    <field name="plan_type" string="Direction"/>-->
                     <field name="route_id"/>
                     <field name="container_summary" string="Container Type/Size"/>
                     <field name="container_number_summary" string="Cont Number"/>
@@ -28,6 +29,7 @@
                     <field name="date"/>
                     <field name="estimate_time_departure" string="Estimate Time Departure"/>
                     <field name="estimate_time_arrival" string="Estimate Time Arrival"/>
+                    <field name="container_port_location_id" string="Empty Container Depot"/>
                     <field name="goods_pickup_location_id" string="Place of Pickup" invisible="plan_type == 'import'" required="plan_type == 'export'"/>
                     <field name="goods_delivery_location_id" string="Place of Delivery" invisible="plan_type == 'export'" required="plan_type == 'import'"/>
                     <field name="goods_name"/>
@@ -93,6 +95,16 @@
                             <field name="date" required="1"/>
                             <field name="estimate_time_departure" string="Estimate Time Departure" required="1"/>
                             <field name="estimate_time_arrival" string="Estimate Time Arrival" required="1"/>
+                            <field name="container_port_location_id"
+                                   string="Empty Container Depot Pickup "
+                                   invisible="plan_type == 'import'"
+                                   context="{'default_type':'depot', 'hide_type':True}"
+                                   domain="[('type', '=', 'depot')]"/>
+                            <field name="container_port_location_id"
+                                   string="Empty Container Depot Return "
+                                   invisible="plan_type == 'export'"
+                                   context="{'default_type':'depot', 'hide_type':True}"
+                                   domain="[('type', '=', 'depot')]"/>
                             <field name="goods_pickup_location_id" string="Place of Pickup" invisible="plan_type == 'import' or not route_id" required="plan_type == 'export' and route_id" context="{'default_type':'goods_pickup_delivery','hide_type':True}"/>
                             <field name="goods_delivery_location_id" string="Place of Delivery" invisible="plan_type == 'export' or not route_id" required="plan_type == 'import' and route_id" context="{'default_type':'port','hide_type':True}"/>
                         </group>
@@ -147,7 +159,8 @@
                                         widget="many2one_new_tab" />
                                     <field name="actual_destination_location_id" readonly="1"
                                         widget="many2one_new_tab" />
-                                    <field name="plan_type" string="Direction"/>
+                                    <field name="route_direction" string="Direction" readonly="1"/>
+<!--                                    <field name="plan_type" string="Direction"/>-->
                                 </group>
 
                             </page>
@@ -227,6 +240,10 @@
             <field name="model">trucking_planning.plan.line</field>
             <field name="arch" type="xml">
                 <search>
+                    <field name="create_date" string="Created Date"/>
+
+                    <filter name="create_date" string="Created Date" date="create_date" start_year="-4" start_month="-8" end_month="3"/>
+                    <filter string="Created Today" name="created_today" domain="[('create_date','&gt;=', context_today())]"/>
                     <field name="code"/>
                     <field name="plan_id" string="Plan"/>
                     <field name="client_id"/>
@@ -246,13 +263,14 @@
                     <filter string="Not Cancelled" name="not_cancelled" domain="[('status', '!=', 'client_cancel')]" />
 
                     <group expand="0" string="Group By">
+                        <filter string="Created Date" name="create_date" domain="['&amp;', ('create_date', '>=', self), ('create_date', '&lt;=', self + relativedelta(days=1))]" context="{'group_by':'create_date:day'}"/>
                         <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
                         <filter string="Client" name="group_by_client" context="{'group_by':'client_id'}"/>
                         <filter string="Plan" name="group_by_plan" context="{'group_by':'plan_id'}"/>
                         <filter string="Date" name="group_by_date" context="{'group_by':'date'}"/>
                         <filter string="Tax Number" name="group_by_tax_number" context="{'group_by':'tax_number'}"/>
                         <filter string="Route" name="group_by_route" context="{'group_by':'route_id'}"/>
-                        <filter string="Direction" name="group_by_direction" context="{'group_by':'plan_type'}"/>
+                        <filter string="Direction" name="group_by_direction" context="{'group_by':'route_direction'}"/>
                         <filter string="Truck Count" name="group_by_truck_count" context="{'group_by':'truck_count'}"/>
                     </group>
                 </search>

@@ -247,6 +247,7 @@
         <field name="arch" type="xml">
             <search>
                 <field name="plan_line_id"/>
+                <field name="plan_booking_bill_no" string="Booking No"/>
                 <field name="plan_id" string="Plan"/>
                 <field name="client_id" string="Client"/>
                 <field name="container_number"/>
@@ -257,6 +258,10 @@
                 <field name="container_type"/>
                 <field name="weight_class"/>
 
+                <field name="create_date" string="Created Date"/>
+
+                <filter name="create_date" string="Created Date" date="create_date" start_year="-4" start_month="-8" end_month="3"/>
+                <filter string="Created Today" name="created_today" domain="[('create_date','&gt;=', context_today())]"/>
                 <filter string="Draft" name="draft" domain="[('status', '=', 'draft')]"/>
                 <filter string="On Route" name="on_route" domain="[('status', '=', 'on_route')]"/>
                 <filter string="Stopped" name="stopped" domain="[('status', '=', 'stopped')]"/>
@@ -270,6 +275,7 @@
                 <filter string="⚠️ Nearing ETA" name="nearing_eta" domain="[('is_eta_near', '=', True)]" />
                 <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
                 <group expand="0" string="Group By">
+                    <filter string="Created Date" name="create_date" domain="['&amp;', ('create_date', '>=', self), ('create_date', '&lt;=', self + relativedelta(days=1))]" context="{'group_by':'create_date:day'}"/>
                     <filter string="Job" name="group_by_plan_line" context="{'group_by':'plan_line_id'}"/>
                     <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
                     <filter string="Plan Type" name="group_by_plan_type" context="{'group_by':'plan_type'}"/>

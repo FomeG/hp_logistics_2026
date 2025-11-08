@@ -57,7 +57,17 @@
 
 
                             <field name="container_type" string="Container Type"/>
-                            <field name="location_id" string="Port" context="{'default_type':'port', 'hide_type':True}"/>
+<!--                            <field name="location_id" string="Port" context="{'default_type':'port', 'hide_type':True}"/>-->
+                            <field name="location_id"
+                                   string="Port Pickup"
+                                   invisible="plan_type == 'import'"
+                                   context="{'default_type':'port', 'hide_type':True}"
+                                   domain="[('type', '=', 'port')]"/>
+                            <field name="location_id"
+                                   string="Port Drop"
+                                   invisible="plan_type == 'export'"
+                                   context="{'default_type':'port', 'hide_type':True}"
+                                   domain="[('type', '=', 'port')]"/>
 <!--                            <field name="date"/>-->
                             <field name="goods_cut_off" string="Goods Cut Off Date"/>
                             <field name="status"/>

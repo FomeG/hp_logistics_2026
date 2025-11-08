@@ -192,6 +192,28 @@ class PlanLine(models.Model):
         help="Summary of trip statuses: Incomplete (Draft, On Route, Stopped) / Done"
     )
 
+    container_port_location_id = fields.Many2one(
+        comodel_name='trucking_planning.location',
+        string="Empty Container Depot",
+        domain=[('type', '=', 'depot')],
+        tracking=True,
+        help="Depot where empty container is picked up (Export) or returned (Import)"
+    )
+
+    route_direction = fields.Selection(
+        related='route_id.direction',
+        string='Direction',
+        store=False,
+        readonly=True
+    )
+
+    @api.onchange('plan_id')
+    def _onchange_plan_id(self):
+        if self.plan_id and self.plan_id.location_id:
+            self.container_port_location_id = self.plan_id.location_id
+        else:
+            self.container_port_location_id = False
+
     @api.depends('trip_ids.status', 'trip_ids.active')
     def _compute_trip_status_summary(self):
         for record in self:
@@ -365,10 +387,10 @@ class PlanLine(models.Model):
         for trip in self:
             trip.driver_info = f"{trip.driver_id.name},{trip.truck_id.name}"
 
-    @api.onchange('route_id')
-    def _on_route_change(self):
-        for trip in self:
-            trip.plan_type = trip.route_id.direction
+    # @api.onchange('route_id')
+    # def _on_route_change(self):
+    #     for trip in self:
+    #         trip.plan_type = trip.route_id.direction
 
     def action_view_trips(self):
         """Action để xem tất cả trips thuộc job"""
