@@ -33,6 +33,15 @@
                                 </list>
                             </field>
                         </page>
+                        <page string="Teams">
+                            <field name="team_ids" widget ="many2many">
+                                <list string="Teams">
+                                    <field name="name"/>
+                                    <field name="department_id"/>
+                                    <field name="user_ids" widget="many2many_tags"/>
+                                </list>
+                            </field>
+                        </page>
                     </notebook>
                 </sheet>
                 <chatter />

@@ -9,7 +9,7 @@
     'category': 'HP/HP Logistic',
     'images': [],
     'depends': [
-        'mail', 'base', 'sale', 'product', 'sale_management', 'account','component','component_event', 'queue_job', 'hp_freight_purchase'
+        'mail', 'base', 'sale', 'product', 'sale_management', 'account','component','component_event', 'queue_job', 'hp_freight_purchase', 'hp_employee'
     ],
     'data': [
         # data
