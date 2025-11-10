@@ -4,12 +4,13 @@ from msal import ConfidentialClientApplication
 import requests
 import logging
 import base64
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from odoo import _
 import os
 import os, base64, uuid
 import re
 from odoo.tools import config
+
 module_path = os.path.dirname(os.path.abspath(__file__))
 parent_path = os.path.dirname(module_path)
 save_dir = os.path.join(parent_path, "ms365_files")
@@ -31,9 +32,7 @@ class MsGraphMail(models.Model):
         tenant_id = config.get('ms365_tenant_id') or IrConfig.get_param('ms365.tenant_id')
         client_id = config.get('ms365_client_id') or IrConfig.get_param('ms365.client_id')
         client_secret = config.get('ms365_client_secret') or IrConfig.get_param('ms365.client_secret')
-        # tenant_id = "9e418708-ee71-4848-9d6d-f277ba7e59ea"
-        # client_id = "bfa73233-816a-42bd-973f-fc7ae180ab95"
-        # client_secret = "Z_R8Q~SMqgzZMX639zqJK0VttJZcLJS3BYHnLcRv"
+
         authority = f"https://login.microsoftonline.com/{tenant_id}"
 
         app = ConfidentialClientApplication(
@@ -55,15 +54,21 @@ class MsGraphMail(models.Model):
         self.fetch_and_forward_mail()
 
     @api.model
-    def fetch_and_forward_mail(self, forward_to="hn2722003@gmail.com"):
+    def fetch_and_forward_mail(self):
         """Lấy inbox của toàn bộ partner có email hợp lệ và forward sang Gmail"""
+        IrConfig = self.env['ir.config_parameter'].sudo()
+        forward_to = config.get('ms365.forward_to') or IrConfig.get_param('ms365.forward_to')
+
         partners = self.env['res.partner'].search([
             ('email', '!=', False)
         ])
+        _logger.info(f"🔎 Forward email to: {forward_to}")
 
         access_token = self._get_access_token()
         headers = {"Authorization": f"Bearer {access_token}"}
-
+        # Lọc email trong 2 ngày gần nhất
+        now_utc = datetime.now(timezone.utc)
+        since_time = (now_utc - timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
         allowed_domain = "@hplogistics.com.vn"
 
         for partner in partners:
@@ -74,7 +79,11 @@ class MsGraphMail(models.Model):
                 continue
 
             try:
-                url = f"https://graph.microsoft.com/v1.0/users/{email}/mailFolders/Inbox/messages"
+                url = (
+                    f"https://graph.microsoft.com/v1.0/users/{email}/mailFolders/Inbox/messages"
+                    f"?$filter=receivedDateTime ge {since_time}"
+                    f"&$orderby=receivedDateTime desc&$top=50"
+                )
                 r = requests.get(url, headers=headers)
 
                 if r.status_code != 200:
@@ -83,6 +92,12 @@ class MsGraphMail(models.Model):
 
                 for e in r.json().get('value', []):
                     msg_id = e['id']
+                    if not msg_id:
+                        continue
+                    # Check mail đã tồn tại chưa
+                    existing = self.env['mail.mail'].sudo().search([('x_ms365_msg_id', '=', msg_id)], limit=1)
+                    if existing:
+                        continue  # Bỏ qua mail đã fetch
                     detail = requests.get(f"https://graph.microsoft.com/v1.0/users/{email}/messages/{msg_id}",
                                           headers=headers)
 
@@ -105,7 +120,18 @@ class MsGraphMail(models.Model):
                         }
                     }
                     requests.post(send_url, headers=headers, json=new_email)
-
+                    # Lưu vào mail.mail để hiển thị trong Odoo
+                    self.env['mail.mail'].sudo().create({
+                        'subject': subject,
+                        'email_from': sender,
+                        'email_to': forward_to,
+                        'state': 'sent',
+                        'x_ms365_fetch': True,
+                        'x_ms365_account': email,
+                        'x_ms365_msg_id': msg_id,
+                        'body_content': body,
+                        'body_html': body,
+                    })
                     # self.env['mail.log'].create({
                     #     'partner_id': partner.id,
                     #     'subject': subject,
@@ -120,7 +146,9 @@ class MsGraphMail(models.Model):
 
         return True
 
-    def fetch_and_forward_mail_single(self, forward_to="hn2722003@gmail.com"):
+    def fetch_and_forward_mail_single(self):
+        IrConfig = self.env['ir.config_parameter'].sudo()
+        forward_to = config.get('ms365.forward_to') or IrConfig.get_param('ms365.forward_to')
         partner = self.env.user.partner_id
 
         if not partner or not partner.email:
