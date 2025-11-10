@@ -5,7 +5,7 @@ from ...hp_components.models.constants import SellingWeekState
 class SellingWeek(models.Model):
     _name = 'selling.week'
     _description = 'Selling Week'
-    _inherit = ['unique.code.mixin','unique.normalized.name.mixin','mail.thread', 'mail.activity.mixin']
+    _inherit = ['unique.code.mixin','mail.thread', 'mail.activity.mixin']
     _order = 'create_date desc'
 
     name = fields.Char(required=True, tracking=True)
@@ -26,6 +26,12 @@ class SellingWeek(models.Model):
         string="State",
         compute="_compute_state",
         store=True
+    )
+    product_selling_week_ids = fields.One2many(
+        'product.template.selling.week',
+        'selling_week_id',
+        string="Product Selling Week",
+        copy=True
     )
 
     _sql_constraints = [
@@ -48,3 +54,10 @@ class SellingWeek(models.Model):
                 record.state = SellingWeekState.INCOMING
             else:
                 record.state = SellingWeekState.PAST
+
+    def copy(self, default=None):
+        default = dict(default or {})
+        default['name'] = f"{self.name}-clone" if self.name else 'Unnamed-clone'
+        data = self.copy_data(default)[0]
+        new_record = self.create(data)
+        return new_record
