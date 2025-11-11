@@ -5,7 +5,7 @@
         <field name="name">selling.week.list</field>
         <field name="model">selling.week</field>
         <field name="arch" type="xml">
-            <list string="Selling Weeks" default_order="start_date desc">
+            <list string="Selling Weeks" default_order="state, create_date desc">
                 <field name="name"/>
                 <field name="start_date"/>
                 <field name="end_date"/>
