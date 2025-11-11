@@ -16,29 +16,28 @@
 <!--            <field name="domain">[('x_ms365_fetch', '=', True), ('create_uid', '=', uid)]</field>-->
 
         </record>
-    <record model="ir.ui.view" id="view_mail_from_inherit_365">
-        <field name="name">mail_from_inherit_365</field>
-        <field name="model">mail.mail</field>
-        <field name="inherit_id" ref="mail.view_mail_tree"/>
-        <field name="arch" type="xml">
-           <xpath expr="//list" position="inside">
-               <field name="x_ms365_fetch"/>
-               <field name ="x_ms365_account"/>
-           </xpath>
-        </field>
-    </record>
+        <record model="ir.ui.view" id="view_mail_from_inherit_365">
+            <field name="name">mail_from_inherit_365</field>
+            <field name="model">mail.mail</field>
+            <field name="inherit_id" ref="mail.view_mail_tree"/>
+            <field name="arch" type="xml">
+               <xpath expr="//list" position="inside">
+                   <field name="x_ms365_fetch"/>
+                   <field name ="x_ms365_account"/>
+               </xpath>
+            </field>
+        </record>
 
-    <record model="ir.ui.view" id="view_mail_from_mail_inherit_ms365">
-        <field name="name">mail.from.mail.inherit.ms365</field>
-        <field name="model">mail.mail</field>
-        <field name="inherit_id" ref="mail.view_mail_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//sheet/group" position="inside">
-                <field name="x_ms365_fetch"/>
-                <field name ="x_ms365_account"/>
-            </xpath>
-        </field>
-    </record>
-
-</data>
+        <record model="ir.ui.view" id="view_mail_from_mail_inherit_ms365">
+            <field name="name">mail.from.mail.inherit.ms365</field>
+            <field name="model">mail.mail</field>
+            <field name="inherit_id" ref="mail.view_mail_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet/group" position="inside">
+                    <field name="x_ms365_fetch"/>
+                    <field name ="x_ms365_account"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
 </odoo>
