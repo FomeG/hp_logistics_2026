@@ -4,6 +4,7 @@ from odoo.exceptions import ValidationError
 class ProductTemplateSellingWeek(models.Model):
     _name = 'product.template.selling.week'
     _description = 'Product Template Selling Week'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
     goods_info = fields.Char(
         string="Goods Info",
@@ -33,7 +34,8 @@ class ProductTemplateSellingWeek(models.Model):
     line_ids = fields.One2many(
         'product.template.selling.week.line',
         'product_template_selling_week_id',
-        tracking=True
+        tracking=True,
+        copy=True
     )
     note = fields.Char()
 

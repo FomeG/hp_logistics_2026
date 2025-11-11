@@ -29,6 +29,17 @@
                         <field name="end_date"/>
                         <field name="is_active" invisible="not id"/>
                     </group>
+                    <notebook>
+                        <page string="Product Selling Week">
+                            <field name="product_selling_week_ids">
+                                <list editable="bottom">
+                                    <field name="name" />
+                                    <field name="product_template_id" />
+                                    <field name="note" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter />
             </form>
