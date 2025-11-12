@@ -1,5 +1,5 @@
 from odoo import models, fields, api
-from odoo.tools import config
+from odoo.tools import config, mimetypes
 import boto3
 import os
 import ast
@@ -92,18 +92,43 @@ class IrAttachmentInherit(models.Model):
         ])
         files_path_odoo = []
         filestore_path = config.filestore(self.env.cr.dbname)
+        synced_count = 0
+        error_count = 0
+
         for attachment in attachments:
             try:
-                filename = attachment.name
+                filename = attachment.name or 'unnamed_file'
                 ext = os.path.splitext(filename)[1]
-                s3_key = f"hp_document/{attachment.store_fname}{ext}"
+                if not ext:
+                    # Nếu không có extension, thử guess từ mimetype
+                    ext = mimetypes.guess_extension(attachment.mimetype) or ''
+
+                store_fname_clean = attachment.store_fname.split('/')[
+                    -1] if '/' in attachment.store_fname else attachment.store_fname
+
+                s3_key = f"hp_document/{store_fname_clean}{ext}"
                 s3_path_aws = f"https://d85r39ril3sob.cloudfront.net/{s3_key}"
                 file_path = os.path.join(filestore_path, attachment.store_fname)
-                s3.upload_file(file_path, s3_bucket, s3_key)
+                if not os.path.exists(file_path):
+                    _logger.warning(f"File not found: {file_path}")
+                    error_count += 1
+                    continue
+                content_type = attachment.mimetype
+                if not content_type:
+                    content_type, _ = mimetypes.guess_type(filename)
+                if not content_type:
+                    content_type = 'application/octet-stream'
+
+                extra_args = {
+                    'ContentType': content_type,
+                    'ContentDisposition': f'inline; filename="{filename}"',
+                }
+                s3.upload_file(file_path,s3_bucket,s3_key,ExtraArgs=extra_arg)
                 attachment.write({'s3_path': s3_path_aws})
                 files_path_odoo.append(file_path)
+                synced_count += 1
             except Exception as e:
-                _logger.exception(f"Error uploading file for attachment ID {attachment.id}: {e}")
+                error_count += 1
                 continue
         self._remove_filestore_path(files_path_odoo)
 
@@ -119,18 +144,9 @@ class IrAttachmentInherit(models.Model):
         self.ensure_one()
         file_url = self.get_secure_file_url()  # Custom controller URL if there is S3 access
         return {'type': 'ir.actions.act_url', 'url': file_url, 'target': 'new'}
-        return {
-            'type': 'ir.actions.act_url',
-            'url': file_url,
-            'target': 'new',
-        }
+
 
     def action_download_attachment(self):
         self.ensure_one()
         url = self.get_secure_download_url()  # Custom controller URL if there is S3 access
         return {'type': 'ir.actions.act_url', 'url': url, 'target': 'self'}
-        return {
-            'type': 'ir.actions.act_url',
-            'url': url,
-            'target': 'self',
-        }
