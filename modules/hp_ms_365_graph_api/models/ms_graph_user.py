@@ -25,6 +25,31 @@ class MsGraphMail(models.Model):
     sender = fields.Char("From")
     body = fields.Text("Body")
     raw_data = fields.Text("Raw JSON")
+    user_id = fields.Many2one(
+        'res.users',
+        string='User',
+        default=lambda self: self.env.user,
+        required=True,
+        index=True
+    )
+    x_has_fetched_all = fields.Boolean(
+        string='Has Fetched All Emails',
+        default=False,
+        help='If True, only fetch today emails. If False, fetch last 90 days.'
+    )
+    _sql_constraints = [
+        ('unique_user_id', 'unique(user_id)', 'Each user can only have one MS Graph record!')
+    ]
+
+    @api.model
+    def create(self, vals):
+        uid = vals.get('user_id') or self.env.uid
+        exist = self.search([('user_id', '=', uid)], limit=1)
+        if exist:
+            exist.write({k: v for k, v in vals.items() if k != 'user_id'})
+            return exist
+        vals.setdefault('user_id', uid)
+        return super().create(vals)
 
     @api.model
     def _get_access_token(self):
@@ -55,7 +80,13 @@ class MsGraphMail(models.Model):
 
     @api.model
     def fetch_and_forward_mail(self):
-        """Lấy inbox của toàn bộ partner có email hợp lệ và forward sang Gmail"""
+        """
+        CẬP NHẬT: Fetch email và lưu vào staging table
+        - Clean staging table trước
+        - Fetch email từ MS365
+        - Lưu vào staging table
+        - Clone từ staging sang mail.mail
+        """
         IrConfig = self.env['ir.config_parameter'].sudo()
         forward_to = config.get('ms365.forward_to') or IrConfig.get_param('ms365.forward_to')
 
@@ -68,8 +99,13 @@ class MsGraphMail(models.Model):
         headers = {"Authorization": f"Bearer {access_token}"}
         # Lọc email trong 2 ngày gần nhất
         now_utc = datetime.now(timezone.utc)
-        since_time = (now_utc - timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        since_time = (now_utc - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
         allowed_domain = "@hplogistics.com.vn"
+
+        # 1. Clean staging table
+        self.env['ms365.email.staging'].clean_old_records()
+
+        staging_obj = self.env['ms365.email.staging'].sudo()
 
         for partner in partners:
             email = (partner.email or "").strip().lower()
@@ -109,44 +145,69 @@ class MsGraphMail(models.Model):
                     body = msg.get('body', {}).get('content', '')
                     content_type = msg.get('body', {}).get('contentType', 'Text')
                     sender = msg.get('from', {}).get('emailAddress', {}).get('address', '')
+                    received_date_str = msg.get('receivedDateTime', '')
+                    received_date = datetime.fromisoformat(
+                        received_date_str.replace('Z', '+00:00')) if received_date_str else False
 
-                    # Forward mail sang Gmail
-                    send_url = f"https://graph.microsoft.com/v1.0/users/{email}/sendMail"
-                    new_email = {
-                        "message": {
-                            "subject": f"FWD: {subject}",
-                            "body": {"contentType": content_type, "content": body},
-                            "toRecipients": [{"emailAddress": {"address": forward_to}}]
-                        }
-                    }
-                    requests.post(send_url, headers=headers, json=new_email)
-                    # Lưu vào mail.mail để hiển thị trong Odoo
-                    self.env['mail.mail'].sudo().create({
-                        'subject': subject,
-                        'email_from': sender,
-                        'email_to': forward_to,
-                        'state': 'sent',
-                        'x_ms365_fetch': True,
-                        'x_ms365_account': email,
-                        'x_ms365_msg_id': msg_id,
-                        'body_content': body,
-                        'body_html': body,
+                    # Lấy attachments
+                    attachments_data = self._fetch_attachments(email, msg_id, headers)
+
+                    # Lưu vào staging
+                    staging_obj.create({
+                        'name': subject,
+                        'msg_id': msg_id,
+                        'user_email': email,
+                        'sender': sender,
+                        'body': body,
+                        'content_type': content_type,
+                        'received_date': received_date,
+                        'partner_id': partner.id,
+                        'attachments_data': json.dumps(attachments_data) if attachments_data else False,
                     })
-                    # self.env['mail.log'].create({
-                    #     'partner_id': partner.id,
-                    #     'subject': subject,
-                    #     'sender': sender,
-                    #     'body': body,
-                    #     'raw_data': str(msg)
-                    # })
+
             except Exception as e:
-                # Không để cron fail, chỉ ghi log nhẹ nếu muốn
-                # _logger.info(f"Lỗi xử lý email {email}: {e}")
+                _logger.warning(f"Lỗi xử lý email {email}: {e}")
                 continue
+
+        # 2. Clone từ staging sang mail.mail
+        self.env['ms365.email.staging'].clone_to_mail_mail()
 
         return True
 
+    def _fetch_attachments(self, user_email, msg_id, headers):
+        """Lấy thông tin attachments và trả về dạng list of dict"""
+        attachments_list = []
+
+        try:
+            attach_url = f"https://graph.microsoft.com/v1.0/users/{user_email}/messages/{msg_id}/attachments"
+            attach_res = requests.get(attach_url, headers=headers)
+
+            if attach_res.status_code == 200:
+                attachments = attach_res.json().get('value', [])
+
+                for att in attachments:
+                    if att.get('@odata.type') == '#microsoft.graph.fileAttachment':
+                        file_name = att.get('name')
+                        file_content = att.get('contentBytes')
+                        mimetype = att.get('contentType', 'application/octet-stream')
+
+                        if file_content:
+                            attachments_list.append({
+                                'name': file_name,
+                                'content': file_content,
+                                'mimetype': mimetype
+                            })
+        except Exception as e:
+            _logger.warning(f"Error fetching attachments for {msg_id}: {e}")
+
+        return attachments_list
+
     def fetch_and_forward_mail_single(self):
+        """
+        CẬP NHẬT: Fetch email của user hiện tại với logic thông minh
+        - Nếu x_has_fetched_all = False: fetch 90 ngày gần nhất và set flag = True
+        - Nếu x_has_fetched_all = True: chỉ fetch email trong ngày
+        """
         IrConfig = self.env['ir.config_parameter'].sudo()
         forward_to = config.get('ms365.forward_to') or IrConfig.get_param('ms365.forward_to')
         partner = self.env.user.partner_id
@@ -158,22 +219,36 @@ class MsGraphMail(models.Model):
         access_token = self._get_access_token()
         headers = {"Authorization": f"Bearer {access_token}"}
 
-        return self._process_user_email(user_email, forward_to, headers)
+        # Xác định số ngày cần fetch
+        if not self.x_has_fetched_all:
+            days_to_fetch = 90
+            _logger.info(f"📧 First time fetch for {user_email} - fetching last 90 days")
+        else:
+            days_to_fetch = 1
+            _logger.info(f"📧 Regular fetch for {user_email} - fetching today only")
+
+        result = self._process_user_email(user_email, forward_to, headers, days_to_fetch)
+
+        if result and not self.x_has_fetched_all:
+            self.write({'x_has_fetched_all': True, 'user_id': self.env.user.id})
+        return result
 
     def sanitize_filename(self, name):
         name = re.sub(r'[<>:"/\\|?*]', '_', name)
         name = name.replace('\n', '').replace('\r', '').strip()
         return name
 
-    def _process_user_email(self, user_email, forward_to, headers):
-        # Tìm partner tương ứng với user_email để gắn vào chatter
+    def _process_user_email(self, user_email, forward_to, headers, days_to_fetch=1):
+        """
+        CẬP NHẬT: Xử lý email với tham số days_to_fetch
+        """
         # Tạo thời gian từ đầu ngày đến cuối ngày (UTC)
         now_local = datetime.now()
         start_of_day_local = datetime(now_local.year, now_local.month, now_local.day, 0, 0, 0)
         end_of_day_local = datetime(now_local.year, now_local.month, now_local.day, 23, 59, 59)
 
         # Chuyển sang UTC (trừ 7 tiếng)
-        start_utc = start_of_day_local - timedelta(hours=7)
+        start_utc = start_of_day_local - timedelta(hours=7) - timedelta(days=days_to_fetch - 1)
         end_utc = end_of_day_local - timedelta(hours=7)
 
         start_str = start_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -191,7 +266,11 @@ class MsGraphMail(models.Model):
 
         for e in r.json().get('value', []):
             msg_id = e['id']
-            # raise UserError("id not available")
+            # Check email đã tồn tại chưa
+            existing = self.env['mail.mail'].sudo().search([('x_ms365_msg_id', '=', msg_id)], limit=1)
+            if existing:
+                continue
+
             detail = requests.get(
                 f"https://graph.microsoft.com/v1.0/users/{user_email}/messages/{msg_id}",
                 headers=headers
@@ -213,10 +292,10 @@ class MsGraphMail(models.Model):
                 'email_to': forward_to,
                 'state': 'sent',  # chỉ để hiển thị, không cần gửi
                 'x_ms365_fetch': True,
+                'x_ms365_account': user_email,
+                'x_ms365_msg_id': msg_id,
                 'body_content': body,
                 'body_html': body,
-
-                # 'create_uid' : user.id,
             })
 
             employee = self.env['hr.employee'].sudo().search([('user_id', '=', mail_mail.create_uid.id)], limit=1)
@@ -228,7 +307,6 @@ class MsGraphMail(models.Model):
                 'body': body,
                 'model': 'res.partner' if partner else False,
                 'res_id': partner.id if partner else False,
-                # 'mail_message_id': mail_mail.id,
             })
 
             # Forward

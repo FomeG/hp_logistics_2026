@@ -31,6 +31,7 @@ class IrAttachmentInherit(models.Model):
     def _compute_department(self):
         mapping = {
             'freight.purchase.booking': 'Pricing',
+            'mail.mail': 'Email',
         }
         for rec in self:
             rec.department = mapping.get(rec.res_model, '')
@@ -69,10 +70,10 @@ class IrAttachmentInherit(models.Model):
         if not model_list:
             _logger.warning("No models found in config parameter 'model.list'.")
             return
-        aws_access_key_id = config.get('s3.access.key.id')
-        aws_secret_access_key = config.get('s3.secret.access.key')
-        s3_bucket = config.get('s3.bucket')
-        region_name = config.get('s3.region.name')
+        aws_access_key_id = config.get('s3_access_key_id')
+        aws_secret_access_key = config.get('s3_secret_access_key')
+        s3_bucket = config.get('s3_bucket')
+        region_name = config.get('s3_region_name')
         try:
             s3 = boto3.client(
                 's3',

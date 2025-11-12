@@ -11,6 +11,7 @@
         <menuitem id="menu_my_attachments"
                   name="My Attachments"
                   parent="menu_ms_graph_root"
-                  action="action_all_attachments"/>
+                  action="action_all_attachments"
+                  groups="base.group_system"/>
     </data>
 </odoo>
