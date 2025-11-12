@@ -42,14 +42,26 @@ class MsGraphMail(models.Model):
     ]
 
     @api.model
-    def create(self, vals):
-        uid = vals.get('user_id') or self.env.uid
-        exist = self.search([('user_id', '=', uid)], limit=1)
-        if exist:
-            exist.write({k: v for k, v in vals.items() if k != 'user_id'})
-            return exist
-        vals.setdefault('user_id', uid)
-        return super().create(vals)
+    def action_open_my_profile(self):
+        current_user = self.env.user
+
+        # Tìm record của user này
+        ms_user = self.search([('user_id', '=', current_user.id)], limit=1)
+
+        if not ms_user:
+            ms_user = self.create({
+                'user_id': current_user.id,
+                'x_has_fetched_all': False
+            })
+
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'ms.graph.user',
+            'res_id': ms_user.id,
+            'view_mode': 'form',
+            'target': 'current',
+            'name': 'My MS365 Profile',
+        }
 
     @api.model
     def _get_access_token(self):
