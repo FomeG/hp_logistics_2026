@@ -4,6 +4,8 @@ import boto3
 import os
 import ast
 import logging
+import re
+from datetime import datetime
 
 _logger = logging.getLogger(__name__)
 
@@ -62,6 +64,43 @@ class IrAttachmentInherit(models.Model):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         return f"{base_url}/hp_document/download/{self.id}"
 
+    def _sanitize_filename(self, filename):
+        """
+        Làm sạch tên file để an toàn khi upload lên S3
+        - Bỏ ký tự đặc biệt
+        - Thay khoảng trắng bằng underscore
+        - Giữ nguyên tên file gốc
+        """
+        # Bỏ các ký tự không hợp lệ
+        filename = re.sub(r'[<>:"/\\|?*]', '', filename)
+        # Thay khoảng trắng bằng underscore
+        filename = filename.replace(' ', '_')
+        # Bỏ ký tự xuống dòng
+        filename = filename.replace('\n', '').replace('\r', '')
+        return filename.strip()
+
+    def _generate_s3_key(self, filename, department=''):
+        """
+        Tạo S3 key với tên file gốc
+        Format: hp_document/[department/]original_filename.ext
+        """
+        # Làm sạch tên file
+        clean_filename = self._sanitize_filename(filename)
+
+        # Lấy thời gian hiện tại
+        now = datetime.now()
+        year = now.strftime("%Y")
+        month = now.strftime("%m")
+        week = now.strftime("W%U")
+
+        # Tạo S3 key
+        if department:
+            s3_key = f"hp_document/{year}/{month}/{week}/{department}/{clean_filename}"
+        else:
+            s3_key = f"hp_document/{year}/{month}/{week}/{clean_filename}"
+
+        return s3_key
+
     @api.model
     def sync_document_to_s3(self):
         config_param = self.env['ir.config_parameter']
@@ -98,20 +137,12 @@ class IrAttachmentInherit(models.Model):
         for attachment in attachments:
             try:
                 filename = attachment.name or 'unnamed_file'
-                ext = os.path.splitext(filename)[1]
-                if not ext:
-                    # Nếu không có extension, thử guess từ mimetype
-                    ext = mimetypes.guess_extension(attachment.mimetype) or ''
-
-                store_fname_clean = attachment.store_fname.split('/')[
-                    -1] if '/' in attachment.store_fname else attachment.store_fname
-
-                s3_key = f"hp_document/{store_fname_clean}{ext}"
+                s3_key = attachment._generate_s3_key(filename, attachment.department)
                 s3_path_aws = f"https://d85r39ril3sob.cloudfront.net/{s3_key}"
                 file_path = os.path.join(filestore_path, attachment.store_fname)
                 if not os.path.exists(file_path):
                     _logger.warning(f"File not found: {file_path}")
-                    error_count += 1
+                    error_count +=1
                     continue
                 content_type = attachment.mimetype
                 if not content_type:
@@ -123,7 +154,7 @@ class IrAttachmentInherit(models.Model):
                     'ContentType': content_type,
                     'ContentDisposition': f'inline; filename="{filename}"',
                 }
-                s3.upload_file(file_path,s3_bucket,s3_key,ExtraArgs=extra_arg)
+                s3.upload_file(file_path,s3_bucket,s3_key,ExtraArgs=extra_args)
                 attachment.write({'s3_path': s3_path_aws})
                 files_path_odoo.append(file_path)
                 synced_count += 1
