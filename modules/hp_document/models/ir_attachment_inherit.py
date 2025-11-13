@@ -5,6 +5,7 @@ import os
 import ast
 import logging
 import re
+from datetime import datetime
 
 _logger = logging.getLogger(__name__)
 
@@ -86,11 +87,17 @@ class IrAttachmentInherit(models.Model):
         # Làm sạch tên file
         clean_filename = self._sanitize_filename(filename)
 
+        # Lấy thời gian hiện tại
+        now = datetime.now()
+        year = now.strftime("%Y")
+        month = now.strftime("%m")
+        week = now.strftime("W%U")
+
         # Tạo S3 key
         if department:
-            s3_key = f"hp_document/{department}/{clean_filename}"
+            s3_key = f"hp_document/{year}/{month}/{week}/{department}/{clean_filename}"
         else:
-            s3_key = f"hp_document/{clean_filename}"
+            s3_key = f"hp_document/{year}/{month}/{week}/{clean_filename}"
 
         return s3_key
 
@@ -124,6 +131,8 @@ class IrAttachmentInherit(models.Model):
         ])
         files_path_odoo = []
         filestore_path = config.filestore(self.env.cr.dbname)
+        synced_count = 0
+        error_count = 0
 
         for attachment in attachments:
             try:
@@ -133,6 +142,7 @@ class IrAttachmentInherit(models.Model):
                 file_path = os.path.join(filestore_path, attachment.store_fname)
                 if not os.path.exists(file_path):
                     _logger.warning(f"File not found: {file_path}")
+                    error_count +=1
                     continue
                 content_type = attachment.mimetype
                 if not content_type:
@@ -147,7 +157,9 @@ class IrAttachmentInherit(models.Model):
                 s3.upload_file(file_path,s3_bucket,s3_key,ExtraArgs=extra_args)
                 attachment.write({'s3_path': s3_path_aws})
                 files_path_odoo.append(file_path)
+                synced_count += 1
             except Exception as e:
+                error_count += 1
                 continue
         self._remove_filestore_path(files_path_odoo)
 
