@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_ms_graph_user,ms_graph_user,model_ms_graph_user,base.group_user,1,1,1,1
 access_mail_mail_fetch_user,mail.mail fetch user,mail.model_mail_mail,base.group_user,1,1,1,1
+access_ms_email_store,ms_email_store,model_ms365_email_staging,base.group_user,1,1,1,1
