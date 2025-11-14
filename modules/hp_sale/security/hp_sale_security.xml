@@ -46,11 +46,11 @@
         </record>
 
         <!-- Rule cho Salesman: chỉ thấy product_selling_week có team mà user đó thuộc về -->
-        <record id="rule_selling_week_sale_man" model="ir.rule">
-            <field name="name">Selling Week: Access own team only</field>
+        <record id="rule_product_selling_week_sale_man" model="ir.rule">
+            <field name="name">Product Selling Week: Access own team only</field>
             <field name="model_id" ref="model_product_template_selling_week"/>
             <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
-            <field name="domain_force">[('team_id.user_ids', 'in', [user.id])]</field>
+            <field name="domain_force">[('team_id.user_ids', 'in', [user.id]), ('selling_week_id.is_active', '=', True)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
@@ -58,9 +58,33 @@
         </record>
 
         <!-- Rule cho Sales Manager: thấy tất cả product_selling_week -->
-        <record id="rule_selling_week_sale_manager" model="ir.rule">
-            <field name="name">Selling Week: Manager access all</field>
+        <record id="rule_product_selling_week_sale_manager" model="ir.rule">
+            <field name="name">Product Selling Week: Manager access all</field>
             <field name="model_id" ref="model_product_template_selling_week"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- Rule Salesman: selling weeek has is_active = true -->
+        <record id="rule_selling_week_sale_man" model="ir.rule">
+            <field name="name">Selling Week: is public</field>
+            <field name="model_id" ref="model_selling_week"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="domain_force">[('is_active', '=', True)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- Rule Manager: all selling weeek -->
+         <record id="rule_selling_week_sale_manager" model="ir.rule">
+            <field name="name">Selling Week: All</field>
+            <field name="model_id" ref="model_selling_week"/>
             <field name="groups" eval="[(4, ref('sales_team.group_sale_manager'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="1"/>
