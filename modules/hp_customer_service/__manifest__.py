@@ -14,7 +14,8 @@
     'data': [
         'security/hp_customer_service_security.xml',
         'security/ir.model.access.csv',
-        'data/ir_sequence_data.xml',
+        'data/ir_sequence_cs_batch_order_data.xml',
+        'data/ir_sequence_cs_order_data.xml',
         # 'views/cs_department_type_views.xml',
         'views/cs_job_views.xml',
         'wizard/hp_bank_wizard_view.xml',

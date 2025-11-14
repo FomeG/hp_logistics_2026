@@ -1,0 +1,11 @@
+<odoo>
+    <data noupdate="1">
+        <record id="cs_batch_order_sequence" model="ir.sequence">
+            <field name="name">CS Batch Order Sequence</field>
+            <field name="code">cs.batch.order</field>
+            <field name="prefix"></field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+        </record>
+    </data>
+</odoo>

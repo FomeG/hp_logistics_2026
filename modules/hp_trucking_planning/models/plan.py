@@ -294,3 +294,8 @@ class Plan(models.Model):
         booking = self.env['freight.purchase.booking'].with_context(skip_validator=True).create(booking_vals)
         self.write({'booking_id': booking.id})
         return booking.id
+
+    #todo
+    @api.model
+    def get_or_create_from_cs_order(self, cs_order):
+        booking_code = cs_order.Booking_code

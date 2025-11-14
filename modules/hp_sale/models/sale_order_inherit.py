@@ -4,6 +4,7 @@ from odoo import models, fields, _, api
 from odoo.exceptions import UserError, ValidationError
 from odoo.addons.hp_components.services.sale_order_service import SaleOrderService
 from ...hp_components.services.task_service import TaskService
+from odoo.addons.hp_components.models import constants
 import logging
 
 _logger: Logger = logging.getLogger(__name__)
@@ -33,6 +34,24 @@ class SaleOrderInherrit(models.Model):
         'freight.purchase.booking',
         string="Freight Booking",
         ondelete="set null"
+    )
+
+    service_type = fields.Selection(
+        constants.ServiceType.SELECT_OPTIONS,
+        string="Service Type",
+        default=constants.ServiceType.EXPORT,
+        required=True,
+    )
+    incoterm_id = fields.Many2one(
+        'account.incoterms',
+        string="Incoterm",
+        help="International Commercial Term (e.g., FOB, CIF, EXW)."
+    )
+    branch_id = fields.Many2one(
+        comodel_name='hr.branch',
+        compute='_compute_branch_id',
+        store=True,
+        index=True,
     )
 
     @api.onchange("client_id")
@@ -196,3 +215,15 @@ class SaleOrderInherrit(models.Model):
 
     def _handle_quotation_confirmed(self):
         SaleOrderService(self.env).handle_quotation_confirmed(self)
+
+    @api.depends('client_id')
+    def _compute_branch_id(self):
+        for record in self:
+            partner = self.env.user.partner_id
+            branch_id = False
+            if partner and partner.branch_id:
+                branch_id = partner.branch_id
+            if not branch_id:
+                branch_id = record.client_id.branch_id
+
+            record.branch_id = branch_id

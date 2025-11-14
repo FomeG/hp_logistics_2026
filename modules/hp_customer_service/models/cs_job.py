@@ -2,39 +2,15 @@ from odoo import models, fields, api
 import base64, os, json
 class CSJob(models.Model):
     _name = 'cs.job'
-    _description = 'Customer Service Job Information'
-    _rec_name = 'job_number'
-    job_number = fields.Char(
-        string="Job Number",
+    _inherits = {'project.task':'project_task_id'}
+
+    project_task_id = fields.Many2one(
+        comodel_name='project.task',
         required=True,
-        default=lambda self: self.env['ir.sequence'].next_by_code('cs.job.sequence')
-    )
-    job_date = fields.Date(string="Job Date", required=True, default=fields.Date.today)
-    service_type = fields.Selection(
-        [('door-cy', 'Door to CY'), ('cy-cy', 'CY to CY')],
-        string="Service Type",
-        default='door-cy'
-    )
-    department_code = fields.Selection(
-        selection=[
-            ('JP01', 'SEA EXPORT'),
-            ('JP02', 'SEA IMPORT'),
-            ('JP03', 'AIR EXPORT'),
-            ('JP04', 'AIR IMPORT'),
-            ('JP05', 'LAND'),
-            ('JP06', 'MISCELLANEOUS'),
-            ('JP07', 'SALES AND MARKETING'),
-            ('JP08', 'ADMINISTRATION'),
-        ],
-        string="Department",
-        required=True,
+        index=True,
     )
     master_bl_date = fields.Char(string="Master B/L Date")
-    shipping_line_id = fields.Many2one(
-        'res.partner',
-        string="Shipping Line",
-        related='booking_id.shipping_line_id'
-    )
+
     container_ids = fields.One2many(
         'cs.job.container',
         'job_id',
@@ -44,34 +20,7 @@ class CSJob(models.Model):
         'freight.purchase.vessel',
         string="Vessel transit",
     )
-    vessel = fields.Many2one(
-        'freight.purchase.vessel',
-        string="Vessel",
-        related="booking_id.vessel_id",
-        store=True,
-        readonly=True,
-    )
-    voyage = fields.Char(string="Voyage",related="booking_id.quotation_id.code",)
-    booking_id = fields.Many2one('freight.purchase.booking', string="Booking")
-    booking_line_id = fields.Many2one(
-        'freight.purchase.booking.line',
-        string="Booking Line (Customer)",
-        domain="[('booking_id', '=', booking_id)]",  # lọc chỉ các line thuộc booking đang chọn
-        # required=True
-    )
 
-    port_loading = fields.Many2one(
-        'freight.purchase.port',
-        string="Port of Loading",
-        related = 'booking_id.pol_id'
-    )
-
-    port_discharge = fields.Many2one(
-        'freight.purchase.port',
-        string="Port of Discharge",
-        related='booking_id.pod_id'
-
-    )
     quantity = fields.Integer(
         string="Numbers of Container",
         related = 'booking_line_id.quantity'

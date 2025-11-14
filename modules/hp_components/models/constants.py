@@ -56,3 +56,58 @@ class SellingWeekState:
     INCOMING = 'incoming'
     CURRENT = 'current'
     PAST = 'past'
+
+class ServiceType:
+    IMPORT = 'import'
+    EXPORT = 'export'
+    DOMESTIC = 'domestic'
+    OTHER = 'other'
+    SELECT_OPTIONS = [
+        (IMPORT, 'Import'),
+        (EXPORT, 'Export'),
+        (DOMESTIC, 'Domestic'),
+        (OTHER, 'Other'),
+    ]
+
+class SaleOrderState:
+    DRAFT = 'draft' #quotation
+    SENT_TO_CLIENT = 'sent_to_client'
+    REVIEW = 'review'
+    SENT_TO_LEADER = 'sent_to_leader'
+    SALE = 'sale' #convert from quotation to sale order
+    DONE = 'done'
+    CANCELLED = 'cancelled'
+    SELECT_OPTIONS = [
+        (DRAFT, 'Draft'),
+        (SENT_TO_CLIENT, 'Sent to Client'),
+        (REVIEW, 'Review'),
+        (SENT_TO_LEADER, 'Sent to Leader'),
+        (SALE, 'Sale'),
+        (DONE, 'Done'),
+        (CANCELLED, 'Cancelled'),
+    ]
+class CsOrderState:
+    DRAFT = 'draft'
+    OPEN = 'open'
+    IN_PROGRESS = 'in_progress'
+    DONE = 'done'
+    CANCELLED = 'cancelled'
+    SELECT_OPTIONS = [
+        (DRAFT,'Draft'),
+        (OPEN,'Open'),
+        (IN_PROGRESS,'In Progress'),
+        (DONE,'Done'),
+        (CANCELLED,'Cancelled')
+    ]
+
+class DeliveryTerms:
+    CY_CY = 'cy_cy'
+    CY_DOOR = 'cy_door'
+    DOOR_CY = 'door_cy'
+    DOOR_DOOR = 'door_door'
+    SELECT_OPTIONS = [
+        (CY_CY, 'CY to CY'),
+        (CY_DOOR, 'CY to Door'),
+        (DOOR_CY, 'Door to CY'),
+        (DOOR_DOOR, 'Door to Door'),
+    ]

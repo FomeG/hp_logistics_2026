@@ -29,6 +29,9 @@ class FreightPurchaseBooking(models.Model):
         tracking=True
     )
     vessel_id = fields.Many2one('freight.purchase.vessel', string="Vessel",required=True,  tracking=True)
+    voyage = fields.Char(
+
+    )
     quotation_id = fields.Many2one(
         'freight.purchase.quotation',
         required=False,
