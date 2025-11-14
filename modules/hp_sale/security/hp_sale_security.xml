@@ -34,11 +34,11 @@
         </record>
 
         <!-- Rule cho Sales Manager: thấy tất cả team -->
-        <record id="hr_team_rule_manager" model="ir.rule">
+        <record id="hr_team_rule_leader" model="ir.rule">
             <field name="name">HR Team - See all (Manager)</field>
             <field name="model_id" ref="hp_employee.model_hr_team"/>
             <field name="domain_force">[(1, '=', 1)]</field>
-            <field name="groups" eval="[(4, ref('sales_team.group_sale_manager'))]"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="0"/>
             <field name="perm_create" eval="0"/>
@@ -54,14 +54,38 @@
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
-            <field name="perm_unlink" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
         </record>
 
         <!-- Rule cho Sales Manager: thấy tất cả product_selling_week -->
-        <record id="rule_product_selling_week_sale_manager" model="ir.rule">
+        <record id="rule_product_selling_week_sale_leader" model="ir.rule">
             <field name="name">Product Selling Week: Manager access all</field>
             <field name="model_id" ref="model_product_template_selling_week"/>
-            <field name="groups" eval="[(4, ref('sales_team.group_sale_manager'))]"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- Rule cho Salesman: chỉ thấy product_selling_week_line có team mà user đó thuộc về -->
+        <record id="rule_product_selling_week_line_sale_man" model="ir.rule">
+            <field name="name">Product Selling Week line: Access own team only</field>
+            <field name="model_id" ref="model_product_template_selling_week_line"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="domain_force">[('product_template_selling_week_id.team_id.user_ids', 'in', [user.id]), ('selling_week_id.is_active', '=', True)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Rule cho Sales Manager: thấy tất cả product_selling_week_line -->
+        <record id="rule_product_selling_week_line_sale_leader" model="ir.rule">
+            <field name="name">Product Selling Week: Manager access all</field>
+            <field name="model_id" ref="model_product_template_selling_week_line"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
@@ -78,14 +102,14 @@
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
-            <field name="perm_unlink" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
         </record>
 
         <!-- Rule Manager: all selling weeek -->
-         <record id="rule_selling_week_sale_manager" model="ir.rule">
+         <record id="rule_selling_week_sale_leader" model="ir.rule">
             <field name="name">Selling Week: All</field>
             <field name="model_id" ref="model_selling_week"/>
-            <field name="groups" eval="[(4, ref('sales_team.group_sale_manager'))]"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
