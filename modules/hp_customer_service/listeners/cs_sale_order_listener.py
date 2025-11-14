@@ -13,6 +13,6 @@ class CsSalesOrderListener(Component):
 
 
     def _can_send_sale_order_to_cs(self, sale_order):
-        if sale_order._origin.state != constants.SaleOrderState.DONE and sale_order.state == constants.SaleOrderState.DONE:
+        # if sale_order._origin.state != constants.SaleOrderState.SALE and sale_order.state == constants.SaleOrderState.SALE:
             return True
-        return False
+        # return False

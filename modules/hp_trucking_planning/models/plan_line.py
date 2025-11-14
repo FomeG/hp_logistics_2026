@@ -524,3 +524,45 @@ class PlanLine(models.Model):
     # def _compute_fuel_total(self):
     #     for record in self:
     #         record.fuel_total = record.fuel_before + record.fuel_received
+    # @api.model
+    # def get_or_create_from_cs_job(self, cs_job, plan):
+    #     if not cs_job.booking_line_id:
+    #         return False
+    #
+    #     # Tìm Plan Line theo Job
+    #     plan_line = self.search([('job_id', '=', cs_job.id)], limit=1)
+    #     if plan_line:
+    #         return plan_line
+    #
+    #     route = self.env['trucking_planning.route'].search([
+    #         ('name', 'ilike', cs_job.pol.name or ''),
+    #         ('name', 'ilike', cs_job.pod.name or '')
+    #     ], limit=1)
+    #
+    #     plan_line_vals = {
+    #         'plan_id': plan.id,
+    #         'job_id': cs_job.id,
+    #         'code': cs_job.job_number or cs_job.id,
+    #         'client_id': cs_job.customer_id.id or cs_job.cs_order_id.client_id.id,
+    #         'status': constants.PlanLineStatus.CHECKING,
+    #         'route_id': route.id if route else False,
+    #         'date': cs_job.etd or fields.Datetime.now(),
+    #         'estimate_time_departure': cs_job.etd or fields.Datetime.now(),
+    #         'estimate_time_arrival': (cs_job.etd or fields.Datetime.now()) + timedelta(hours=8),
+    #         'goods_pickup_location_id': self._get_location(cs_job, 'pickup'),
+    #         'goods_delivery_location_id': self._get_location(cs_job, 'delivery'),
+    #     }
+    #
+    #     plan_line = self.create(plan_line_vals)
+    #     _logger.info(f"Đã tạo Plan Line cho Job: {cs_job.job_number}")
+    #     return plan_line
+    #
+    # def _get_location(self, cs_job, type_):
+    #     """Helper để lấy location theo loại"""
+    #     # Giả lập: tìm location theo tên port hoặc client
+    #     location_model = self.env['trucking_planning.location']
+    #     if type_ == 'pickup':
+    #         search_name = cs_job.cs_order_id.client_id.name or 'HCM'
+    #     else:
+    #         search_name = cs_job.pol.name or cs_job.pod.name or 'Cat Lai'
+    #     return location_model.search([('name', 'ilike', search_name)], limit=1).id

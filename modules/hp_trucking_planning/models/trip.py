@@ -1052,4 +1052,35 @@ class Trip(models.Model):
             'target': 'inline',
         }
 
-    
+    # @api.model
+    # def get_or_create_draft_from_container(self, container, plan_line):
+    #     trip = self.search([
+    #         ('plan_line_id', '=', plan_line.id),
+    #         ('container_number', '=', container.container_number)
+    #     ], limit=1)
+    #
+    #     if trip:
+    #         return trip
+    #
+    #     trip_vals = {
+    #         'plan_line_id': plan_line.id,
+    #         'container_number': container.container_number,
+    #         'seal_number': container.seal_number,
+    #         'container_size': '40' if '40' in (container.container_type_id.name or '') else '20',
+    #         'status': constants.TripStatus.DRAFT,
+    #     }
+    #     trip = self.create(trip_vals)
+    #     return trip
+    #
+    # @api.model
+    # def get_or_create_draft_from_job(self, cs_job, plan_line):
+    #     """Tạo 1 draft trip nếu chưa có container cụ thể"""
+    #     if self.search([('plan_line_id', '=', plan_line.id)], limit=1):
+    #         return
+    #
+    #     trip_vals = {
+    #         'plan_line_id': plan_line.id,
+    #         'container_size': '40',
+    #         'status': constants.TripStatus.DRAFT,
+    #     }
+    #     self.create(trip_vals)

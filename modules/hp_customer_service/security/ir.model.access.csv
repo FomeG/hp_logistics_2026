@@ -11,6 +11,14 @@ access_cs_job_container_user,cs.job.container user,model_cs_job_container,base.g
 access_cs_job_container_member,cs.job.container.member,model_cs_job_container,group_hp_customer_service_member,1,1,1,0
 access_cs_job_container_leader,cs.job.container.leader,model_cs_job_container,group_hp_customer_service_leader,1,1,1,1
 
+access_cs_order_user,cs.order.user,model_cs_order,base.group_user,1,1,1,0
+access_cs_order_member,cs.order.member,model_cs_order,group_hp_customer_service_member,1,1,1,0
+access_cs_order_leader,cs.order.leader,model_cs_order,group_hp_customer_service_leader,1,1,1,1
+
+access_cs_batch_order_user,cs.batch.order.user,model_cs_batch_order,base.group_user,1,1,1,0
+access_cs_batch_order_member,cs.batch.order.member,model_cs_batch_order,group_hp_customer_service_member,1,1,1,0
+access_cs_batch_order_leader,cs.batch.order.leader,model_cs_batch_order,group_hp_customer_service_leader,1,1,1,1
+
 access_hp_bank_wizard_manager,hp.bank.wizard.manager,model_hp_bank_wizard,base.group_system,1,1,1,1
 access_hp_bank_wizard_member,hp.bank.wizard.member,model_hp_bank_wizard,group_hp_customer_service_member,1,1,1,0
 access_hp_bank_wizard_leader,hp.bank.wizard.leader,model_hp_bank_wizard,group_hp_customer_service_leader,1,1,1,1

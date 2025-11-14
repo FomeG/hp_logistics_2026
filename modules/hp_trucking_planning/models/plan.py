@@ -295,7 +295,29 @@ class Plan(models.Model):
         self.write({'booking_id': booking.id})
         return booking.id
 
-    #todo
-    @api.model
-    def get_or_create_from_cs_order(self, cs_order):
-        booking_code = cs_order.Booking_code
+    # #todo
+    # @api.model
+    # def get_or_create_from_cs_order(self, cs_order):
+    #     if not cs_order.booking_id:
+    #         raise ValidationError("CS Order phải có Booking để tạo Plan.")
+    #
+    #     booking = cs_order.booking_id
+    #
+    #     # Tìm hoặc tạo Plan theo Booking Code
+    #     plan = self.search([('booking_bill_no', '=', booking.code)], limit=1)
+    #     if plan:
+    #         return plan
+    #
+    #     # Giả lập dữ liệu (sẽ thay bằng logic thật sau)
+    #     plan_vals = {
+    #         'booking_bill_no': booking.code,
+    #         'plan_type': 'export' if cs_order.service_type == 'export' else 'import',
+    #         'location_id': booking.pol_id.id or booking.pod_id.id,  # Port
+    #         'shipping_line_id': booking.shipping_line_id.id,
+    #         'container_type': 'dry',  # giả lập
+    #         'goods_cut_off': booking.etd or fields.Datetime.now(),
+    #         'booking_id': booking.id,
+    #     }
+    #
+    #     plan = self.create(plan_vals)
+    #     return plan

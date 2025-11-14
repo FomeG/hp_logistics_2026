@@ -144,6 +144,7 @@ class CsOrder(models.Model):
 
         code = self.env['cs.service'].generate_code_from_sale_order(sale_order,'cs.order')
         self.create({
+            'name': code, # name is required
             'batch_order_id': cs_batch_order_id,
             'code': code,
             'user_id': self.env.user.id,

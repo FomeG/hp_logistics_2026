@@ -5,3 +5,4 @@ from . import cs_order
 from . import cs_job
 from . import cs_job_detail
 from . import cs_job_container
+from . import sale_order_inherit
