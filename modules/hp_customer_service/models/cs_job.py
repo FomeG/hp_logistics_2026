@@ -9,6 +9,16 @@ class CSJob(models.Model):
         required=True,
         index=True,
     )
+    cs_order_id = fields.Many2one( #add field cs_order_id for inverse_name of job_ids
+        'cs.order',
+        string='CS Order',
+        ondelete='cascade'
+    )
+    booking_id = fields.Many2one( # add field booking_id becasuse reference in related field
+        'freight.purchase.booking',
+        string='Booking',
+        ondelete='set null'
+    )
     master_bl_date = fields.Char(string="Master B/L Date")
 
     container_ids = fields.One2many(
@@ -20,7 +30,11 @@ class CSJob(models.Model):
         'freight.purchase.vessel',
         string="Vessel transit",
     )
-
+    booking_line_id = fields.Many2one( # add field booking_line_id becasuse reference in related field
+        'freight.purchase.booking.line',
+        string='Booking Line',
+        ondelete='set null'
+    )
     quantity = fields.Integer(
         string="Numbers of Container",
         related = 'booking_line_id.quantity'

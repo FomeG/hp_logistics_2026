@@ -53,6 +53,7 @@ class SaleOrderInherrit(models.Model):
         store=True,
         index=True,
     )
+    commodity = fields.Char(string="Commodity") # Add commodity field becasuse cs order commodity is related to sale order commodity
 
     @api.onchange("client_id")
     def _onchange_client_id(self):

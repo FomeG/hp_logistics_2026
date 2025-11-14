@@ -4,7 +4,7 @@ from odoo.addons.hp_components.models import constants
 class CsOrder(models.Model):
     _name = 'cs.order'
     _inherits = {'project.project': 'project_id'}
-    _inherit = ['mail.thread', 'mail.activity']
+    _inherit = ['mail.thread'] # mail activity already have field attachment id so if we add field attachment id in other order it will give error
 
     project_id = fields.Many2one(
         comodel_name='project.project',
@@ -36,6 +36,7 @@ class CsOrder(models.Model):
 
     job_ids = fields.One2many(
         comodel_name='cs.job',
+        inverse_name='cs_order_id', # inverse field in cs.job
     )
     state = fields.Selection(
         constants.CsOrderState.SELECT_OPTIONS,
@@ -101,7 +102,8 @@ class CsOrder(models.Model):
         related='booking_id.pod_id',
         store=False,
     )
-    service_type = fields.Char(
+    service_type = fields.Selection( #service type from sale order is selection
+        constants.ServiceType.SELECT_OPTIONS,
         related='sale_order_id.service_type',
         string="Service Type",
         help="Import/Export/Other Service",
