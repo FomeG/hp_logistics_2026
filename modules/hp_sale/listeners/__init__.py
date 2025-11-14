@@ -1,0 +1,1 @@
+from . import freight_purchase_quotation_listener
