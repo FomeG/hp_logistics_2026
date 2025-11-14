@@ -95,9 +95,9 @@ class CSJob(models.Model):
         store=False
     )
 
-    _sql_constraints = [
-        ('unique_job_number', 'unique(job_number)', 'The job_number must be unique.')
-    ]
+    # _sql_constraints = [
+    #     ('unique_job_number', 'unique(job_number)', 'The job_number must be unique.')
+    # ] # không còn job number trong cs job
 
     @api.depends('container_ids', 'container_ids.status', 'booking_line_id.quantity')
     def _compute_container_progress(self):
@@ -138,11 +138,12 @@ class CSJob(models.Model):
         if self.booking_id:
             self.port_transit = self.booking_id.route_transit_id.name or ''
 
-    @api.model
-    def create(self, vals):
-        if not vals.get('job_number'):
-            vals['job_number'] = self.env['ir.sequence'].next_by_code('cs.job.sequence')
-        return super(CSJob, self).create(vals)
+    # @api.model # không còn job number trong cs job
+    # def create(self, vals):
+    #     if not vals.get('job_number'):
+    #         vals['job_number'] = self.env['ir.sequence'].next_by_code('cs.job.sequence')
+    #     return super(CSJob, self).create(vals)
+
     def action_print_HBL_bill(self):
         return self.env.ref('hp_customer_service.action_report_HBL_bill').report_action(self)
     def action_print_debit(self):
