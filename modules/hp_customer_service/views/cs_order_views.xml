@@ -41,7 +41,7 @@
             <xpath expr="//button[@name='action_open_share_project_wizard']" position="replace"/>
             <xpath expr="//button[@name='action_view_tasks']" position="replace"/>
             <xpath expr="//button[@name='project_update_all_action']" position="replace"/>
-            <xpath expr="//button[@name='action_customer_preview']" position="replace"/>
+<!--            <xpath expr="//button[@name='action_customer_preview']" position="replace"/>-->
             <xpath expr="//div[@name='button_box']" position="replace">
                 <div class="oe_button_box" name="button_box">
                     <!-- add your custom buttons here -->
