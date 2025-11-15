@@ -5,7 +5,7 @@ from . import container_type
 from . import sale_order_inherit
 from . import res_partner_inherit
 from . import freight_purchase_vessel
-from . import freight_purchase_region
+from . import region_inherit
 from . import freight_purchase_port
 from . import freight_purchase_route
 from . import freight_purchase_fee_type

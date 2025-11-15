@@ -27,7 +27,7 @@ class ProductTemplateSellingWeek(models.Model):
         tracking=True
     )
     region_id = fields.Many2one(
-        'freight.purchase.region',
+        comodel_name='region',
         string="Region",
         related='product_template_id.region_id'
     )

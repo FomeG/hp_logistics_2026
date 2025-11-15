@@ -21,8 +21,14 @@ class ProjectTaskInherit(models.Model):
     pol_name_request = fields.Char('POL name request')
     pol_id = fields.Many2one('freight.purchase.port', string="Port Of Loading")
     pol_is_local = fields.Boolean('Is Local (POD)', required=True)
-    region_pol_id = fields.Many2one('freight.purchase.region', string='Region POL')
-    region_pod_id = fields.Many2one('freight.purchase.region', string='Region POD')
+    region_pol_id = fields.Many2one(
+        comodel_name='region',
+        string='Region POL'
+    )
+    region_pod_id = fields.Many2one(
+        comodel_name='region',
+        string='Region POD'
+    )
     container_type_id = fields.Many2one('container.type', string='Container Type (For this quotation)')
 
     # Request price product

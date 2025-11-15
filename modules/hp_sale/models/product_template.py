@@ -30,7 +30,7 @@ class ProductTemplate(models.Model):
     ], string='Price Type', default='common')
 
     region_id = fields.Many2one(
-        'freight.purchase.region',
+        comodel_name='region',
         string="Region",
         tracking=True
     )

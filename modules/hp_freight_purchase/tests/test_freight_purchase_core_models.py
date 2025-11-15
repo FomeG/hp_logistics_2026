@@ -5,7 +5,7 @@ class TestFreightPurchaseCoreModels(TransactionCase):
 
     def setUp(self):
         super().setUp()
-        self.Region = self.env['freight.purchase.region']
+        self.Region = self.env['region']
         self.Port = self.env['freight.purchase.port']
         self.Route = self.env['freight.purchase.route']
         # self.ShippingLine = self.env['res.partner'].create({
@@ -62,7 +62,7 @@ class TestFreightPurchaseCoreModels(TransactionCase):
             })
 
         # Test that creation with region succeeds
-        region = self.env['freight.purchase.region'].create({
+        region = self.env['region'].create({
             'name': 'Test Region'
         })
         port = self.Port.create({

@@ -24,7 +24,7 @@ class PortCreateValidator(FreightValidator):
             'region_id': {
                 'label': f"Region",
                 'type': int,
-                'exists': 'freight.purchase.region',
+                'exists': 'region',
             },
         }
         errors = []
@@ -53,7 +53,7 @@ class PortUpdateValidator(FreightValidator):
             'region_id': {
                 'label': f"Region",
                 'type': int,
-                'exists': 'freight.purchase.region',
+                'exists': 'region',
             },
         }
         errors = []

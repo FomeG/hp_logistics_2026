@@ -6,3 +6,5 @@ from . import partner_main_type
 from . import res_partner_inherit
 from . import department_type
 from . import constants
+from . import region
+from . import res_country_inherit

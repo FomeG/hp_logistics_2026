@@ -3,7 +3,7 @@
 
     <record id="freight_purchase_region_form_view" model="ir.ui.view">
         <field name="name">freight.purchase.region.form</field>
-        <field name="model">freight.purchase.region</field>
+        <field name="model">region</field>
         <field name="arch" type="xml">
             <form string="Region">
                 <sheet>
@@ -51,7 +51,7 @@
 
     <record id="freight_purchase_region_list_view" model="ir.ui.view">
         <field name="name">freight.purchase.region.list</field>
-        <field name="model">freight.purchase.region</field>
+        <field name="model">region</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
             <list string="List Regions">
@@ -67,7 +67,7 @@
 
     <record id="freight_purchase_region_search_view" model="ir.ui.view">
         <field name="name">freight.purchase.region.search</field>
-        <field name="model">freight.purchase.region</field>
+        <field name="model">region</field>
         <field name="arch" type="xml">
             <search string="List Regions">
                 <field name="code" />
@@ -102,7 +102,7 @@
 
     <record id="freight_purchase_region_action" model="ir.actions.act_window">
         <field name="name">Freight Purchase Region</field>
-        <field name="res_model">freight.purchase.region</field>
+        <field name="res_model">region</field>
         <field name="search_view_id" ref="freight_purchase_region_search_view" />
         <field name="view_id" ref="freight_purchase_region_list_view" />
         <field name="view_mode">list,form</field>

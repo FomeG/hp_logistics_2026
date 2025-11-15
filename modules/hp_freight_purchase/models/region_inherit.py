@@ -3,26 +3,11 @@ from odoo.exceptions import ValidationError
 from ..validators.region_validator import RegionCreateValidator, RegionUpdateValidator
 
 class FreightPurchaseRegion(models.Model):
-    _name = 'freight.purchase.region'
     _description = 'Region'
-    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin','unique.normalized.name.mixin']
+    _inherit = ['region']
     _order = 'create_date desc'
 
-    name = fields.Char(required=True, tracking=True)
-    is_active = fields.Boolean(string='Is Active', default=True, tracking=True)
     ports = fields.One2many('freight.purchase.port','region_id',string='Ports', tracking=True)
-    employee_ids = fields.Many2many('hr.employee', string='Pricing Members', tracking=True)
-    country_ids = fields.One2many(
-        'res.country',
-        'region_id',
-        string='Countries'
-    )
-    team_ids = fields.One2many(
-        'hr.team',
-        'region_id',
-        string="Teams"
-    )
-    employee_string = fields.Char(string="Employees in Region", compute='_compute_employee_string', store=False)
     port_string = fields.Char(string="Ports in Region", compute='_compute_port_string', store=False)
 
     @api.depends('employee_ids')

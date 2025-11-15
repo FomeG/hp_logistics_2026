@@ -9,7 +9,7 @@ class TestFreightPurchaseBooking(TransactionCase):
         self.SaleOrderLine = self.env['sale.order.line']
         self.ContainerType = self.env['container.type']
         self.Vessel = self.env['freight.purchase.vessel']
-        self.Region = self.env['freight.purchase.region']
+        self.Region = self.env['region']
         self.Port = self.env['freight.purchase.port']
         self.Route = self.env['freight.purchase.route']
         self.Quotation = self.env['freight.purchase.quotation']

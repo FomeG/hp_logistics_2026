@@ -30,6 +30,13 @@ class HrTeam(models.Model):
         store=False
     )
 
+    region_id = fields.Many2one(
+        comodel_name='region',
+        string="Region",
+        tracking=True,
+        ondelete='set null'
+    )
+
     @api.depends('department_id')
     def _compute_available_user_ids(self):
         for record in self:

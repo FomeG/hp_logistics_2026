@@ -5,7 +5,7 @@ class ResCountryInherit(models.Model):
     _inherit = 'res.country'
 
     region_id = fields.Many2one(
-        'freight.purchase.region',
+        'region',
         string='Region',
         ondelete='cascade'
     )

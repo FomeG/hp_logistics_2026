@@ -20,7 +20,7 @@ class FreightPurchasePort(models.Model):
     country_id = fields.Many2one('res.country', string='Country', required=True, tracking=True, ondelete='cascade')
 
     region_id = fields.Many2one(
-        'freight.purchase.region',
+        comodel_name='region',
         string='Region',
         related='country_id.region_id',
         tracking=True

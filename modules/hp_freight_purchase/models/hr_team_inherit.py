@@ -4,7 +4,7 @@ class HrTeamInherit(models.Model):
     _inherit = ['hr.team']
 
     region_id = fields.Many2one(
-        'freight.purchase.region',
+        comodel_name='region',
         string="Region",
         tracking=True,
         ondelete='set null'
