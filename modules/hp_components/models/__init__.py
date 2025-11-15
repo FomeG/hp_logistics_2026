@@ -8,3 +8,4 @@ from . import department_type
 from . import constants
 from . import region
 from . import res_country_inherit
+from . import container_type

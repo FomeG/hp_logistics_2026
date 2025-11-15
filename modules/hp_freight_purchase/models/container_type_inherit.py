@@ -2,19 +2,21 @@ from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from ..validators.container_type_validator import ContainerTypeCreateValidator, ContainerTypeUpdateValidator
 
-class ContainerType(models.Model):
-    _name = 'container.type'
-    _description = 'Container Type'
-    _inherit = ['unique.code.mixin','unique.normalized.name.mixin','mail.thread', 'mail.activity.mixin']
+class ContainerTypeInherit(models.Model):
+    _inherit = ['container.type']
     _order = 'create_date desc'
 
-    name = fields.Char(required=True, tracking=True)
-    teu = fields.Float(required=True,  default=20.0, tracking=True)
-    is_active = fields.Boolean(string='Is Active', default=True, tracking=True)
-    quotation_line_ids = fields.One2many('freight.purchase.quotation.line', 'container_type_id', string='Quotation Lines')
+    quotation_line_ids = fields.One2many(
+        comodel_name='freight.purchase.quotation.line',
+        inverse_name='container_type_id',
+        string='Quotation Lines'
+    )
 
-    total_quotation_lines = fields.Char(string="Total Quotation Lines", compute='_compute_total_quotation_line', store=False)
-
+    total_quotation_lines = fields.Char(
+        string="Total Quotation Lines",
+        compute='_compute_total_quotation_line',
+        store=False
+    )
 
     @api.constrains('name')
     def _check_name(self):
@@ -28,7 +30,7 @@ class ContainerType(models.Model):
         for record in self:
             if record.teu <= 0:
                 raise ValidationError(f"TEU must be a positive number")
-    
+
     @api.depends('quotation_line_ids')
     def _compute_total_quotation_line(self):
         for record in self:
@@ -37,7 +39,7 @@ class ContainerType(models.Model):
                 record.total_quotation_lines = f"{total} Quotation Line(s)"
             else:
                 record.total_quotation_lines = "0 Quotation Line(s)"
-    
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -45,7 +47,7 @@ class ContainerType(models.Model):
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super().create(vals_list)
-    
+
     def write(self, vals):
         for record in self:
             validated, errors = ContainerTypeUpdateValidator.validate(vals, self.env)
