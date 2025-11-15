@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_cs_order_list" model="ir.ui.view">
+        <field name="name">cs.order.list</field>
+        <field name="model">cs.order</field>
+        <field name="arch" type="xml">
+            <list string="CS Orders"
+                  decoration-muted="state=='draft'"
+                  decoration-info="state=='in_progress'"
+                  decoration-success="state=='done'"
+                  sample="1">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="order_name"/>
+                <field name="client_id"/>
+                <field name="salesman_id" widget="many2one_avatar_user"/>
+                <field name="service_type"/>
+                <field name="delivery_term"/>
+                <field name="Booking_code"/>
+                <field name="incoterm_id" optional="hide"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="state" widget="badge"
+                       decoration-muted="state=='draft'"
+                       decoration-info="state=='in_progress'"
+                       decoration-success="state=='done'"/>
+                <field name="create_date" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_cs_order_form" model="ir.ui.view">
+        <field name="name">cs.order.form</field>
+        <field name="model">cs.order</field>
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="string">CS Order</attribute>
+            </xpath>
+            <!-- Remove project-specific buttons from header -->
+            <xpath expr="//button[@name='action_open_share_project_wizard']" position="replace"/>
+            <xpath expr="//button[@name='action_view_tasks']" position="replace"/>
+            <xpath expr="//button[@name='project_update_all_action']" position="replace"/>
+            <xpath expr="//button[@name='action_customer_preview']" position="replace"/>
+            <xpath expr="//div[@name='button_box']" position="replace">
+                <div class="oe_button_box" name="button_box">
+                    <!-- add your custom buttons here -->
+                </div>
+            </xpath>
+
+<!--            <xpath expr="//button[@name='action_view_sos']" position="replace" ignore="1"/>-->
+<!--            <xpath expr="//button[@name='action_view_sos'][1]" position="replace"/>-->
+<!--            <xpath expr="//button[@name='action_view_sos'][2]" position="replace"/>-->
+<!--            <xpath expr="//button[@name='action_view_sos']" position="replace"/>-->
+
+<!--            <xpath expr="//button[@name='action_view_all_rating']" position="replace"/>-->
+            <!-- Add status bar -->
+            <xpath expr="//header" position="inside">
+                <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,done"/>
+            </xpath>
+
+            <!-- Replace title -->
+            <xpath expr="//div[@class='oe_title']" position="replace">
+                <div class="oe_title">
+                    <label for="name" class="oe_edit_only"/>
+                    <h1>
+                        <field name="name" placeholder="CS Order Name" readonly="1"/>
+                    </h1>
+                    <div>
+                        <span class="text-muted">Reference: </span>
+                        <field name="code" class="oe_inline" readonly="1"/>
+                    </div>
+                </div>
+            </xpath>
+            <!-- Add CS Order specific fields before settings -->
+            <xpath expr="//sheet/group[1]" position="before">
+                <group name="order_info" string="Order Information">
+                    <group>
+                        <field name="sale_order_id" options="{'no_create': True}"/>
+                        <field name="order_name"/>
+                        <field name="client_id"/>
+                        <field name="salesman_id" widget="many2one_avatar_user"/>
+                    </group>
+                    <group>
+                        <field name="service_type"/>
+                        <field name="delivery_term"/>
+                        <field name="incoterm_id"/>
+                        <field name="booking_id"/>
+                        <field name="Booking_code"/>
+                        <field name="batch_order_id" invisible="batch_order_id == False"/>
+                    </group>
+                </group>
+                <group name="commodity_info" string="Commodity">
+                    <field name="commodity"/>
+                    <field name="commodity_hs_code"/>
+                </group>
+            </xpath>
+
+            <!-- Add tabs for CS Order data -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Booking" name="booking">
+                    <field name="cs_booking_id" context="{'default_cs_order_id': id}">
+                        <list editable="bottom">
+                            <field name="Booking_code"/>
+                            <field name="shipping_line_id"/>
+                            <field name="voyage"/>
+                            <field name="vessel_id"/>
+                            <field name="pol_id"/>
+                            <field name="pod_id"/>
+                            <field name="etd"/>
+                            <field name="eta"/>
+                        </list>
+                        <form>
+                            <group>
+                                <group>
+                                    <field name="Booking_code"/>
+                                    <field name="shipping_line_id"/>
+                                    <field name="voyage"/>
+                                    <field name="vessel_id"/>
+                                </group>
+                                <group>
+                                    <field name="pol_id"/>
+                                    <field name="pod_id"/>
+                                    <field name="etd"/>
+                                    <field name="eta"/>
+                                </group>
+                            </group>
+                        </form>
+                    </field>
+                </page>
+
+                <page string="Shipping Instruction" name="shipping_instruction">
+                    <field name="cs_shipping_instruction_id" context="{'default_cs_order_id': id}">
+                        <list editable="bottom">
+                            <field name="booking_code"/>
+                            <field name="shipper"/>
+                            <field name="consignee"/>
+                            <field name="notify_party"/>
+                            <field name="incoterm_id"/>
+                            <field name="freight_charge"/>
+                        </list>
+                        <form>
+                            <group>
+                                <group>
+                                    <field name="booking_code"/>
+                                    <field name="shipper"/>
+                                    <field name="consignee"/>
+                                    <field name="notify_party"/>
+                                    <field name="also_notify"/>
+                                </group>
+                                <group>
+                                    <field name="incoterm_id"/>
+                                    <field name="freight_charge"/>
+                                    <field name="container_no"/>
+                                    <field name="seal_no"/>
+                                    <field name="place_of_receipt"/>
+                                    <field name="place_of_issue"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="cargo_description" placeholder="Describe cargo details..."/>
+                            </group>
+                        </form>
+                    </field>
+                </page>
+
+                <page string="Bill of Lading" name="bill_lading">
+                    <field name="cs_bill_lading_ids" context="{'default_cs_order_id': id}">
+                        <list editable="bottom">
+                            <field name="bl_number"/>
+                            <field name="bl_type"/>
+                            <field name="issue_date"/>
+                            <field name="place_of_issue"/>
+                            <field name="vessel_id"/>
+                            <field name="pol_id"/>
+                            <field name="pod_id"/>
+                        </list>
+                    </field>
+                </page>
+
+                <page string="Containers" name="containers">
+                    <field name="cs_container_ids" context="{'default_cs_order_id': id}">
+                        <list editable="bottom">
+                            <field name="container_type_id"/>
+                            <field name="container_number"/>
+                            <field name="seal_number"/>
+                            <field name="gross_weight" sum="Total Gross"/>
+                            <field name="net_weight" sum="Total Net"/>
+                            <field name="note"/>
+                        </list>
+                        <form>
+                            <group>
+                                <group>
+                                    <field name="cs_order_id"/>
+                                    <field name="booking_id"/>
+                                    <field name="container_type_id"/>
+                                    <field name="container_number"/>
+                                    <field name="seal_number"/>
+                                </group>
+                                <group>
+                                    <field name="gross_weight"/>
+                                    <field name="net_weight"/>
+                                    <field name="cs_task_id"/>
+                                </group>
+                            </group>
+                        </form>
+                    </field>
+                </page>
+
+                <page string="Tasks" name="cs_tasks">
+                    <field name="cs_task_ids" context="{'default_cs_order_id': id}">
+                        <list>
+                            <field name="name"/>
+                            <field name="cs_task_id" invisible="1"/>
+                        </list>
+                    </field>
+                </page>
+
+                <page string="Debits" name="debits">
+                    <field name="cs_debit_id" context="{'default_cs_order_id': id}">
+                        <list editable="bottom">
+                            <field name="cs_order_id"/>
+                            <field name="booking_id"/>
+                            <field name="cs_task_id"/>
+                        </list>
+                    </field>
+                </page>
+
+                <page string="Pre-Alert" name="pre_alert">
+                    <field name="cs_pre_alert_id" context="{'default_cs_order_id': id}">
+                        <list editable="bottom">
+                            <field name="agent_id"/>
+                            <field name="receiver_email"/>
+                            <field name="state" widget="badge"/>
+                            <field name="is_auto_send"/>
+                            <field name="sent_date"/>
+                        </list>
+                        <form>
+                            <header>
+                                <field name="state" widget="statusbar"/>
+                            </header>
+                            <sheet>
+                                <group>
+                                    <group>
+                                        <field name="cs_order_id"/>
+                                        <field name="booking_id"/>
+                                        <field name="agent_id"/>
+                                        <field name="receiver_email" widget="email"/>
+                                    </group>
+                                    <group>
+                                        <field name="is_auto_send"/>
+                                        <field name="sent_date"/>
+                                        <field name="cs_task_id"/>
+                                    </group>
+                                </group>
+                            </sheet>
+                        </form>
+                    </field>
+                </page>
+
+                <page string="Notes" name="cs_notes">
+                    <field name="note" placeholder="Add internal notes here..."/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+     <!-- CS Order Search View -->
+    <record id="view_cs_order_search" model="ir.ui.view">
+        <field name="name">cs.order.search</field>
+        <field name="model">cs.order</field>
+        <field name="arch" type="xml">
+            <search string="Search CS Orders">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="order_name"/>
+                <field name="client_id"/>
+                <field name="salesman_id"/>
+                <field name="user_id" string="CS Manager"/>
+                <field name="Booking_code"/>
+                <field name="commodity"/>
+
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="In Progress" name="in_progress" domain="[('state', '=', 'in_progress')]"/>
+                <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+
+                <separator/>
+                <filter string="My Orders" name="my_orders" domain="[('user_id', '=', uid)]"/>
+                <filter string="My Sales" name="my_sales" domain="[('salesman_id', '=', uid)]"/>
+
+                <separator/>
+                <filter string="Import" name="import" domain="[('service_type', '=', 'import')]"/>
+                <filter string="Export" name="export" domain="[('service_type', '=', 'export')]"/>
+
+                <separator/>
+                <filter string="Monthly Billing" name="monthly_billing" domain="[('batch_order_id', '!=', False)]"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="Client" name="group_client" context="{'group_by': 'client_id'}"/>
+                    <filter string="Salesman" name="group_salesman" context="{'group_by': 'salesman_id'}"/>
+                    <filter string="CS Manager" name="group_manager" context="{'group_by': 'user_id'}"/>
+                    <filter string="State" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Service Type" name="group_service_type" context="{'group_by': 'service_type'}"/>
+                    <filter string="Delivery Term" name="group_delivery_term" context="{'group_by': 'delivery_term'}"/>
+                    <filter string="Create Date" name="group_create_date" context="{'group_by': 'create_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_cs_order" model="ir.actions.act_window">
+        <field name="name">CS Orders</field>
+        <field name="res_model">cs.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_cs_order_search"/>
+        <field name="context">{ 'search_default_in_progress': 1 }</field>
+    </record>
+
+</odoo>

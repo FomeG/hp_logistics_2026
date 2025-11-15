@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+     <record id="view_cs_bill_lading_list" model="ir.ui.view">
+        <field name="name">cs.bill.lading.list</field>
+        <field name="model">cs.bill.lading</field>
+        <field name="arch" type="xml">
+            <list string="Bills of Lading">
+                <field name="cs_order_id"/>
+                <field name="bl_number"/>
+                <field name="bl_type"/>
+                <field name="issue_date"/>
+                <field name="vessel_id"/>
+                <field name="pol_id"/>
+                <field name="pod_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_cs_bill_lading_form" model="ir.ui.view">
+        <field name="name">cs.bill.lading.form</field>
+        <field name="model">cs.bill.lading</field>
+        <field name="arch" type="xml">
+            <form string="Bill of Lading">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="cs_order_id"/>
+                            <field name="booking_id"/>
+                            <field name="bl_number"/>
+                            <field name="bl_type"/>
+                            <field name="issue_date"/>
+                            <field name="place_of_issue"/>
+                        </group>
+                        <group>
+                            <field name="vessel_id"/>
+                            <field name="pol_id"/>
+                            <field name="pod_id"/>
+                            <field name="cs_task_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_cs_bill_lading_search" model="ir.ui.view">
+        <field name="name">cs.bill.lading.search</field>
+        <field name="model">cs.bill.lading</field>
+        <field name="arch" type="xml">
+            <search string="Search Bills of Lading">
+                <field name="bl_number"/>
+                <field name="cs_order_id"/>
+
+                <filter string="MBL" name="mbl" domain="[('bl_type', '=', 'mbl')]"/>
+                <filter string="HBL" name="hbl" domain="[('bl_type', '=', 'hbl')]"/>
+
+                <group expand="0" string="Group By">
+                    <filter string="CS Order" name="group_cs_order" context="{'group_by': 'cs_order_id'}"/>
+                    <filter string="BL Type" name="group_bl_type" context="{'group_by': 'bl_type'}"/>
+                    <filter string="Issue Date" name="group_issue_date" context="{'group_by': 'issue_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_cs_bill_lading" model="ir.actions.act_window">
+        <field name="name">Bills of Lading</field>
+        <field name="res_model">cs.bill.lading</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_cs_bill_lading_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Bill of Lading
+            </p>
+        </field>
+    </record>
+</odoo>
