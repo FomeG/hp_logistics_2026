@@ -30,12 +30,6 @@ class SaleOrderInherrit(models.Model):
         required=True,
         tracking=True,
     )
-    booking_id = fields.Many2one(
-        'freight.purchase.booking',
-        string="Freight Booking",
-        ondelete="set null"
-    )
-
     service_type = fields.Selection(
         constants.ServiceType.SELECT_OPTIONS,
         string="Service Type",
