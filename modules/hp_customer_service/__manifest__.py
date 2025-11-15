@@ -5,10 +5,10 @@
     'description': 'This module is used by CS team',
     'author': 'HPL',
     'category': 'HP',
-    'version': '0.1',
-
+    'version': '18.0.0.0.1',
+    "license": "LGPL-3",
     # any module necessary for this one to work correctly
-    'depends': ['base','hp_components','hp_sale','hp_freight_purchase'],
+    'depends': ['hp_freight_purchase'],
 
     # always loaded
     'data': [
@@ -16,8 +16,6 @@
         'security/ir.model.access.csv',
         'data/ir_sequence_cs_batch_order_data.xml',
         'data/ir_sequence_cs_order_data.xml',
-        # 'views/cs_department_type_views.xml',
-#        'views/cs_job_views.xml',
         'wizard/hp_bank_wizard_view.xml',
         'views/cs_menus.xml',
         # 'report/HBL_template.xml',
@@ -28,5 +26,7 @@
     'demo': [
         'data/bank_demo_data.xml',
     ],
+    'installable': True,
+    'application': True,
 }
 
