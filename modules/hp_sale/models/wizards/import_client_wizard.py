@@ -135,7 +135,9 @@ class ImportClientWizard(models.TransientModel):
         return result
 
     def _create_clients(self, data_array):
-        trucking_branch = self.env['trucking_planning.branch'].search([('code', '=', self.branch_id.code)], limit=1)
+        branch = self.env['hr.branch'].search([('code', '=', self.branch_id.code)], limit=1)
+        if not branch:
+            raise UserError("Branch not found")
         Client = self.env['res.partner.client']
         tax_numbers = [data['vat'] for data in data_array]
         refs = [data['ref'] for data in data_array]
@@ -165,10 +167,7 @@ class ImportClientWizard(models.TransientModel):
                 'partner_main_type_id': partner_main_type.id,
                 'branch_id': self.branch_id.id,
                 'user_id':  self.assign_user_id.id if self.action_type == DepartmentService.DEPARTMENT_TYPE_SALE else False,
-                'trucking_branch_id': trucking_branch.id if trucking_branch else False,
-                'assign_trucking_manager_id': self.assign_user_id.id if self.action_type == DepartmentService.DEPARTMENT_TYPE_TRUCKING else False,
             })
-
             existing_client = existing_clients_map.get(vat) or Client.search([('ref', '=', ref)], limit=1)
             if existing_client:
                 clients_to_update.append((existing_client, vals))
