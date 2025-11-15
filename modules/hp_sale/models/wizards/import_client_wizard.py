@@ -185,14 +185,9 @@ class ImportClientWizard(models.TransientModel):
 
         if clients_to_update:
             for existing_client, vals in clients_to_update:
-                if self.action_type == DepartmentService.DEPARTMENT_TYPE_TRUCKING:
-                    vals.pop('user_id')
-                
                 if self.action_type == DepartmentService.DEPARTMENT_TYPE_SALE:
-                    vals.pop('assign_trucking_manager_id')
                     if existing_client.user_id:
                         vals.pop('user_id')
-
                 existing_client.write(vals)
             updated_count = len(clients_to_update)
 
