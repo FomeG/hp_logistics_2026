@@ -136,19 +136,19 @@ class SaleOrderInherrit(models.Model):
 
         return True
 
-    def get_sale_order_lines_missing_price(self):
-        self.ensure_one()  # Make sure we're working on exactly one sale.order
-        # Now safe to do single-record operations
-        return self.order_line.filtered(lambda l: not l.freight_booking_id and not l.freight_quotation_id)
+    # def get_sale_order_lines_missing_price(self):
+    #     self.ensure_one()  # Make sure we're working on exactly one sale.order
+    #     # Now safe to do single-record operations
+    #     return self.order_line.filtered(lambda l: not l.freight_booking_id and not l.freight_quotation_id)
     
-    def get_sale_order_lines_missing_booking(self):
-        self.ensure_one()
-        return self.order_line.filtered(lambda l: not l.freight_booking_id)
+    # def get_sale_order_lines_missing_booking(self):
+    #     self.ensure_one()
+    #     return self.order_line.filtered(lambda l: not l.freight_booking_id)
 
-    def get_sale_order_lines_with_booking(self):
-        self.ensure_one()  # Make sure we're working on exactly one sale.order
-        # Now safe to do single-record operations
-        return self.order_line.filtered(lambda l: l.freight_booking_id and l.freight_booking_id.booking_status != 'booked')
+    # def get_sale_order_lines_with_booking(self):
+    #     self.ensure_one()  # Make sure we're working on exactly one sale.order
+    #     # Now safe to do single-record operations
+    #     return self.order_line.filtered(lambda l: l.freight_booking_id and l.freight_booking_id.booking_status != 'booked')
     def is_cancelled(self):
         return self.state == 'cancel'
     def is_activated(self):
