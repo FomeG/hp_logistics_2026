@@ -37,5 +37,5 @@ HP Employee App
     #     'data/demo_data.xml',
     # ],
     'installable': True,
-    'application': False,
+    'application': True,
 }

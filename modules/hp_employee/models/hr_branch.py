@@ -10,8 +10,8 @@ class HrBranch(models.Model):
         required=True,
         tracking=True,
     )
-    plan_prefix = fields.Char(
-        string="Plan Prefix",
+    branch_prefix = fields.Char(
+        string="Branch Prefix",
         required=True,
         tracking=True,
     )
@@ -23,6 +23,6 @@ class HrBranch(models.Model):
     )
 
     _sql_constraints = [
-        ('unique_plan_prefix', 'UNIQUE(plan_prefix)','Plan prefix must be unique!'),
+        ('unique_branch_prefix', 'UNIQUE(branch_prefix)','Branch prefix must be unique!'),
     ]
     
