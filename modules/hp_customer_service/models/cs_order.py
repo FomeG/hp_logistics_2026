@@ -33,10 +33,15 @@ class CsOrder(models.Model):
         comodel_name='sale.order',
         string='Order',
     )
-
-    job_ids = fields.One2many(
-        comodel_name='cs.job',
-        inverse_name='cs_order_id', # inverse field in cs.job
+    incoterm_id = fields.Many2one(
+        comodel_name='account.incoterms',
+        string='Incoterm',
+        related='sale_order_id.incoterm_id',
+        store=True,
+    )
+    booking_id = fields.Many2one(
+        comodel_name='freight.purchase.booking',
+        related='sale_order_id.booking_id',
     )
     state = fields.Selection(
         constants.CsOrderState.SELECT_OPTIONS,
@@ -55,52 +60,6 @@ class CsOrder(models.Model):
             "cy-door:Delivery from port of departure → to the receiver's warehouse\n"
             "door-door:Delivery from shipper's warehouse → receiver's warehouse",
         required=True,
-    )
-    incoterm_id = fields.Many2one(
-        comodel_name='account.incoterms',
-        string='Incoterm',
-        related='sale_order_id.incoterm_id',
-        store=False,
-    )
-    booking_id = fields.Many2one(
-        comodel_name='freight.purchase.booking',
-        related='sale_order_id.booking_id',
-        string="Booking"
-    )
-    shipping_line_id = fields.Many2one(
-        comodel_name='res.partner',
-        string="Shipping Line",
-        related='booking_id.shipping_line_id'
-    )
-    Booking_code = fields.Char(
-        related='booking_id.code',
-        string="Booking Code",
-        help="Booking Code",
-        index=True,
-    )
-
-    voyage = fields.Char(
-        string="Voyage",
-        related="booking_id.voyage",
-        store=False,
-    )
-    vessel = fields.Many2one(
-        related="booking_id.vessel_id",
-        comodel_name='freight.purchase.vessel',
-        string="Vessel",
-        store=False,
-    )
-    pol = fields.Many2one(
-        comodel_name='freight.purchase.port',
-        string="Port of Loading",
-        related = 'booking_id.pol_id',
-        store=False,
-    )
-    pod = fields.Many2one(
-        comodel_name='freight.purchase.port',
-        string="Port of Discharge",
-        related='booking_id.pod_id',
-        store=False,
     )
     service_type = fields.Selection( #service type from sale order is selection
         constants.ServiceType.SELECT_OPTIONS,
@@ -133,6 +92,52 @@ class CsOrder(models.Model):
     commodity_hs_code = fields.Char(
         string="Commodity HS Code",
         store=False,
+    )
+
+    cs_booking_id = fields.One2many(
+        comodel_name="cs.booking",
+        inverse_name="cs_order_id",
+        string="Booking",
+        limit=1
+    )
+    Booking_code = fields.Char(
+        related='cs_booking_id.Booking_code',
+        string="Booking Code",
+        help="Booking Code",
+        index=True,
+        store=True,
+        readonly=True,
+    )
+    cs_shipping_instruction_id = fields.One2many(
+        comodel_name="cs.shipping.instruction",
+        inverse_name="cs_order_id",
+        string="Shipping Instruction",
+        limit=1
+    )
+    cs_bill_lading_ids = fields.One2many(
+        comodel_name="cs.bill.lading",
+        inverse_name="cs_order_id",
+        string="BLs",
+    )
+    cs_pre_alert_id = fields.One2many(
+        comodel_name="cs.pre.alert",
+        inverse_name="cs_order_id",
+        limit=1
+    )
+    cs_container_ids = fields.One2many(
+        comodel_name="cs.container",
+        inverse_name="cs_order_id",
+        string = "Containers",
+    )
+    cs_debit_id = fields.One2many(
+        comodel_name="cs.debit",
+        inverse_name="cs_order_id",
+        string = "Debits",
+    )
+    cs_task_ids = fields.One2many(
+        comodel_name="cs.task",
+        inverse_name="cs_order_id",
+        string = "Tasks",
     )
 
     @api.model

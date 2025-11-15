@@ -1,15 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_hp_customer_service_cs_job,hp_customer_service.hp_customer_service,model_cs_job,base.group_user,1,1,1,0
-access_cs_job_member,cs.job.member,model_cs_job,group_hp_customer_service_member,1,1,1,0
-access_cs_job_leader,cs.job.leader,model_cs_job,group_hp_customer_service_leader,1,1,1,1
-
-access_hp_customer_service_cs_detail_job,hp_customer_service.hp_cs_job_detail,model_cs_job_detail,base.group_user,1,1,1,0
-access_cs_job_detail_member,cs.job.detail.member,model_cs_job_detail,group_hp_customer_service_member,1,1,1,0
-access_cs_job_detail_leader,cs.job.detail.leader,model_cs_job_detail,group_hp_customer_service_leader,1,1,1,1
-
-access_cs_job_container_user,cs.job.container user,model_cs_job_container,base.group_user,1,1,1,0
-access_cs_job_container_member,cs.job.container.member,model_cs_job_container,group_hp_customer_service_member,1,1,1,0
-access_cs_job_container_leader,cs.job.container.leader,model_cs_job_container,group_hp_customer_service_leader,1,1,1,1
 
 access_cs_order_user,cs.order.user,model_cs_order,base.group_user,1,1,1,0
 access_cs_order_member,cs.order.member,model_cs_order,group_hp_customer_service_member,1,1,1,0

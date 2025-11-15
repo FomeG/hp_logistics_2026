@@ -111,3 +111,31 @@ class DeliveryTerms:
         (DOOR_CY, 'Door to CY'),
         (DOOR_DOOR, 'Door to Door'),
     ]
+
+class ShippingInstructions:
+    FREIGHT_CHARGE_COLLECT = 'collect'
+    FREIGHT_CHARGE_PREPAID = 'prepaid'
+    FREIGHT_CHARGE_SELECT_OPTIONS = [
+        (FREIGHT_CHARGE_COLLECT, 'Collect'),
+        (FREIGHT_CHARGE_PREPAID, 'Prepaid'),
+    ]
+
+class BL:
+    MBL = 'mbl'
+    HBL = 'hbl'
+    SELECT_OPTIONS = [
+        (MBL, 'Master BL'),
+        (HBL, 'House BL'),
+    ]
+
+class PreAlertState:
+    DRAFT = 'draft'
+    READY = 'ready_to_send'
+    SENT = 'sent'
+    RECEIVED = 'received_by_agent'
+    SELECT_OPTIONS = [
+        (DRAFT, 'Draft'),
+        (READY, 'Ready To Send'),
+        (SENT, 'Sent'),
+        (RECEIVED, 'Received by Agent'),
+    ]
