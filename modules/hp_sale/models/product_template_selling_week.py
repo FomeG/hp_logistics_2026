@@ -19,7 +19,8 @@ class ProductTemplateSellingWeek(models.Model):
     product_template_id = fields.Many2one(
         'product.template',
         string="Product",
-        tracking=True
+        tracking=True,
+        domain=[('route_id', '!=', False)]
     )
     team_id = fields.Many2one(
         'hr.team',
