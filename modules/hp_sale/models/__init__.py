@@ -8,4 +8,4 @@ from . import wizards
 from . import selling_week
 from . import product_template_selling_week
 from . import product_template_selling_week_line
-from . import freight_purchase_quotation_inherit
+#from . import freight_purchase_quotation_inherit

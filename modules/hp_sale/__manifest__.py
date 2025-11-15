@@ -9,7 +9,7 @@
     'category': 'HP/HP Logistic',
     'images': [],
     'depends': [
-        'mail', 'base', 'sale', 'product', 'sale_management', 'account','component','component_event', 'queue_job', 'hp_freight_purchase', 'hp_employee'
+        'mail', 'base', 'sale', 'product', 'sale_management', 'account','component','component_event', 'queue_job','hp_employee'
     ],
     'data': [
         # data
@@ -32,7 +32,7 @@
         'views/product_category_views.xml',
         'views/change_menu_customer_views.xml',
         # 'views/inherit_form_create_customer_views.xml',
-        'views/sale_order.xml',
+        'views/sale_order_inherit.xml',
         # 'views/pricing_booking_form_views_inherit.xml',
         'views/res_partner_client_views.xml',
         'views/selling_week_views.xml',

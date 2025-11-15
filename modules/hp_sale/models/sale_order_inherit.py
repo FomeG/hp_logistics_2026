@@ -47,8 +47,21 @@ class SaleOrderInherrit(models.Model):
         store=True,
         index=True,
     )
-    commodity = fields.Char(string="Commodity") # Add commodity field becasuse cs order commodity is related to sale order commodity
-
+    commodity = fields.Char(
+        string="Commodity"
+    ) # Add commodity field becasuse cs order commodity is related to sale order commodity
+    commodity_hs_code = fields.Char(
+        string="Commodity HS Code",
+    )
+    etd = fields.Date(
+        string="ETD",
+        help="Estimated Time of Departure"
+    )
+    shipping_line_id = fields.Many2one(
+        comodel_name='res.partner',
+        domain="[('partner_main_type_id.code', '=', 'shipping_line')]",
+        store=False,
+    )
     @api.onchange("client_id")
     def _onchange_client_id(self):
         if self.client_id and self.client_id.partner_id:

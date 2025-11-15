@@ -158,11 +158,15 @@
                     placeholder="Select Client ..."
                     options="{'no_create': True, 'no_create_edit': True}"
                     context="{'show_ref': True}" />
-                 <field name="booking_id"
-                    widget="many2one"
-                    placeholder="Select Booking ..." />
+                <field name="service_type" />
+                <field name="incoterm_id" />
+                <field name="commodity" />
+                <field name="commodity_hs_code" />
             </xpath>
-
+            <xpath expr="//group/field[@name='payment_term_id']" position="after">
+                <field name="etd" />
+                <field name="shipping_line_id" />
+            </xpath>
             <xpath expr="//page[@name='customer_signature']" position="attributes">
                 <attribute name="invisible">1</attribute>
             </xpath>

@@ -26,10 +26,9 @@ class SaleOrderLineInherit(models.Model):
         string="Freight Quotation",
         tracking=True
     )
-
+    #to remove later
     etd_sale = fields.Date(
         string="ETD Sale",
-        related='order_id.etd_sale'
     )
     base_price = fields.Float(string="Base Price", default=0.0)
     commission = fields.Float(string="Commission (%)", default=0.0)
