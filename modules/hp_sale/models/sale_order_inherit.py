@@ -3,8 +3,8 @@ from logging import Logger
 from odoo import models, fields, _, api
 from odoo.exceptions import UserError, ValidationError
 from odoo.addons.hp_components.services.sale_order_service import SaleOrderService
-from ...hp_components.services.task_service import TaskService
-from odoo.addons.hp_components.models import constants
+# from ...hp_components.services.task_service import TaskService
+from ...hp_components.models import constants
 import logging
 
 _logger: Logger = logging.getLogger(__name__)
@@ -13,20 +13,18 @@ class SaleOrderInherrit(models.Model):
     _inherit = 'sale.order'
 
     state = fields.Selection([
-        ('draft', 'Quotation'),
-        ('activated', 'Quotation Activated'),
-        ('customer_confirm', 'Customer Confirmed'),
-        ('sale_leader_confirm', 'Sales Leader Confirmed'),
-        ('pricing_leader_confirm', 'Pricing Leader Confirmed'),
-        ('sent', 'Quotation Sent'),
-        ('sale', 'Sales Order'),
-        ('done', 'Locked'),
-        ('cancel', 'Cancelled'),
+        (constants.SaleOrderState.DRAFT, 'Draft'),
+        (constants.SaleOrderState.SENT_TO_CLIENT, 'Sent To Client'),
+        (constants.SaleOrderState.REVIEW, 'Review'),
+        (constants.SaleOrderState.SENT_TO_LEADER, 'Sent To Leader'),
+        (constants.SaleOrderState.SALE, 'Sales Order'),
+        (constants.SaleOrderState.DONE, 'Done'),
+        (constants.SaleOrderState.CANCELLED, 'Cancelled'),
     ], string="Status", readonly=True, copy=False, index=True, tracking=3, default='draft')
 
     client_id = fields.Many2one(
         comodel_name='res.partner.client',
-        domain="[('user_id', '=', uid)]",
+        # domain="[('user_id', '=', uid)]",
         string='Client',
         required=True,
         tracking=True,
@@ -61,7 +59,7 @@ class SaleOrderInherrit(models.Model):
     shipping_line_id = fields.Many2one(
         comodel_name='res.partner',
         domain="[('partner_main_type_id.code', '=', 'shipping_line')]",
-        store=False,
+        store=True,
     )
     @api.onchange("client_id")
     def _onchange_client_id(self):
@@ -72,22 +70,22 @@ class SaleOrderInherrit(models.Model):
 
 
     # When activate Quotation => check if some product is missing booking/price => make task and assgin to all users relating to the pod
-    def action_activate_quotation(self):
-        """Submit quotation for customer review."""
-        self.ensure_one()
-        if not self.order_line:
-            raise ValidationError(_("You cannot activate a quotation without any order lines."))
+    # def action_activate_quotation(self):
+    #     """Submit quotation for customer review."""
+    #     self.ensure_one()
+    #     if not self.order_line:
+    #         raise ValidationError(_("You cannot activate a quotation without any order lines."))
 
-        for line in self.order_line:
-            if line.product_template_id.type == 'pricing':
-                if not line.container_type_id:
-                    raise ValidationError(_("Sale order line: '%s' requires a container type.") % line.product_template_id.name)
-                if not line.etd_sale:
-                    raise ValidationError(_("Sale order line: '%s' requires a etd sale.") % line.product_template_id.name)
+    #     for line in self.order_line:
+    #         if line.product_template_id.type == 'pricing':
+    #             if not line.container_type_id:
+    #                 raise ValidationError(_("Sale order line: '%s' requires a container type.") % line.product_template_id.name)
+    #             if not line.etd_sale:
+    #                 raise ValidationError(_("Sale order line: '%s' requires a etd sale.") % line.product_template_id.name)
 
-        self.write({'state': 'activated'})
+    #     self.write({'state': 'activated'})
 
-        return True
+    #     return True
 
     def action_bypass_to_sale(self):
         self.ensure_one()
@@ -122,33 +120,33 @@ class SaleOrderInherrit(models.Model):
         # }
 
     # When customer confirmed => click button to change state and create task for sale leader to confirm
-    def action_customer_confirm(self):
-        """Submit quotation for customer review after validation."""
-        return SaleOrderService(self.env).hande_customer_confirm(self)
+    # def action_customer_confirm(self):
+    #     """Submit quotation for customer review after validation."""
+    #     return SaleOrderService(self.env).hande_customer_confirm(self)
 
-    def action_sale_leader_approved(self):
-        """Move to pricing leader confirmation after sales manager approves."""
-        self.write({'state': 'sale_leader_confirm'})
+    # def action_sale_leader_approved(self):
+    #     """Move to pricing leader confirmation after sales manager approves."""
+    #     self.write({'state': 'sale_leader_confirm'})
 
-        return True
+    #     return True
 
-    def action_pricing_leader_approved(self):
-        """Move to pricing leader confirmation after sales manager approves."""
-        self.write({'state': 'pricing_leader_confirm'})
+    # def action_pricing_leader_approved(self):
+    #     """Move to pricing leader confirmation after sales manager approves."""
+    #     self.write({'state': 'pricing_leader_confirm'})
 
-        return True
+    #     return True
 
-    def action_final_confirm(self):
-        """Confirm the order after pricing manager approves."""
-        for order in self:
+    # def action_final_confirm(self):
+    #     """Confirm the order after pricing manager approves."""
+    #     for order in self:
 
-            # First change to a state that the original action_confirm accepts
-            order.write({'state': 'sent'})
+    #         # First change to a state that the original action_confirm accepts
+    #         order.write({'state': 'sent'})
 
-            # Now we can call the original confirm method
-            order.action_confirm()
+    #         # Now we can call the original confirm method
+    #         order.action_confirm()
 
-        return True
+    #     return True
 
     # def get_sale_order_lines_missing_price(self):
     #     self.ensure_one()  # Make sure we're working on exactly one sale.order
@@ -176,18 +174,18 @@ class SaleOrderInherrit(models.Model):
     def can_update_price(self):
         return self.state in ['draft','activated']
 
-    def action_create_route(self):
-        """Open wizard to collect Port/Route information"""
-        return {
-            'name': _('Create Port/Route Request'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'freight.purchase.port.route.request.wizard',
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {
-                'default_sale_order_id': self.id
-            }
-        }
+    # def action_create_route(self):
+    #     """Open wizard to collect Port/Route information"""
+    #     return {
+    #         'name': _('Create Port/Route Request'),
+    #         'type': 'ir.actions.act_window',
+    #         'res_model': 'freight.purchase.port.route.request.wizard',
+    #         'view_mode': 'form',
+    #         'target': 'new',
+    #         'context': {
+    #             'default_sale_order_id': self.id
+    #         }
+    #     }
     
     def select_sale_order_line(self):
         return {
@@ -210,20 +208,20 @@ class SaleOrderInherrit(models.Model):
             },
         }
 
-    def _handle_quotation_activated(self):
-        TaskService(self.env)._handle_task_with_quotation_activated(self)
+    # def _handle_quotation_activated(self):
+    #     TaskService(self.env)._handle_task_with_quotation_activated(self)
 
-    def _handle_quotation_cancelled(self):
-        TaskService(self.env)._handle_task_with_quotation_cancelled(self)
+    # def _handle_quotation_cancelled(self):
+    #     TaskService(self.env)._handle_task_with_quotation_cancelled(self)
 
-    def _handle_quotation_customer_confirmed(self):
-        TaskService(self.env)._handle_task_with_quotation_customer_confirmed(self)
+    # def _handle_quotation_customer_confirmed(self):
+    #     TaskService(self.env)._handle_task_with_quotation_customer_confirmed(self)
 
-    def _handle_quotation_sale_leader_confirmed(self):
-        TaskService(self.env)._handle_task_with_quotation_sale_leader_confirmed(self)
+    # def _handle_quotation_sale_leader_confirmed(self):
+    #     TaskService(self.env)._handle_task_with_quotation_sale_leader_confirmed(self)
 
-    def _handle_quotation_confirmed(self):
-        SaleOrderService(self.env).handle_quotation_confirmed(self)
+    # def _handle_quotation_confirmed(self):
+    #     SaleOrderService(self.env).handle_quotation_confirmed(self)
 
     @api.depends('client_id')
     def _compute_branch_id(self):
@@ -236,3 +234,8 @@ class SaleOrderInherrit(models.Model):
                 branch_id = record.client_id.branch_id
 
             record.branch_id = branch_id
+        
+    def action_update_state(self, state):
+        self.write({'state': state})
+
+        return True

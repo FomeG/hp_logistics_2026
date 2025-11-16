@@ -24,36 +24,36 @@
 
             <!-- Modify the statusbar -->
             <xpath expr="//field[@name='state']" position="attributes">
-                <attribute name="statusbar_visible">activated,customer_confirm,sale_leader_confirm,pricing_leader_confirm,sale</attribute>
+                <attribute name="statusbar_visible">draft,sent_to_client,review,sent_to_leader,sale</attribute>
             </xpath>
 
             <!-- Add state-specific alert messages after the state statusbar -->
-            <xpath expr="//header" position="after">
+            <!-- <xpath expr="//header" position="after"> -->
                 <!-- Message for draft state -->
-                <div class="alert alert-danger text-center" role="alert" invisible="state != 'draft'">
+                <!-- <div class="alert alert-danger text-center" role="alert" invisible="state != 'draft'">
                     <span><i class="fa fa-exclamation-circle"/> The Quotation is in draft state, please click on 'Activate' button to activate and start Sale Flow.</span>
-                </div>
+                </div> -->
 
                 <!-- Message for activated state -->
-                <div class="alert alert-danger text-center" role="alert" invisible="state != 'activated'">
+                <!-- <div class="alert alert-danger text-center" role="alert" invisible="state != 'activated'">
                     <span><i class="fa fa-exclamation-circle"/> Make sure all products have unit price, then send Quotation to customer and once they confirmed, click on 'Customer Confirmed'.</span>
-                </div>
+                </div> -->
 
                 <!-- Message for customer_confirm state -->
-                <div class="alert alert-danger text-center" role="alert" invisible="state != 'customer_confirm'">
+                <!-- <div class="alert alert-danger text-center" role="alert" invisible="state != 'customer_confirm'">
                     <span><i class="fa fa-exclamation-circle"/> The Quotation is waiting for Sale leader to confirm.</span>
-                </div>
+                </div> -->
 
                 <!-- Message for sale_leader_confirm state -->
-                <div class="alert alert-danger text-center" role="alert" invisible="state != 'sale_leader_confirm'">
+                <!-- <div class="alert alert-danger text-center" role="alert" invisible="state != 'sale_leader_confirm'">
                     <span><i class="fa fa-exclamation-circle"/> The Quotation is waiting for Pricing leader to confirm.</span>
-                </div>
+                </div> -->
 
                 <!-- Message for pricing_leader_confirm state -->
-                <div class="alert alert-danger text-center" role="alert" invisible="state != 'pricing_leader_confirm'">
+                <!-- <div class="alert alert-danger text-center" role="alert" invisible="state != 'pricing_leader_confirm'">
                     <span><i class="fa fa-exclamation-circle"/> Review the Quotation and click on 'Confirmed' to convert Quotation to an Order.</span>
-                </div>
-            </xpath>
+                </div> -->
+            <!-- </xpath> -->
 
             <!-- Replace the "Send by Email" primary button with first stage transition button -->
             <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email_primary']" position="replace">
@@ -66,30 +66,54 @@
         type="object"
         string="Convert to CS Job"
         class="btn-primary"/> -->
-
+                <button name="action_update_state" 
+                    type="object" 
+                    string="Sent To Client"
+                    class="btn-primary"
+                    args="['sent_to_client']"
+                    invisible="state != 'draft'"/>
+                <button name="action_update_state" 
+                    type="object" 
+                    string="Review"
+                    class="btn-primary"
+                    args="['review']"
+                    invisible="state != 'sent_to_client'"/>
+                <button name="action_update_state" 
+                    type="object" 
+                    string="Sent To Leader"
+                    class="btn-primary"
+                    args="['sent_to_leader']"
+                    invisible="state != 'review'"/>
+                <button name="action_update_state" 
+                    type="object" 
+                    string="Confirm"
+                    class="btn-primary"
+                    args="['sale']"
+                    invisible="state != 'sent_to_leader'"
+                    groups="sales_team.group_sale_salesman_all_leads"/>
             </xpath>
 
             <!-- Add buttons for each state transition -->
-            <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email']" position="after">
+            <!-- <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email']" position="after">
                 <button name="action_customer_confirm" id="action_customer_confirm"
                         string="Customer Confirmed" type="object" class="btn-primary"
                         data-hotkey="c" invisible="state != 'activated'"/>
 
-<!--                <button name="action_customer_approved" id="action_customer_approved"-->
-<!--                        string="Submit to Sales Leader" type="object" class="btn-primary"-->
-<!--                        data-hotkey="c" invisible="state != 'customer_confirm'"/>-->
+               <button name="action_customer_approved" id="action_customer_approved"
+                       string="Submit to Sales Leader" type="object" class="btn-primary"
+                       data-hotkey="c" invisible="state != 'customer_confirm'"/>
 
-<!--                <button name="action_sale_leader_approved" id="action_sale_leader_approved"-->
-<!--                        string="Submit to Pricing Leader" type="object" class="btn-primary"-->
-<!--                        data-hotkey="s" invisible="state != 'sale_leader_confirm'"-->
-<!--                        groups="sales_team.group_sale_manager"/>-->
+               <button name="action_sale_leader_approved" id="action_sale_leader_approved"
+                       string="Submit to Pricing Leader" type="object" class="btn-primary"
+                       data-hotkey="s" invisible="state != 'sale_leader_confirm'"
+                       groups="sales_team.group_sale_manager"/>
 
                 <button name="action_final_confirm" id="action_final_confirm"
                         string="Confirmed" type="object" class="btn-primary"
                         data-hotkey="p"
                         groups="sales_team.group_sale_manager,sales_team.group_sale_salesman"
                         invisible="state != 'pricing_leader_confirm' or (uid != create_uid and uid != user_id)"/>
-            </xpath>
+            </xpath> -->
 
 
             <!-- Hide the Confirm button for sent state completely -->
