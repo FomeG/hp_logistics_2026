@@ -18,7 +18,7 @@
                 <field name="delivery_term"/>
                 <field name="Booking_code"/>
                 <field name="incoterm_id" optional="hide"/>
-                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="cs_manager_id" widget="many2one_avatar_user"/>
                 <field name="state" widget="badge"
                        decoration-muted="state=='draft'"
                        decoration-info="state=='in_progress'"
@@ -59,16 +59,16 @@
                 <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,done"/>
             </xpath>
 
-            <!-- Replace title -->
+           <!-- Replace title -->
             <xpath expr="//div[@class='oe_title']" position="replace">
                 <div class="oe_title">
                     <label for="name" class="oe_edit_only"/>
                     <h1>
-                        <field name="name" placeholder="CS Order Name" readonly="1"/>
+                        <field name="name" placeholder="CS Order Name" readonly="id"/>
                     </h1>
                     <div>
                         <span class="text-muted">Reference: </span>
-                        <field name="code" class="oe_inline" readonly="1"/>
+                        <field name="code" class="oe_inline" readonly="id"/>
                     </div>
                 </div>
             </xpath>
@@ -80,6 +80,11 @@
                         <field name="order_name"/>
                         <field name="client_id"/>
                         <field name="salesman_id" widget="many2one_avatar_user"/>
+                        <field name="cs_manager_id"
+                               string="CS Manager"
+                               widget="many2one_avatar_user"
+                               readonly="1"
+                               options="{'no_create': True, 'no_open': True}"/>
                     </group>
                     <group>
                         <field name="service_type"/>
@@ -96,6 +101,24 @@
                 </group>
             </xpath>
 
+            <!-- Hide Settings tab from project -->
+            <xpath expr="//page[@name='settings']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Hide project-specific fields: tags, customers -->
+            <xpath expr="//field[@name='tag_ids']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='label_tasks']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
             <!-- Add tabs for CS Order data -->
             <xpath expr="//notebook" position="inside">
                 <page string="Booking" name="booking">
@@ -276,7 +299,7 @@
                 <field name="order_name"/>
                 <field name="client_id"/>
                 <field name="salesman_id"/>
-                <field name="user_id" string="CS Manager"/>
+                <field name="cs_manager_id" string="CS Manager"/>
                 <field name="Booking_code"/>
                 <field name="commodity"/>
 
