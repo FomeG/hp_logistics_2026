@@ -17,3 +17,5 @@ access_mass_assign_user_wizard_manager,sale.mass_assign_user_wizard.manager,mode
 access_selling_week,access.selling.week,model_selling_week,sales_team.group_sale_salesman,1,1,1,1
 access_product_template_selling_week,access.product.template.selling.week,model_product_template_selling_week,sales_team.group_sale_salesman,1,1,1,1
 access_product_template_selling_week_line,access.product.template.selling.week.line,model_product_template_selling_week_line,sales_team.group_sale_salesman,1,1,1,1
+
+access_hr_team_sale_manager,hr.team.sale_manager,hp_employee.model_hr_team,sales_team.group_sale_manager,1,1,1,1

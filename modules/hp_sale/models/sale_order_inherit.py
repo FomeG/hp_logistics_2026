@@ -2,7 +2,7 @@ from logging import Logger
 
 from odoo import models, fields, _, api
 from odoo.exceptions import UserError, ValidationError
-from odoo.addons.hp_components.services.sale_order_service import SaleOrderService
+# from odoo.addons.hp_components.services.sale_order_service import SaleOrderService
 # from ...hp_components.services.task_service import TaskService
 from ...hp_components.models import constants
 import logging

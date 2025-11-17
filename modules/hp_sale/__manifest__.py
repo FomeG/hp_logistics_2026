@@ -38,7 +38,7 @@
         'views/selling_week_views.xml',
         'views/product_template_selling_week_views.xml',
         'views/product_template_selling_week_line_views.xml',
-
+        'views/sale_configuaration_views.xml',
 
         'views/sale_menus.xml',
 
