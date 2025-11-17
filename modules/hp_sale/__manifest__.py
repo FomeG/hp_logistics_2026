@@ -15,7 +15,7 @@
         # data
         'data/product_category.xml',
         'data/product_data.xml',
-        'data/price_category_cron.xml',
+        #'data/price_category_cron.xml',
         'data/selling_week_state_cron.xml',
 
         # wizards
@@ -28,7 +28,7 @@
         
         #views
         'views/product_template_views.xml',
-        'views/price_category_views.xml',
+        # 'views/price_category_views.xml',
         'views/product_category_views.xml',
         'views/change_menu_customer_views.xml',
         # 'views/inherit_form_create_customer_views.xml',
