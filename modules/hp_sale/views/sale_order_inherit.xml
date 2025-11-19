@@ -227,10 +227,15 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
             <xpath expr="//field[@name='sale_order_template_id']" position="after">
-                <button name="select_sale_order_line"
-                        type="object"
-                        string="Add Product"
-                        class="btn btn-success"/>
+                <button name="select_pricing_product"
+                    type="object"
+                    string="Add Pricing Product"
+                    class="btn btn-success"/>
+                
+                <button name="select_normal_product"
+                    type="object"
+                    string="Add Normal Product"
+                    class="btn btn-primary"/>
             </xpath>
         </field>
     </record>

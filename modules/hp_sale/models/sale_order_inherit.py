@@ -187,7 +187,7 @@ class SaleOrderInherrit(models.Model):
     #         }
     #     }
     
-    def select_sale_order_line(self):
+    def select_pricing_product(self):
         return {
             'type': 'ir.actions.act_window',
             'name': 'Select Product Selling Week Line',
@@ -202,6 +202,26 @@ class SaleOrderInherrit(models.Model):
             'context': {
                 'sale_order_id': self.id,
                 'default_shipping_line_id': self.shipping_line_id.id,
+                'dialog_size': 'extra-large',
+                'create': False,
+                'select_mode': True,
+            },
+        }
+
+    def select_normal_product(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Select Normal Product',
+            'res_model': 'product.template',
+            'view_mode': 'list,search',
+            'views': [
+                (self.env.ref('hp_sale.product_template_normal_list_view').id, 'list'),
+                (self.env.ref('hp_sale.product_template_normal_search_view').id, 'search'),
+            ],
+            'target': 'new',
+            'domain': [('route_id', '=', False)],
+            'context': {
+                'sale_order_id': self.id,
                 'dialog_size': 'extra-large',
                 'create': False,
                 'select_mode': True,
