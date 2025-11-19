@@ -17,7 +17,9 @@ HP Employee App
         # security
         'security/ir.model.access.csv',
 
-        # 'data/demo_data.xml',
+        'data/demo_sale_hn_data.xml',
+        'data/demo_sale_hcm_data.xml',
+
         'views/cs_department_type_views.xml',
         'views/hidden_btn_new_views.xml',
         'views/hr_department_form_views.xml',
