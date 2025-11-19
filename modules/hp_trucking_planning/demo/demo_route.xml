@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-        <record id="route_hanoi_haiphong" model="trucking_planning.route">
+        <record id="route_hanoi_haiphong" model="route.base">
             <field name="from_location_id" ref="location_route_hanoi"/>
             <field name="to_location_id" ref="location_route_haiphong"/>
             <field name="distance_km">120</field>
@@ -11,7 +11,7 @@
             <field name="direction">export</field>
         </record>
 
-        <record id="route_hanoi_danang" model="trucking_planning.route">
+        <record id="route_hanoi_danang" model="route.base">
             <field name="from_location_id" ref="location_route_haiphong"/>
             <field name="to_location_id" ref="location_route_hochiminh"/>
             <field name="distance_km">764</field>
@@ -21,7 +21,7 @@
             <field name="direction">export</field>
         </record>
 
-        <record id="route_hanoi_hochiminh" model="trucking_planning.route">
+        <record id="route_hanoi_hochiminh" model="route.base">
             <field name="from_location_id" ref="location_route_hanoi"/>
             <field name="to_location_id" ref="location_route_hochiminh"/>
             <field name="distance_km">1710</field>

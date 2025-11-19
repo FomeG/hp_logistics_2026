@@ -26,10 +26,18 @@ class CsOrderCreateTruckingListener(Component):
     #     # Gọi hàm tạo Plan/Job/Trip
     #     record.sudo()._auto_create_trucking_from_cs_order()
 
-    def on_record_create(self, record, fields=None):
-        """Khi tạo mới cũng kiểm tra luôn"""
-        record.sudo()._auto_create_trucking_from_cs_order()
+    # def on_record_create(self, record, fields=None):
+    #     """Khi tạo mới cũng kiểm tra luôn"""
+    #     record.sudo()._auto_create_trucking_from_cs_order()
+    #
+    # def on_record_write(self, record, fields=None):
+    #     if 'booking_id' in fields and record.booking_id:
+    #         record.sudo()._auto_create_trucking_from_cs_order()
 
-    def on_record_write(self, record, fields=None):
-        if 'booking_id' in fields and record.booking_id:
+    def on_record_create(self, record, fields=None):
+        if record.booking_id:
             record.sudo()._auto_create_trucking_from_cs_order()
+
+    # def on_record_write(self, record, fields=None):
+    #     if 'booking_id' in fields and record.booking_id:
+    #         record.sudo()._auto_create_trucking_from_cs_order()

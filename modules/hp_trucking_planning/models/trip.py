@@ -73,7 +73,7 @@ class Trip(models.Model):
     )
 
     plan_goods_pickup_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
+        comodel_name='location.base',
         related='plan_line_id.goods_pickup_location_id',
         string='Goods Pickup Location',
         readonly=True,
@@ -81,28 +81,28 @@ class Trip(models.Model):
     )
 
     plan_goods_delivery_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
+        comodel_name='location.base',
         related='plan_line_id.goods_delivery_location_id',
         string='Goods Delivery Location',
         readonly=True,
         store=True,
     )
     route_id = fields.Many2one(
-        comodel_name='trucking_planning.route',
+        comodel_name='route.base',
         related='plan_line_id.route_id',
         string='Route',
         readonly=True,
         store=True,
     )
     actual_source_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
+        comodel_name='location.base',
         related='plan_line_id.actual_source_location_id',
         string='From Location',
         readonly=True,
         store=True,
     )
     actual_destination_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
+        comodel_name='location.base',
         related='plan_line_id.actual_destination_location_id',
         string='To Location',
         readonly=True,

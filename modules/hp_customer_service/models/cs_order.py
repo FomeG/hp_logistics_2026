@@ -1,10 +1,12 @@
 from odoo import models, fields, api
 from odoo.addons.hp_components.models import constants
+from odoo.exceptions import ValidationError
+
 
 class CsOrder(models.Model):
     _name = 'cs.order'
     _inherits = {'project.project': 'project_id'}
-    _inherit = ['mail.thread'] # mail activity already have field attachment id so if we add field attachment id in other order it will give error
+    _inherit = ['mail.thread', 'cs.order.base'] # mail activity already have field attachment id so if we add field attachment id in other order it will give error
 
     project_id = fields.Many2one(
         comodel_name='project.project',
@@ -154,6 +156,46 @@ class CsOrder(models.Model):
         string = "Tasks",
     )
 
+    @api.model
+    def get_or_create_cs_order_from_sale_order(self, sale_order):
+        """
+        Tìm hoặc tạo cs.order từ sale.order
+        Nếu cần monthly billing → tự động lấy hoặc tạo batch order trước
+        """
+        if not sale_order:
+            return self.browse()
+        cs_order = self.search([('sale_order_id', '=', sale_order.id)], limit=1)
+        if cs_order:
+            return cs_order
+        batch_order_id = False
+        if getattr(sale_order, 'is_monthly_billing', False):
+            batch = self.env['cs.batch.order'].get_or_create_from_sale_order(sale_order)
+            batch_order_id = batch.id
+        code = self.env['cs.service'].generate_code_from_sale_order(sale_order, 'cs.order')
+        self.create({
+            'name': code,
+            'code': code,
+            'sale_order_id': sale_order.id,
+            'batch_order_id': batch_order_id,
+            'state': constants.CsOrderState.DRAFT,
+        })
+
+    @api.model
+    def create_from_sale_order(self, sale_order):
+        return self.get_or_create_cs_order_from_sale_order(sale_order)
+
+    @api.constrains('estimate_time_departure', 'estimate_time_arrival', 'service_type')
+    def _check_estimate_time(self):
+        for record in self:
+            if record.estimate_time_departure and record.estimate_time_arrival:
+                if record.service_type == 'export':
+                    if record.estimate_time_arrival >= record.estimate_time_departure:
+                        raise ValidationError(
+                            "For Export jobs, Estimated Time of Arrival must be earlier than Estimated Time of Departure.")
+                else:
+                    if record.estimate_time_arrival <= record.estimate_time_departure:
+                        raise ValidationError(
+                            "For Import jobs, Estimate Time of Arrival must be later than Estimate Time of Departure.")
 
     @api.onchange('sale_order_id')
     def _onchange_sale_order_id(self):
@@ -176,86 +218,164 @@ class CsOrder(models.Model):
             for record in self:
                 record.cs_manager_id = manager_user
 
-    @api.model
-    def create_from_sale_order(self, sale_order):
-        cs_batch_order_id = False
-        if sale_order.is_monthly_billing:
-            cs_batch_order = self.env['cs.batch.order'].sudo().get_or_create_from_sale_order(sale_order)
-            cs_batch_order_id = cs_batch_order.id
+    # @api.model
+    # def create_from_sale_order(self, sale_order):
+    #     cs_batch_order_id = False
+    #     if sale_order.is_monthly_billing:
+    #         cs_batch_order = self.env['cs.batch.order'].sudo().get_or_create_from_sale_order(sale_order)
+    #         cs_batch_order_id = cs_batch_order.id
+    #
+    #     code = self.env['cs.service'].generate_code_from_sale_order(sale_order,'cs.order')
+    #     self.create({
+    #         'name': code, # name is required
+    #         'batch_order_id': cs_batch_order_id,
+    #         'code': code,
+    #         'user_id': self.env.user.id,
+    #         'sale_order_id': sale_order.id,
+    #         'state': constants.CsOrderState.DRAFT,
+    #     })
 
-        code = self.env['cs.service'].generate_code_from_sale_order(sale_order,'cs.order')
-        self.create({
-            'name': code, # name is required
-            'batch_order_id': cs_batch_order_id,
-            'code': code,
-            'user_id': self.env.user.id,
-            'sale_order_id': sale_order.id,
-            'state': constants.CsOrderState.DRAFT,
-        })
+    @api.depends('route_id', 'route_id.from_location_id', 'route_id.to_location_id',
+                 'route_id.direction', 'service_type')
+    def _compute_actual_locations(self):
+        for rec in self:
+            if rec.route_id and rec.service_type:
+                if rec.route_id.direction == rec.service_type:
+                    # Cùng hướng: giữ nguyên from -> to
+                    rec.actual_source_location_id = rec.route_id.from_location_id
+                    rec.actual_destination_location_id = rec.route_id.to_location_id
+                else:
+                    # Khác hướng: đảo ngược to -> from
+                    rec.actual_source_location_id = rec.route_id.to_location_id
+                    rec.actual_destination_location_id = rec.route_id.from_location_id
+            elif rec.route_id:
+                # Không có service_type: dùng mặc định
+                rec.actual_source_location_id = rec.route_id.from_location_id
+                rec.actual_destination_location_id = rec.route_id.to_location_id
+            else:
+                rec.actual_source_location_id = False
+                rec.actual_destination_location_id = False
 
     def _auto_create_trucking_from_cs_order(self):
-        """Tự động tạo Plan → Job → Trip từ CS Order"""
+        """Tự động tạo Plan → Job từ CS Order"""
         if not self.booking_id:
             return
 
         Plan = self.env['trucking_planning.plan']
         PlanLine = self.env['trucking_planning.plan.line']
-        Trip = self.env['trucking_planning.trip']
 
         booking = self.booking_id
+        plan = Plan.search([
+            ('cs_order_id', '=', self.id)
+        ], limit=1)
 
-        # 1. Tạo Plan
-        plan = Plan.search([('booking_bill_no', '=', booking.code)], limit=1)
         if not plan:
             plan_vals = {
                 'booking_bill_no': booking.code,
+                'cs_order_id': self.id,
                 'plan_type': 'export' if self.service_type == 'export' else 'import',
-                # 'location_id': booking.pol_location_id,
                 'shipping_line_id': booking.shipping_line_id.id or False,
                 'container_type': 'dry',
                 'goods_cut_off': booking.etd,
                 'status': constants.PlanStatus.DRAFT,
+                'location_id': self.location_id.id if self.location_id else False,
+                # 'container_port_location_id': self.container_port_location_id.id if self.container_port_location_id else False,
+                # 'goods_pickup_location_id': self.goods_pickup_location_id.id if self.goods_pickup_location_id else False,
+                # 'goods_delivery_location_id': self.goods_delivery_location_id.id if self.goods_delivery_location_id else False,
+                # 'date': self.date,
+                # 'estimate_time_departure': self.estimate_time_departure,
+                # 'estimate_time_arrival': self.estimate_time_arrival,
+                # 'route_id': self.route_id.id if self.route_id else False,
             }
             plan = Plan.sudo().create(plan_vals)
             plan.message_post(body=f"Tự động tạo từ CS Order <a href='#id={self.id}&model=cs.order'>{self.code}</a>")
+        # 2. Tạo Job (Plan Line)
+        existing_job = PlanLine.search([
+            ('plan_id', '=', plan.id),
+            ('code', '=', self.code)
+        ], limit=1)
 
-        # 2. TẠO JOB (Plan Line) từ mỗi Container
-        for container in self.cs_container_ids.filtered('container_number'):
-            # Kiểm tra trùng (theo container number)
-            if PlanLine.search([('plan_id', '=', plan.id), ('code', '=', container.container_number)], limit=1):
-                continue
-
+        if not existing_job:
             job_vals = {
                 'plan_id': plan.id,
-                'code': container.container_number,
+                'code': self.code,
                 'client_id': self.client_id.id,
                 'status': constants.PlanLineStatus.CHECKING,
-                # 'route_id': self._get_trucking_route(booking),
-                # 'goods_pickup_location_id': booking.pol_id.id,
-                # 'goods_delivery_location_id': booking.pod_id.id,
+                'date': self.date,
+                'estimate_time_departure': self.estimate_time_departure,
+                'estimate_time_arrival': self.estimate_time_arrival,
+                # 'location_id': self.location_id.id if self.location_id else False,
+                'container_port_location_id': self.container_port_location_id.id if self.container_port_location_id else False,
+                'route_id': self.route_id.id if self.route_id else False,
+                'goods_pickup_location_id': self.goods_pickup_location_id.id if self.goods_pickup_location_id else False,
+                'goods_delivery_location_id': self.goods_delivery_location_id.id if self.goods_delivery_location_id else False,
             }
             job = PlanLine.sudo().create(job_vals)
+            job.message_post(body=f"Tự động tạo từ CS Order {self.code}")
 
-            # 3. TỰ ĐỘNG TẠO TRIP CHO JOB
-            Trip.sudo().create({
-                'plan_line_id': job.id,
-                'container_number': container.container_number,
-                'seal_number': container.seal_number or '',
-                'container_size': container.container_type_id.name or '40',
-                'status': constants.TripStatus.DRAFT,
-            })
-
-            job.message_post(body="Đã tự động tạo Trip từ Container")
-
-        # Nếu không có container → tạo 1 Job mặc định
-        if not self.cs_container_ids and not plan.plan_line_ids:
-            job = PlanLine.sudo().create({
-                'plan_id': plan.id,
-                'code': f"AUTO-{self.code}",
-                'client_id': self.client_id.id,
-                'status': constants.PlanLineStatus.CHECKING,
-            })
-            Trip.sudo().create({'plan_line_id': job.id, 'status': constants.TripStatus.DRAFT})
+    # def _auto_create_trucking_from_cs_order(self):
+    #     """Tự động tạo Plan → Job → Trip từ CS Order"""
+    #     if not self.booking_id:
+    #         return
+    #
+    #     Plan = self.env['trucking_planning.plan']
+    #     PlanLine = self.env['trucking_planning.plan.line']
+    #     Trip = self.env['trucking_planning.trip']
+    #
+    #     booking = self.booking_id
+    #
+    #     # 1. Tạo Plan
+    #     plan = Plan.search([('booking_bill_no', '=', booking.code)], limit=1)
+    #     if not plan:
+    #         plan_vals = {
+    #             'booking_bill_no': booking.code,
+    #             'plan_type': 'export' if self.service_type == 'export' else 'import',
+    #             # 'location_id': booking.pol_location_id,
+    #             'shipping_line_id': booking.shipping_line_id.id or False,
+    #             'container_type': 'dry',
+    #             'goods_cut_off': booking.etd,
+    #             'status': constants.PlanStatus.DRAFT,
+    #         }
+    #         plan = Plan.sudo().create(plan_vals)
+    #         plan.message_post(body=f"Tự động tạo từ CS Order <a href='#id={self.id}&model=cs.order'>{self.code}</a>")
+    #
+    #     # 2. TẠO JOB (Plan Line) từ mỗi Container
+    #     for container in self.cs_container_ids.filtered('container_number'):
+    #         # Kiểm tra trùng (theo container number)
+    #         if PlanLine.search([('plan_id', '=', plan.id), ('code', '=', container.container_number)], limit=1):
+    #             continue
+    #
+    #         job_vals = {
+    #             'plan_id': plan.id,
+    #             'code': container.container_number,
+    #             'client_id': self.client_id.id,
+    #             'status': constants.PlanLineStatus.CHECKING,
+    #             # 'route_id': self._get_trucking_route(booking),
+    #             # 'goods_pickup_location_id': booking.pol_id.id,
+    #             # 'goods_delivery_location_id': booking.pod_id.id,
+    #         }
+    #         job = PlanLine.sudo().create(job_vals)
+    #
+    #         # 3. TỰ ĐỘNG TẠO TRIP CHO JOB
+    #         Trip.sudo().create({
+    #             'plan_line_id': job.id,
+    #             'container_number': container.container_number,
+    #             'seal_number': container.seal_number or '',
+    #             'container_size': container.container_type_id.name or '40',
+    #             'status': constants.TripStatus.DRAFT,
+    #         })
+    #
+    #         job.message_post(body="Đã tự động tạo Trip từ Container")
+    #
+    #     # Nếu không có container → tạo 1 Job mặc định
+    #     if not self.cs_container_ids and not plan.plan_line_ids:
+    #         job = PlanLine.sudo().create({
+    #             'plan_id': plan.id,
+    #             'code': f"AUTO-{self.code}",
+    #             'client_id': self.client_id.id,
+    #             'status': constants.PlanLineStatus.CHECKING,
+    #         })
+    #         Trip.sudo().create({'plan_line_id': job.id, 'status': constants.TripStatus.DRAFT})
 
     # Helper methods
     # def _get_trucking_route(self, booking):

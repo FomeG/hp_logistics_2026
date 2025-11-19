@@ -24,6 +24,14 @@
                        decoration-info="state=='in_progress'"
                        decoration-success="state=='done'"/>
                 <field name="create_date" optional="show"/>
+                <field name="location_id" optional="hide"/>
+                <field name="estimate_time_departure" optional="hide"/>
+                <field name="estimate_time_arrival" optional="hide"/>
+                <field name="date" optional="hide"/>
+                <field name="container_port_location_id" optional="hide"/>
+                <field name="route_id" optional="hide"/>
+                <field name="actual_source_location_id" optional="hide"/>
+                <field name="actual_destination_location_id" optional="hide"/>
             </list>
         </field>
     </record>
@@ -66,10 +74,14 @@
                     <h1>
                         <field name="name" placeholder="CS Order Name" readonly="id"/>
                     </h1>
-                    <div>
-                        <span class="text-muted">Reference: </span>
-                        <field name="code" class="oe_inline" readonly="id"/>
-                    </div>
+                    <label for="code" class="oe_edit_only"/>
+                    <h1>
+                        <field name="code" placeholder="CS Order Name" readonly="id"/>
+                    </h1>
+<!--                    <div>-->
+<!--                        <span class="text-muted">Reference: </span>-->
+<!--                        <field name="code" class="oe_inline" readonly="id"/>-->
+<!--                    </div>-->
                 </div>
             </xpath>
             <!-- Add CS Order specific fields before settings -->
@@ -121,6 +133,78 @@
             </xpath>
             <!-- Add tabs for CS Order data -->
             <xpath expr="//notebook" position="inside">
+                <page string="Trucking Info" name="trucking_info">
+                    <group string="Port &amp; Depot Locations" name="port_depot_group">
+                        <group name="port_group">
+                            <field name="location_id"
+                                   string="Port Pickup"
+                                   invisible="service_type == 'import'"
+                                   context="{'default_type':'port', 'hide_type':True}"
+                                   domain="[('type', '=', 'port')]"/>
+                            <field name="location_id"
+                                   string="Port Drop"
+                                   invisible="service_type == 'export'"
+                                   context="{'default_type':'port', 'hide_type':True}"
+                                   domain="[('type', '=', 'port')]"/>
+                        </group>
+
+                        <group name="depot_group">
+                            <field name="container_port_location_id"
+                                   string="Empty Container Depot Pickup "
+                                   invisible="service_type == 'import'"
+                                   context="{'default_type':'depot', 'hide_type':True}"
+                                   domain="[('type', '=', 'depot')]"/>
+                            <field name="container_port_location_id"
+                                   string="Empty Container Depot Return "
+                                   invisible="service_type == 'export'"
+                                   context="{'default_type':'depot', 'hide_type':True}"
+                                   domain="[('type', '=', 'depot')]"/>
+                        </group>
+                    </group>
+
+                    <!-- Goods Pickup/Delivery Section -->
+                    <group string="Goods Pickup &amp; Delivery Locations"
+                           name="goods_locations_group">
+                        <group name="goods_pickup_delivery_group">
+                            <field name="goods_pickup_location_id"
+                                   string="Place of Pickup"
+                                   invisible="service_type == 'import' or not route_id"
+                                   required="service_type == 'export' and route_id"
+                                   context="{'default_type':'goods_pickup_delivery','hide_type':True}"/>
+                            <field name="goods_delivery_location_id"
+                                   string="Place of Delivery"
+                                   invisible="service_type == 'export' or not route_id"
+                                   required="service_type == 'import' and route_id"
+                                   context="{'default_type':'port','hide_type':True}"/>
+                        </group>
+                    </group>
+                    <!-- Route Section -->
+                    <group string="Route Information" name="route_group">
+                        <group>
+                            <field name="route_id"
+                                   options="{'no_create': True, 'no_open': True}"
+                                   placeholder="Select route"/>
+                            <field name="route_direction" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="actual_source_location_id"
+                                   readonly="1"
+                                   force_save="1"/>
+                            <field name="actual_destination_location_id"
+                                   readonly="1"
+                                   force_save="1"/>
+                        </group>
+                    </group>
+                    <!-- Schedule Section -->
+                    <group string="Schedule Information" name="schedule_group">
+                        <group name="dates_group_1">
+                            <field name="estimate_time_departure" widget="date"/>
+                            <field name="estimate_time_arrival" widget="date"/>
+                            <field name="date" widget="datetime"/>
+                        </group>
+                    </group>
+
+                </page>
                 <page string="Booking" name="booking">
                     <field name="cs_booking_id" context="{'default_cs_order_id': id}">
                         <list editable="bottom">

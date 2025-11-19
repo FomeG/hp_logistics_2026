@@ -5,7 +5,7 @@ class ResPartnerClient(models.Model):
     _inherit = ['res.partner.client']
 
     route_ids = fields.Many2many(
-        comodel_name='trucking_planning.route',
+        comodel_name='route.base',
         string='Routes',
     )
     plan_line_ids = fields.One2many(

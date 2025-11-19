@@ -1,10 +1,10 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
-access_location_user,trucking.location.user,model_trucking_planning_location,base.group_user,1,1,1,0
-access_location_manager,trucking.location.manager,model_trucking_planning_location,base.group_system,1,1,1,1
+access_location_user,trucking.location.user,model_location_base,base.group_user,1,1,1,0
+access_location_manager,trucking.location.manager,model_location_base,base.group_system,1,1,1,1
 
-access_route_user,trucking.route.user,model_trucking_planning_route,base.group_user,1,1,1,0
-access_route_manager,trucking.route.manager,model_trucking_planning_route,base.group_system,1,1,1,1
+access_route_user,trucking.route.user,model_route_base,base.group_user,1,1,1,0
+access_route_manager,trucking.route.manager,model_route_base,base.group_system,1,1,1,1
 
 access_client_user,trucking.client.user,model_res_partner_client,base.group_user,1,1,1,0
 access_client_manager,trucking.client.manager,model_res_partner_client,base.group_system,1,1,1,1
@@ -77,6 +77,6 @@ access_trip_portal,trip_portal,model_trucking_planning_trip,base.group_portal,1,
 access_trip_checkpoint_portal,checkpoint_portal,model_trucking_planning_trip_checkpoint,base.group_portal,1,0,0,0
 access_plan_line_portal,plan_line_portal,model_trucking_planning_plan_line,base.group_portal,1,0,0,0
 access_plan_portal,plan_portal,model_trucking_planning_plan,base.group_portal,1,0,0,0
-access_location_portal,location_portal,model_trucking_planning_location,base.group_portal,1,0,0,0
-access_route_portal,route_portal,model_trucking_planning_route,base.group_portal,1,0,0,0
+access_location_portal,location_portal,model_location_base,base.group_portal,1,0,0,0
+access_route_portal,route_portal,model_route_base,base.group_portal,1,0,0,0
 

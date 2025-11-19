@@ -66,7 +66,7 @@ class ImportRouteWizard(models.TransientModel):
             return result
 
         # models
-        model_location = self.env['trucking_planning.location']
+        model_location = self.env['location.base']
         model_state = self.env['res.country.state']
 
         # check to location
@@ -148,7 +148,7 @@ class ImportRouteWizard(models.TransientModel):
         }
     
     def _create_locations(self, data_array):
-        Location = self.env['trucking_planning.location']
+        Location = self.env['location.base']
 
         from_names_lower = list({
             data['from_location']['name'].lower()
@@ -182,7 +182,7 @@ class ImportRouteWizard(models.TransientModel):
         return location_map
 
     def _create_routes(self, data_array, location_map):
-        Route = self.env['trucking_planning.route']
+        Route = self.env['route.base']
 
         route_vals_list = []
         for data in data_array:

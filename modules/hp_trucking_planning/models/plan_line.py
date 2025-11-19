@@ -14,7 +14,7 @@ _logger = logging.getLogger(__name__)
 class PlanLine(models.Model):
     _name = 'trucking_planning.plan.line'
     _description = 'Job'
-    _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin','cs.order.base']
     _rec_name = 'code'
 
     plan_id = fields.Many2one(
@@ -58,25 +58,26 @@ class PlanLine(models.Model):
                                  related='plan_id.plan_type',
                                  store=False,
                                  )
-    route_id = fields.Many2one(
-        comodel_name='trucking_planning.route', required=True
-    )
-    actual_source_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
-        compute='_compute_actual_locations',
-        string='From Location',
-        store=True,
-        readonly=True,
-        tracking=True,
-    )
-    actual_destination_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
-        compute='_compute_actual_locations',
-        string='To Location',
-        store=True,
-        readonly=True,
-        tracking=True,
-    )
+    # route_id = fields.Many2one(
+    #     comodel_name='trucking_planning.route',
+    #     required=False,
+    # )
+    # actual_source_location_id = fields.Many2one(
+    #     comodel_name='location.base',
+    #     compute='_compute_actual_locations',
+    #     string='From Location',
+    #     store=True,
+    #     readonly=True,
+    #     tracking=True,
+    # )
+    # actual_destination_location_id = fields.Many2one(
+    #     comodel_name='location.base',
+    #     compute='_compute_actual_locations',
+    #     string='To Location',
+    #     store=True,
+    #     readonly=True,
+    #     tracking=True,
+    # )
     note = fields.Text(string="Note")
 
     # goods info
@@ -98,45 +99,45 @@ class PlanLine(models.Model):
         store=True,
         help="Number of trucks assigned to this customer"
     )
-    date = fields.Datetime(
-        string='Load / Return Date',
-        required=True,
-        index=True,
-        tracking=True,
-        help="Date when goods are loaded (Export) or returned (Import)"
-    )
-    estimate_time_departure = fields.Datetime(
-        string="ETD (Estimated Time of Departure)",
-        required=True,
-        tracking=True,
-    )
-    estimate_time_arrival = fields.Datetime(
-        string="ETA (Estimated Time of Arrival)",
-        required=True,
-        tracking=True,
-    )
+    # date = fields.Datetime(
+    #     string='Load / Return Date',
+    #     required=False,
+    #     index=True,
+    #     tracking=True,
+    #     help="Date when goods are loaded (Export) or returned (Import)"
+    # )
+    # estimate_time_departure = fields.Datetime(
+    #     string="ETD (Estimated Time of Departure)",
+    #     required=False,
+    #     tracking=True,
+    # )
+    # estimate_time_arrival = fields.Datetime(
+    #     string="ETA (Estimated Time of Arrival)",
+    #     required=False,
+    #     tracking=True,
+    # )
 
     estimate_time_duration = fields.Float(
         string="Estimated Time Duration (Hours)",
         compute='_compute_estimate_time_duration',
         store=True,
     )
-    goods_pickup_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
-        string="Goods Pickup Location",
-        required=True,
-        tracking=True,
-        domain=[('type', '=', 'goods_pickup_delivery')],
-        help="Location where goods will be picked up (Export) or delivered (Import)"
-    )
-    goods_delivery_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
-        string="Goods Delivery Location",
-        required=True,
-        tracking=True,
-        domain=[('type', '=', 'port')],
-        help="Location where goods will be delivered (Export) or picked up (Import)"
-    )
+    # goods_pickup_location_id = fields.Many2one(
+    #     comodel_name='trucking_planning.location',
+    #     string="Goods Pickup Location",
+    #     required=False,
+    #     tracking=True,
+    #     domain=[('type', '=', 'goods_pickup_delivery')],
+    #     help="Location where goods will be picked up (Export) or delivered (Import)"
+    # )
+    # goods_delivery_location_id = fields.Many2one(
+    #     comodel_name='trucking_planning.location',
+    #     string="Goods Delivery Location",
+    #     required=False,
+    #     tracking=True,
+    #     domain=[('type', '=', 'port')],
+    #     help="Location where goods will be delivered (Export) or picked up (Import)"
+    # )
 
     combined_vehicles = fields.Integer(
         string="Combined Vehicles",
@@ -192,13 +193,13 @@ class PlanLine(models.Model):
         help="Summary of trip statuses: Incomplete (Draft, On Route, Stopped) / Done"
     )
 
-    container_port_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
-        string="Empty Container Depot",
-        domain=[('type', '=', 'depot')],
-        tracking=True,
-        help="Depot where empty container is picked up (Export) or returned (Import)"
-    )
+    # container_port_location_id = fields.Many2one(
+    #     comodel_name='trucking_planning.location',
+    #     string="Empty Container Depot",
+    #     domain=[('type', '=', 'depot')],
+    #     tracking=True,
+    #     help="Depot where empty container is picked up (Export) or returned (Import)"
+    # )
 
     route_direction = fields.Selection(
         related='route_id.direction',
@@ -352,7 +353,8 @@ class PlanLine(models.Model):
         for record in self:
             record.truck_count = len(record.trip_ids.filtered(lambda t: t.active))
 
-    @api.depends('plan_type', 'route_id')
+    @api.depends('route_id', 'route_id.from_location_id', 'route_id.to_location_id',
+                 'route_id.direction', 'plan_type')
     def _compute_actual_locations(self):
         for rec in self:
             if rec.route_id:
