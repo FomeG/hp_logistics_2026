@@ -4,4 +4,8 @@
         <field name="code">client</field>
         <field name="name">Client</field>
     </record>
+    <record id="partner_main_type_shipping_line" model="partner.main.type">
+        <field name="code">shipping_line</field>
+        <field name="name">Shipping Line</field>
+    </record>
 </odoo>
