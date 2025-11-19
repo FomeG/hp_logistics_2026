@@ -9,7 +9,7 @@ from odoo.addons.hp_components.models import constants
 class Plan(models.Model):
     _name = 'trucking_planning.plan'
     _description = 'Plan'
-    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin']
+    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin', 'cs.order.base']
     _order = 'create_date asc'
 
     name = fields.Char(
@@ -30,14 +30,14 @@ class Plan(models.Model):
         required=True,
         tracking=True,
     )
-    location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
-        required=True,
-        string="Port Pickup / Drop",
-        tracking=True,
-        domain=[('type', '=', 'port')],
-        help="Port pickup for export plan / Port drop for import plan"
-    )
+    # location_id = fields.Many2one(
+    #     comodel_name='trucking_planning.location',
+    #     required=True,
+    #     string="Port Pickup / Drop",
+    #     tracking=True,
+    #     domain=[('type', '=', 'port')],
+    #     help="Port pickup for export plan / Port drop for import plan"
+    # )
     shipping_line_id = fields.Many2one(
         comodel_name='res.partner',
         required=True,
@@ -99,6 +99,14 @@ class Plan(models.Model):
         string='Booking id',
         readonly=True,
     )
+    cs_order_id = fields.Many2one(
+        comodel_name='cs.order',
+        string='CS Order',
+        readonly=True,
+        index=True,
+        help="CS Order that created this plan"
+    )
+
     @api.depends('plan_line_ids.trip_ids')
     def _compute_has_trips(self):
         for record in self:

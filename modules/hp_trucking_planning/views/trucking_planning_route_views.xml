@@ -2,7 +2,7 @@
 <odoo>
     <record id="view_route_tree" model="ir.ui.view">
         <field name="name">route.tree</field>
-        <field name="model">trucking_planning.route</field>
+        <field name="model">route.base</field>
         <field name="arch" type="xml">
             <list>
                 <field name="name"/>
@@ -20,7 +20,7 @@
     </record>
     <record id="view_route_form" model="ir.ui.view">
         <field name="name">route.form</field>
-        <field name="model">trucking_planning.route</field>
+        <field name="model">route.base</field>
         <field name="arch" type="xml">
             <form>
                 <sheet>
@@ -50,7 +50,7 @@
 
     <record id="hp_trucking_planning_route_form_search" model="ir.ui.view">
         <field name="name">trucking.planning.route.search</field>
-        <field name="model">trucking_planning.route</field>
+        <field name="model">route.base</field>
         <field name="arch" type="xml">
             <search string="List Routes">
                 <field name="name" />
@@ -62,7 +62,7 @@
 
     <record id="action_route" model="ir.actions.act_window">
         <field name="name">Routes</field>
-        <field name="res_model">trucking_planning.route</field>
+        <field name="res_model">route.base</field>
         <field name="view_mode">list,form</field>
     </record>
 </odoo>
