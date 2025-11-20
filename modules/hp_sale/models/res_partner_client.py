@@ -32,12 +32,17 @@ class ResPartnerClient(models.Model):
     
     @api.depends()
     def _compute_sale_user_ids(self):
-        group = self.env.ref('sales_team.group_sale_salesman')
-        users = self.env['res.users'].search([
-            ('groups_id', 'in', [group.id]),
-            ('share', '=', False),
-            ('id', '!=', self.env.ref('base.user_admin').id)
-        ])
+        sale_dept_type = self.env['department.type'].search([('code', '=', 'sale')], limit=1)
+        if not sale_dept_type:
+            for client in self:
+                client.sale_user_ids = self.env['res.users']
+            return
+        sale_departments = self.env['hr.department'].search([('department_type_id', '=', sale_dept_type.id)])
+        sale_employees = self.env['hr.employee'].search([('department_id', 'in', sale_departments.ids)])
+        users = sale_employees.mapped('user_id').filtered(lambda u: u.active and not u.share)
+        admin_user = self.env.ref('base.user_admin', raise_if_not_found=False)
+        if admin_user and admin_user in users:
+            users = users - admin_user
         for client in self:
             client.sale_user_ids = users
 
