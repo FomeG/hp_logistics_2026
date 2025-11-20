@@ -9,11 +9,12 @@
     'depends': ['hp_sale'],
     'data': [
         #data - must be loaded first
+        'data/partner_main_type_data.xml',
         'data/freight_purchase_booking_sequences.xml',
         #data demo
         'demo/container_type_demo.xml',
         #'demo/fee_demo.xml',
-        # 'demo/region_demo.xml',
+        'demo/region_demo.xml',
         'demo/port_demo.xml',
         'demo/shipping_line_demo.xml',
         'demo/vessels_demo.xml',
