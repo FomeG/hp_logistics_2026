@@ -1,22 +1,18 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
+from odoo.addons.hp_components.models import constants
 
 class LocationBase(models.Model):
     _name = 'location.base'
     _description = 'Location'
     _inherit = ['unique.code.mixin', 'unique.normalized.name.mixin', 'mail.thread', 'mail.activity.mixin']
 
-    type = fields.Selection([
-        ('container_pickup', 'Container Pickup'),
-        ('goods_pickup_delivery', 'Goods Pickup/Delivery'),
-        ('container_delivery', 'Container Delivery'),
-        ('route_point', 'Route Point'),
-        ('port', 'Port'),
-        ('depot', 'Depot'),  # Bãi chứa container, thường nằm trong cảng
-        ('warehouse', 'Warehouse'),
-        ('factory', 'Factory'),
-        ('other', 'Other')
-    ], required=True, tracking=True)
+    type = fields.Selection(
+        constants.LocationType.SELECT_OPTIONS,
+        required=True,
+        tracking=True,
+        default=constants.LocationType.PORT
+    )
 
     name = fields.Char(
         string="Name",
@@ -33,22 +29,21 @@ class LocationBase(models.Model):
         string="Contact Phone",
         tracking=True,
     )
-
-    country_id = fields.Many2one(
-        'res.country',
-        string='Country',
-        readonly=False
+    extra_fuel = fields.Boolean(
+        string="Extra Fuel",
+        default=False,
+        tracking=True,
     )
 
     state_id = fields.Many2one(
         comodel_name="res.country.state",
         string='Province',
-        domain="""[
-                   '&',
-                   ('country_id.code', '=', 'VN'),
-                   ('name_unaccent', 'ilike', unaccent(%(user_input)s))
-               ]""",
         index=True,
+        domain="[('country_id', '=?', country_id)]",
+    )
+    country_id = fields.Many2one(
+        'res.country',
+        string='Country',
     )
 
     latitude = fields.Float(
@@ -74,7 +69,6 @@ class LocationBase(models.Model):
 
     @api.model
     def default_get(self, fields_list):
-        """Set default country to Vietnam"""
         res = super(LocationBase, self).default_get(fields_list)
         country = self.env['res.country'].search([('code', '=', 'VN')], limit=1)
         if country:

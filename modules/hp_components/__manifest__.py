@@ -11,6 +11,10 @@
         'security/ir.model.access.csv',
         'data/partner_main_type_data.xml',
         'data/department_type_demo.xml',
+        'views/location_base_views.xml',
+        'views/route_base_views.xml',
+        'views/wizards/import_route_base_wizard.xml',
+        'views/hp_menu.xml'
     ],
     'assets': {
         'web.assets_backend': [
@@ -18,6 +22,6 @@
         ],
     },
     'installable': True,
-    'application': False,
+    'application': True,
 }
 

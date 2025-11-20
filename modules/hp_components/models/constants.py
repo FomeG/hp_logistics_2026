@@ -139,3 +139,46 @@ class PreAlertState:
         (SENT, 'Sent'),
         (RECEIVED, 'Received by Agent'),
     ]
+
+class TransportMode:
+    SEA = 'sea'
+    TRUCK = 'truck'
+    SELECT_OPTIONS = [
+        (SEA, 'Sea'),
+        (TRUCK, 'Truck'),
+    ]
+class RouteLevel:
+    DOMESTIC = 'domestic'
+    INTERNATIONAL = 'international'
+    CROSS_BORDER = 'cross_border'
+    SELECT_OPTIONS = [
+        (DOMESTIC, 'Domestic'),
+        (INTERNATIONAL, 'International'),
+        (CROSS_BORDER, 'Cross Border'),
+    ]
+
+class LocationType:
+    CONTAINER_PICKUP = 'container_pickup'
+    CONTAINER_DELIVERY = 'container_delivery'
+    PORT = 'port'
+    DEPOT = 'depot'
+    WAREHOUSE = 'warehouse'
+    FACTORY = 'factory'
+    GOODS_PICKUP = 'goods_pickup'
+    GOODS_DELIVERY = 'goods_delivery'
+    TRUCK_ROAD = 'truck_road'
+    OTHER = 'other'
+    SELECT_OPTIONS = [
+        (CONTAINER_PICKUP, 'Container Pickup'),
+        (CONTAINER_DELIVERY, 'Container Delivery'),
+        (PORT, 'Port'),
+        (TRUCK_ROAD, 'Truck Road'),
+        (DEPOT, 'Depot'),
+        (WAREHOUSE, 'Warehouse'),
+        (FACTORY, 'Factory'),
+        (GOODS_PICKUP, 'Goods Pickup'),
+        (GOODS_DELIVERY, 'Goods Delivery'),
+        (OTHER, 'Other'),
+    ]
+    TYPES_4_SEA_ROUTE = {PORT}
+    TYPES_4_TRUCK_ROUTE = {TRUCK_ROAD}

@@ -12,3 +12,4 @@ from . import container_type
 from . import location_base
 from . import cs_order_base
 from . import route_base
+from . import wizards

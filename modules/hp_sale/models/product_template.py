@@ -4,6 +4,12 @@ from odoo.exceptions import ValidationError
 class ProductTemplate(models.Model):
     _inherit = "product.template"
 
+    route_id = fields.Many2one(
+        'route.base',
+        string='Route',
+        tracking=True
+    )
+
     type = fields.Selection(selection=[
             ('pricing', "Pricing"),
             ('trucking', "Trucking"),
