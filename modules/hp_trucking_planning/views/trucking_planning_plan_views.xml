@@ -50,7 +50,7 @@
                             <field name="shipping_line_id"
                                 string="Shipping Line"
                                 context="{
-                                    'default_partner_main_type_id': %(hp_freight_purchase.partner_main_type_shipping_line)d
+                                    'default_partner_main_type_id': %(hp_components.partner_main_type_shipping_line)d
                                 }"
                                 options="{'no_quick_create': True}"
                             />

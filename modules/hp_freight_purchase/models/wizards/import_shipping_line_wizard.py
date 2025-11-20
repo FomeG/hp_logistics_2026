@@ -49,7 +49,7 @@ class ImportShippingLineWizard(models.TransientModel):
             result['message'] = _('Thiếu các cột bắt buộc: %s') % ", ".join(missing_columns)
             return result
 
-        partner_main_type = self.env.ref('hp_freight_purchase.partner_main_type_shipping_line',
+        partner_main_type = self.env.ref('hp_components.partner_main_type_shipping_line',
                                          raise_if_not_found=False)
         if not partner_main_type:
             result['message'] = _('Không tìm thấy partner main type "shipping_line".')

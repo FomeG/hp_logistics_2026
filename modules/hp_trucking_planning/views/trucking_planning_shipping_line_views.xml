@@ -48,7 +48,7 @@
         <field name="context"
             eval="{
                 'form_view_ref': 'hp_trucking_planning.view_shipping_line_form',
-                'default_partner_main_type_id': ref('hp_freight_purchase.partner_main_type_shipping_line'),
+                'default_partner_main_type_id': ref('hp_components.partner_main_type_shipping_line'),
             }" />
     </record>
 </odoo>
