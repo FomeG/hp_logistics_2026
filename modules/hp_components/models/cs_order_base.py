@@ -11,7 +11,7 @@ class CsOrderBase(models.AbstractModel):
         domain=[('type', '=', 'port')],
         help="Export: Port to pickup full container\nImport: Port to drop off full container",
         index=True,
-        required=True,
+        required=False,
     )
 
     container_port_location_id = fields.Many2one(
@@ -19,7 +19,7 @@ class CsOrderBase(models.AbstractModel):
         string="Empty Container Depot",
         domain=[('type', '=', 'depot')],
         tracking=True,
-        required=True,
+        required=False,
         help="Depot where empty container is picked up (Export) or returned (Import)"
     )
 
@@ -27,19 +27,19 @@ class CsOrderBase(models.AbstractModel):
         comodel_name='location.base',
         string="Goods Pickup Location",
         tracking=True,
-        domain=[('type', '=', 'goods_pickup_delivery')],
+        domain=[('type', '=', 'goods_pickup')],
         index=True,
-        required=True,
+        required=False,
     )
 
     goods_delivery_location_id = fields.Many2one(
         comodel_name='location.base',
         string="Goods Delivery Location",
         tracking=True,
-        domain=[('type', '=', 'goods_pickup_delivery')],
+        domain=[('type', '=', 'port')],
         help="Import: Location to deliver goods to consignee\nExport: Not used for CY-CY",
         index=True,
-        required=True,
+        required=False,
     )
 
     date = fields.Datetime(
@@ -47,7 +47,7 @@ class CsOrderBase(models.AbstractModel):
         tracking=True,
         help="Export: Container loading date at port\nImport: Empty container return date at depot",
         index=True,
-        required=True,
+        required=False,
     )
 
     estimate_time_departure = fields.Datetime(
@@ -55,7 +55,7 @@ class CsOrderBase(models.AbstractModel):
         tracking=True,
         help="Estimated Time of Departure",
         index=True,
-        required=True,
+        required=False,
     )
 
     estimate_time_arrival = fields.Datetime(
@@ -63,7 +63,7 @@ class CsOrderBase(models.AbstractModel):
         tracking=True,
         help="Estimated Time of Arrival",
         index=True,
-        required=True,
+        required=False,
     )
 
     #route fields
@@ -72,7 +72,7 @@ class CsOrderBase(models.AbstractModel):
         string='Route',
         tracking=True,
         index=True,
-        required=True,
+        required=False,
     )
 
     actual_source_location_id = fields.Many2one(
@@ -82,7 +82,7 @@ class CsOrderBase(models.AbstractModel):
         store=True,
         readonly=True,
         tracking=True,
-        required=True,
+        required=False,
     )
 
     actual_destination_location_id = fields.Many2one(
@@ -92,7 +92,7 @@ class CsOrderBase(models.AbstractModel):
         store=True,
         readonly=True,
         tracking=True,
-        required=True,
+        required=False,
     )
 
     route_direction = fields.Selection(
@@ -100,7 +100,7 @@ class CsOrderBase(models.AbstractModel):
         string='Direction',
         store=False,
         readonly=True,
-        required=True,
+        required=False,
     )
 
     @api.depends('route_id', 'route_id.from_location_id', 'route_id.to_location_id', 'route_id.direction')
