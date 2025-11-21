@@ -8,3 +8,4 @@ access_cs_order_base,access.cs.order.base,model_cs_order_base,base.group_user,1,
 access_location_base,access.location.base,model_location_base,,1,1,1,0
 access_route_base,access.route.base,model_route_base,,1,1,1,0
 access_import_route_base_wizard,access.import.route.base.wizard,model_hp_components_import_route_base_wizard,base.group_user,1,1,1,0
+access_import_shipping_line_wizard_system,access.import.shipping.line.wizard.system,model_hp_components_import_shipping_line_wizard,base.group_system,1,1,1,1

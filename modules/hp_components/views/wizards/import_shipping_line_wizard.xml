@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Import Shipping Line Wizard Form View -->
+    <record id="view_import_shipping_line_wizard_form" model="ir.ui.view">
+        <field name="name">hp.components.import.shipping.line.wizard.form</field>
+        <field name="model">hp_components.import_shipping_line_wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Shipping Line">
+                <sheet>
+                    <div class="oe_title mb-3">
+                        <h1>
+                            <i class="fa fa-upload text-primary"/> Import Hãng Tàu Từ Excel
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Tải File Lên" class="col-md-12">
+                            <field name="file" filename="file_name"/>
+                            <field name="file_name" invisible="1"/>
+                            <field name="sheet_name" placeholder="Nhập tên sheet (để trống sẽ lấy sheet đầu tiên)"/>
+                        </group>
+                    </group>
+
+                    <div class="alert alert-info" role="alert">
+                        <h4 class="alert-heading">📋 Hướng Dẫn Import File Excel</h4>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <p>
+                                    <strong>📊 Các Bước Thực Hiện:</strong>
+                                </p>
+                                <ol>
+                                    <li>
+                                        Tải file mẫu:
+                                        <a
+                                            href="/hp_components/static/xlsx/import_shipping_line_template.xlsx"
+                                            target="_blank"
+                                            class="btn btn-sm btn-outline-primary">
+                                            <i class="fa fa-download"/> File Excel Mẫu
+                                        </a>
+                                    </li>
+                                    <li>Mở file Excel và nhập dữ liệu thực tế của bạn</li>
+                                    <li>Giữ nguyên định dạng tiêu đề các cột</li>
+                                    <li>Lưu file và tải lên form này</li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <p>
+                                    <strong>📊 Các Cột Bắt Buộc:</strong>
+                                </p>
+                                <ul>
+                                    <li><strong>STT</strong>: Số thứ tự</li>
+                                    <li><strong>Tên hãng tàu</strong>: Tên công ty hãng tàu (bắt buộc)</li>
+                                    <li><strong>Email</strong>: Email liên hệ (bắt buộc)</li>
+                                    <li><strong>Điện thoại</strong>: Số điện thoại liên hệ (tùy chọn)</li>
+                                    <li><strong>Website</strong>: Website (tùy chọn)</li>
+                                    <li><strong>Địa chỉ</strong>: Địa chỉ (tùy chọn)</li>
+                                    <li><strong>Ghi chú</strong>: Ghi chú (tùy chọn)</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="alert alert-warning" role="alert">
+                                    <h5 class="alert-heading">⚠️ Lưu Ý Quan Trọng:</h5>
+                                    <ul class="mb-0">
+                                        <li>Dòng đầu tiên phải là tiêu đề chứa tên các cột</li>
+                                        <li>Dữ liệu bắt đầu từ dòng thứ 2</li>
+                                        <li>Nếu email đã tồn tại, hệ thống sẽ cập nhật thông tin</li>
+                                        <li>Nếu không có email và tên trùng, hệ thống sẽ bỏ qua</li>
+                                        <li>Các dòng trống sẽ tự động bị bỏ qua</li>
+                                        <li><strong>Tất cả dữ liệu hợp lệ sẽ được tạo hoặc cập nhật</strong></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_import"
+                        type="object"
+                        string="Import"
+                        class="btn-primary"/>
+                    <button string="Hủy" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Import Shipping Line Wizard Action -->
+    <record id="action_import_shipping_line_wizard" model="ir.actions.act_window">
+        <field name="name">Import Shipping Lines</field>
+        <field name="res_model">hp_components.import_shipping_line_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_import_shipping_line_wizard_form"/>
+    </record>
+
+</odoo>
