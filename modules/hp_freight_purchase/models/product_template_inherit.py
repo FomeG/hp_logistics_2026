@@ -7,7 +7,7 @@ class ProductTemplateInherit(models.Model):
     _order = 'create_date desc'
 
     route_id = fields.Many2one(
-        'freight.purchase.route',
+        'route.base',
         string='Route',
         tracking=True
     )

@@ -62,7 +62,7 @@ class FreightPurchaseBooking(models.Model):
         store=True
     )
     route_transit_id = fields.Many2one(
-        'freight.purchase.route',
+        'route.base',
         related = 'quotation_id.route_transit_id',
         string = "Route transit"
     )
@@ -88,7 +88,7 @@ class FreightPurchaseBooking(models.Model):
     ], string='Booking Mode', required=True, default='with_quotation')
 
     # Temporary fields for quotation creation
-    quotation_route_id = fields.Many2one('freight.purchase.route',string='Tempo Route',store=False)
+    quotation_route_id = fields.Many2one('route.base',string='Tempo Route',store=False)
     quotation_shipping_line_id = fields.Many2one('res.partner',string="Shipping line", domain="[('partner_main_type_id.code', '=', 'shipping_line')]", store=False)
 
     total_booking_lines = fields.Char(string="Total Booking Lines", compute='_compute_total_booking_lines', store=False)

@@ -138,7 +138,7 @@
         <!-- Freight Purchase Port - Leader+ Override Rule -->
         <record id="rule_freight_purchase_port_leader_plus" model="ir.rule">
             <field name="name">Freight Purchase Port - Leader+ Access All</field>
-            <field name="model_id" ref="model_freight_purchase_port"/>
+            <field name="model_id" ref="model_location_base"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="groups" eval="[(4, ref('group_hp_freight_purchase_lead')), (4, ref('group_hp_freight_purchase_director')), (4, ref('group_hp_freight_purchase_administrator'))]"/>
             <field name="perm_read" eval="1"/>
@@ -162,7 +162,7 @@
         <!-- Freight Purchase Route - Leader+ Override Rule -->
         <record id="rule_freight_purchase_route_leader_plus" model="ir.rule">
             <field name="name">Freight Purchase Route - Leader+ Access All</field>
-            <field name="model_id" ref="model_freight_purchase_route"/>
+            <field name="model_id" ref="model_route_base"/>
             <field name="domain_force">[(1, '=', 1)]</field>
             <field name="groups" eval="[(4, ref('group_hp_freight_purchase_lead')), (4, ref('group_hp_freight_purchase_director')), (4, ref('group_hp_freight_purchase_administrator'))]"/>
             <field name="perm_read" eval="1"/>

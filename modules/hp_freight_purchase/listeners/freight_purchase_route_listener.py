@@ -6,7 +6,7 @@ _logger = logging.getLogger(__name__)
 class FreightPurchaseRouteListener(Component):
     _name = 'freight.purchase.route.listener'
     _inherit = 'base.event.listener'
-    _apply_on = ['freight.purchase.route']
+    _apply_on = ['route.base']
 
     def on_record_create(self, record, fields=None):
         """Handle route creation - create product template"""

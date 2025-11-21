@@ -19,7 +19,7 @@ class TruckingPlanningFreightPurchaseBooking(models.Model):
         index=True,
     )
     def _get_or_create_freight_route_from_demo(self):
-        RouteModel = self.env['freight.purchase.route']
+        RouteModel = self.env['route.base']
         pol_id = 1 #from demo data
         pod_id = 4 #from demo data
         route = RouteModel.search([('pol_id', '=', pol_id),('pod_id', '=', pod_id)])

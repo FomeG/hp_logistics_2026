@@ -10,7 +10,7 @@ class ResCountryInherit(models.Model):
         ondelete='cascade'
     )
     port_ids = fields.One2many(
-        'freight.purchase.port',
+        'location.base',
         'country_id',
         string='Ports'
     )

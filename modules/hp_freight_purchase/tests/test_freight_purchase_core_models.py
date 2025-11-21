@@ -6,8 +6,8 @@ class TestFreightPurchaseCoreModels(TransactionCase):
     def setUp(self):
         super().setUp()
         self.Region = self.env['region']
-        self.Port = self.env['freight.purchase.port']
-        self.Route = self.env['freight.purchase.route']
+        self.Port = self.env['location.base']
+        self.Route = self.env['route.base']
         # self.ShippingLine = self.env['res.partner'].create({
         #     'name': 'Test Shipping Line',
         #     'email':'shippingline@test.com',

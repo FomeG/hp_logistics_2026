@@ -70,7 +70,7 @@ class RequestProductService(BaseTaskService):
         pod = self.create_port_by_name(task.pod_name_request, task.region_pod_id.id, task.pod_is_local)
         
         # Find the route that was automatically created by the listener
-        route = self.env['freight.purchase.route'].sudo().search([
+        route = self.env['route.base'].sudo().search([
             ('pol_id', '=', pol.id),
             ('pod_id', '=', pod.id)
         ], limit=1)
@@ -108,9 +108,9 @@ class RequestProductService(BaseTaskService):
         domain = [
             ('name', 'ilike', port_name)
         ]
-        port = self.env['freight.purchase.port'].sudo().search(domain, limit=1)
+        port = self.env['location.base'].sudo().search(domain, limit=1)
         if not port:
-            port = self.env['freight.purchase.port'].sudo().create({
+            port = self.env['location.base'].sudo().create({
                 'name': port_name,
                 'region_id': region_id,
                 'is_local': is_local,
@@ -135,6 +135,6 @@ class RequestProductService(BaseTaskService):
             raise ValidationError(_("POL and POD cannot both be local or both be non-local"))
         
         route_name = f"{task.pod_name_request} → {task.pol_name_request}"
-        route = self.env['freight.purchase.route'].sudo().search([('name', '=', route_name)], limit=1)
+        route = self.env['route.base'].sudo().search([('name', '=', route_name)], limit=1)
         if route:
             raise ValidationError(_("Route '%s' already exists.") % route_name)
