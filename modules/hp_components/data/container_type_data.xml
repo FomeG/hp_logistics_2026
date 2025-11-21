@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="container_type_20dc" model="container.type">
+            <field name="name">20DC</field>
+            <field name="teu">10</field>
+            <field name="is_active">1</field>
+          </record>
+          <record id="container_type_20rf" model="container.type">
+            <field name="name">20RF</field>
+            <field name="teu">15</field>
+            <field name="is_active">1</field>
+          </record>
+          <record id="container_type_20ot" model="container.type">
+            <field name="name">20OT</field>
+            <field name="teu">20</field>
+            <field name="is_active">1</field>
+          </record>
+          <record id="container_type_20hc" model="container.type">
+            <field name="name">20HC</field>
+            <field name="teu">25</field>
+            <field name="is_active">1</field>
+          </record>
+          <record id="container_type_40dc" model="container.type">
+            <field name="name">40DC</field>
+            <field name="teu">30</field>
+            <field name="is_active">1</field>
+          </record>
+          <record id="container_type_40hc" model="container.type">
+            <field name="name">40HC</field>
+            <field name="teu">45</field>
+            <field name="is_active">1</field>
+          </record>
+          <record id="container_type_40hq" model="container.type">
+            <field name="name">40HQ</field>
+            <field name="teu">50</field>
+            <field name="is_active">1</field>
+          </record>
+          <record id="container_type_40rf" model="container.type">
+            <field name="name">40RF</field>
+            <field name="teu">55</field>
+            <field name="is_active">1</field>
+          </record>
+          <record id="container_type_40hcrf" model="container.type">
+            <field name="name">40HCRF</field>
+            <field name="teu">60</field>
+            <field name="is_active">1</field>
+          </record>
+          <record id="container_type_40ot" model="container.type">
+            <field name="name">40OT</field>
+            <field name="teu">65</field>
+            <field name="is_active">1</field>
+          </record>
+    </data>
+</odoo>

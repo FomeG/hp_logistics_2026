@@ -7,7 +7,8 @@
         <menuitem id="hp_import" name="Import" parent="hp_menu_root" sequence="30"/>
         <!-- Base -->
         <menuitem id="menu_location" name="Location" parent="hp_base" action="action_location_base" sequence="10"/>
-        <menuitem id="menu_route" name="Route" parent="hp_base" action="action_route_base" sequence="10"/>
+        <menuitem id="menu_route" name="Route" parent="hp_base" action="action_route_base" sequence="11"/>
+        <menuitem id="menu_container_type" name="Container Type" parent="hp_base" action="container_type_action" sequence="12" />
         <!-- import -->
         <menuitem id="menu_import_route_base"
             name="Import Route"
