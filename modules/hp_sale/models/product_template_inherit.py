@@ -10,11 +10,6 @@ class ProductTemplate(models.Model):
         string='Route',
         tracking=True
     )
-    transport_mode = fields.Selection(
-        related='route_id.transport_mode',
-        readonly=True,
-    )
-
     type = fields.Selection(
         constants.ProductTemplateType.SELECT_OPTIONS,
         required=True,
