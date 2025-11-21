@@ -170,7 +170,7 @@
                                    string="Place of Pickup"
                                    invisible="service_type == 'import' or not route_id"
                                    required="service_type == 'export' and route_id"
-                                   context="{'default_type':'goods_pickup_delivery','hide_type':True}"/>
+                                   context="{'default_type':'goods_pickup','hide_type':True}"/>
                             <field name="goods_delivery_location_id"
                                    string="Place of Delivery"
                                    invisible="service_type == 'export' or not route_id"

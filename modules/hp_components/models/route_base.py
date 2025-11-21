@@ -69,12 +69,12 @@ class RouteBase(models.Model):
         compute='_compute_extra_fuel',
     )
     road_fee = fields.Float(
-        required=True,
+        required=False,
         string='Road Fee',
         tracking=True,
     )
     trip_salary = fields.Float(
-        required=True,
+        required=False,
         string='Trip Salary',
         tracking=True,
     )
@@ -85,7 +85,7 @@ class RouteBase(models.Model):
         tracking=True,
     )
     ticket_fee = fields.Float(
-        required=True,
+        required=False,
         string='Ticket Fee',
         tracking=True,
     )

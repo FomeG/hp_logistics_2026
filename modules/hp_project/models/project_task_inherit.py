@@ -16,10 +16,10 @@ class ProjectTaskInherit(models.Model):
     # Request POD/POL
     sale_order_id = fields.Many2one('sale.order', string='Sales Order', store=True)
     pod_name_request = fields.Char('POD name request')
-    pod_id = fields.Many2one('freight.purchase.port', string="Port Of Discharge")
+    pod_id = fields.Many2one('location.base', string="Port Of Discharge")
     pod_is_local = fields.Boolean('Is Local (POD)', required=True, default=True)
     pol_name_request = fields.Char('POL name request')
-    pol_id = fields.Many2one('freight.purchase.port', string="Port Of Loading")
+    pol_id = fields.Many2one('location.base', string="Port Of Loading")
     pol_is_local = fields.Boolean('Is Local (POD)', required=True)
     region_pol_id = fields.Many2one(
         comodel_name='region',

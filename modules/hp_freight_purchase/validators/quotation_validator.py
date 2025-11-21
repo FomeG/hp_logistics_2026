@@ -9,7 +9,7 @@ class QuotationCreateValidator(FreightValidator):
             'route_id': {
                 'label': f"Route",
                 'type': int,
-                'exists': 'freight.purchase.route',
+                'exists': 'route.base',
                 'required': True,
             },
             'shipping_line_id': {
@@ -53,7 +53,7 @@ class QuotationUpdateValidator(FreightValidator):
             'route_id': {
                 'label': f"Route",
                 'type': int,
-                'exists': 'freight.purchase.route',
+                'exists': 'route.base',
             },
             'shipping_line_id': {
                 'label': f"Shipping Line",

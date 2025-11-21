@@ -40,13 +40,13 @@ class CsBooking(models.Model):
         store=False,
     )
     pol_id = fields.Many2one(
-        comodel_name='freight.purchase.port',
+        comodel_name='location.base',
         string="Port of Loading",
         related = 'booking_id.pol_id',
         store=False,
     )
     pod_id = fields.Many2one(
-        comodel_name='freight.purchase.port',
+        comodel_name='location.base',
         string="Port of Discharge",
         related='booking_id.pod_id',
         store=False,

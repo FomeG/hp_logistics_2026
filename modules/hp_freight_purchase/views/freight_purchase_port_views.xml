@@ -3,17 +3,36 @@
 
     <record id="freight_purchase_port_form_view" model="ir.ui.view">
         <field name="name">freight.purchase.port.form</field>
-        <field name="model">freight.purchase.port</field>
+        <field name="model">location.base</field>
         <field name="arch" type="xml">
             <form string="Port">
                 <sheet>
-                    <group>
-                        <field name="name" required="1" />
-                        <field name="country_id" required="1" options="{'no_create': True, 'no_create_edit': True}"/>
-                        <field name="region_id"/>
-                        <field name="is_local"/>
-                        <field name="is_active" required="1" invisible="not id"/>
+                     <group>
+                        <group>
+                            <field name="name" required="1"/>
+                            <field name="type" readonly="1"/>
+                            <field name="is_local"/>
+                        </group>
+                        <group>
+                            <field name="country_id" required="1"/>
+<!--                            <field name="state_id"/>-->
+                            <field name="region_id"/>
+                            <field name="employees" readonly="1"/>
+                        </group>
                     </group>
+                    <group>
+                        <group>
+                            <field name="address"/>
+                            <field name="contact_phone"/>
+                        </group>
+                    </group>
+<!--                    <group>-->
+<!--                        <field name="name" required="1" />-->
+<!--                        <field name="country_id" required="1" options="{'no_create': True, 'no_create_edit': True}"/>-->
+<!--                        <field name="region_id"/>-->
+<!--                        <field name="is_local"/>-->
+<!--                        <field name="is_active" required="1" invisible="not id"/>-->
+<!--                    </group>-->
                 </sheet>
                 <chatter />
             </form>
@@ -22,7 +41,7 @@
 
     <record id="freight_purchase_port_list_view" model="ir.ui.view">
         <field name="name">freight.purchase.port.list</field>
-        <field name="model">freight.purchase.port</field>
+        <field name="model">location.base</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
             <list string="List Ports">
@@ -41,7 +60,7 @@
 
     <record id="freight_purchase_port_search_view" model="ir.ui.view">
         <field name="name">freight.purchase.port.search</field>
-        <field name="model">freight.purchase.port</field>
+        <field name="model">location.base</field>
         <field name="arch" type="xml">
             <search string="List Ports">
                 <field name="code" />
@@ -71,10 +90,15 @@
 
     <record id="freight_purchase_port_action" model="ir.actions.act_window">
         <field name="name">Freight Purchase Port</field>
-        <field name="res_model">freight.purchase.port</field>
+        <field name="res_model">location.base</field>
         <field name="search_view_id" ref="freight_purchase_port_search_view" />
-        <field name="view_id" ref="freight_purchase_port_list_view" />
         <field name="view_mode">list,form</field>
+        <field name="context"
+            eval="{
+                'form_view_ref': 'hp_freight_purchase.freight_purchase_port_form_view',
+                'list_view_ref': 'hp_freight_purchase.freight_purchase_port_list_view'
+            }" />
+        <field name="domain">[('type', '=', 'port')]</field>
     </record>
 
 </odoo>

@@ -9,6 +9,8 @@
         <menuitem id="menu_location" name="Location" parent="hp_base" action="action_location_base" sequence="10"/>
         <menuitem id="menu_route" name="Route" parent="hp_base" action="action_route_base" sequence="11"/>
         <menuitem id="menu_container_type" name="Container Type" parent="hp_base" action="container_type_action" sequence="12" />
+        <menuitem id="menu_shipping_line" name="Shipping Line" parent="hp_base" action="hp_components_shipping_line_action" sequence="30"/>
+
         <!-- import -->
         <menuitem id="menu_import_route_base"
             name="Import Route"
@@ -16,5 +18,12 @@
             action="action_import_route_base_wizard"
             sequence="30"
         />
+        <menuitem id="menu_import_shipping_line"
+            name="Import Shipping Line"
+            parent="hp_import"
+            action="action_import_shipping_line_wizard"
+            sequence="20"
+        />
+
     </data>
 </odoo>

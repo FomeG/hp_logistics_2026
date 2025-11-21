@@ -27,7 +27,7 @@ class FreightPurchaseFee(models.Model):
         ondelete="cascade"
     )
     route_id = fields.Many2one(
-        comodel_name="freight.purchase.route",
+        comodel_name="route.base",
         required=False
     )
     date_from = fields.Date(
@@ -151,7 +151,7 @@ class FreightPurchaseFee(models.Model):
         if not self.country_id or not self.fee_type_id:
             return
 
-        ports = self.env["freight.purchase.port"].search([
+        ports = self.env["location.base"].search([
             ("country_id", "=", self.country_id.id)
         ])
         FeeLine = self.env["freight.purchase.fee.line"]
@@ -173,7 +173,7 @@ class FreightPurchaseFee(models.Model):
     @api.depends('country_id')
     def _onchange_country_id(self):
         if self.country_id and self.fee_type_id and self.fee_type_id.apply_on == 'port':
-            ports = self.env["freight.purchase.port"].search([
+            ports = self.env["location.base"].search([
                 ("country_id", "=", self.country_id.id)
             ])
             self.port_line_ids = [(5, 0, 0)]  # clear trước

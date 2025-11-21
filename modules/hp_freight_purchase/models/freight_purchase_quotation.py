@@ -19,12 +19,12 @@ class FreightPurchaseQuotation(models.Model):
         store=True,
         tracking=True)
     route_id = fields.Many2one(
-        'freight.purchase.route',
+        'route.base',
         required=True,
         tracking=True
     )
     route_transit_id = fields.Many2one(
-        'freight.purchase.route',
+        'route.base',
         # required=True,
         tracking=True,
         string = "Route transit"
@@ -124,7 +124,7 @@ class FreightPurchaseQuotation(models.Model):
 
                 if shipping_line_id and route_id and available_to:
                     shipping_name = self.env['res.partner'].browse(shipping_line_id).name or ''
-                    route_name = self.env['freight.purchase.route'].browse(route_id).name or ''
+                    route_name = self.env['route.base'].browse(route_id).name or ''
                     formatted_date = ''
                     if available_to:
                         formatted_date = fields.Date.to_date(available_to).strftime('%d-%m-%Y')

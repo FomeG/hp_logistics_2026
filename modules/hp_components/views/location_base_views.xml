@@ -69,6 +69,11 @@
         <field name="name">Locations</field>
         <field name="res_model">location.base</field>
         <field name="search_view_id" ref="location_base_form_search" />
+        <field name="context"
+            eval="{
+                'form_view_ref': 'hp_components.location_base_form_view',
+                'list_view_ref': 'hp_components.location_base_list_view'
+            }" />
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

@@ -1,31 +1,34 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 from ..validators.route_validator import RouteCreateValidator, RouteUpdateValidator
+from odoo.addons.hp_components.models import constants
 
 class FreightPurchaseRoute(models.Model):
-    _name = 'freight.purchase.route'
+    # _name = 'freight.purchase.route'
+    _inherit = ['route.base']
     _description = 'Route'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
     _order = 'create_date desc'
 
-    name = fields.Char(
-        string='Route Name',
-        compute='_compute_route_name',
-        store=True,
-        index=True,
-        tracking=True
-    )
+    # name = fields.Char(
+    #     string='Route Name',
+    #     compute='_compute_route_name',
+    #     store=True,
+    #     index=True,
+    #     tracking=True
+    # )
     pol_id = fields.Many2one(
-        'freight.purchase.port',
+        'location.base',
         required=True,
         tracking=True,
-        ondelete='cascade'
+        ondelete='cascade',
+        compute='_compute_pol_pod',
     )
     pod_id = fields.Many2one(
-        'freight.purchase.port',
+        'location.base',
         required=True,
         tracking=True,
-        ondelete='cascade'
+        ondelete='cascade',
+        compute='_compute_pol_pod',
     )
     # pol_display = fields.Char(
     #     string="POL (Total Quotation)",
@@ -37,17 +40,17 @@ class FreightPurchaseRoute(models.Model):
         compute='_compute_port_display',
         store=False
     )
-    direction = fields.Selection([
-        ('import', 'Import'),
-        ('export', 'Export'),
-        ('N/A', 'N/A'),
-    ],
-        required=True,
-        compute='_compute_direction',
-        default='export',
-        inverse='_inverse_direction',
-        store=True
-    )
+    # direction = fields.Selection([
+    #     ('import', 'Import'),
+    #     ('export', 'Export'),
+    #     ('N/A', 'N/A'),
+    # ],
+    #     required=True,
+    #     compute='_compute_direction',
+    #     default='export',
+    #     inverse='_inverse_direction',
+    #     store=True
+    # )
     direction_manual = fields.Boolean(string="Manual Direction", default=False)
     is_active = fields.Boolean(
         string='Is Active',
@@ -58,13 +61,32 @@ class FreightPurchaseRoute(models.Model):
 
     total_quotations = fields.Char(string="Total Quotations", compute='_compute_total_quotation', store=False)
 
-    @api.depends('pol_id.name', 'pod_id.name')
-    def _compute_route_name(self):
+    @api.depends('from_location_id', 'to_location_id', 'transport_mode')
+    def _compute_pol_pod(self):
+        """Auto compute POL/POD from locations for sea routes"""
         for route in self:
-            if route.pod_id and route.pol_id:
-                route.name = f"{route.pol_id.name} → {route.pod_id.name}"
+            if route.transport_mode == constants.TransportMode.SEA:
+                if (route.from_location_id and
+                        route.from_location_id.type == constants.LocationType.PORT):
+                    route.pol_id = route.from_location_id
+                else:
+                    route.pol_id = False
+
+                if (route.to_location_id and
+                        route.to_location_id.type == constants.LocationType.PORT):
+                    route.pod_id = route.to_location_id
+                else:
+                    route.pod_id = False
             else:
-                route.name = False
+                route.pol_id = False
+                route.pod_id = False
+    # @api.depends('pol_id.name', 'pod_id.name')
+    # def _compute_route_name(self):
+    #     for route in self:
+    #         if route.pod_id and route.pol_id:
+    #             route.name = f"{route.pol_id.name} → {route.pod_id.name}"
+    #         else:
+    #             route.name = False
             
 
     # Constraints
@@ -99,29 +121,29 @@ class FreightPurchaseRoute(models.Model):
             else:
                 rec.direction = 'N/A'
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        for vals in vals_list:
-            validated, errors = RouteCreateValidator.validate(vals, self.env)
-            if errors:
-                raise ValidationError("\n".join([f"• {e}" for e in errors]))
-            self._check_pol_pod(vals.get('pol_id'), vals.get('pod_id'))
-        return super().create(vals_list)
-    
-    def write(self, vals):
-        for record in self:
-            validated, errors = RouteUpdateValidator.validate(vals, self.env)
-            if errors:
-                raise ValidationError("\n".join([f"• {e}" for e in errors]))
-            pol_id = vals.get('pol_id', self.pol_id.id)
-            pod_id = vals.get('pod_id', self.pod_id.id)
-            self._check_pol_pod(pol_id, pod_id)
-        return super().write(vals)
+    # @api.model_create_multi
+    # def create(self, vals_list):
+    #     for vals in vals_list:
+    #         validated, errors = RouteCreateValidator.validate(vals, self.env)
+    #         if errors:
+    #             raise ValidationError("\n".join([f"• {e}" for e in errors]))
+    #         self._check_pol_pod(vals.get('pol_id'), vals.get('pod_id'))
+    #     return super().create(vals_list)
+    #
+    # def write(self, vals):
+    #     for record in self:
+    #         validated, errors = RouteUpdateValidator.validate(vals, self.env)
+    #         if errors:
+    #             raise ValidationError("\n".join([f"• {e}" for e in errors]))
+    #         pol_id = vals.get('pol_id', self.pol_id.id)
+    #         pod_id = vals.get('pod_id', self.pod_id.id)
+    #         self._check_pol_pod(pol_id, pod_id)
+    #     return super().write(vals)
 
 
     def _check_pol_pod(self, pol_id, pod_id):
-        pol = self.env['freight.purchase.port'].browse(pol_id)
-        pod = self.env['freight.purchase.port'].browse(pod_id)
+        pol = self.env['location.base'].browse(pol_id)
+        pod = self.env['location.base'].browse(pod_id)
         
         if pol.is_local == pod.is_local:
             raise ValidationError(

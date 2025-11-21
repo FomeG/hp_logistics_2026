@@ -14,12 +14,12 @@ class PortCreateValidator(FreightValidator):
             'is_local': {
                 'label': f"Is Local Port",
                 'type': bool,
-                'required': True,
+                'required': False,
             },
             'is_active': {
                 'label': f"Is Active",
                 'type': bool,
-                'required': True,
+                'required': False,
             },
             'region_id': {
                 'label': f"Region",

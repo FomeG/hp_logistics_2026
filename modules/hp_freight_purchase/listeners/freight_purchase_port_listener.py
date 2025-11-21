@@ -6,7 +6,7 @@ _logger = logging.getLogger(__name__)
 class FreightPurchasePortListener(Component):
     _name = 'freight.purchase.port.listener'
     _inherit = 'base.event.listener'
-    _apply_on = ['freight.purchase.port']
+    _apply_on = ['location.base']
 
     def on_record_create(self, record, fields=None):
         """Handle port creation - create routes and products"""
@@ -25,12 +25,12 @@ class FreightPurchasePortListener(Component):
         Optimized with bulk creation for better performance.
         """
         try:
-            other_ports = self.env['freight.purchase.port'].search([
+            other_ports = self.env['location.base'].search([
                 ('id', '!=', port.id),
                 ('is_active', '=', True)
             ])
             
-            Route = self.env['freight.purchase.route']
+            Route = self.env['route.base']
             
             # Prepare all route data for bulk creation
             route_vals_list = []
@@ -122,7 +122,7 @@ class FreightPurchasePortListener(Component):
         Update routes and related products when port name changes.
         """
         try:
-            Route = self.env['freight.purchase.route']
+            Route = self.env['route.base']
             Product = self.env['product.template']
             
             # Find all routes that use this port (as POL or POD)
@@ -145,7 +145,7 @@ class FreightPurchasePortListener(Component):
         Update direction for all routes involving this port when is_local changes.
         """
         try:
-            Route = self.env['freight.purchase.route']
+            Route = self.env['route.base']
             
             # Find all routes that use this port (as POL or POD)
             routes_as_pol = Route.search([('pol_id', '=', port.id)])
