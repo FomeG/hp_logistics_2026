@@ -186,9 +186,11 @@ class LocationType:
 class ProductTemplateType:
     SEA_FREIGHT = 'sea_freight'
     TRUCK_FREIGHT = 'truck_freight'
+    CUSTOM = 'custom'
     SERVICES = 'services'
     SELECT_OPTIONS = [
         (SEA_FREIGHT, 'Sea Freight'),
         (TRUCK_FREIGHT, 'Truck Freight'),
         (SERVICES, 'Services'),
+        (CUSTOM, 'Custom'),
     ]
