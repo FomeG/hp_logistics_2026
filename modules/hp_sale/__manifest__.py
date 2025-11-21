@@ -14,7 +14,7 @@
     'data': [
         # data
         'data/product_category.xml',
-        'data/product_data.xml',
+        # 'data/product_data.xml',
         #'data/price_category_cron.xml',
         'data/selling_week_state_cron.xml',
 

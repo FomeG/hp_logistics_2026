@@ -1,5 +1,6 @@
 from odoo import api, fields, models, tools, _, SUPERUSER_ID
 from odoo.exceptions import ValidationError
+from odoo.addons.hp_components.models import constants
 
 class ProductTemplate(models.Model):
     _inherit = "product.template"
@@ -9,14 +10,17 @@ class ProductTemplate(models.Model):
         string='Route',
         tracking=True
     )
+    transport_mode = fields.Selection(
+        related='route_id.transport_mode',
+        readonly=True,
+    )
 
-    type = fields.Selection(selection=[
-            ('pricing', "Pricing"),
-            ('trucking', "Trucking"),
-            ('common', "Common"),
-            ('custom', "Custom"),
-        ], required=True, default='common')
-    
+    type = fields.Selection(
+        constants.ProductTemplateType.SELECT_OPTIONS,
+        required=True,
+        default=constants.ProductTemplateType.SEA_FREIGHT
+    )
+
     complete_time = fields.Float(
         string="Thời gian hoàn thành (s)",
         digits=(3, 1),
@@ -62,3 +66,20 @@ class ProductTemplate(models.Model):
 
         self.env['sale.order.line'].sudo().create(values)
         return True
+
+    @api.model
+    def get_or_create_from_route_base(self, route_base):
+        product = self.search([('route_id', '=', route_base.id)], limit=1)
+        if not product:
+            type = constants.ProductTemplateType.SEA_FREIGHT
+            if route_base.is_for_truck_freight:
+                type = constants.ProductTemplateType.TRUCK_FREIGHT
+            self.create({
+                'name': route_base.name,
+                'route_id': route_base.id,
+                'type': type,
+                'categ_id': self.env.ref('hp_sale.product_category_sea_freight').id,
+                'list_price': route_base.total_cost,
+                'standard_price': route_base.total_cost,
+            })
+        return product

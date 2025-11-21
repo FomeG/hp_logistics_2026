@@ -182,3 +182,13 @@ class LocationType:
     ]
     TYPES_4_SEA_ROUTE = {PORT}
     TYPES_4_TRUCK_ROUTE = {TRUCK_ROAD}
+
+class ProductTemplateType:
+    SEA_FREIGHT = 'sea_freight'
+    TRUCK_FREIGHT = 'truck_freight'
+    SERVICES = 'services'
+    SELECT_OPTIONS = [
+        (SEA_FREIGHT, 'Sea Freight'),
+        (TRUCK_FREIGHT, 'Truck Freight'),
+        (SERVICES, 'Services'),
+    ]

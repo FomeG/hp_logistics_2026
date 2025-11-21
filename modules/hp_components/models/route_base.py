@@ -151,3 +151,15 @@ class RouteBase(models.Model):
     def _compute_extra_fuel(self):
         for route in self:
             route.extra_fuel = route.from_location_id.extra_fuel or route.to_location_id.extra_fuel
+
+    def is_for_sea_freight(self):
+        for route in self:
+            if route.transport_mode == constants.TransportMode.SEA:
+                return True
+        return False
+
+    def is_for_truck_freight(self):
+        for route in self:
+            if route.transport_mode == constants.TransportMode.TRUCK:
+                return True
+        return False
