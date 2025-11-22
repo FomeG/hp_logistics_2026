@@ -27,9 +27,9 @@ class ResPartnerInherit(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list: list[ValuesType]) -> Self:
-        partner_main_type = self._get_partner_main_type_shipping_line()
+        partner_main_type = self.env['hp_components.partner.service'].get_partner_main_type_shipping_line()
         if not partner_main_type:
-            raise ValidationError("Main Partner Type is required")
+            raise ValidationError("Partner main type not found")
         for vals in vals_list:
             if vals.get('partner_main_type_id') and vals.get('partner_main_type_id') == partner_main_type.id:
                 validated, errors = ShippingLineValidator.validate_create(vals, self.env)
@@ -46,6 +46,3 @@ class ResPartnerInherit(models.Model):
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super(ResPartnerInherit, self).write(vals)
-
-    def _get_partner_main_type_shipping_line(self):
-        return self.env['partner.main.type'].search([('code', '=', constants.PartnerMainTypeCode.SHIPPING_LINE)], limit=1)

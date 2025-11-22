@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 import pandas as pd
 import io
 import base64
@@ -151,6 +151,9 @@ class ImportClientWizard(models.TransientModel):
         clients_to_create = []
         clients_to_update = []
         skipped_vats = []
+        partner_main_type = self.env['hp_components.partner.service'].get_partner_main_type_client()
+        if not partner_main_type:
+            raise ValidationError("Partner main type not found")
 
         for data in data_array:
             vals = data.copy()
@@ -160,9 +163,6 @@ class ImportClientWizard(models.TransientModel):
             if vat in existing_vats and vat not in existing_clients_map:
                 skipped_vats.append(vat)
                 continue
-
-            partner_service = PartnerService(self.env)
-            partner_main_type = partner_service.get_partner_main_type_client()
             vals.update({
                 'partner_main_type_id': partner_main_type.id,
                 'branch_id': self.branch_id.id,

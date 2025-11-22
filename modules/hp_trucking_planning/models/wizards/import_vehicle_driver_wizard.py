@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 import pandas as pd
 import io
 import base64
@@ -139,7 +139,10 @@ class ImportVehicleDriverWizard(models.TransientModel):
         imported_drivers = 0
         updated_drivers = 0
         skipped_rows = 0
-
+        partner_main_type_driver = self.env['hp_components.partner.service'].get_partner_main_type_driver()
+        if not partner_main_type_driver:
+            raise ValidationError("Partner main type driver not found")
+        partner_main_type_driver_id = partner_main_type_driver.id
         for index, row in df.iterrows():
             try:
                 # Skip rows with empty license plate (required for vehicle)
@@ -163,23 +166,22 @@ class ImportVehicleDriverWizard(models.TransientModel):
 
                 driver_record = None
                 if driver_name and driver_phone:
-                    partner_service = PartnerService(self.env)
-                    partner_main_type_driver = partner_service.get_partner_main_type_driver()
+
                     # Check if driver exists by phone number (unique constraint)
                     existing_driver = None
                     if existing_vehicle and existing_vehicle.driver_id:
                         existing_driver = driver_model.search([
                             ('partner_id', '=', existing_vehicle.driver_id.id),
-                            ('partner_main_type_id', '=', partner_main_type_driver.id)
+                            ('partner_main_type_id', '=', partner_main_type_driver_id)
                         ], limit=1)
 
                     if not existing_driver:
-                        existing_driver = driver_model.search([('phone', '=', driver_phone),('partner_main_type_id', '=', partner_main_type_driver.id)], limit=1)
+                        existing_driver = driver_model.search([('phone', '=', driver_phone),('partner_main_type_id', '=', partner_main_type_driver_id)], limit=1)
 
                     # Generate unique temporary values
                     temp_suffix = driver_phone if driver_phone else f'TEMP_{index}'
                     driver_vals = {
-                        'partner_main_type_id': partner_main_type_driver.id,
+                        'partner_main_type_id': partner_main_type_driver_id,
                         'name': driver_name,
                         'phone': driver_phone,
                         'ref': f'DUMMY_CCCD_{temp_suffix}',  # Temporary value, needs manual update
@@ -190,7 +192,7 @@ class ImportVehicleDriverWizard(models.TransientModel):
                         conflicting_driver = driver_model.search([
                             ('phone', '=', driver_phone),
                             ('id', '!=', existing_driver.id),
-                            ('partner_main_type_id', '=', partner_main_type_driver.id)
+                            ('partner_main_type_id', '=', partner_main_type_driver_id)
                         ], limit=1)
 
                         if conflicting_driver:

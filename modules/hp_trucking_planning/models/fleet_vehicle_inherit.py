@@ -35,7 +35,6 @@ class FleetVehicleInherit(models.Model):
 
     @api.model
     def _get_driver_domain(self):
-        partner_service = PartnerService(self.env)
         return [(
-            'partner_main_type_id','=',partner_service.get_partner_main_type_driver().id
+            'partner_main_type_id','=',self.env['hp_components.partner.service'].get_partner_main_type_driver().id
         )]

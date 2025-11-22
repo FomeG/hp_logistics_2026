@@ -183,8 +183,7 @@ class Trip(models.Model):
     )
 
     def _get_driver_domain(self):
-        partner_service = PartnerService(self.env)
-        return [('partner_main_type_id', '=',partner_service.get_partner_main_type_driver().id)]
+        return [('partner_main_type_id', '=',self.env['hp_components.partner.service'].get_partner_main_type_driver().id)]
 
     # truck_id = fields.Many2one(
     #     comodel_name='fleet.vehicle',
