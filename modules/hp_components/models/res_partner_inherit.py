@@ -40,9 +40,10 @@ class ResPartnerInherit(models.Model):
 
     def write(self, vals: dict) -> dict:
         for record in self:
-            inputs = vals.copy()
-            inputs['current_id'] = record.id
-            validated, errors = ShippingLineValidator.validate_update(inputs, self.env, record)
-            if errors:
-                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+            if record.is_shipping_line:
+                inputs = vals.copy()
+                inputs['current_id'] = record.id
+                validated, errors = ShippingLineValidator.validate_update(inputs, self.env, record)
+                if errors:
+                    raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super(ResPartnerInherit, self).write(vals)
