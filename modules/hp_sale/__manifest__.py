@@ -15,6 +15,7 @@
         # data
         'data/product_category.xml',
         'data/product_data.xml',
+        'data/pricelist_data.xml',
         #'data/price_category_cron.xml',
         'data/selling_week_state_cron.xml',
 
@@ -28,6 +29,7 @@
         
         #views
         'views/product_template_views.xml',
+        'views/res_config_settings.xml',
         # 'views/price_category_views.xml',
         #'views/product_category_views.xml',
         'views/change_menu_customer_views.xml',
