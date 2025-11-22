@@ -87,6 +87,8 @@ class HpValidator:
                         existing_values[field] = None
                     else:
                         existing_values[field] = value
+                else:
+                    existing_values[field] = None
 
         for field_name, rules in field_rules.items():
 
@@ -148,7 +150,7 @@ class HpValidator:
                 if current_id:
                     domain.append(('id', '!=', current_id))
                 if env[model_name].sudo().search(domain, limit=1).exists():
-                    errors.append(f"Booking code '{value}' already exists.")
+                    errors.append(f"'{value}' already exists.")
                     continue
 
             if value is not None:

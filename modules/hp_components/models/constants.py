@@ -18,6 +18,7 @@ class VehicleTag:
 class PartnerMainTypeCode:
     DRIVER = 'driver'
     CLIENT = 'client'
+    SHIPPING_LINE = 'shipping_line'
 
 class PlanStatus:
     DRAFT = 'draft'
