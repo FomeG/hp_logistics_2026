@@ -26,3 +26,4 @@ from . import freight_purchase_remind
 from . import sale_order_inherit
 from . import hr_team_inherit
 from . import container_type_inherit
+from . import selling_week_inherit

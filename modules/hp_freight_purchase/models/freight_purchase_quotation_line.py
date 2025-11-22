@@ -118,3 +118,67 @@ class FreightPurchaseQuotationLine(models.Model):
                 record.quotation_used_container_type_ids = used_types
             else:
                 record.quotation_used_container_type_ids = False
+
+    def _auto_create_product_selling_week(self):
+        quotation = self.quotation_id
+        if not quotation or not quotation.available_from or not quotation.available_to:
+            return
+        
+        # selling.week
+        SellingWeek = self.env['selling.week']; 
+        selling_week = SellingWeek.search([('freight_purchase_quotation_id', '=', quotation.id)], limit=1)
+        if not selling_week:
+            selling_week = SellingWeek.create({
+                'name': f"Selling Week From {quotation.available_from} - {quotation.available_to}",
+                'start_date': quotation.available_from,
+                'end_date': quotation.available_to,
+                'freight_purchase_quotation_id': quotation.id,
+                'is_active': False,
+            })
+        
+        route = quotation.route_id
+        if not route:
+            return
+
+        # create product.template
+        Product = self.env['product.template']
+        product_template = Product.search([('route_id', '=', route.id)], limit=1)
+        if not product_template:
+            Product.with_context(create_from_route=True).create({
+                'type': 'pricing',
+                'route_id': route.id,
+                'name': route.name,
+                'categ_id': self.env.ref('product.product_category_all').id,
+                'uom_id': self.env.ref('uom.product_uom_unit').id,
+                'uom_po_id': self.env.ref('uom.product_uom_unit').id,
+                'project_id': False,
+                'project_template_id': False,
+                'region_id': route.pol_id.region_id.id if route.pol_id.region_id else False,
+            })
+        else:
+            product_template.write({
+                'region_id': route.pol_id.region_id.id if route.pol_id.region_id else False,
+            })
+
+        # create product.template.selling.week
+        ProductSellingWeek = self.env['product.template.selling.week']
+        product_selling_week = ProductSellingWeek.search([
+            ('selling_week_id', '=', selling_week.id),
+            ('product_template_id', '=', product_template.id),
+        ], limit=1)
+        if not product_selling_week:
+            product_selling_week = ProductSellingWeek.create({
+                'goods_info': ' ',
+                'selling_week_id': selling_week.id,
+                'product_template_id': product_template.id,
+            })
+
+        # create product.template.selling.week.line
+        self.env['product.template.selling.week.line'].create({
+            'product_template_selling_week_id': product_selling_week.id,
+            'shipping_line_id': quotation.shipping_line_id.id,
+            'container_type_id': self.container_type_id.id,
+            'price': self.price,
+        })
+
+        return True
