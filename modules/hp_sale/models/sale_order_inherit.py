@@ -225,6 +225,7 @@ class SaleOrderInherrit(models.Model):
                 'dialog_size': 'extra-large',
                 'create': False,
                 'select_mode': True,
+                'group_by': 'categ_id',
             },
         }
 
