@@ -256,7 +256,8 @@ class SaleOrderInherrit(models.Model):
 
             record.branch_id = branch_id
         
-    def action_update_state(self, state):
-        self.write({'state': state})
+    def action_update_state(self):
+        new_state = self.env.context.get('new_state')
+        self.write({'state': new_state})
 
         return True

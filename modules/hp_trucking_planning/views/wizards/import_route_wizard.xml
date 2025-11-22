@@ -22,7 +22,7 @@
                         </group>
                     </group>
                     <div class="alert alert-info" role="alert">
-                        <h4 class="alert-heading">Excel import instructions</h4>
+                        <h4 class="alert-heading" role="alert">Excel import instructions</h4>
                         <div class="row mt-3">
                             <div class=" col-md-6">
                                 <p>
@@ -34,6 +34,7 @@
                                         <a
                                             href="/hp_trucking_planning/static/xlsx/import_route_file_template.xlsx"
                                             target="_blank"
+                                            role="button"
                                             class="btn btn-sm btn-outline-primary">
                                             <i class="fa fa-download" /> File excel </a>
                                     </li>
@@ -59,7 +60,7 @@
                         <div class="row mt-3">
                             <div class="col-12">
                                 <div class="alert alert-warning" role="alert">
-                                    <h5 class="alert-heading">⚠️ Important Note:</h5>
+                                    <h5 class="alert-heading" role="alert">⚠️ Important Note:</h5>
                                     <ul class="mb-0">
                                         <li>The third row must be the header containing the column names</li>
                                         <li>Data from row 6 onwards will be skipped if it does not contain an address</li>

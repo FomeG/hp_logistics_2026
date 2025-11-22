@@ -64,10 +64,9 @@ class ProductTemplateSellingWeekLine(models.Model):
             price = record.price
             record.name = f"{product_template_name}: {container_type_name}/{price} ({shipping_line_name})"
 
-    @api.model
-    def action_add_selected_lines(self, selected_ids):
+    def action_add_selected_lines(self):
         sale_order_id = self.env.context.get('sale_order_id')
-        lines = self.browse(selected_ids)
+        lines = self
         if not sale_order_id or not lines:
             raise ValidationError("No Sale Order or selected lines found.")
 

@@ -70,25 +70,25 @@
                     type="object" 
                     string="Sent To Client"
                     class="btn-primary"
-                    args="['sent_to_client']"
+                    context="{'new_state': 'sent_to_client'}"
                     invisible="state != 'draft'"/>
                 <button name="action_update_state" 
                     type="object" 
                     string="Review"
                     class="btn-primary"
-                    args="['review']"
+                    context="{'new_state': 'review'}"
                     invisible="state != 'sent_to_client'"/>
                 <button name="action_update_state" 
                     type="object" 
                     string="Sent To Leader"
                     class="btn-primary"
-                    args="['sent_to_leader']"
+                    context="{'new_state': 'sent_to_leader'}"
                     invisible="state != 'review'"/>
                 <button name="action_update_state" 
                     type="object" 
                     string="Confirm"
                     class="btn-primary"
-                    args="['sale']"
+                    context="{'new_state': 'sale'}"
                     invisible="state != 'sent_to_leader'"
                     groups="sales_team.group_sale_salesman_all_leads"/>
             </xpath>

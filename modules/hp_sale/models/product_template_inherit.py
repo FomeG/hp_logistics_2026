@@ -29,10 +29,9 @@ class ProductTemplate(models.Model):
         tracking=True
     )
 
-    @api.model
-    def action_sale_order_add_selected_lines(self, selected_ids):
+    def action_sale_order_add_selected_lines(self):
         sale_order_id = self.env.context.get('sale_order_id')
-        lines = self.browse(selected_ids)
+        lines = self
         if not sale_order_id or not lines:
             raise ValidationError("No Sale Order or selected lines found.")
 
