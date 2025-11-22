@@ -13,6 +13,8 @@
         'data/department_type_demo.xml',
         'data/container_type_data.xml',
         'data/shipping_line_data.xml',
+        'data/region_data.xml',
+        'data/country_region_data.xml',
         'views/location_base_views.xml',
         'views/route_base_views.xml',
         'views/container_type_views.xml',

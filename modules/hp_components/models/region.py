@@ -8,6 +8,15 @@ class Region(models.Model):
     name = fields.Char(
         required=True,
     )
+    parent_id = fields.Many2one(
+        comodel_name="region",
+        string="Region"
+    )
+    child_ids = fields.One2many(
+        comodel_name="region",
+        inverse_name="parent_id",
+        string="Sub Regions"
+    )
     is_active = fields.Boolean(
         string='Is Active',
         default=True
