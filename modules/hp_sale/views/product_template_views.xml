@@ -28,12 +28,6 @@
                 <field name="type" widget="radio" options="{'horizontal': true}"/>
             </xpath>
 
-            <!-- Move the 'categ_id' field outside the hidden group -->
-            <xpath expr="//field[@name='type']" position="after">
-                <field name="categ_id"
-                    domain="[('allowed_type_id', '=', type)]"
-                    invisible="type not in ('custom', 'common')"/>
-            </xpath>
 
             <xpath expr="//page[@name='general_information']/group" position="after">
                 <!-- Service Fields for Common & Custom -->
@@ -41,22 +35,6 @@
                     <field name="complete_time" widget="float_time"/>
                 </group>
             </xpath>
-
-            <!-- Add Price Configuration for Common & Custom -->
-            <xpath expr="//page[@name='general_information']/group" position="after">
-                <group string="Price Configuration" name="price_configuration" invisible="type not in ['common', 'custom']">
-                        <group>
-                            <field name="price_type" widget="radio"/>
-                        </group>
-                        <group>
-                            <!-- List Price: Always visible -->
-                            <field name="list_price"/>
-                            <!-- Tiered Price: Only visible if price_type is tiered -->
-                            <field name="tiered_price" invisible="price_type != 'tiered'"/>
-                        </group>
-                </group>
-            </xpath>
-
             <!-- Add reigion product -->
             <xpath expr="//div[@class='oe_title']" position="after">
                 <group>
@@ -106,7 +84,6 @@
             </field>
 
             <field name="list_price" position="after">
-                <field name="tiered_price" optional="show"/>
                 <field name="complete_time" optional="hide" widget="float_time"/>
             </field>
         </field>

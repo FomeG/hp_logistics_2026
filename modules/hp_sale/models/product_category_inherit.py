@@ -1,17 +1,8 @@
-from odoo import api, fields, models, tools, _
-from odoo.exceptions import ValidationError, UserError
+from odoo import models, _
+from odoo.exceptions import UserError
 
 class ProductCategory(models.Model):
     _inherit = "product.category"
-
-    allowed_type_id = fields.Selection(
-        selection=[
-            ('common', "Common"),
-            ('custom', "Custom"),
-        ],
-        string="Allowed Product Type",
-        required=True
-    )
 
     def unlink(self):
         for category in self:

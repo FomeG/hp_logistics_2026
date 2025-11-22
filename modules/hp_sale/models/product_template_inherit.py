@@ -8,7 +8,8 @@ class ProductTemplate(models.Model):
     route_id = fields.Many2one(
         'route.base',
         string='Route',
-        tracking=True
+        tracking=True,
+        help="The route is used for freight type",
     )
     type = fields.Selection(
         constants.ProductTemplateType.SELECT_OPTIONS,
@@ -21,18 +22,6 @@ class ProductTemplate(models.Model):
         digits=(3, 1),
         help="Thời gian hoàn thành dịch vụ"
     )
-    
-    # Add field for tiered pricing
-    tiered_price = fields.Float(
-        string="Giá lũy tiến",
-        digits='Product Price',
-        help="Giá từ sp thứ 2"
-    )
-    
-    price_type = fields.Selection([
-        ('common', 'Common Price'),
-        ('tiered', 'Tiered Pricing'),
-    ], string='Price Type', default='common')
 
     region_id = fields.Many2one(
         comodel_name='region',
