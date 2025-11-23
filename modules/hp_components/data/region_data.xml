@@ -22,6 +22,12 @@
             <field name="parent_id" ref="region_asia"/>
         </record>
 
+        <record id="subregion_nor_asia" model="region">
+            <field name="name">Northeast Asia</field>
+            <field name="code">NORA</field>
+            <field name="parent_id" ref="region_asia"/>
+        </record>
+
         <record id="region_europe" model="region">
             <field name="name">Europe</field>
             <field name="code">EU</field>

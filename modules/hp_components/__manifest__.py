@@ -15,6 +15,7 @@
         'data/shipping_line_data.xml',
         'data/region_data.xml',
         'data/country_region_data.xml',
+        'data/port_data.xml',
         'views/location_base_views.xml',
         'views/route_base_views.xml',
         'views/container_type_views.xml',
