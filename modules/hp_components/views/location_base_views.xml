@@ -9,7 +9,7 @@
                 <field name="type"/>
                 <field name="contact_phone" />
                 <field name="state_id"/>
-                <field name="country_id"/>
+                <field name="country_str"/>
                 <field name="create_date" groups="base.group_system" />
             </list>
         </field>

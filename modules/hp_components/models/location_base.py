@@ -58,6 +58,17 @@ class LocationBase(models.Model):
         help="Longitude coordinate (-180 to 180)"
     )
 
+    region_id = fields.Many2one(
+        comodel_name="region",
+        related='country_id.region_id',
+        string='Region',
+    )
+    country_str = fields.Char(
+        string="Zone",
+        compute='_compute_country_str',
+    )
+
+
     @api.constrains('latitude', 'longitude')
     def _check_coordinates(self):
         """Validate tọa độ"""
@@ -74,3 +85,7 @@ class LocationBase(models.Model):
         if country:
             res['country_id'] = country.id
         return res
+
+    def _compute_country_str(self):
+        for record in self:
+            record.country_str = f"{record.country_id.name} ({record.country_id.region_id.name})"
