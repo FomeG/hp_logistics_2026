@@ -195,3 +195,9 @@ class ProductTemplateType:
         (SERVICES, 'Services'),
         (CUSTOM, 'Custom'),
     ]
+
+class DeapartmentTypeCode:
+    SALE = 'sale'
+    TRUCKING = 'trucking'
+    PRICING = 'pricing'
+    CS = 'cs'

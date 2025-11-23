@@ -7,6 +7,7 @@
             <list string="Teams">
                 <field name="name"/>
                 <field name="department_id"/>
+                 <field name="region_id"/>
                 <field name="user_ids" widget="many2many_tags"/>
             </list>
         </field>
@@ -22,10 +23,19 @@
                     <group>
                         <field name="name"/>
                         <field name="department_id"/>
+                        <field name="region_id"/>
                     </group>
-                    <group>
-                        <field name="user_ids"/>
-                    </group>
+
+                    <notebook>
+                        <page string="Users">
+                            <field name="user_ids"/>
+                        </page>
+                        <page string="Ports" invisible="department_type_code != 'sale' or not region_id">
+                            <field name="location_ids"
+                                domain="[('type', '=', 'port'), ('country_id.region_id', '=', region_id)]"
+                            />
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter/>
             </form>
@@ -44,9 +54,9 @@
                     string="Sale"
                     domain="[('department_id.department_type_id.code', '=', 'sale')]"/>
 
-                <filter name="group_department" string="By Department" context="{'group_by':'department_id'}"/>
                 <group expand="0" string="Group By">
-                    <filter name="group_department_2" string="Department" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_department" string="Department" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_region" string="Region" context="{'group_by': 'region_id'}"/>
                 </group>
             </search>
         </field>
