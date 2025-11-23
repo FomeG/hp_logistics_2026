@@ -1,5 +1,4 @@
 from odoo import models, fields, api
-from ...hp_components.models.constants import LocationType, DeapartmentTypeCode
 
 class HrTeam(models.Model):
     _name = 'hr.team'

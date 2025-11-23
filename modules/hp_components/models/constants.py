@@ -196,7 +196,7 @@ class ProductTemplateType:
         (CUSTOM, 'Custom'),
     ]
 
-class DeapartmentTypeCode:
+class DepartmentTypeCode:
     SALE = 'sale'
     TRUCKING = 'trucking'
     PRICING = 'pricing'
