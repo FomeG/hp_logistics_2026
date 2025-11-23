@@ -62,10 +62,17 @@ class LocationBase(models.Model):
         comodel_name="region",
         related='country_id.region_id',
         string='Region',
+        store=False,
     )
     country_str = fields.Char(
         string="Zone",
         compute='_compute_country_str',
+    )
+    is_local =fields.Boolean(
+        string="Is Local",
+        compute='_compute_is_local',
+        store=False,
+        readonly=True,
     )
 
 
@@ -89,3 +96,10 @@ class LocationBase(models.Model):
     def _compute_country_str(self):
         for record in self:
             record.country_str = f"{record.country_id.name} ({record.country_id.region_id.name})"
+
+    def _compute_is_local(self):
+        vietnam = self.env['hp_components.geo.service'].get_vietnam()
+        if not vietnam:
+            raise ValidationError('VN does not exists in DB')
+        for record in self:
+            record.is_local = record.country_id.id == vietnam.id

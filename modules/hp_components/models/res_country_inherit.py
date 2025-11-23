@@ -1,5 +1,6 @@
 # res.country extension
 from odoo import models, fields
+from odoo.addons.hp_components.models.constants import LocationType
 
 class ResCountryInherit(models.Model):
     _inherit = 'res.country'
@@ -7,5 +8,16 @@ class ResCountryInherit(models.Model):
     region_id = fields.Many2one(
         comodel_name='region',
         string='Region',
-        ondelete='cascade'
+        ondelete='set null',
+    )
+    location_base_ids = fields.One2many(
+        comodel_name='location.base',
+        string='Locations',
+        inverse_name='country_id',
+    )
+    port_ids = fields.One2many(
+        comodel_name='location.base',
+        domain=[('type', '=', LocationType.PORT)],
+        string='Ports',
+        inverse_name='country_id',
     )

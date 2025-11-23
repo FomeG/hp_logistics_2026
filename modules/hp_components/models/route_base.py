@@ -163,3 +163,26 @@ class RouteBase(models.Model):
             if route.transport_mode == constants.TransportMode.TRUCK:
                 return True
         return False
+
+    @api.model
+    def create_freight_sea_from_port(self, location_base):
+        vals_list = []
+        if location_base.is_local:
+            ports = self.env['hp_components.geo.service'].get_international_ports()
+            for port in ports:
+                vals_list.append({
+                    'from_location_id': location_base.id,
+                    'to_location_id': port.id,
+                    'transport_mode': constants.TransportMode.SEA,
+                })
+        else:
+            ports = self.env['hp_components.geo.service'].get_local_ports()
+            for port in ports:
+                vals_list.append({
+                    'from_location_id': port.id,
+                    'to_location_id': location_base.id,
+                    'transport_mode': constants.TransportMode.SEA,
+                })
+
+        if len(vals_list) > 0:
+            super().create(vals_list)
