@@ -21,7 +21,7 @@ class ProductTemplateSellingWeek(models.Model):
         string="Product",
         required=True,
         tracking=True,
-        domain=[('route_id', '!=', False)]
+        domain="[('id', 'in', available_product_template_ids)]"
     )
     team_id = fields.Many2one(
         'hr.team',
@@ -42,6 +42,7 @@ class ProductTemplateSellingWeek(models.Model):
     note = fields.Char()
 
     name = fields.Text(string="Name", compute="_compute_name", store=True)
+    available_product_template_ids = fields.Many2many('product.template', compute='_compute_available_product_template_ids', store=False)
 
     @api.depends('goods_info', 'product_template_id', 'line_ids')
     def _compute_name(self):
@@ -64,3 +65,14 @@ class ProductTemplateSellingWeek(models.Model):
                 record.name = f"{goods_part}\n{product_part}: {lines_text}"
             else:
                 record.name = ''
+    
+    @api.depends('team_id')
+    def _compute_available_product_template_ids(self):
+        ProductTemplate = self.env['product.template']
+        for record in self:
+            locations = self.team_id.location_ids
+            if not locations:
+                record.available_product_template_ids = []
+            else:
+                routes = self.env['route.base'].search([('to_location_id', 'in', locations.ids)])
+                record.available_product_template_ids =  ProductTemplate.search([('route_id', 'in', routes.ids)])

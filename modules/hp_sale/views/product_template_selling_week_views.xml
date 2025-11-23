@@ -24,8 +24,8 @@
                         <field name="name" readonly="1"/>
                         <field name="goods_info"/>
                         <field name="selling_week_id"/>
+                        <field name="team_id" options="{'no_quick_create': True}" required="1"/>
                         <field name="product_template_id"/>
-                        <field name="team_id" options="{'no_quick_create': True}"/>
                         <field name="note"/>
                     </group>
                     <notebook>

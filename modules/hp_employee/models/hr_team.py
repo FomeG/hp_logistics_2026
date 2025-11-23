@@ -62,19 +62,6 @@ class HrTeam(models.Model):
                 record.available_user_ids = employees.mapped('user_id')
             else:
                 record.available_user_ids = self.env['res.users'].search([])
-    
-    @api.depends('department_id', 'region_id')
-    def _compute_available_location_ids(self):
-        for record in self:
-            department_code = record.department_id.department_type_id.code.lower()
-            if department_code == DeapartmentTypeCode.SALE:
-                ports = self.env['location.base'].search([
-                    ('type', '=', LocationType.PORT),
-                    ('region_id', '=', record.region_id.id),
-                ])
-                record.available_location_ids = ports.mapped('id')
-            else:
-                record.available_location_ids = False
         
     @api.constrains('user_ids', 'department_id')
     def _check_users_department(self):
