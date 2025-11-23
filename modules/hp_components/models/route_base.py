@@ -154,15 +154,11 @@ class RouteBase(models.Model):
 
     def is_for_sea_freight(self):
         for route in self:
-            if route.transport_mode == constants.TransportMode.SEA:
-                return True
-        return False
+            return route.transport_mode == constants.TransportMode.SEA
 
     def is_for_truck_freight(self):
         for route in self:
-            if route.transport_mode == constants.TransportMode.TRUCK:
-                return True
-        return False
+            return route.transport_mode == constants.TransportMode.TRUCK
 
     @api.model
     def create_freight_sea_from_port(self, location_base):

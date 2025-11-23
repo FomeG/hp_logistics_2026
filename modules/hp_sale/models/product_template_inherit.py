@@ -55,7 +55,7 @@ class ProductTemplate(models.Model):
         product = self.search([('route_id', '=', route_base.id)], limit=1)
         if not product:
             type = constants.ProductTemplateType.SEA_FREIGHT
-            if route_base.is_for_truck_freight:
+            if route_base.is_for_truck_freight():
                 type = constants.ProductTemplateType.TRUCK_FREIGHT
             self.create({
                 'name': route_base.name,
