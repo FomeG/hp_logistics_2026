@@ -24,7 +24,7 @@ class SaleOrderInherrit(models.Model):
 
     client_id = fields.Many2one(
         comodel_name='res.partner.client',
-        # domain="[('user_id', '=', uid)]",
+        domain="[('user_id', '=', uid)]",
         string='Client',
         required=True,
         tracking=True,
