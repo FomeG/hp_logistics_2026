@@ -61,7 +61,7 @@ class ProductTemplate(models.Model):
             cat_id = self.env.ref('hp_sale.product_category_sea_freight').id
             if route_base.is_for_truck_freight():
                 type = constants.ProductTemplateType.TRUCK_FREIGHT
-                cat_id = self.env.ref('hp_sale.product_category_truck').id
+                cat_id = self.env.ref('hp_sale.product_category_truck_freight').id
             product = self.create({
                 'name': route_base.name,
                 'route_id': route_base.id,
@@ -85,7 +85,7 @@ class ProductTemplate(models.Model):
             cat_id = self.env.ref('hp_sale.product_category_sea_freight').id
             if route_base.is_for_truck_freight():
                 type = constants.ProductTemplateType.TRUCK_FREIGHT
-                cat_id = self.env.ref('hp_sale.product_category_truck').id
+                cat_id = self.env.ref('hp_sale.product_category_truck_freight').id
             product.write({
                 'name': route_base.name,
                 'type': type,
