@@ -55,14 +55,13 @@ class SellingWeek(models.Model):
     def _compute_state(self):
         today = fields.Date.today()
         for record in self:
-            record.state = False
-            if record.end_date and today <= record.end_date:
-                record.state = SellingWeekState.CURRENT
-            elif record.start_date and today < record.start_date:
-                record.state = SellingWeekState.INCOMING
-            else:
-                record.state = SellingWeekState.PAST
-    
+            record.state = SellingWeekState.PAST
+            if record.start_date and record.end_date:
+                if today < record.start_date:
+                    record.state = SellingWeekState.INCOMING
+                elif today <= record.end_date:
+                    record.state = SellingWeekState.CURRENT
+
     @api.depends('state')
     def _compute_state_order(self):
         for record in self:
