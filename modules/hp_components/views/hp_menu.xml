@@ -6,6 +6,7 @@
         <menuitem id="hp_base" name="Base" parent="hp_menu_root" sequence="20"/>
         <menuitem id="hp_import" name="Import" parent="hp_menu_root" sequence="30"/>
         <!-- Base -->
+        <menuitem id="menu_region" name="Region" parent="hp_base" action="region_action" sequence="5"/>
         <menuitem id="menu_location" name="Location" parent="hp_base" action="action_location_base" sequence="10"/>
         <menuitem id="menu_route" name="Route" parent="hp_base" action="action_route_base" sequence="11"/>
         <menuitem id="menu_container_type" name="Container Type" parent="hp_base" action="container_type_action" sequence="12" />
