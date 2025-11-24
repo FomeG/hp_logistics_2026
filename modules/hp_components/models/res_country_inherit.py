@@ -21,3 +21,11 @@ class ResCountryInherit(models.Model):
         string='Ports',
         inverse_name='country_id',
     )
+
+    port_count = fields.Integer(
+        compute='_compute_port_count',
+        string='Number of Ports',
+    )
+    def _compute_port_count(self):
+        for record in self:
+            record.port_count = len(record.port_ids)

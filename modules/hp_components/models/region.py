@@ -1,4 +1,6 @@
-from odoo import models, fields
+from odoo import models, fields, api
+
+
 class Region(models.Model):
     _name = 'region'
     _description = 'Region'
@@ -26,3 +28,13 @@ class Region(models.Model):
         inverse_name='region_id',
         string='Countries'
     )
+    port_count = fields.Integer(
+        string='Number of Ports',
+        compute='_compute_port_count',
+        store=True
+    )
+
+    @api.depends('country_ids', 'country_ids.port_ids')
+    def _compute_port_count(self):
+        for region in self:
+            region.port_count = sum(region.country_ids.mapped('port_count'))

@@ -19,6 +19,14 @@
                         </group>
                     </group>
                     <notebook>
+                        <page string="Countries">
+                            <field name="country_ids">
+                                <list>
+                                    <field name="name" />
+                                    <field name="port_ids" widget="many2many_tags" />
+                                </list>
+                            </field>
+                        </page>
                         <page string="Sub Regions">
                             <field name="child_ids">
                                 <list string="Sub Regions">
@@ -42,9 +50,10 @@
             <list string="Regions">
                 <field name="code" />
                 <field name="name" />
-                <field name="parent_id" />
-                <field name="is_active" />
-                <field name="create_date" optional="hide" />
+                <field name="parent_id" string="Continent" />
+                <field name="port_count" />
+                <field name="is_active" groups="base.group_system" />
+                <field name="create_date" optional="hide" groups="base.group_system"/>
             </list>
         </field>
     </record>
