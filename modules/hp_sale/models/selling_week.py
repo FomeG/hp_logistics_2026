@@ -86,9 +86,9 @@ class SellingWeek(models.Model):
             new_state = SellingWeekState.PAST
             if record.start_date and record.end_date:
                 if today < record.start_date:
-                    record.state = SellingWeekState.INCOMING
+                    new_state = SellingWeekState.INCOMING
                 elif today <= record.end_date:
-                    record.state = SellingWeekState.CURRENT
+                    new_state = SellingWeekState.CURRENT
             if record.state != new_state:
                 record.state = new_state
                 record.state_order = self.STATE_ORDER.get(new_state, 99)
