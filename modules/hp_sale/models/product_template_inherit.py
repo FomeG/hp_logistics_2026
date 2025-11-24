@@ -56,13 +56,15 @@ class ProductTemplate(models.Model):
         product = self._get_by_route_id(route_base.id)
         if not product:
             type = constants.ProductTemplateType.SEA_FREIGHT
+            cat_id = self.env.ref('hp_sale.product_category_sea_freight').id
             if route_base.is_for_truck_freight():
                 type = constants.ProductTemplateType.TRUCK_FREIGHT
+                cat_id = self.env.ref('hp_sale.product_category_truck').id
             product = self.create({
                 'name': route_base.name,
                 'route_id': route_base.id,
                 'type': type,
-                'categ_id': self.env.ref('hp_sale.product_category_sea_freight').id,
+                'categ_id': cat_id,
                 'list_price': route_base.total_cost,
                 'standard_price': route_base.total_cost,
             })
