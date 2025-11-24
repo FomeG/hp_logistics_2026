@@ -66,12 +66,12 @@
                 <field name="code" />
                 <field name="name" />
                 <field name="region_id" />
-                <field name="is_local" />
+<!--                <field name="is_local" />-->
                 <field name="is_active" />
 
                 <!-- Filters: POD -->
                 <separator string="POD Status"/>
-                <filter string="Local" name="filter_is_local" domain="[('is_local', '=', True)]"/>
+<!--                <filter string="Local" name="filter_is_local" domain="[('is_local', '=', True)]"/>-->
 
                 <!-- Filters: Active -->
                 <separator string="Active Status"/>
