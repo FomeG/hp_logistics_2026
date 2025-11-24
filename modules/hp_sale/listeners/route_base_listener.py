@@ -10,3 +10,6 @@ class RouteBaseListener(Component):
 
     def on_record_create(self, record, fields=None):
         self.env['product.template'].get_or_create_from_route_base(record)
+
+    def on_record_write(self, record, fields=None):
+        self.env['product.template'].sync_with_route_base(record)

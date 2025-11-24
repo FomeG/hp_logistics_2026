@@ -181,10 +181,19 @@ class RouteBase(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
-        for route in self:
-            if route.from_location_id.is_local and route.to_location_id.is_local:
+        if 'from_location_id' in vals or 'to_location_id' in vals:
+            LocationBase = self.env['location.base']
+            is_local = True
+            if 'from_location_id' in vals:
+                from_loc = LocationBase.browse(vals['from_location_id'])
+                if not from_loc.is_local:
+                    is_local = False
+            if 'to_location_id' in vals:
+                to_loc = LocationBase.browse(vals['to_location_id'])
+                if not to_loc.is_local:
+                    is_local = False
+            vals['transport_mode'] = constants.TransportMode.SEA
+            if is_local:
                 vals['transport_mode'] = constants.TransportMode.TRUCK
-                break
-
         return super().write(vals)
 

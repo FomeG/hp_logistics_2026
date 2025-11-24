@@ -53,7 +53,7 @@ class ProductTemplate(models.Model):
 
     @api.model
     def get_or_create_from_route_base(self, route_base):
-        product = self.search([('route_id', '=', route_base.id)], limit=1)
+        product = self._get_by_route_id(route_base.id)
         if not product:
             type = constants.ProductTemplateType.SEA_FREIGHT
             if route_base.is_for_truck_freight():
@@ -69,3 +69,18 @@ class ProductTemplate(models.Model):
             route_base.product_id = product.id
 
         return product
+
+    @api.model
+    def _get_by_route_id(self, route_id):
+        return self.search([('route_id', '=', route_id)], limit=1)
+    @api.model
+    def sync_with_route_base(self, route_base):
+        product = self._get_by_route_id(route_base.id)
+        if product:
+            type = constants.ProductTemplateType.SEA_FREIGHT
+            if route_base.is_for_truck_freight():
+                type = constants.ProductTemplateType.TRUCK_FREIGHT
+            product.write({
+                'name': route_base.name,
+                'type': type,
+            })
