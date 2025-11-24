@@ -21,7 +21,7 @@
                     </group>
 
                     <div class="alert alert-info" role="alert">
-                        <h4 class="alert-heading">📋 Hướng Dẫn Import File Excel</h4>
+                        <h4 class="alert-heading" role="alert">📋 Hướng Dẫn Import File Excel</h4>
                         <div class="row mt-3">
                             <div class="col-md-6">
                                 <p>
@@ -33,7 +33,7 @@
                                         <a
                                             href="/hp_components/static/xlsx/import_shipping_line_template.xlsx"
                                             target="_blank"
-                                            class="btn btn-sm btn-outline-primary">
+                                            class="btn btn-sm btn-outline-primary" role="button">
                                             <i class="fa fa-download"/> File Excel Mẫu
                                         </a>
                                     </li>
@@ -61,7 +61,7 @@
                         <div class="row mt-3">
                             <div class="col-12">
                                 <div class="alert alert-warning" role="alert">
-                                    <h5 class="alert-heading">⚠️ Lưu Ý Quan Trọng:</h5>
+                                    <h5 class="alert-heading" role="alert">⚠️ Lưu Ý Quan Trọng:</h5>
                                     <ul class="mb-0">
                                         <li>Dòng đầu tiên phải là tiêu đề chứa tên các cột</li>
                                         <li>Dữ liệu bắt đầu từ dòng thứ 2</li>
@@ -79,7 +79,7 @@
                     <button name="action_import"
                         type="object"
                         string="Import"
-                        class="btn-primary"/>
+                        class="btn-primary" role="button"/>
                     <button string="Hủy" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
