@@ -77,14 +77,18 @@ class SellingWeek(models.Model):
     @api.model
     def _cron_update_state(self):
         today = fields.Date.today()
-        records = self.search([])
+        records = self.search([
+            ('state', '=', SellingWeekState.CURRENT),
+            '|',
+            ('state', '=', SellingWeekState.INCOMING),
+        ])
         for record in records:
             new_state = SellingWeekState.PAST
-            if record.end_date and today <= record.end_date:
-                new_state = SellingWeekState.CURRENT
-            elif record.start_date and today < record.start_date:
-                new_state = SellingWeekState.INCOMING
-
+            if record.start_date and record.end_date:
+                if today < record.start_date:
+                    record.state = SellingWeekState.INCOMING
+                elif today <= record.end_date:
+                    record.state = SellingWeekState.CURRENT
             if record.state != new_state:
                 record.state = new_state
                 record.state_order = self.STATE_ORDER.get(new_state, 99)
