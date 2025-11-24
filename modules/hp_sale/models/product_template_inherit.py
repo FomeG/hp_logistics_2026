@@ -52,8 +52,10 @@ class ProductTemplate(models.Model):
         return True
 
     @api.model
-    def get_or_create_from_route_base(self, route_base):
-        product = self._get_by_route_id(route_base.id)
+    def get_or_create_from_route_base(self, route_base, force_create=False):
+        product = None
+        if not force_create:
+            product = self._get_by_route_id(route_base.id)
         if not product:
             type = constants.ProductTemplateType.SEA_FREIGHT
             cat_id = self.env.ref('hp_sale.product_category_sea_freight').id
@@ -80,9 +82,14 @@ class ProductTemplate(models.Model):
         product = self._get_by_route_id(route_base.id)
         if product:
             type = constants.ProductTemplateType.SEA_FREIGHT
+            cat_id = self.env.ref('hp_sale.product_category_sea_freight').id
             if route_base.is_for_truck_freight():
                 type = constants.ProductTemplateType.TRUCK_FREIGHT
+                cat_id = self.env.ref('hp_sale.product_category_truck').id
             product.write({
                 'name': route_base.name,
                 'type': type,
+                'categ_id': cat_id,
             })
+        else:
+            self.get_or_create_from_route_base(route_base, force_create=True)
