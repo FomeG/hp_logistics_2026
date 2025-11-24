@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="res_partner_client_1" model="res.partner">
+            <field name="name">Công Ty TNHH ABC Việt Nam</field>
+            <field eval="[Command.set([ref('base.res_partner_category_14'), ref('base.res_partner_category_12')])]" name="category_id"/>
+            <field name="is_company">1</field>
+            <field name="street">123 Đường Lê Lợi</field>
+            <field name="city">Quận Tây Hồ</field>
+            <field name="state_id" ref='base.state_vn_VN-HP'/>
+            <field name="country_id" ref="base.vn"/>
+            <field name="phone">+84-28-39123456</field>
+            <field name="email">contact@abcvietnam.com</field>
+            <field name="vat">0312345678</field>
+            <field name="ref">VN001</field>
+            <field name="user_id" ref="hp_employee.user_sm1_hn" />
+            <field name="branch_id" ref="hp_employee.branch_hn" />
+        </record>
+        <record id="res_partner_client_2" model="res.partner">
+            <field name="name">Công Ty Cổ Phần XYZ</field>
+            <field eval="[Command.set([ref('base.res_partner_category_14')])]" name="category_id"/>
+            <field name="is_company">1</field>
+            <field name="street">456 Đường Nguyễn Huệ</field>
+            <field name="city">Quận 1</field>
+            <field name="state_id" ref='base.state_vn_VN-SG'/>
+            <field name="country_id" ref="base.vn"/>
+            <field name="phone">+84-28-38765432</field>
+            <field name="email">info@xyzcorp.vn</field>
+            <field name="vat">0312345679</field>
+            <field name="ref">VN002</field>
+            <field name="user_id" ref="hp_employee.user_sm1_hcm" />
+            <field name="branch_id" ref="hp_employee.branch_hcm" />
+        </record>
+        <record id="res_partner_client_3" model="res.partner">
+            <field name="name">Công Ty TNHH Thương Mại Dịch Vụ Global</field>
+            <field eval="[Command.set([ref('base.res_partner_category_8'), ref('base.res_partner_category_14')])]" name="category_id"/>
+            <field name="is_company">1</field>
+            <field name="street">789 Đường Trần Hưng Đạo</field>
+            <field name="city">Quận 1</field>
+            <field name="state_id" ref='base.state_vn_VN-SG'/>
+            <field name="country_id" ref="base.vn"/>
+            <field name="phone">+84-28-39654321</field>
+            <field name="email">sales@globalvn.com</field>
+            <field name="vat">0312345680</field>
+            <field name="ref">VN003</field>
+            <field name="user_id" ref="hp_employee.user_sm1_hcm" />
+            <field name="branch_id" ref="hp_employee.branch_hcm" />
+        </record>
+        <record id="res_partner_client_res_partner_1" model="res.partner.client">
+            <field name="partner_id" ref="hp_sale.res_partner_client_1" />
+        </record>
+        <record id="res_partner_client_res_partner_2" model="res.partner.client">
+            <field name="partner_id" ref="hp_sale.res_partner_client_2" />
+        </record>
+        <record id="res_partner_client_res_partner_3" model="res.partner.client">
+            <field name="partner_id" ref="hp_sale.res_partner_client_3" />
+        </record>
+    </data>
+</odoo>
