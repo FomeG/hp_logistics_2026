@@ -71,7 +71,7 @@ class LocationBase(models.Model):
     is_local =fields.Boolean(
         string="Is Local",
         compute='_compute_is_local',
-        store=True,
+        store=False,
         readonly=True,
     )
 
