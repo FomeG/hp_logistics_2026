@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Product cho route HP -> Tokyo -->
+        <record id="product_route_sea_vn_hp_to_jp_tokyo" model="product.template">
+            <field name="name">Transport HP → Tokyo (Sea)</field>
+            <field name="type">sea_freight</field>
+            <field name="sale_ok">True</field>
+            <field name="purchase_ok">False</field>
+            <field name="list_price">1000.00</field>
+            <field name="route_id" ref="hp_components.route_sea_vn_hp_to_jp_tokyo"/>
+        </record>
+
+        <!-- Product cho route HCM -> Busan -->
+        <record id="product_route_sea_vn_hcm_to_kr_busan" model="product.template">
+            <field name="name">Transport HCM → Busan (Sea)</field>
+            <field name="type">sea_freight</field>
+            <field name="sale_ok">True</field>
+            <field name="list_price">1200.00</field>
+            <field name="route_id" ref="hp_components.route_sea_vn_hcm_to_kr_busan"/>
+        </record>
+
+        <!-- Product cho route HP -> Los Angeles -->
+        <record id="product_route_sea_vn_hp_to_us_la" model="product.template">
+            <field name="name">Transport HP → Los Angeles (Sea)</field>
+            <field name="type">sea_freight</field>
+            <field name="sale_ok">True</field>
+            <field name="list_price">1500.00</field>
+            <field name="route_id" ref="hp_components.route_sea_vn_hp_to_us_la"/>
+        </record>
+
+        <!-- Product cho route Tokyo -> HP -->
+        <record id="product_route_sea_jp_tokyo_to_vn_hp" model="product.template">
+            <field name="name">Transport Tokyo → HP (Sea)</field>
+            <field name="type">sea_freight</field>
+            <field name="sale_ok">True</field>
+            <field name="list_price">1100.00</field>
+            <field name="route_id" ref="hp_components.route_sea_jp_tokyo_to_vn_hp"/>
+        </record>
+
+        <!-- Product cho route Oakland -> HCM -->
+        <record id="product_route_sea_us_oak_to_vn_hcm" model="product.template">
+            <field name="name">Transport Oakland → HCM (Sea)</field>
+            <field name="type">sea_freight</field>
+            <field name="sale_ok">True</field>
+            <field name="list_price">1600.00</field>
+            <field name="route_id" ref="hp_components.route_sea_us_oak_to_vn_hcm"/>
+        </record>
+
+        <!-- Product cho route HP -> HCM (Truck) -->
+        <record id="product_route_truck_vn_hp_to_vn_hcm" model="product.template">
+            <field name="name">Transport HP → HCM (Truck)</field>
+            <field name="type">truck_freight</field>
+            <field name="sale_ok">True</field>
+            <field name="list_price">800.00</field>
+            <field name="route_id" ref="hp_components.route_sea_vn_hp_to_vn_hcm"/>
+        </record>
+
+    </data>
+</odoo>

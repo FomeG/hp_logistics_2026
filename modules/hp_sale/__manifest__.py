@@ -17,6 +17,8 @@
         'data/product_data.xml',
         'data/pricelist_data.xml',
         'data/demo_selling_week_data.xml',
+        'data/demo_product_template_data.xml',
+        'data/demo_product_selling_week_data.xml',
         #'data/price_category_cron.xml',
         'data/selling_week_state_cron.xml',
 

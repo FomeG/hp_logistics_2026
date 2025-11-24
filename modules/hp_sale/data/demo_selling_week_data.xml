@@ -3,7 +3,7 @@
     <data noupdate="1">
 
         <record id="selling_week_48" model="selling.week">
-            <field name="name">Tuần 49</field>
+            <field name="name">Tuần 48</field>
             <field name="start_date">2025-11-24</field>
             <field name="end_date">2025-11-30</field>
             <field name="is_active">True</field>
