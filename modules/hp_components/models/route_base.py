@@ -34,6 +34,7 @@ class RouteBase(models.Model):
         string='From Location',
         tracking=True,
         index=True,
+        ondelete='cascade'
     )
 
     from_state_id = fields.Many2one(
@@ -48,6 +49,7 @@ class RouteBase(models.Model):
         string='To Location',
         tracking=True,
         index=True,
+        ondelete='cascade'
     )
 
     to_state_id = fields.Many2one(
