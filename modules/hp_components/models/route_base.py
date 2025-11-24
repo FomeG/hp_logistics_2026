@@ -201,20 +201,22 @@ class RouteBase(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
-        if 'from_location_id' in vals or 'to_location_id' in vals:
-            LocationBase = self.env['location.base']
-            is_local = True
-            if 'from_location_id' in vals:
-                from_loc = LocationBase.browse(vals['from_location_id'])
-                if not from_loc.is_local:
+        LocationBase = self.env['location.base']
+        for route in self:
+            if 'from_location_id' in vals or 'to_location_id' in vals:
+                from_loc = route.from_location_id
+                to_loc = route.to_location_id
+                is_local = True
+                if 'from_location_id' in vals:
+                    from_loc = LocationBase.browse(vals['from_location_id'])
+                if 'to_location_id' in vals:
+                    to_loc = LocationBase.browse(vals['to_location_id'])
+
+                if not to_loc.is_local or not from_loc.is_local:
                     is_local = False
-            if 'to_location_id' in vals:
-                to_loc = LocationBase.browse(vals['to_location_id'])
-                if not to_loc.is_local:
-                    is_local = False
-            vals['transport_mode'] = constants.TransportMode.SEA
-            if is_local:
-                vals['transport_mode'] = constants.TransportMode.TRUCK
+                vals['transport_mode'] = constants.TransportMode.SEA
+                if is_local:
+                    vals['transport_mode'] = constants.TransportMode.TRUCK
         return super().write(vals)
 
     @api.depends('from_location_id', 'to_location_id')
