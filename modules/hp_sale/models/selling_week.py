@@ -78,8 +78,8 @@ class SellingWeek(models.Model):
     def _cron_update_state(self):
         today = fields.Date.today()
         records = self.search([
-            ('state', '=', SellingWeekState.CURRENT),
             '|',
+            ('state', '=', SellingWeekState.CURRENT),
             ('state', '=', SellingWeekState.INCOMING),
         ])
         for record in records:
