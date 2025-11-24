@@ -3,7 +3,7 @@ from odoo import models, fields, api
 class HrTeam(models.Model):
     _name = 'hr.team'
     _description = 'HR Team'
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _inherit = ['unique.code.mixin', 'unique.normalized.name.mixin','mail.thread', 'mail.activity.mixin']
 
     name = fields.Char(
         string="Team Name",

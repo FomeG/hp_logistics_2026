@@ -9,7 +9,7 @@
     'category': 'HP/HP Logistic',
     'images': [],
     'depends': [
-        'product', 'sale_management', 'account','hp_employee'
+        'product', 'account','hp_employee'
     ],
     'data': [
         # data

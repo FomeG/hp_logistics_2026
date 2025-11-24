@@ -6,7 +6,7 @@
     'category': 'HP',
     'version': '18.0.0.0.1',
     "license": "LGPL-3",
-    'depends': ['base','project','sale','mail','component','component_event', 'queue_job'],
+    'depends': ['base','project','sale','mail','component','component_event', 'queue_job','sale_management','hr','hr_org_chart', 'web'],
     'data': [
         'security/ir.model.access.csv',
         'data/partner_main_type_data.xml',

@@ -12,7 +12,7 @@
 HP Employee App
 ===================================================
 """,
-    'depends': ['hr','hr_org_chart','hp_components', 'web'],
+    'depends': ['hp_components'],
     'data': [
         # security
         'security/ir.model.access.csv',
