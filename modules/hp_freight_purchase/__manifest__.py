@@ -16,7 +16,7 @@
         #'demo/fee_demo.xml',
         #'demo/region_demo.xml',
         # 'demo/port_demo.xml',
-        'demo/shipping_line_demo.xml',
+        # 'demo/shipping_line_demo.xml',
         'demo/vessels_demo.xml',
         'demo/freight_purchase_fee_type_demo.xml',
 

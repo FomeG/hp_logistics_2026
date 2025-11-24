@@ -12,20 +12,20 @@ class FreightPurchasePort(models.Model):
 
     # _name = 'freight.purchase.port'
     # name = fields.Char(required=True, tracking=True)
-    is_local = fields.Boolean(
-        string='Is Local Port',
-        required=False,
-        default=False,
-        tracking=True
-    )
+    # is_local = fields.Boolean(
+    #     string='Is Local Port',
+    #     required=False,
+    #     default=False,
+    #     tracking=True
+    # )
     # country_id = fields.Many2one('res.country', string='Country', required=True, tracking=True, ondelete='cascade')
 
-    region_id = fields.Many2one(
-        comodel_name='region',
-        string='Region',
-        related='country_id.region_id',
-        tracking=True
-    )
+    # region_id = fields.Many2one(
+    #     comodel_name='region',
+    #     string='Region',
+    #     related='country_id.region_id',
+    #     tracking=True
+    # )
     is_active = fields.Boolean(
         string='Is Active',
         default=True,
