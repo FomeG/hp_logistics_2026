@@ -5,7 +5,7 @@
         <field name="name">selling.week.list</field>
         <field name="model">selling.week</field>
         <field name="arch" type="xml">
-            <list string="Selling Weeks" default_order="state, create_date desc">
+            <list string="Weeks" default_order="state, create_date desc">
                 <field name="name"/>
                 <field name="start_date"/>
                 <field name="end_date"/>
@@ -21,7 +21,7 @@
         <field name="name">selling.week.form</field>
         <field name="model">selling.week</field>
         <field name="arch" type="xml">
-            <form string="Selling Week">
+            <form string="Week">
                 <sheet>
                     <group>
                         <field name="name"/>
@@ -30,7 +30,7 @@
                         <field name="is_active" invisible="not id"/>
                     </group>
                     <notebook>
-                        <page string="Product Selling Week" invisible="not id">
+                        <page string="Sea Freight" invisible="not id">
                             <field name="product_selling_week_ids" context="{'form_view_ref': 'hp_sale.view_product_template_selling_week_form'}">
                                 <list>
                                     <field name="name" />
