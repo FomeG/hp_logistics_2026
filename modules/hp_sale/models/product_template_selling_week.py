@@ -18,7 +18,7 @@ class ProductTemplateSellingWeek(models.Model):
     )
     product_template_id = fields.Many2one(
         'product.template',
-        string="Product",
+        string="Route",
         required=True,
         tracking=True,
         domain="[('id', 'in', available_product_template_ids)]"
@@ -43,6 +43,12 @@ class ProductTemplateSellingWeek(models.Model):
 
     name = fields.Text(string="Name", compute="_compute_name", store=True)
     available_product_template_ids = fields.Many2many('product.template', compute='_compute_available_product_template_ids', store=False)
+
+    week_info = fields.Char(
+        string="Week",
+        compute='_compute_week_info',
+        store=False,
+    )
 
     @api.depends('goods_info', 'product_template_id', 'line_ids')
     def _compute_name(self):
@@ -76,3 +82,7 @@ class ProductTemplateSellingWeek(models.Model):
             else:
                 routes = self.env['route.base'].search([('to_location_id', 'in', locations.ids)])
                 record.available_product_template_ids =  ProductTemplate.search([('route_id', 'in', routes.ids)])
+
+    def _compute_week_info(self):
+        for record in self:
+            record.week_info = f"{record.selling_week_id.name} ({record.selling_week_id.start_date} - {record.selling_week_id.end_date})"

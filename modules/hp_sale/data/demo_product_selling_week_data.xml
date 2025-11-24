@@ -7,13 +7,13 @@
             <field name="goods_info">Electronics Container</field>
             <field name="selling_week_id" ref="hp_sale.selling_week_47"/>
             <field name="product_template_id" ref="hp_sale.product_route_sea_vn_hp_to_jp_tokyo"/>
-            <field name="team_id" ref="hp_employee.team_us_han"/>
+            <field name="team_id" ref="hp_employee.team_east_asia_hcm"/>
         </record>
         <record id="pts_week_hcm_busan" model="product.template.selling.week">
             <field name="goods_info">Frozen Seafood</field>
             <field name="selling_week_id" ref="hp_sale.selling_week_47"/>
             <field name="product_template_id" ref="hp_sale.product_route_sea_vn_hcm_to_kr_busan"/>
-            <field name="team_id" ref="hp_employee.team_us_han"/>
+            <field name="team_id" ref="hp_employee.team_east_asia_hcm"/>
         </record>
         <record id="pts_week_hp_la" model="product.template.selling.week">
             <field name="goods_info">Furniture Export</field>
@@ -31,7 +31,7 @@
             <field name="goods_info">Textiles</field>
             <field name="selling_week_id" ref="hp_sale.selling_week_49"/>
             <field name="product_template_id" ref="hp_sale.product_route_sea_us_oak_to_vn_hcm"/>
-            <field name="team_id" ref="hp_employee.team_east_asia_hcm"/>
+            <field name="team_id" ref="hp_employee.team_us_han"/>
         </record>
         <!-- End Product Selling Week -->
 

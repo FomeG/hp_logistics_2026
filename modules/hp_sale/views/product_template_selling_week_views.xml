@@ -6,8 +6,8 @@
         <field name="arch" type="xml">
             <list string="Sea Freight">
                 <field name="name" />
-                <field name="selling_week_id" string="week"/>
-                <field name="product_template_id" />
+                <field name="week_info"/>
+                <field name="product_template_id"/>
                 <field name="note" />
             </list>
         </field>
