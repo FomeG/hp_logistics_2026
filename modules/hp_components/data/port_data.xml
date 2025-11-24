@@ -32,6 +32,20 @@
             <field name="state_id" ref="base.state_jp_jp-13"/>
             <field name="country_id" ref="base.jp"/>
         </record>
+
+        <record id="location_port_kr_incheon" model="location.base">
+            <field name="name">Incheon</field>
+            <field name="code">kr.incheon</field>
+            <field name="type">port</field>
+            <field name="country_id" ref="base.kr"/>
+        </record>
+        <record id="location_port_kr_busan" model="location.base">
+            <field name="name">Busan</field>
+            <field name="code">kr.busan</field>
+            <field name="type">port</field>
+            <field name="country_id" ref="base.kr"/>
+        </record>
+
         <record id="location_port_us_la" model="location.base">
             <field name="name">Cảng Los Angeles</field>
             <field name="code">LAP</field>
@@ -59,6 +73,5 @@
             <field name="state_id" ref="base.state_us_5"/>
             <field name="country_id" ref="base.us"/>
         </record>
-
     </data>
 </odoo>

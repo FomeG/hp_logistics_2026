@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="team_us_han" model="hr.team">
+            <field name="name">US HAN</field>
+            <field name="code">us_han</field>
+            <field name="department_id" ref="hp_employee.dep_sales_hn"/>
+            <field name="region_id" ref="hp_components.subregion_north_america"/>
+            <field name="user_ids" eval="[(6, 0, [ref('hp_employee.user_sm1_hn'), ref('hp_employee.user_sm2_hn')])]"/>
+            <field name="location_ids" eval="[(6, 0, [ref('hp_components.location_port_us_la'), ref('hp_components.location_port_us_oak')])]"/>
+        </record>
+        <record id="team_east_asia_hcm" model="hr.team">
+            <field name="name">EAST ASIA HCM</field>
+            <field name="code">ea_hcm</field>
+            <field name="department_id" ref="hp_employee.dep_sales_hcm"/>
+            <field name="region_id" ref="hp_components.subregion_e_asia"/>
+            <field name="user_ids" eval="[(6, 0, [ref('hp_employee.user_sm1_hcm'), ref('hp_employee.user_sm2_hcm')])]"/>
+            <field name="location_ids" eval="[(6, 0, [ref('hp_components.location_port_jp_tokyo'), ref('hp_components.location_port_kr_incheon'), ref('hp_components.location_port_kr_busan')])]"/>
+        </record>
+    </data>
+</odoo>

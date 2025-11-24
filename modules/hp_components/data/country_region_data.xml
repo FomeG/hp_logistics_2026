@@ -14,6 +14,10 @@
         <record id="base.jp" model="res.country">
             <field name="region_id" ref="hp_components.subregion_e_asia"/>
         </record>
+        <record id="base.kr" model="res.country">
+            <field name="region_id" ref="hp_components.subregion_e_asia"/>
+        </record>
+
         <record id="base.us" model="res.country">
             <field name="region_id" ref="hp_components.subregion_north_america" />
         </record>
