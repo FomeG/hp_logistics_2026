@@ -24,10 +24,10 @@ class SaleOrderInherrit(models.Model):
 
     client_id = fields.Many2one(
         comodel_name='res.partner.client',
-        domain="[('user_id', '=', uid)]",
         string='Client',
         required=True,
         tracking=True,
+        domain=lambda self: self._get_client_domain(),
     )
     service_type = fields.Selection(
         constants.ServiceType.SELECT_OPTIONS,
@@ -261,3 +261,10 @@ class SaleOrderInherrit(models.Model):
         self.write({'state': new_state})
 
         return True
+
+    @api.model
+    def _get_client_domain(self):
+        user = self.env.user
+        if user.has_group('base.group_system'):
+            return []
+        return [('user_id', '=', user.id)]
