@@ -108,14 +108,24 @@ class RouteBase(models.Model):
         for route in self:
             if route.from_location_id == route.to_location_id:
                 raise ValidationError("Origin and destination must be different.")
-            existing_route = self.search([
-                ('id', '!=', route.id),
-                '|',
-                '&', ('from_location_id', '=', route.from_location_id.id),
-                ('to_location_id', '=', route.to_location_id.id),
-                '&', ('from_location_id', '=', route.to_location_id.id),
-                ('to_location_id', '=', route.from_location_id.id),
-            ])
+            if route.transport_mode == constants.TransportMode.TRUCK:
+                existing_route = self.search([
+                    ('id', '!=', route.id),
+                    ('transport_mode', '=', constants.TransportMode.TRUCK),
+                    '|',
+                    '&', ('from_location_id', '=', route.from_location_id.id),
+                    ('to_location_id', '=', route.to_location_id.id),
+                    '&', ('from_location_id', '=', route.to_location_id.id),
+                    ('to_location_id', '=', route.from_location_id.id),
+                ])
+            else:
+                existing_route = self.search([
+                    ('id', '!=', route.id),
+                    ('transport_mode', '=', route.transport_mode),
+                    '&', ('from_location_id', '=', route.from_location_id.id),
+                    ('to_location_id', '=', route.to_location_id.id),
+                ])
+
             if existing_route:
                 raise ValidationError(
                     f"A route between {route.from_location_id.name} and "
