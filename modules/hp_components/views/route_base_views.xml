@@ -30,6 +30,7 @@
                 <field name="from_location_id" />
                 <field name="to_location_id" />
                 <field name="transport_mode" />
+                <field name="region_id" />
             </list>
         </field>
     </record>
@@ -42,6 +43,8 @@
                 <field name="name" />
                 <field name="from_location_id" />
                 <field name="to_location_id" />
+                <field name="transport_mode" />
+                <field name="region_id" />
                 <!-- Group By -->
                 <separator string="Group By"/>
                 <group expand="1" string="Group By">

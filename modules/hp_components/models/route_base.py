@@ -94,6 +94,14 @@ class RouteBase(models.Model):
         tracking=True,
     )
 
+    region_id = fields.Many2one(
+        comodel_name='region',
+        compute='_compute_region_id',
+        readonly=True,
+        store=True,
+        index=True,
+    )
+
     @api.depends('from_location_id', 'to_location_id')
     def _compute_name(self):
 
@@ -209,3 +217,13 @@ class RouteBase(models.Model):
                 vals['transport_mode'] = constants.TransportMode.TRUCK
         return super().write(vals)
 
+    @api.depends('from_location_id', 'to_location_id')
+    def _compute_region_id(self):
+        for route in self:
+            # if route.is_for_sea_freight():
+            region_id = None
+            if not route.from_location_id.is_local:
+                region_id = route.from_location_id.country_id.region_id
+            elif not route.to_location_id.is_local:
+                region_id = route.to_location_id.country_id.region_id
+            route.region_id = region_id
