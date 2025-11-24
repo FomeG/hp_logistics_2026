@@ -128,16 +128,17 @@
 
             <!-- For group by, find the existing group element -->
             <xpath expr="//group" position="inside">
+                <filter string="Product Category" name="groupby_categ_id" context="{'group_by': 'categ_id'}"/>
                 <filter string="Product Type" name="groupby_type" context="{'group_by': 'type'}"/>
             </xpath>
         </field>
     </record>
 
-    <record id="sale.product_template_action" model="ir.actions.act_window">
-        <field name="context">{
-            "search_default_filter_to_sell":1,
+     <record id="sale.product_template_action" model="ir.actions.act_window">
+         <field name="view_mode">list,kanban,form</field>
+         <field name="context">{
             "sale_multi_pricelist_product_template": 1,
-            "search_default_type_pricing":1
-        }</field>
+            "search_default_groupby_categ_id":1,
+         }</field>
     </record>
 </odoo>
