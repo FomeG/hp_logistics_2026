@@ -9,4 +9,4 @@ from . import selling_week
 from . import product_template_selling_week
 from . import product_template_selling_week_line
 from . import res_config_settings
-#from . import freight_purchase_quotation_inherit
+from . import route_base_inherit

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hp_sale_route_base_view_inherit" model="ir.ui.view">
+        <field name="name">hp_sale.route.base.tree.inherit</field>
+        <field name="model">route.base</field>
+        <field name="inherit_id" ref="hp_components.route_base_list_view"/>
+        <field name="arch" type="xml">
+            <field name="transport_mode" position="after">
+                <field name="product_id" groups="base.group_system" />
+            </field>
+        </field>
+    </record>
+</odoo>

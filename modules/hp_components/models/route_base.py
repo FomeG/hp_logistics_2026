@@ -1,5 +1,7 @@
+import typing
+
 from odoo import models, fields, api, _
-from odoo.api import onchange
+from odoo.api import onchange, ValuesType, Self
 from odoo.exceptions import ValidationError
 from odoo.addons.hp_components.models import constants
 
@@ -90,34 +92,18 @@ class RouteBase(models.Model):
         tracking=True,
     )
 
-
     @api.depends('from_location_id', 'to_location_id')
     def _compute_name(self):
+
         for route in self:
             if route.from_location_id and route.to_location_id:
                 route.name = f"{route.from_location_id.name} -> {route.to_location_id.name}"
             else:
                 route.name = "New Route"
 
-
     @api.constrains('from_location_id', 'to_location_id','transport_mode')
     def _validate_route(self):
         for route in self:
-            ft = route.from_location_id.type
-            tt = route.to_location_id.type
-            mode = route.transport_mode
-            allowed = {}
-            def invalid():
-                raise ValidationError(_('From/To location types are not compatible with transport mode %s') % dict(route._fields['transport_mode'].selection).get(mode))
-
-            if mode == constants.TransportMode.SEA:
-                allowed = constants.LocationType.TYPES_4_SEA_ROUTE
-            elif mode == constants.TransportMode.TRUCK:
-                allowed = constants.LocationType.TYPES_4_TRUCK_ROUTE
-
-            if ft not in allowed or tt not in allowed:
-                invalid()
-
             if route.from_location_id == route.to_location_id:
                 raise ValidationError("Origin and destination must be different.")
             existing_route = self.search([
@@ -182,3 +168,23 @@ class RouteBase(models.Model):
 
         if len(vals_list) > 0:
             super().create(vals_list)
+
+    @api.model_create_multi
+    def create(self, vals_list: list[ValuesType]) -> Self:
+        LocationBase = self.env['location.base']
+        for vals in vals_list:
+            if vals.get('from_location_id') and vals.get('to_location_id'):
+                fr = LocationBase.browse(vals['from_location_id'])
+                to = LocationBase.browse(vals['to_location_id'])
+                if fr and to and fr.is_local and to.is_local:
+                    vals['transport_mode'] = constants.TransportMode.TRUCK
+        return super().create(vals_list)
+
+    def write(self, vals):
+        for route in self:
+            if route.from_location_id.is_local and route.to_location_id.is_local:
+                vals['transport_mode'] = constants.TransportMode.TRUCK
+                break
+
+        return super().write(vals)
+

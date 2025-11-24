@@ -10,6 +10,7 @@ class ProductTemplate(models.Model):
         string='Route',
         tracking=True,
         help="The route is used for freight type",
+        ondelete='cascade',
     )
     type = fields.Selection(
         constants.ProductTemplateType.SELECT_OPTIONS,
@@ -57,7 +58,7 @@ class ProductTemplate(models.Model):
             type = constants.ProductTemplateType.SEA_FREIGHT
             if route_base.is_for_truck_freight():
                 type = constants.ProductTemplateType.TRUCK_FREIGHT
-            self.create({
+            product = self.create({
                 'name': route_base.name,
                 'route_id': route_base.id,
                 'type': type,
@@ -65,4 +66,6 @@ class ProductTemplate(models.Model):
                 'list_price': route_base.total_cost,
                 'standard_price': route_base.total_cost,
             })
+            route_base.product_id = product.id
+
         return product
