@@ -10,6 +10,7 @@
             <field name="purchase_ok">False</field>
             <field name="list_price">1000.00</field>
             <field name="route_id" ref="hp_components.route_sea_vn_hp_to_jp_tokyo"/>
+            <field name="categ_id" ref="product_category_sea_freight" />
         </record>
 
         <!-- Product cho route HCM -> Busan -->
@@ -19,6 +20,7 @@
             <field name="sale_ok">True</field>
             <field name="list_price">1200.00</field>
             <field name="route_id" ref="hp_components.route_sea_vn_hcm_to_kr_busan"/>
+            <field name="categ_id" ref="product_category_sea_freight" />
         </record>
 
         <!-- Product cho route HP -> Los Angeles -->
@@ -28,6 +30,7 @@
             <field name="sale_ok">True</field>
             <field name="list_price">1500.00</field>
             <field name="route_id" ref="hp_components.route_sea_vn_hp_to_us_la"/>
+            <field name="categ_id" ref="product_category_sea_freight" />
         </record>
 
         <!-- Product cho route Tokyo -> HP -->
@@ -37,6 +40,7 @@
             <field name="sale_ok">True</field>
             <field name="list_price">1100.00</field>
             <field name="route_id" ref="hp_components.route_sea_jp_tokyo_to_vn_hp"/>
+            <field name="categ_id" ref="product_category_sea_freight" />
         </record>
 
         <!-- Product cho route Oakland -> HCM -->
@@ -46,6 +50,7 @@
             <field name="sale_ok">True</field>
             <field name="list_price">1600.00</field>
             <field name="route_id" ref="hp_components.route_sea_us_oak_to_vn_hcm"/>
+            <field name="categ_id" ref="product_category_sea_freight" />
         </record>
 
         <!-- Product cho route HP -> HCM (Truck) -->
@@ -55,6 +60,7 @@
             <field name="sale_ok">True</field>
             <field name="list_price">800.00</field>
             <field name="route_id" ref="hp_components.route_sea_vn_hp_to_vn_hcm"/>
+            <field name="categ_id" ref="product_category_sea_freight" />
         </record>
 
     </data>
