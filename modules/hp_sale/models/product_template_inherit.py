@@ -76,36 +76,24 @@ class ProductTemplate(models.Model):
         tracking=True
     )
 
-    is_editable_by_salesman = fields.Boolean(
+    is_editable = fields.Boolean(
         string="Is Editable By Salesman",
-        compute='_compute_is_editable_by_salesman',
+        compute='_compute_is_editable',
         store=False,
         help="Technical field to check if current user can edit this product"
     )
 
-    def _compute_is_editable_by_salesman(self):
-        if self.env.su or self.env.user.has_group('base.group_system'):
-            for record in self:
-                record.is_editable_by_salesman = True
-            return
-
-        is_sales_user = (
-                self.env.user.has_group('sales_team.group_sale_salesman') or
-                self.env.user.has_group('sales_team.group_sale_salesman_all_leads') or
-                self.env.user.has_group('sales_team.group_sale_manager')
-        )
-        if not is_sales_user:
-            for record in self:
-                record.is_editable_by_salesman = True
-            return
-
-        # chỉ cho phép edit Custom và Services
+    def _compute_is_editable(self):
+        user_service = self.env['hp_components.user.service']
         allowed_types = [
             constants.ProductTemplateType.CUSTOM,
             constants.ProductTemplateType.SERVICES
-        ]
+            ]
         for record in self:
-            record.is_editable_by_salesman = record.type in allowed_types
+            if record.type not in allowed_types:
+                record.is_editable = False
+            else:
+                record.is_editable = user_service.is_salesman_manager() or user_service.is_salesman_leader() or user_service.is_admin_user()
 
     def action_sale_order_add_selected_lines(self):
         sale_order_id = self.env.context.get('sale_order_id')
