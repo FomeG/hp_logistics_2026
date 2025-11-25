@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Quotation 1: Draft - Hàng Nhập Khẩu HP -->
+        <record id="quotation_sales_1" model="sale.order">
+            <field name="name">SALE/2025/001</field>
+            <field name="partner_id" ref="hp_sale.res_partner_client_1"/>
+            <field name="client_id" ref="hp_sale.res_partner_client_res_partner_1"/>
+            <field name="etd" eval="(datetime.now() + timedelta(days=10)).strftime('%Y-%m-%d')"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_cosco"/>
+            <field name="commodity">Electronic Components</field>
+            <field name="commodity_hs_code">8542.31</field>
+            <field name="user_id" ref="hp_employee.user_sm1_hn"/>
+            <field name="date_order" eval="(datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">draft</field>
+            <field name="pricelist_id" ref="hp_sale.pricelist_import_hp"/>
+            <field name="branch_id" ref="hp_employee.branch_hn"/>
+            <field name="validity_date" eval="(datetime.now() + timedelta(days=25)).strftime('%Y-%m-%d')"/>
+            <field name="order_line" eval="[
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_im_cont_1'),
+                    'name': 'Luồng Xanh',
+                    'product_uom_qty': 5,
+                    'price_unit': 350,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_doc_phyto_1'),
+                    'name': 'Chi phí làm Phyto',
+                    'product_uom_qty': 1,
+                    'price_unit': 700,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_fumigation_1'),
+                    'name': 'Phí Hun Trùng 48-50 g/m3',
+                    'product_uom_qty': 2,
+                    'price_unit': 350,
+                }),
+            ]"/>
+        </record>
+
+        <!-- Quotation 2: Draft - Hàng Xuất Khẩu HP -->
+        <record id="quotation_sales_2" model="sale.order">
+            <field name="name">SALE/2025/002</field>
+            <field name="partner_id" ref="hp_sale.res_partner_client_2"/>
+            <field name="client_id" ref="hp_sale.res_partner_client_res_partner_2"/>
+            <field name="etd" eval="(datetime.now() + timedelta(days=12)).strftime('%Y-%m-%d')"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_maersk"/>
+            <field name="commodity">Furniture</field>
+            <field name="commodity_hs_code">9403.60</field>
+            <field name="user_id" ref="hp_employee.user_sm1_hcm"/>
+            <field name="date_order" eval="(datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">draft</field>
+            <field name="pricelist_id" ref="hp_sale.pricelist_export_hp"/>
+            <field name="branch_id" ref="hp_employee.branch_hcm"/>
+            <field name="validity_date" eval="(datetime.now() + timedelta(days=27)).strftime('%Y-%m-%d')"/>
+            <field name="order_line" eval="[
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_ex_cont_1'),
+                    'name': 'Miễn kiểm',
+                    'product_uom_qty': 3,
+                    'price_unit': 350,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_ex_1'),
+                    'name': 'TK Chuyển cửa Khẩu',
+                    'product_uom_qty': 1,
+                    'price_unit': 300,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_doc_co_1'),
+                    'name': 'Chi phí làm C/O',
+                    'product_uom_qty': 1,
+                    'price_unit': 300,
+                }),
+            ]"/>
+        </record>
+
+        <!-- Quotation 3: Sale Order - Hàng Nhập Khẩu với nhiều dịch vụ -->
+        <record id="quotation_sales_3" model="sale.order">
+            <field name="name">SALE/2025/003</field>
+            <field name="partner_id" ref="hp_sale.res_partner_client_3"/>
+            <field name="client_id" ref="hp_sale.res_partner_client_res_partner_3"/>
+            <field name="etd" eval="(datetime.now() + timedelta(days=8)).strftime('%Y-%m-%d')"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_kmtc"/>
+            <field name="commodity">Textile Products</field>
+            <field name="commodity_hs_code">6302.60</field>
+            <field name="user_id" ref="hp_employee.user_sm1_hcm"/>
+            <field name="date_order" eval="(datetime.now() - timedelta(days=10)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">sale</field>
+            <field name="pricelist_id" ref="hp_sale.pricelist_import_hp"/>
+            <field name="branch_id" ref="hp_employee.branch_hcm"/>
+            <field name="validity_date" eval="(datetime.now() + timedelta(days=20)).strftime('%Y-%m-%d')"/>
+            <field name="order_line" eval="[
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_im_cont_2'),
+                    'name': 'Luồng Vàng',
+                    'product_uom_qty': 8,
+                    'price_unit': 350,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_im_1'),
+                    'name': 'TK Chuyển cửa Khẩu',
+                    'product_uom_qty': 2,
+                    'price_unit': 200,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_doc_phyto_2'),
+                    'name': 'Chi phí làm Phyto Show Hun trùng',
+                    'product_uom_qty': 1,
+                    'price_unit': 750,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_doc_package_2'),
+                    'name': 'Đóng hàng tại bãi - Cont 40\'',
+                    'product_uom_qty': 2,
+                    'price_unit': 400,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_doc_lift_on_off_4'),
+                    'name': 'Chi phí nâng hạ tại Cảng - Cont 40\' Hàng',
+                    'product_uom_qty': 2,
+                    'price_unit': 1350,
+                }),
+            ]"/>
+        </record>
+
+        <!-- Quotation 4: Draft - Hàng Xuất Khẩu với Kiểm hóa -->
+        <record id="quotation_sales_4" model="sale.order">
+            <field name="name">SALE/2025/004</field>
+            <field name="partner_id" ref="hp_sale.res_partner_client_1"/>
+            <field name="client_id" ref="hp_sale.res_partner_client_res_partner_1"/>
+            <field name="etd" eval="(datetime.now() + timedelta(days=15)).strftime('%Y-%m-%d')"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_maersk"/>
+            <field name="commodity">Wood Products</field>
+            <field name="commodity_hs_code">4412.31</field>
+            <field name="user_id" ref="hp_employee.user_sm1_hn"/>
+            <field name="date_order" eval="(datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">draft</field>
+            <field name="pricelist_id" ref="hp_sale.pricelist_export_hp"/>
+            <field name="branch_id" ref="hp_employee.branch_hn"/>
+            <field name="validity_date" eval="(datetime.now() + timedelta(days=28)).strftime('%Y-%m-%d')"/>
+            <field name="order_line" eval="[
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_ex_cont_2'),
+                    'name': 'Kiểm hóa',
+                    'product_uom_qty': 4,
+                    'price_unit': 900,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_ex_cont_3'),
+                    'name': 'Chi thêm hàng Plywood luồng vàng',
+                    'product_uom_qty': 4,
+                    'price_unit': 300,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_fumigation_3'),
+                    'name': 'Phí Hun Trùng - Australia /ISPM15',
+                    'product_uom_qty': 2,
+                    'price_unit': 2000,
+                }),
+            ]"/>
+        </record>
+
+        <!-- Quotation 5: Draft - Hàng Nhập Khẩu LCL -->
+        <record id="quotation_sales_5" model="sale.order">
+            <field name="name">SALE/2025/005</field>
+            <field name="partner_id" ref="hp_sale.res_partner_client_2"/>
+            <field name="client_id" ref="hp_sale.res_partner_client_res_partner_2"/>
+            <field name="etd" eval="(datetime.now() + timedelta(days=14)).strftime('%Y-%m-%d')"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_hmm"/>
+            <field name="commodity">Machinery Parts</field>
+            <field name="commodity_hs_code">8483.40</field>
+            <field name="user_id" ref="hp_employee.user_sm1_hcm"/>
+            <field name="date_order" eval="(datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">draft</field>
+            <field name="pricelist_id" ref="hp_sale.pricelist_import_hp"/>
+            <field name="branch_id" ref="hp_employee.branch_hcm"/>
+            <field name="validity_date" eval="(datetime.now() + timedelta(days=23)).strftime('%Y-%m-%d')"/>
+            <field name="order_line" eval="[
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_im_lcl_1'),
+                    'name': 'Hàng LCL - Luồng Xanh',
+                    'product_uom_qty': 10,
+                    'price_unit': 450,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_doc_lift_on_off_1'),
+                    'name': 'Chi phí nâng hạ tại Cảng - Cont 20\' Rỗng',
+                    'product_uom_qty': 3,
+                    'price_unit': 900,
+                }),
+            ]"/>
+        </record>
+
+        <!-- Quotation 6: Sale Order - Hàng với Kiểm thủ công -->
+        <record id="quotation_sales_6" model="sale.order">
+            <field name="name">SALE/2025/006</field>
+            <field name="partner_id" ref="hp_sale.res_partner_client_3"/>
+            <field name="client_id" ref="hp_sale.res_partner_client_res_partner_3"/>
+            <field name="etd" eval="(datetime.now() + timedelta(days=6)).strftime('%Y-%m-%d')"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_kmtc"/>
+            <field name="commodity">Agricultural Products</field>
+            <field name="commodity_hs_code">1005.90</field>
+            <field name="user_id" ref="hp_employee.user_sm1_hcm"/>
+            <field name="date_order" eval="(datetime.now() - timedelta(days=15)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">sale</field>
+            <field name="pricelist_id" ref="hp_sale.pricelist_import_hp"/>
+            <field name="branch_id" ref="hp_employee.branch_hcm"/>
+            <field name="validity_date" eval="(datetime.now() + timedelta(days=15)).strftime('%Y-%m-%d')"/>
+            <field name="order_line" eval="[
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_im_cont_3'),
+                    'name': 'Kiểm Thủ công',
+                    'product_uom_qty': 2,
+                    'price_unit': 900,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_doc_package_1'),
+                    'name': 'Đóng hàng tại bãi - Cont 20\'',
+                    'product_uom_qty': 2,
+                    'price_unit': 300,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_fumigation_2'),
+                    'name': 'Phí Hun Trùng 80 g/m3',
+                    'product_uom_qty': 1,
+                    'price_unit': 500,
+                }),
+            ]"/>
+        </record>
+
+        <!-- Quotation 7: Draft - Hàng gỗ xuất khẩu đặc biệt -->
+        <record id="quotation_sales_7" model="sale.order">
+            <field name="name">SALE/2025/007</field>
+            <field name="partner_id" ref="hp_sale.res_partner_client_1"/>
+            <field name="client_id" ref="hp_sale.res_partner_client_res_partner_1"/>
+            <field name="etd" eval="(datetime.now() + timedelta(days=20)).strftime('%Y-%m-%d')"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_hmm"/>
+            <field name="commodity">Timber and Wood</field>
+            <field name="commodity_hs_code">4407.12</field>
+            <field name="user_id" ref="hp_employee.user_sm1_hn"/>
+            <field name="date_order" eval="(datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">draft</field>
+            <field name="pricelist_id" ref="hp_sale.pricelist_import_hp"/>
+            <field name="branch_id" ref="hp_employee.branch_hn"/>
+            <field name="validity_date" eval="(datetime.now() + timedelta(days=29)).strftime('%Y-%m-%d')"/>
+            <field name="order_line" eval="[
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_im_cont_4'),
+                    'name': 'Hải quan NK Hàng gỗ',
+                    'product_uom_qty': 6,
+                    'price_unit': 1100,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_doc_phyto_2'),
+                    'name': 'Chi phí làm Phyto Show Hun trùng',
+                    'product_uom_qty': 2,
+                    'price_unit': 750,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_fumigation_4'),
+                    'name': 'Phí Hun Trùng - Australia / AFAS',
+                    'product_uom_qty': 3,
+                    'price_unit': 2500,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_doc_lift_on_off_3'),
+                    'name': 'Chi phí nâng hạ tại Cảng - Cont 20\' Hàng',
+                    'product_uom_qty': 6,
+                    'price_unit': 920,
+                }),
+            ]"/>
+        </record>
+
+        <!-- Quotation 8: Draft - Báo giá đơn giản -->
+        <record id="quotation_sales_8" model="sale.order">
+            <field name="name">SALE/2025/008</field>
+            <field name="partner_id" ref="hp_sale.res_partner_client_2"/>
+            <field name="client_id" ref="hp_sale.res_partner_client_res_partner_2"/>
+            <field name="etd" eval="(datetime.now() + timedelta(days=11)).strftime('%Y-%m-%d')"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_kmtc"/>
+            <field name="commodity">Consumer Goods</field>
+            <field name="commodity_hs_code">9619.00</field>
+            <field name="user_id" ref="hp_employee.user_sm1_hcm"/>
+            <field name="date_order" eval="(datetime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">draft</field>
+            <field name="pricelist_id" ref="hp_sale.pricelist_export_hp"/>
+            <field name="branch_id" ref="hp_employee.branch_hcm"/>
+            <field name="validity_date" eval="(datetime.now() + timedelta(days=26)).strftime('%Y-%m-%d')"/>
+            <field name="order_line" eval="[
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_ex_2'),
+                    'name': 'Nộp Tờ khai vàng, xanh',
+                    'product_uom_qty': 5,
+                    'price_unit': 100,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_doc_co_1'),
+                    'name': 'Chi phí làm C/O',
+                    'product_uom_qty': 2,
+                    'price_unit': 300,
+                }),
+            ]"/>
+        </record>
+
+        <!-- Quotation 9: Sale Order - Báo giá lớn nhiều container -->
+        <record id="quotation_sales_9" model="sale.order">
+            <field name="name">SALE/2025/009</field>
+            <field name="partner_id" ref="hp_sale.res_partner_client_3"/>
+            <field name="client_id" ref="hp_sale.res_partner_client_res_partner_3"/>
+            <field name="etd" eval="(datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_cosco"/>
+            <field name="commodity">Steel Products</field>
+            <field name="commodity_hs_code">7308.90</field>
+            <field name="user_id" ref="hp_employee.user_sm1_hcm"/>
+            <field name="date_order" eval="(datetime.now() - timedelta(days=12)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">sale</field>
+            <field name="pricelist_id" ref="hp_sale.pricelist_export_hp"/>
+            <field name="branch_id" ref="hp_employee.branch_hcm"/>
+            <field name="validity_date" eval="(datetime.now() + timedelta(days=18)).strftime('%Y-%m-%d')"/>
+            <field name="order_line" eval="[
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_ex_cont_1'),
+                    'name': 'Miễn kiểm',
+                    'product_uom_qty': 15,
+                    'price_unit': 350,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_ex_1'),
+                    'name': 'TK Chuyển cửa Khẩu',
+                    'product_uom_qty': 5,
+                    'price_unit': 300,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_doc_phyto_1'),
+                    'name': 'Chi phí làm Phyto',
+                    'product_uom_qty': 3,
+                    'price_unit': 700,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_doc_lift_on_off_2'),
+                    'name': 'Chi phí nâng hạ tại Cảng - Cont 40\' Rỗng',
+                    'product_uom_qty': 10,
+                    'price_unit': 1300,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_fumigation_1'),
+                    'name': 'Phí Hun Trùng 48-50 g/m3',
+                    'product_uom_qty': 5,
+                    'price_unit': 350,
+                }),
+            ]"/>
+        </record>
+
+        <!-- Quotation 10: Draft - Hàng IMEX đặc biệt -->
+        <record id="quotation_sales_10" model="sale.order">
+            <field name="name">SALE/2025/010</field>
+            <field name="partner_id" ref="hp_sale.res_partner_client_1"/>
+            <field name="client_id" ref="hp_sale.res_partner_client_res_partner_1"/>
+            <field name="etd" eval="(datetime.now() + timedelta(days=18)).strftime('%Y-%m-%d')"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_maersk"/>
+            <field name="commodity">Mixed Cargo</field>
+            <field name="commodity_hs_code">9999.00</field>
+            <field name="user_id" ref="hp_employee.user_sm1_hn"/>
+            <field name="date_order" eval="datetime.now().strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="state">draft</field>
+            <field name="pricelist_id" ref="hp_sale.pricelist_document_fees"/>
+            <field name="branch_id" ref="hp_employee.branch_hn"/>
+            <field name="validity_date" eval="(datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')"/>
+            <field name="order_line" eval="[
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_imex_1'),
+                    'name': 'Hàng XK/NK CCHQĐTGC - Thông thường',
+                    'product_uom_qty': 3,
+                    'price_unit': 0,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_imex_2'),
+                    'name': 'Hàng XK/NK CCHQĐTGC - Luồng Đỏ',
+                    'product_uom_qty': 2,
+                    'price_unit': 500,
+                }),
+                (0, 0, {
+                    'product_template_id': ref('hp_sale.product_doc_package_1'),
+                    'name': 'Đóng hàng tại bãi - Cont 20\'',
+                    'product_uom_qty': 3,
+                    'price_unit': 300,
+                }),
+            ]"/>
+        </record>
+
+    </data>
+</odoo>
