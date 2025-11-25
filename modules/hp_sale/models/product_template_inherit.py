@@ -43,7 +43,7 @@ class ProductTemplate(models.Model):
         for record in self:
             if record.product_type == constants.ProductTemplateType.SERVICES:
                 record.product_type_display = constants.ProductTemplateType.SERVICES
-            else:
+            elif record.product_type == constants.ProductTemplateType.CUSTOM:
                 record.product_type_display = constants.ProductTemplateType.CUSTOM
 
     def _inverse_product_type_display(self):
@@ -75,6 +75,37 @@ class ProductTemplate(models.Model):
         string="Region",
         tracking=True
     )
+
+    is_editable_by_salesman = fields.Boolean(
+        string="Is Editable By Salesman",
+        compute='_compute_is_editable_by_salesman',
+        store=False,
+        help="Technical field to check if current user can edit this product"
+    )
+
+    def _compute_is_editable_by_salesman(self):
+        if self.env.su or self.env.user.has_group('base.group_system'):
+            for record in self:
+                record.is_editable_by_salesman = True
+            return
+
+        is_sales_user = (
+                self.env.user.has_group('sales_team.group_sale_salesman') or
+                self.env.user.has_group('sales_team.group_sale_salesman_all_leads') or
+                self.env.user.has_group('sales_team.group_sale_manager')
+        )
+        if not is_sales_user:
+            for record in self:
+                record.is_editable_by_salesman = True
+            return
+
+        # chỉ cho phép edit Custom và Services
+        allowed_types = [
+            constants.ProductTemplateType.CUSTOM,
+            constants.ProductTemplateType.SERVICES
+        ]
+        for record in self:
+            record.is_editable_by_salesman = record.type in allowed_types
 
     def action_sale_order_add_selected_lines(self):
         sale_order_id = self.env.context.get('sale_order_id')
