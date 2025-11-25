@@ -12,6 +12,13 @@ class FreightPurchaseBookingLine(models.Model):
     _order = 'create_date desc'
 
     booking_id = fields.Many2one('freight.purchase.booking', required=True, ondelete='cascade', string='Booking')
+
+    sale_order_id = fields.Many2one(
+        comodel_name='sale.order',
+        string='Sale Order',
+        store=True,
+        index=True,
+    )
     #filter with perf reason
     pod_id = fields.Many2one(related='booking_id.quotation_id.route_id.pod_id',store=True,readonly=True,string='Port of Discharge (POD)')
 
@@ -34,12 +41,12 @@ class FreightPurchaseBookingLine(models.Model):
     quantity = fields.Integer(string="Quantity",required=True, default=1, tracking=True)
     unit_price = fields.Float(string='Unit Price', required=True,digits="Unit price", default=1, tracking=True)
     price = fields.Float(string="Total price",compute="_compute_price", store=True, tracking=True, readonly=False)
-    sale_order_line_ids = fields.One2many('sale.order.line', 'booking_line_id', string='Sale Order Lines', tracking=True)
+    # sale_order_line_ids = fields.One2many('sale.order.line', 'booking_line_id', string='Sale Order Lines', tracking=True)
     reserved_by_id = fields.Many2one('res.users', string='Reserved by Salesperson', compute='_compute_user_reserve', store=True)
     employee_id = fields.Many2one('hr.employee', string='Sale Members', compute='_compute_employee_id', inverse='_inverse_employee_id', store=False)
 
     #these fields will be used for filter
-    sale_order_id = fields.Many2one('sale.order', compute='_compute_sale_info', store=True, string='Sale Order')
+    # sale_order_id = fields.Many2one('sale.order', compute='_compute_sale_info', store=True, string='Sale Order')
     customer_id = fields.Many2one('res.partner', compute='_compute_sale_info', store=True, string='Customer')
     salesman_id = fields.Many2one('res.users', compute='_compute_sale_info', store=True, string='Salesperson')
 
@@ -143,23 +150,23 @@ class FreightPurchaseBookingLine(models.Model):
                 if line not in remind.without_booking_line_ids:
                     remind.without_booking_line_ids = [(4, line.id)]
     
-    @api.depends('sale_order_line_ids', 'status')
-    def _compute_can_add_sale_line(self):
-        for record in self:
-            record.can_add_sale_line = False if record.sale_order_line_ids or record.status == 'cancelled' else True
+    # @api.depends('sale_order_line_ids', 'status')
+    # def _compute_can_add_sale_line(self):
+    #     for record in self:
+    #         record.can_add_sale_line = False if record.sale_order_line_ids or record.status == 'cancelled' else True
 
-    @api.depends('sale_order_line_ids')
-    def _compute_sale_info(self):
-        for line in self:
-            line.sale_order_id = False
-            line.customer_id = False
-            line.salesman_id = False
-            first_line = line.sale_order_line_ids[:1]
-            if first_line:
-                order = first_line.order_id
-                line.sale_order_id = order.id
-                line.customer_id = order.partner_id.id
-                line.salesman_id = order.user_id.id
+    # @api.depends('sale_order_line_ids')
+    # def _compute_sale_info(self):
+    #     for line in self:
+    #         line.sale_order_id = False
+    #         line.customer_id = False
+    #         line.salesman_id = False
+    #         first_line = line.sale_order_line_ids[:1]
+    #         if first_line:
+    #             order = first_line.order_id
+    #             line.sale_order_id = order.id
+    #             line.customer_id = order.partner_id.id
+    #             line.salesman_id = order.user_id.id
 
     @api.depends('container_type_id','quotation_line_container_type_id', 'quantity')
     def _compute_teu_volume(self):
@@ -227,15 +234,15 @@ class FreightPurchaseBookingLine(models.Model):
                 record.price = record.unit_price * record.quantity
 
     def write(self, vals_list):
-        origin_sale_order_lines = {rec.id: rec.sale_order_line_ids.ids for rec in self}
+#        origin_sale_order_lines = {rec.id: rec.sale_order_line_ids.ids for rec in self}
         res = super().write(vals_list)
-        if 'sale_order_line_ids' in vals_list:
-            for record in self:
-                record._event('on_change_sale_order_line').notify(
-                    record,
-                    origin_sale_order_lines[record.id],
-                    record.sale_order_line_ids.ids
-                )
+        # if 'sale_order_line_ids' in vals_list:
+        #     for record in self:
+        #         record._event('on_change_sale_order_line').notify(
+        #             record,
+        #             origin_sale_order_lines[record.id],
+        #             record.sale_order_line_ids.ids
+        #         )
         return res
 
     def action_add_sale_line(self):
