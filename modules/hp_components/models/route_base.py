@@ -1,5 +1,3 @@
-import typing
-
 from odoo import models, fields, api, _
 from odoo.api import onchange, ValuesType, Self
 from odoo.exceptions import ValidationError

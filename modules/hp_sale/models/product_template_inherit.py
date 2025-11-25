@@ -154,5 +154,7 @@ class ProductTemplate(models.Model):
                 'type': type,
                 'categ_id': cat_id,
             })
+            if not route_base.product_id:
+                route_base.product_id = product.id
         else:
             self.get_or_create_from_route_base(route_base, force_create=True)
