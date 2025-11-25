@@ -18,6 +18,52 @@ class ProductTemplate(models.Model):
         default=constants.ProductTemplateType.SEA_FREIGHT
     )
 
+    product_type = fields.Selection(
+        constants.ProductTemplateType.SELECT_OPTIONS,
+        string='HP Product Type',
+        tracking=True,
+        help="Product type for HP Logistics system"
+    )
+
+    product_type_display = fields.Selection(
+        selection=[
+            (constants.ProductTemplateType.CUSTOM, 'Custom'),
+            (constants.ProductTemplateType.SERVICES, 'Services'),
+        ],
+        string='Product Type',
+        compute='_compute_product_type_display',
+        inverse='_inverse_product_type_display',
+        store=False,
+        required=False,
+    )
+
+    @api.depends('product_type')
+    def _compute_product_type_display(self):
+        """Chuyển đổi từ product_type sang product_type_display"""
+        for record in self:
+            if record.product_type == constants.ProductTemplateType.SERVICES:
+                record.product_type_display = constants.ProductTemplateType.SERVICES
+            else:
+                record.product_type_display = constants.ProductTemplateType.CUSTOM
+
+    def _inverse_product_type_display(self):
+        """Lưu giá trị từ product_type_display vào field product_type"""
+        for record in self:
+            record.product_type = record.product_type_display
+            record.type = record.product_type_display
+
+    # def _inverse_product_type_display(self):
+    #     """Lưu giá trị từ product_type_display vào field product_type"""
+    #     for record in self:
+    #         if record.product_type_display == constants.ProductTemplateType.SERVICES:
+    #             record.product_type = constants.ProductTemplateType.SERVICES
+    #             # Đồng thời set type gốc của Odoo
+    #             record.type = constants.ProductTemplateType.SERVICES  # 'services'
+    #         elif record.product_type_display == constants.ProductTemplateType.CUSTOM:
+    #             record.product_type = constants.ProductTemplateType.CUSTOM
+    #             # Đồng thời set type gốc của Odoo
+    #             record.type = constants.ProductTemplateType.CUSTOM  # 'custom'
+
     complete_time = fields.Float(
         string="Thời gian hoàn thành (s)",
         digits=(3, 1),
