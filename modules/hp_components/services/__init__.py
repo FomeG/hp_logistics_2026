@@ -11,3 +11,4 @@ from . import sale_order_service
 from . import project_service
 from . import partner_service
 from . import geo_service
+from . import user_service

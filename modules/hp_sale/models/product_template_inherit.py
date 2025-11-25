@@ -43,7 +43,7 @@ class ProductTemplate(models.Model):
         for record in self:
             if record.product_type == constants.ProductTemplateType.SERVICES:
                 record.product_type_display = constants.ProductTemplateType.SERVICES
-            else:
+            elif record.product_type == constants.ProductTemplateType.CUSTOM:
                 record.product_type_display = constants.ProductTemplateType.CUSTOM
 
     def _inverse_product_type_display(self):
@@ -75,6 +75,25 @@ class ProductTemplate(models.Model):
         string="Region",
         tracking=True
     )
+
+    is_editable = fields.Boolean(
+        string="Is Editable By Salesman",
+        compute='_compute_is_editable',
+        store=False,
+        help="Technical field to check if current user can edit this product"
+    )
+
+    def _compute_is_editable(self):
+        user_service = self.env['hp_components.user.service']
+        allowed_types = [
+            constants.ProductTemplateType.CUSTOM,
+            constants.ProductTemplateType.SERVICES
+            ]
+        for record in self:
+            if record.type not in allowed_types:
+                record.is_editable = False
+            else:
+                record.is_editable = user_service.is_salesman_manager() or user_service.is_salesman_leader() or user_service.is_admin_user()
 
     def action_sale_order_add_selected_lines(self):
         sale_order_id = self.env.context.get('sale_order_id')
