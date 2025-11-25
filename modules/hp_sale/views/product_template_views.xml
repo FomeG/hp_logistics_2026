@@ -9,9 +9,9 @@
         <field name="arch" type="xml">
 
             <!-- Hide the entire 'group_standard_price' group (for Sales price, Cost) -->
-            <xpath expr="//group[@name='group_standard_price']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
+<!--            <xpath expr="//group[@name='group_standard_price']" position="attributes">-->
+<!--                <attribute name="invisible">1</attribute>-->
+<!--            </xpath>-->
 
             <!-- Hide the entire 'sales' page (for Sales price, Cost) -->
             <xpath expr="//page[@name='sales']" position="attributes">
@@ -24,8 +24,15 @@
             </xpath>
 
             <!-- Modify the product type field -->
+             <!-- Ẩn field type gốc và thay thế bằng product_type_display -->
             <xpath expr="//field[@name='type']" position="replace">
-                <field name="type" widget="radio" options="{'horizontal': true}"/>
+                <field name="type" invisible="1"/>
+                <field name="product_type" invisible="1"/>
+                <field name="product_type_display" widget="radio" options="{'horizontal': true}"/>
+            </xpath>
+
+            <xpath expr="//field[@name='product_tooltip']" position="attributes">
+                <attribute name="invisible">1</attribute>
             </xpath>
 
 
@@ -51,7 +58,7 @@
             <field name="inherit_id" ref="product.product_template_only_form_view"/>
             <field name="arch" type="xml">
                 <!-- Remove fields after categ_id -->
-                <xpath expr="//field[@name='categ_id']/following-sibling::field[@name='default_code']" position="replace"/>
+<!--                <xpath expr="//field[@name='categ_id']/following-sibling::field[@name='default_code']" position="replace"/>-->
                 <xpath expr="//field[@name='categ_id']/following-sibling::field[@name='valid_product_template_attribute_line_ids']" position="replace"/>
                 <xpath expr="//field[@name='categ_id']/following-sibling::field[@name='barcode']" position="replace"/>
                 <xpath expr="//page[@name='variants']" position="attributes">
@@ -91,8 +98,9 @@
     </record>
 
     <record id="product_template_tree_view_inherit_expand" model="ir.ui.view">
-        <field name="name">product.template.tree.inherit.expand</field>
+        <field name="name">product.template.list.inherit</field>
         <field name="model">product.template</field>
+        <field name="priority" eval="1"/>
         <field name="inherit_id" ref="product.product_template_tree_view"/>
         <field name="arch" type="xml">
             <list position="attributes">
@@ -101,6 +109,7 @@
             </list>
         </field>
     </record>
+
     <!-- Inherit Product Template Search View -->
     <record id="product_template_search_view_inherit" model="ir.ui.view">
         <field name="name">product.template.search.inherit</field>
@@ -139,17 +148,19 @@
 
             <!-- For group by, find the existing group element -->
             <xpath expr="//group" position="inside">
-                <filter string="Product Category" name="groupby_categ_id" context="{'group_by': 'categ_id'}"/>
-                <filter string="Product Type" name="groupby_type" context="{'group_by': 'type'}"/>
+<!--                <filter string="Product Category" name="groupby_categ_id" context="{'group_by': 'categ_id'}"/>-->
+<!--                <filter string="Product Type" name="groupby_type" context="{'group_by': 'type'}"/>-->
             </xpath>
         </field>
     </record>
 
      <record id="sale.product_template_action" model="ir.actions.act_window">
          <field name="view_mode">list,kanban,form</field>
+         <field name="view_id" ref="product.product_template_tree_view"/>
          <field name="context">{
             "sale_multi_pricelist_product_template": 1,
             "search_default_groupby_categ_id":1,
          }</field>
     </record>
+
 </odoo>
