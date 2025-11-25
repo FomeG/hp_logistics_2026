@@ -188,6 +188,17 @@ class SaleOrderInherrit(models.Model):
     #     }
     
     def select_pricing_product(self):
+        SelllingWeek = self.env['selling.week']
+        selling_weeks = SelllingWeek.search([
+            ('start_date', '<=', self.etd),
+            ('end_date', '>=', self.etd),
+        ])
+
+        if not selling_weeks:
+            selling_weeks = SelllingWeek.search([
+                ('state', '=', constants.SellingWeekState.INCOMING),
+            ])
+
         return {
             'type': 'ir.actions.act_window',
             'name': 'Select Product Selling Week Line',
@@ -198,7 +209,7 @@ class SaleOrderInherrit(models.Model):
                 (self.env.ref('hp_sale.view_product_template_selling_week_line_search').id, 'search'),
             ],
             'target': 'new',
-            'domain': [],
+            'domain': [('shipping_line_id', '=', self.shipping_line_id.id), ('selling_week_id', 'in', selling_weeks.ids)],
             'context': {
                 'sale_order_id': self.id,
                 'default_shipping_line_id': self.shipping_line_id.id,
