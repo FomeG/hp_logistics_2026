@@ -43,9 +43,7 @@ class ProductTemplate(models.Model):
                 'order_id': sale_order_id,
                 'product_id': line.product_variant_id.id,
                 'product_uom_qty': 1.0,
-                'base_price': line.list_price,
                 'price_unit': line.list_price,
-                'product_type_filter': line.type,
             })
 
         self.env['sale.order.line'].sudo().create(values)

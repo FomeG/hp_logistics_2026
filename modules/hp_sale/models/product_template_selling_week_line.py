@@ -79,7 +79,6 @@ class ProductTemplateSellingWeekLine(models.Model):
                 'product_id': product_template.product_variant_id.id,
                 'container_type_id': line.container_type_id.id,
                 'product_uom_qty': 1.0,
-                'base_price': line.price,
                 'price_unit': line.price,
                 'product_type_filter': product_template.type,
             })
