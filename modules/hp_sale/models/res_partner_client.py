@@ -22,7 +22,12 @@ class ResPartnerClient(models.Model):
 
     is_sale_man_user = fields.Boolean(string="Is Sale Man", compute="_compute_is_sale_man_user", store=False)
     sale_user_ids = fields.Many2many('res.users', compute='_compute_sale_user_ids', store=False)
-
+    is_monthly_billing = fields.Boolean(
+        string="Monthly Billing",
+        default=False,
+        help="If checked, CS orders from this client will be grouped into monthly batch orders",
+        tracking=True,
+    )
     _unique_fields = ["vat", "ref", "phone"]
 
     @api.depends()

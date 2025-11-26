@@ -21,6 +21,14 @@ class CsOrder(models.Model):
         string="Batch Order",
         help="used for monthly billing"
     )
+
+    is_monthly_billing = fields.Boolean(
+        string="Monthly Billing",
+        related='sale_order_id.is_monthly_billing',
+        store=True,
+        help="Indicates if this CS order is part of monthly billing batch",
+    )
+
     code = fields.Char(
         string="Cs Ref",
         required=True,

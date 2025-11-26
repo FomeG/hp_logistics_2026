@@ -6,7 +6,10 @@ class SaleOrderInherit(models.Model):
 
     is_monthly_billing = fields.Boolean(
         string="Monthly Billing",
-        default=False,
+        related='client_id.is_monthly_billing',
+        readonly=False,
+        store=True,
+        help="If checked, CS order will be grouped into monthly batch orders. Can be overridden per sale order.",
     )
     cs_order_id = fields.Many2one(
         comodel_name='cs.order',

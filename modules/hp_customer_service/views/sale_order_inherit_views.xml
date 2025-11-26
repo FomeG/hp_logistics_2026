@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Thêm field is_monthly_billing vào Sale Order Form -->
+    <record id="view_sale_order_form_inherit_monthly_billing" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.monthly.billing</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Thêm vào Other Info tab  -->
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="is_monthly_billing"
+                       widget="boolean_toggle"
+                       help="Group CS Orders into monthly batch for billing"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

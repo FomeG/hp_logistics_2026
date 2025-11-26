@@ -19,6 +19,8 @@
                 <field name="Booking_code"/>
                 <field name="incoterm_id" optional="hide"/>
                 <field name="cs_manager_id" widget="many2one_avatar_user"/>
+                <field name="batch_order_id" optional="show"/>
+                <field name="is_monthly_billing" optional="show"/>
                 <field name="state" widget="badge"
                        decoration-muted="state=='draft'"
                        decoration-info="state=='in_progress'"
@@ -104,7 +106,13 @@
                         <field name="incoterm_id"/>
                         <field name="booking_id"/>
                         <field name="Booking_code"/>
-                        <field name="batch_order_id" invisible="batch_order_id == False"/>
+                        <field name="batch_order_id"
+                               string="Monthly Batch"
+                               readonly="1"
+                               options="{'no_create': True}"/>
+                        <field name="is_monthly_billing"
+                               string="Monthly Billing"
+                               readonly="1"/>
                     </group>
                 </group>
                 <group name="commodity_info" string="Commodity">
