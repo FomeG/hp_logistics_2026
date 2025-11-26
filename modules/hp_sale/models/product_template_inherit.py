@@ -25,11 +25,22 @@ class ProductTemplate(models.Model):
         help="Product type for HP Logistics system"
     )
 
-    product_type_display = fields.Selection(
+    # Field hiển thị cho user khi tạo mới/edit - chỉ Custom và Services
+    product_type_editable = fields.Selection(
         selection=[
             (constants.ProductTemplateType.CUSTOM, 'Custom'),
             (constants.ProductTemplateType.SERVICES, 'Services'),
         ],
+        string='Product Type',
+        compute='_compute_product_type_editable',
+        inverse='_inverse_product_type_editable',
+        store=False,
+        required=False,
+    )
+
+    # Field hiển thị cho user khi xem - tất cả 4 loại
+    product_type_display = fields.Selection(
+        selection=constants.ProductTemplateType.SELECT_OPTIONS,
         string='Product Type',
         compute='_compute_product_type_display',
         inverse='_inverse_product_type_display',
@@ -38,16 +49,23 @@ class ProductTemplate(models.Model):
     )
 
     @api.depends('product_type')
-    def _compute_product_type_display(self):
-        """Chuyển đổi từ product_type sang product_type_display"""
+    def _compute_product_type_editable(self):
         for record in self:
-            if record.product_type == constants.ProductTemplateType.SERVICES:
-                record.product_type_display = constants.ProductTemplateType.SERVICES
-            elif record.product_type == constants.ProductTemplateType.CUSTOM:
-                record.product_type_display = constants.ProductTemplateType.CUSTOM
+            if record.product_type in [constants.ProductTemplateType.CUSTOM, constants.ProductTemplateType.SERVICES]:
+                record.product_type_editable = record.product_type
+
+    def _inverse_product_type_editable(self):
+        for record in self:
+            record.product_type = record.product_type_editable
+            record.type = record.product_type_editable
+
+    @api.depends('product_type')
+    def _compute_product_type_display(self):
+        for record in self:
+            # Hiển thị tất cả 4 loại: SEA_FREIGHT, TRUCK_FREIGHT, CUSTOM, SERVICES
+            record.product_type_display = record.product_type
 
     def _inverse_product_type_display(self):
-        """Lưu giá trị từ product_type_display vào field product_type"""
         for record in self:
             record.product_type = record.product_type_display
             record.type = record.product_type_display
