@@ -76,6 +76,8 @@
                             <field name="email" widget="email" context="{'gravatar_image': True}"
                                 required="user_ids" />
                             <field name="branch_id" required="1" />
+                            <field name="is_monthly_billing"
+                                        help="If checked, CS orders from this client will be grouped into monthly batch orders for billing"/>
                         </group>
                     </group>
 
