@@ -28,8 +28,18 @@
             <xpath expr="//field[@name='type']" position="replace">
                 <field name="type" invisible="1"/>
                 <field name="product_type" invisible="1"/>
-                <field name="product_type_display" widget="radio" options="{'horizontal': true}"
-                       readonly="id and not is_editable"/>
+                 <!-- Field cho tạo mới/edit: chỉ Custom và Services -->
+                <field name="product_type_editable"
+                       widget="radio"
+                       options="{'horizontal': true}"
+                       invisible="id and not is_editable"/>
+
+                <!-- Field cho view: hiển thị tất cả 4 loại, readonly -->
+                <field name="product_type_display"
+                       widget="radio"
+                       options="{'horizontal': true}"
+                       readonly="1"
+                       invisible="not id or is_editable"/>
             </xpath>
 
             <xpath expr="//field[@name='product_tooltip']" position="attributes">
