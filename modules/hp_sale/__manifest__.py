@@ -36,7 +36,7 @@
         'views/product_template_views.xml',
         'views/res_config_settings.xml',
         # 'views/price_category_views.xml',
-        #'views/product_category_views.xml',
+        'views/product_category_views.xml',
         'views/change_menu_customer_views.xml',
         # 'views/inherit_form_create_customer_views.xml',
         'views/sale_order_inherit.xml',

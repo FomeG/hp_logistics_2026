@@ -209,7 +209,12 @@ class SaleOrderInherrit(models.Model):
                 (self.env.ref('hp_sale.view_product_template_selling_week_line_search').id, 'search'),
             ],
             'target': 'new',
-            'domain': [('shipping_line_id', '=', self.shipping_line_id.id), ('selling_week_id', 'in', selling_weeks.ids)],
+            'domain': [
+                ('shipping_line_id', '=', self.shipping_line_id.id),
+                ('selling_week_id', 'in', selling_weeks.ids),
+                ('product_template_id.product_type', '=', constants.ProductTemplateType.SEA_FREIGHT),
+                ('product_template_id.categ_id.service_type', '=', self.service_type),
+            ],
             'context': {
                 'sale_order_id': self.id,
                 'default_shipping_line_id': self.shipping_line_id.id,
@@ -230,7 +235,10 @@ class SaleOrderInherrit(models.Model):
                 (self.env.ref('hp_sale.product_template_normal_search_view').id, 'search'),
             ],
             'target': 'new',
-            'domain': [('route_id', '=', False)],
+            'domain': [
+                ('route_id', '=', False),
+                ('categ_id.service_type', '=', self.service_type),
+            ],
             'context': {
                 'sale_order_id': self.id,
                 'dialog_size': 'extra-large',
