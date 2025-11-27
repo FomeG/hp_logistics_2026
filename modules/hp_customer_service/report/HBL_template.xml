@@ -33,20 +33,21 @@
                                         <div style="width: 100%;box-sizing:border-box;border-bottom: 1px solid #000;  height: 150px; font-size: 12px; line-height: 1.4;">
                                             <span>Shipper/Exporter (full name and address)</span><br/>
                                             <h1 style="display: block; margin-top: 20px;word-break: break-word;font-size: 16px;">
-                                                 <t t-esc="o.carrier or 'TEST CARRIER'"/>
+                                                 <t t-if="o.cs_order_id and o.cs_order_id.cs_shipping_instruction_id and o.cs_order_id.cs_shipping_instruction_id.shipper" t-esc="o.cs_order_id.cs_shipping_instruction_id.shipper.name"/>
+                                                 <t t-else="">TEST CARRIER</t>
                                             </h1>
                                         </div>
                                         <div style=" width: 100%;border-bottom: 1px solid #000; margin-bottom: 5px; padding: 5px;">
                                             <span>Consignee or Order (full name and address)</span><br/>
                                             <h1 style="display: block; margin-top: 20px;font-size: 16px;word-break: break-word;">
-                                                TO THE ORDER OF BUSAN BANK
+                                                <t t-esc="o.cs_order_id.cs_shipping_instruction_id.consignee.name or 'TO THE ORDER OF BUSAN BANK'"/>
                                             </h1>
                                         </div>
                                         <div style="width: 100%;border-bottom: 1px solid #000;margin-bottom: 5px; padding: 5px;">
                                             <span>Notify party (full name and address, tel, fax)</span><br/>
                                             <h1 style="display: block; margin-top: 20px;word-break: break-word;font-size: 16px;">
-                                                SH TIMBER CO., LTD<br/>
-                                                59, GADAL 1-RO, GANGSEO-GU, BUSAN, SOUTH KOREA
+                                                <t t-esc="o.cs_order_id.cs_shipping_instruction_id.notify_party.name or 'SH TIMBER CO., LTD'"/><br/>
+                                                <t t-esc="o.cs_order_id.cs_shipping_instruction_id.notify_party.street or '59, GADAL 1-RO, GANGSEO-GU, BUSAN, SOUTH KOREA'"/>
                                             </h1>
                                         </div>
 <div style="width:100%; font-size:12px; overflow:hidden;border-bottom: 1px solid #000;">
@@ -59,7 +60,7 @@
     <div style="width:49%; float:right; height:100px; text-align:center; padding:5px; box-sizing:border-box;">
         <p style="margin:0;">Place of receipt (*)</p>
         <h1 style="margin-top:10px; font-size:16px; word-break:break-word;">
-            <t t-esc="o.port_receipt or '259075682'"/>
+            <t t-esc="o.cs_order_id.cs_shipping_instruction_id.place_of_receipt or '259075682'"/>
         </h1>
     </div>
 </div>
@@ -74,7 +75,7 @@
     <div style="width:49%; float:left; height:100px; text-align:center; padding:5px; box-sizing:border-box; border-right:1px solid #000;">
         <p style="margin:0;">Ocean vessel and Voy. No.</p>
         <h1 style="display:block; margin-top:20px; font-size:16px; word-break:break-word;">
-            <t t-esc="o.vessel or 'MAERSK NARVIK 536N'"/>
+            <t t-esc="o.vessel_id.name or 'MAERSK NARVIK 536N'"/>
         </h1>
     </div>
 
@@ -82,7 +83,7 @@
     <div style="width:49%; float:right; height:100px; text-align:center; box-sizing:border-box;">
         <p style="margin:0;">Port of loading</p>
         <h1 style="display:block; margin-top:20px; font-size:16px; word-break:break-word;">
-            <t t-esc="o.port_loading or 'HAIPHONG PORT, VIETNAM'"/>
+            <t t-esc="o.pol_id.name or 'HAIPHONG PORT, VIETNAM'"/>
         </h1>
     </div>
 
@@ -94,7 +95,7 @@
     <div style="width:49%; float:left; height:100px; text-align:center; box-sizing:border-box; border-right:1px solid #000;">
         <p style="margin:0;">Port of discharge</p>
         <h1 style="display:block; margin-top:20px; font-size:16px; word-break:break-word;">
-            <t t-esc="o.port_discharge or 'BUSAN, SOUTH KOREA'"/>
+            <t t-esc="o.pod_id.name or 'BUSAN, SOUTH KOREA'"/>
         </h1>
     </div>
 
@@ -102,7 +103,7 @@
     <div style="width:49%; float:right; height:100px; text-align:center; padding:5px; box-sizing:border-box;">
         <p style="margin:0;">Place of delivery (*)</p>
         <h1 style="display:block; margin-top:20px; font-size:16px; word-break:break-word;">
-            <t t-esc="o.port_delivery or 'BUSAN, SOUTH KOREA'"/>
+            <t t-esc="o.pod_id.name or 'BUSAN, SOUTH KOREA'"/>
         </h1>
     </div>
 
@@ -119,7 +120,7 @@
     <div style="width:49%; float:left; height:100px; text-align:center; padding:5px; box-sizing:border-box; border-right:1px solid #000;">
         <p style="margin:0;">Booking No</p>
         <h1 style="display:block; margin-top:10px; font-size:16px; word-break:break-word;">
-            <t t-esc="o.booking_number or '259075682'"/>
+            <t t-esc="o.booking_id.code or '259075682'"/>
         </h1>
     </div>
 
@@ -127,7 +128,7 @@
     <div style="width:49%; float:right; height:100px; text-align:center; padding:5px; box-sizing:border-box;">
         <p style="margin:0;">B/L No.:</p>
         <h1 style="display:block; margin-top:10px; font-size:16px; word-break:break-word;">
-            <t t-esc="o.job_number or 'HNOSE25093792'"/>
+            <t t-esc="o.bl_number  or 'HNOSE25093792'"/>
         </h1>
     </div>
 
@@ -188,7 +189,7 @@
     <tr>
         <td style="width: 30%;">
             <i>Freight and charges</i><br/>
-            <b><span t-esc="freight_charges or ''"/></b>
+            <b><span t-esc="o.cs_order_id.cs_shipping_instruction_id.freight_charge or freight_charges or ''"/></b>
         </td>
         <td style="width: 30%; vertical-align: top;">
             <div style="width:100%; border-bottom: 1px solid #000; padding-bottom: 3px; margin-bottom: 3px;">
@@ -202,7 +203,7 @@
         </td>
         <td style="width: 40%; vertical-align: top;">
             <i>Place and date of issue</i><br/>
-            <b><span t-esc="place_issue or 'Hanoi'"/>, <span t-esc="date_issue or 'September 12, 2025'"/></b>
+            <b><span t-esc="o.place_of_issue  or 'Hanoi'"/>, <span t-esc="o.issue_date or 'September 12, 2025'"/></b>
         </td>
     </tr>
 
@@ -229,7 +230,7 @@
         </td>
         <td>
             <i>Laden on board:</i><br/>
-            <b><span t-esc="laden_place or 'HAI PHONG'"/>, <span t-esc="laden_date or 'September 12, 2025'"/></b>
+            <b><span t-esc="o.pol_id.name or laden_place or 'HAI PHONG'"/>, <span t-esc="o.booking_id.etd or laden_date or 'September 12, 2025'"/></b>
         </td>
     </tr>
 </table>
