@@ -14,3 +14,4 @@ from . import cs_pre_alert
 # from . import cs_job_detail
 # from . import cs_job_container
 from . import sale_order_inherit
+from . import res_partner_client
