@@ -23,3 +23,5 @@ from . import fleet_vehicle_hpl
 from . import fleet_vehicle_assignation_log_inherit
 # from . import trucking_planning_freight_purchase_booking
 # from . import trucking_planning_cs_job
+from . import sale_order_inherit
+from . import product_template_inherit

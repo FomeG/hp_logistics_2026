@@ -44,6 +44,7 @@
         'report/ir_actions_report.xml',
         'report/trip_order_templates.xml',
         'views/trucking_planning_vehicle_driver_history_views.xml',
+        'views/sale_order_views.xml',
 
         #data
        'data/cron_job.xml',
