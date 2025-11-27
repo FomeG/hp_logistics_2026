@@ -164,6 +164,23 @@ class CsOrder(models.Model):
         string = "Tasks",
     )
 
+    def action_print_HBL_bill(self):
+        if not self.cs_bill_lading_ids:
+            raise ValidationError("No Bill of Lading found for this order!")
+        existing_bls = self.cs_bill_lading_ids.exists()
+        if not existing_bls:
+            raise ValidationError("All Bill of Lading records have been deleted!")
+        return self.env.ref('hp_customer_service.action_report_HBL_bill').report_action(existing_bls)
+
+    def action_print_debit(self):
+        if not self.cs_debit_id:
+            raise ValidationError("No Debit found for this order!")
+        existing_debits = self.cs_debit_id.exists()
+        if not existing_debits:
+            raise ValidationError("All Debit records have been deleted!")
+
+        return self.env.ref('hp_customer_service.action_report_debit_note').report_action(existing_debits)
+
     @api.model
     def get_or_create_cs_order_from_sale_order(self, sale_order):
         """
