@@ -181,7 +181,7 @@
                     widget="many2one"
                     placeholder="Select Client ..."
                     options="{'no_create': True, 'no_create_edit': True}"
-                    context="{'show_ref': True}" />
+                    context="{'show_ref': True, 'form_view_ref': 'hp_sale.view_res_partner_client_form'}" />
                 <field name="service_type" />
                 <field name="incoterm_id" />
                 <field name="commodity" />
