@@ -85,6 +85,30 @@
                                 </form>
                             </field>
                         </page>
+                        <page string="Documents">
+                            <field name="attachment_ids" domain="[('booking_id', '=', id)]">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="document_type"/>
+                                    <field name="create_uid"/>
+                                    <field name="create_date"/>
+                                </list>
+                                <form string="Document">
+                                    <sheet>
+                                        <group>
+                                            <field name="name"/>
+                                            <field name="document_type" required="True"/>
+                                            <field name="booking_id"/>
+                                            <field name="create_uid" readonly="1" invisible="not id"/>
+                                            <field name="create_date" readonly="1" invisible="not id"/>
+                                        </group>
+                                        <group>
+                                            <field name="datas" filename="name"/>
+                                        </group>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
                         <page string="Inventory" invisible="not is_show_inventory">
                             <field name="booking_inventory_ids" context="{'from_booking_form': True}">
                                 <list edit="0" delete="0" readonly="1" no_open="1">

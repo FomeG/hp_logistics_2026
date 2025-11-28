@@ -129,6 +129,12 @@ class FreightPurchaseBooking(models.Model):
         store=False,
         string="Can Apply Fees"
     )
+    # Documents
+    attachment_ids = fields.One2many(
+        comodel_name='ir.attachment',
+        inverse_name='booking_id',
+        string='Documents'
+    )
 
     @api.onchange('booking_mode')
     def _onchange_booking_mode(self):

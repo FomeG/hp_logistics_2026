@@ -5,10 +5,10 @@
     'author': 'HPL',
     'category': 'HP',
     'version': '18.0.0.0.1',
-    'depends': ['base','hp_freight_purchase'],
+    'depends': ['base'],
     'data': [
         'security/ir.model.access.csv',
-        'views/hp_document_booking_document_views.xml',
+        # 'views/hp_document_booking_document_views.xml',
         'views/hp_document_views.xml',
         # data
         'data/cron_job.xml',

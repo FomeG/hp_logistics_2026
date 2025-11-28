@@ -11,6 +11,7 @@
         #data - must be loaded first
         'data/partner_main_type_data.xml',
         'data/freight_purchase_booking_sequences.xml',
+        'data/freight_purchase_data_config.xml',
         #data demo
         # 'demo/container_type_demo.xml',
         #'demo/fee_demo.xml',
@@ -38,6 +39,7 @@
         'views/freight_purchase_quotation_line_views.xml',
         'views/freight_purchase_booking_views.xml',
         'views/freight_purchase_booking_line_views.xml',
+        'views/freight_purchase_booking_document_views.xml',
         'views/freight_purchase_remind_views.xml',
 #        'views/sale_order_line_selection_views.xml',
 #        'views/sale_order_inherit_views.xml',
