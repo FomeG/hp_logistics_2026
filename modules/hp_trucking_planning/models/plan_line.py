@@ -516,7 +516,7 @@ class PlanLine(models.Model):
 
     def action_export_plan_line_excel(self):
         """Export job data to Excel format"""
-        return self.env['hp.document.service'].generate_plan_line_excel(self)
+        return self.env['hp.document.service.trucking'].generate_excel(self)
 
     def action_export_all_plan_lines_excel(self):
         """Export all jobs to Excel format"""
