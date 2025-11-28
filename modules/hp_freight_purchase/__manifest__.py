@@ -6,7 +6,7 @@
     'category': 'HP',
     'version': '18.0.0.0.1',
     "license": "LGPL-3",
-    'depends': ['hp_sale', 'hp_document'],
+    'depends': ['hp_sale'],
     'data': [
         #data - must be loaded first
         'data/partner_main_type_data.xml',
