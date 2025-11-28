@@ -29,6 +29,13 @@
             parent="menu_base_team"
             sequence="30" />
 
+        <menuitem id="menu_freight_purchase_documents"
+              name="Documents"
+              parent="menu_freight_purchase_root"
+              groups="group_hp_freight_purchase_member"
+              sequence="35"
+              action="action_freight_purchase_documents"/>
+
         <menuitem id="menu_freight_purchase_port"
             name="Ports"
             action="freight_purchase_port_action"

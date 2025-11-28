@@ -1,6 +1,6 @@
 <odoo noupdate="1">
     <record id="ir_config_parameter_model_list" model="ir.config_parameter">
         <field name="key">model.list</field>
-        <field name="value">['freight.purchase.booking', 'mail.mail']</field>
+        <field name="value">['mail.mail']</field>
     </record>
 </odoo>
