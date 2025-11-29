@@ -23,7 +23,7 @@
                 <sheet>
                     <group>
                         <field name="name"/>
-                        <field name="department_id"/>
+                        <field name="department_id" domain="[('department_type_id.code', '=', 'sale')]"/>
                         <field name="region_id"/>
                     </group>
 
@@ -33,8 +33,13 @@
                         </page>
                         <page string="Ports" invisible="department_type_code != 'sale' or not region_id">
                             <field name="location_ids"
-                                domain="[('type', '=', 'port'), ('country_id.region_id', '=', region_id)]"
-                            />
+                                   domain="[('type', '=', 'port'), ('country_id.region_id', '=', region_id)]">
+                                <list string="Ports">
+                                    <field name="name"/>
+                                    <field name="country_id"/>
+                                    <field name="region_id"/>
+                                </list>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>
@@ -68,6 +73,7 @@
         <field name="name">Teams</field>
         <field name="res_model">hr.team</field>
         <field name="view_mode">list,form</field>
+        <field name="domain">[('department_id.department_type_id.code', '=', 'sale')]</field>
         <field name="search_view_id" ref="view_hr_team_search"/>
     </record>
 </odoo>

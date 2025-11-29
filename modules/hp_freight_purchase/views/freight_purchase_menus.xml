@@ -122,6 +122,13 @@
             name="Setting"
             parent="menu_freight_purchase_root"
             sequence="40" />
+        <menuitem
+            id="menu_freight_purchase_manage_team"
+            name="Pricing Teams"
+            parent="menu_freight_purchase_setting"
+            action="hr_team_action_pricing"
+            sequence="5"
+        />
         <menuitem id="menu_freight_purchase_remind"
             name="Remind"
             action="freight_purchase_remind_action"

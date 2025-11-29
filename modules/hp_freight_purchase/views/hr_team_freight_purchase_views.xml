@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View for Pricing Teams -->
+    <record id="view_hr_team_pricing_list" model="ir.ui.view">
+        <field name="name">hr.team.pricing.list</field>
+        <field name="model">hr.team</field>
+        <field name="arch" type="xml">
+            <list string="Pricing Teams">
+                <field name="name"/>
+                <field name="department_id"/>
+                <field name="region_id"/>
+                <field name="user_ids" widget="many2many_tags"/>
+                <field name="location_ids" widget="many2many_tags"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View for Pricing Teams -->
+    <record id="view_hr_team_pricing_form" model="ir.ui.view">
+        <field name="name">hr.team.pricing.form</field>
+        <field name="model">hr.team</field>
+        <field name="arch" type="xml">
+            <form string="Pricing Team">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="department_id" domain="[('department_type_id.code', '=', 'pricing')]"/>
+                        <field name="region_id"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Users">
+                            <field name="user_ids"/>
+                        </page>
+                       <page string="Ports" invisible="department_type_code != 'pricing' or not region_id">
+                            <field name="location_ids"
+                                   domain="[('type', '=', 'port'), ('country_id.region_id', '=', region_id)]">
+                                <list string="Ports">
+                                    <field name="name"/>
+                                    <field name="country_id"/>
+                                    <field name="region_id"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View for Pricing Teams -->
+    <record id="view_hr_team_pricing_search" model="ir.ui.view">
+        <field name="name">hr.team.pricing.search</field>
+        <field name="model">hr.team</field>
+        <field name="arch" type="xml">
+            <search string="Search Pricing Teams">
+                <field name="name" string="Team Name"/>
+                <field name="department_id" string="Department"/>
+                <field name="region_id" string="Region"/>
+
+                <filter name="department_type_pricing"
+                    string="Pricing"
+                    domain="[('department_id.department_type_id.code', '=', 'pricing')]"/>
+
+                <group expand="0" string="Group By">
+                    <filter name="group_department" string="Department" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_region" string="Region" context="{'group_by': 'region_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action for Pricing Teams -->
+    <record id="hr_team_action_pricing" model="ir.actions.act_window">
+        <field name="name">Pricing Teams</field>
+        <field name="res_model">hr.team</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('department_id.department_type_id.code', '=', 'pricing')]</field>
+        <field name="context">{'default_department_type_code': 'pricing', 'search_default_department_type_pricing': 1}</field>
+        <field name="search_view_id" ref="view_hr_team_pricing_search"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_hr_team_pricing_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_hr_team_pricing_form')})]"/>
+    </record>
+</odoo>

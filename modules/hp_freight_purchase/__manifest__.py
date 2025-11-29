@@ -41,6 +41,7 @@
         'views/freight_purchase_booking_line_views.xml',
         'views/freight_purchase_booking_document_views.xml',
         'views/freight_purchase_remind_views.xml',
+        'views/hr_team_freight_purchase_views.xml',
 #        'views/sale_order_line_selection_views.xml',
 #        'views/sale_order_inherit_views.xml',
         'views/res_country_views.xml',
