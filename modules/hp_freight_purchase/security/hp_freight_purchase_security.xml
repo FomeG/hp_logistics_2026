@@ -36,6 +36,29 @@
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]" />
         </record>
 
+        <!-- Record Rule: Pricing Leader can manage pricing teams -->
+        <record id="hr_team_pricing_leader_rule" model="ir.rule">
+            <field name="name">Pricing Leader: Manage Pricing Teams</field>
+            <field name="model_id" ref="hp_employee.model_hr_team"/>
+            <field name="domain_force">[('department_id.department_type_id.code', '=', 'pricing')]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_lead'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- Record Rule: Pricing User can view pricing teams -->
+        <record id="hr_team_pricing_user_rule" model="ir.rule">
+            <field name="name">Pricing User: View Pricing Teams</field>
+            <field name="model_id" ref="hp_employee.model_hr_team"/>
+            <field name="domain_force">[('department_id.department_type_id.code', '=', 'pricing')]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
         <!-- Record Rules for Members - Only access records they created -->
         
         <!-- Freight Purchase Fee - Member Rule -->
