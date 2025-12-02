@@ -63,7 +63,7 @@
 
                 <!-- Thông tin ETD và Tỷ giá -->
                 <div style="margin: 10px 0; font-size: 9pt;">
-                    <span style="margin-right: 30px;">Tỷ giá: <strong><span t-esc="'{:,.0f}'.format(doc.currency_rate or 25000)"/></strong> VNĐ/USD</span>
+                    <span style="margin-right: 30px;">Tỷ giá: VNĐ/USD</span>
                     <span>ETD: <strong><span t-field="doc.etd" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/></strong></span>
                 </div>
 
@@ -95,9 +95,7 @@
                                 <td style="border: 1px solid #000; padding: 4px; text-align: center;"><span t-field="line.product_uom.name"/></td>
                                 <td style="border: 1px solid #000; padding: 4px; text-align: center;">''</td>
                                 <td style="border: 1px solid #000; padding: 4px; text-align: center;"><span t-field="line.product_uom_qty"/></td>
-                                <td style="border: 1px solid #000; padding: 4px; text-align: right;">
-                                    <span t-if="doc.currency_id.name == 'USD'" t-esc="'{:,.2f}'.format(line.price_unit)"/>
-                                </td>
+                                <td style="border: 1px solid #000; padding: 4px; text-align: right;">''</td>
                                 <td style="border: 1px solid #000; padding: 4px; text-align: right;">
                                     <span t-esc="'{:,.0f}'.format(line.price_unit * (doc.currency_rate or 25000) if doc.currency_id.name == 'USD' else line.price_unit)"/>
                                 </td>
