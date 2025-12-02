@@ -94,26 +94,31 @@
             </xpath>
 
             <!-- Add buttons for each state transition -->
-            <!-- <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email']" position="after">
-                <button name="action_customer_confirm" id="action_customer_confirm"
-                        string="Customer Confirmed" type="object" class="btn-primary"
-                        data-hotkey="c" invisible="state != 'activated'"/>
+            <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email']" position="after">
+                <button name="action_print_quotation"
+                    type="object"
+                    string="In Báo Giá"
+                    class="btn-secondary"
+                    icon="fa-print"/>
+<!--                <button name="action_customer_confirm" id="action_customer_confirm"-->
+<!--                        string="Customer Confirmed" type="object" class="btn-primary"-->
+<!--                        data-hotkey="c" invisible="state != 'activated'"/>-->
 
-               <button name="action_customer_approved" id="action_customer_approved"
-                       string="Submit to Sales Leader" type="object" class="btn-primary"
-                       data-hotkey="c" invisible="state != 'customer_confirm'"/>
+<!--               <button name="action_customer_approved" id="action_customer_approved"-->
+<!--                       string="Submit to Sales Leader" type="object" class="btn-primary"-->
+<!--                       data-hotkey="c" invisible="state != 'customer_confirm'"/>-->
 
-               <button name="action_sale_leader_approved" id="action_sale_leader_approved"
-                       string="Submit to Pricing Leader" type="object" class="btn-primary"
-                       data-hotkey="s" invisible="state != 'sale_leader_confirm'"
-                       groups="sales_team.group_sale_manager"/>
+<!--               <button name="action_sale_leader_approved" id="action_sale_leader_approved"-->
+<!--                       string="Submit to Pricing Leader" type="object" class="btn-primary"-->
+<!--                       data-hotkey="s" invisible="state != 'sale_leader_confirm'"-->
+<!--                       groups="sales_team.group_sale_manager"/>-->
 
-                <button name="action_final_confirm" id="action_final_confirm"
-                        string="Confirmed" type="object" class="btn-primary"
-                        data-hotkey="p"
-                        groups="sales_team.group_sale_manager,sales_team.group_sale_salesman"
-                        invisible="state != 'pricing_leader_confirm' or (uid != create_uid and uid != user_id)"/>
-            </xpath> -->
+<!--                <button name="action_final_confirm" id="action_final_confirm"-->
+<!--                        string="Confirmed" type="object" class="btn-primary"-->
+<!--                        data-hotkey="p"-->
+<!--                        groups="sales_team.group_sale_manager,sales_team.group_sale_salesman"-->
+<!--                        invisible="state != 'pricing_leader_confirm' or (uid != create_uid and uid != user_id)"/>-->
+            </xpath>
 
 
             <!-- Hide the Confirm button for sent state completely -->

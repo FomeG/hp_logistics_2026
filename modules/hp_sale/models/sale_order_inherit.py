@@ -287,3 +287,7 @@ class SaleOrderInherrit(models.Model):
         if user.has_group('base.group_system'):
             return []
         return [('user_id', '=', user.id)]
+
+    def action_print_quotation(self):
+        """in báo giá"""
+        return self.env.ref('hp_sale.action_report_quotation_hpl').report_action(self)
