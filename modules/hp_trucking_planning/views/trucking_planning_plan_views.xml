@@ -180,7 +180,7 @@
         <field name="context">
             {
                 'default_status': 'in_progress',
-                'search_default_not_cancelled': 1,
+                'search_default_group_by_status': 1,
             }
         </field>
     </record>

@@ -65,6 +65,22 @@ class TruckingDashboard(models.AbstractModel):
             ),
         }
 
+    def _compute_plan_statistics(self):
+        Plan = self.env['trucking_planning.plan']
+        # Kế hoạch mới từ CS (có cs_order_id và status = draft)
+        new_plans_from_cs = Plan.search_count([
+            ('cs_order_id', '!=', False),
+            ('status', 'in', [constants.PlanStatus.DRAFT])
+        ])
+        # Kế hoạch đang chờ (status = in progress hoặc confirmed)
+        pending_plans = Plan.search_count([
+            ('status', 'in', [constants.PlanStatus.IN_PROGRESS, constants.PlanStatus.CONFIRMED])
+        ])
+        return {
+            'new_plans_from_cs': new_plans_from_cs,
+            'pending_plans': pending_plans,
+        }
+
     def _get_top_truck_driver(self, month=None, year=None):
         """Get top 5 truck-driver pairs by trip count"""
         start_date, end_date = self._get_date_range(month, year)
@@ -144,6 +160,7 @@ class TruckingDashboard(models.AbstractModel):
 
         # Get all statistics
         trip_stats = self._compute_trip_statistics(month, year)
+        plan_stats = self._compute_plan_statistics()
 
         return {
             'selected_period': self._get_selected_period(month, year),
@@ -154,6 +171,8 @@ class TruckingDashboard(models.AbstractModel):
             'total_trip_cancelled': trip_stats['total_trip_cancelled'],
             'total_trip_on_route': trip_stats['total_trip_on_route'],
             'total_trip_stopped': trip_stats['total_trip_stopped'],
+            'new_plans_from_cs': plan_stats['new_plans_from_cs'],
+            'pending_plans': plan_stats['pending_plans'],
             'top_truck_driver': self._get_top_truck_driver(month, year),
             'all_drivers_stats': self._get_all_drivers_stats(month, year),
         }
