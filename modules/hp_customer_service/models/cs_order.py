@@ -1,7 +1,7 @@
 from odoo import models, fields, api
 from odoo.addons.hp_components.models import constants
 from odoo.exceptions import ValidationError
-
+from odoo.tools.safe_eval import safe_eval
 
 class CsOrder(models.Model):
     _name = 'cs.order'
@@ -337,6 +337,28 @@ class CsOrder(models.Model):
             }
             job = PlanLine.sudo().create(job_vals)
             job.message_post(body=f"Tự động tạo từ CS Order {self.code}")
+    
+    def action_view_tasks(self):
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id(
+            'project.act_project_project_2_project_task_all'
+        )
+        action['display_name'] = self.project_id.name
+        raw_ctx = action.get('context', '{}')
+        if isinstance(raw_ctx, str):
+            ctx = safe_eval(raw_ctx, {'active_id': self.project_id.id})
+        else:
+            ctx = dict(raw_ctx)
+
+        action['domain'] = [('project_id', '=', self.project_id.id)]
+
+        ctx.update({
+            'default_project_id': self.project_id.id,
+            'create': self.project_id.active,
+            'active_test': self.project_id.active,
+        })
+        action['context'] = ctx
+        return action
 
     # def _auto_create_trucking_from_cs_order(self):
     #     """Tự động tạo Plan → Job → Trip từ CS Order"""
