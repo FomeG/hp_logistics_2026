@@ -58,7 +58,7 @@
                             type="object"
                             class="oe_highlight"
                             groups="hp_trucking_planning.group_hp_trucking_planning_lead"
-                            invisible="not id or status == 'on_route' or status in ['done', 'cancelled']"/>
+                            invisible="not id or status == 'on_route' or status in ['done', 'cancelled'] or not vehicle_assignment_log_id"/>
                     <button name="action_mark_done"
                             string="Mark Done"
                             type="object"
@@ -183,11 +183,11 @@
                             invisible="is_external_vehicle or status == 'on_route' or status == 'done' and not is_admin_user"/>
                         <field name="vehicle_assignment_log_id" options="{'no_create': True, 'no_create_edit': True}" invisible="True"/>
                         <field name="truck_id"
-                               invisible="is_external_vehicle or status == 'on_route' or status == 'done' and not is_admin_user"/>
+                               invisible="is_external_vehicle or status == 'done' and not is_admin_user"/>
                         <field name="driver_id"
-                               invisible="is_external_vehicle or status == 'on_route' or status == 'done' and not is_admin_user"/>
+                               invisible="is_external_vehicle or status == 'done' and not is_admin_user"/>
                         <field name="trailer_id"
-                               invisible="is_external_vehicle or status == 'on_route' or status == 'done' and not is_admin_user"/>
+                               invisible="is_external_vehicle or status == 'done' and not is_admin_user"/>
                         <field name="weight_class"
                                readonly="status == 'on_route' or status == 'done' and not is_admin_user"/>
                         <field name="freeway"
@@ -232,7 +232,12 @@
                         </page>
 
                         <page string="Notes">
-                            <field name="note" readonly="status == 'done'"/>
+                            <div class="alert alert-warning" role="alert" style="margin-bottom: 15px; padding: 15px; border-left: 4px solid #ff9800;">
+                                <p style="margin-bottom: 10px;">
+                                    <strong>Các notes được nhập ở đây sẽ hiển thị trong tin nhắn Zalo gửi cho tài xế.</strong>
+                                </p>
+                                <field name="note" readonly="status == 'done'"/>
+                            </div>
                         </page>
                     </notebook>
                 </sheet>

@@ -3,6 +3,7 @@
 
 from odoo.addons.component.core import Component
 from odoo.addons.hp_components.models import constants
+from ...hp_components.services.department_service import DepartmentService
 
 
 class CsOrderCreateTruckingListener(Component):
@@ -35,9 +36,44 @@ class CsOrderCreateTruckingListener(Component):
     #         record.sudo()._auto_create_trucking_from_cs_order()
 
     def on_record_create(self, record, fields=None):
-        if record.booking_id:
-            record.sudo()._auto_create_trucking_from_cs_order()
+        if not record.booking_id:
+            return
+        record.sudo()._auto_create_trucking_from_cs_order()
+        plan = record.env['trucking_planning.plan'].sudo().search([
+            ('cs_order_id', '=', record.id)
+        ], limit=1)
 
+        if plan:
+            self._send_trucking_notification(record, plan)
+
+    def _send_trucking_notification(self, cs_order, plan):
+        trucking_users = DepartmentService(self.env).get_user_by_department_type(DepartmentService.DEPARTMENT_TYPE_TRUCKING)
+
+        if not trucking_users:
+            return
+
+        message_title = "New Trucking Plan!"
+        message_body = (
+            f"Có Plan Trucking mới từ CS!\n\n"
+            f"• CS Order: {cs_order.code}\n"
+            f"• Booking: {cs_order.booking_id.code or 'N/A'}\n"
+            f"• Plan: {plan.name}\n"
+            f"• Loại: {'Export' if plan.plan_type == 'export' else 'Import'}\n"
+            f"Please review and assign trucks accordingly !"
+        )
+        for user in trucking_users:
+            if user.partner_id:
+                self.env['bus.bus'].sudo()._sendone(
+                    user.partner_id,
+                    'simple_notification',
+                    {
+                        'title': message_title,
+                        'message': message_body,
+                        'sticky': True,
+                        'warning': False,
+                        'type': 'success',
+                    }
+                )
     # def on_record_write(self, record, fields=None):
     #     if 'booking_id' in fields and record.booking_id:
     #         record.sudo()._auto_create_trucking_from_cs_order()

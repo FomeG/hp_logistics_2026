@@ -337,7 +337,7 @@ class CsOrder(models.Model):
             }
             job = PlanLine.sudo().create(job_vals)
             job.message_post(body=f"Tự động tạo từ CS Order {self.code}")
-    
+        return plan
     def action_view_tasks(self):
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id(
