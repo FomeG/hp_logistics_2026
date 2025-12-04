@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 from ..services.res_partner_service import ResPartnerService
+from odoo.addons.hp_components.models import constants
 
 class FleetVehicleAssignationLogInherit(models.Model):
     _inherit = 'fleet.vehicle.assignation.log'
@@ -27,6 +28,7 @@ class FleetVehicleAssignationLogInherit(models.Model):
             return set()
 
         Trip = self._get_trip_model()
+        busy_ids = set()
         domain = [
             ("id", "!=", trip.id),
             ("vehicle_assignment_log_id", "!=", False),
@@ -41,8 +43,20 @@ class FleetVehicleAssignationLogInherit(models.Model):
             groupby=["vehicle_assignment_log_id"],
             lazy=False,
         )
-        busy_ids = [g["vehicle_assignment_log_id"][0] for g in groups if g.get("vehicle_assignment_log_id")]
-        return set(busy_ids)
+        for g in groups:
+            if g.get("vehicle_assignment_log_id"):
+                busy_ids.add(g["vehicle_assignment_log_id"][0])
+
+        current_running_trips = Trip.search([
+            ('vehicle_assignment_log_id', '!=', False),
+            ('is_current', '=', True),
+            ('status', '=', constants.TripStatus.ON_ROUTE),
+        ])
+        for t in current_running_trips:
+            if t.vehicle_assignment_log_id:
+                busy_ids.add(t.vehicle_assignment_log_id.id)
+
+        return busy_ids
 
     def _compute_is_busy(self):
         trip = self._current_trip()
@@ -66,6 +80,7 @@ class FleetVehicleAssignationLogInherit(models.Model):
         trip = self._current_trip()
         conflicting_trip = trip.get_conflicting_trip(self)
         if conflicting_trip:
+            warning = "The selected truck-driver pair is already assigned to another trip. Do you want to proceed?\n\n"
             return {
                 'name': 'Confirm assigning a busy truck-driver pair.',
                 'type': 'ir.actions.act_window',
@@ -76,6 +91,7 @@ class FleetVehicleAssignationLogInherit(models.Model):
                     'default_vehicle_assignment_log_id': self.id,
                     'default_current_trip_id': conflicting_trip.id,
                     'default_new_trip_id': trip.id,
+                    'default_warning_message': warning,
                 }
             }
         else:

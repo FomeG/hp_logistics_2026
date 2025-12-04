@@ -115,7 +115,10 @@ class BusyVehicleConfirmationWizard(models.TransientModel):
 
         self.new_trip_id.vehicle_assignment_log_id = self.vehicle_assignment_log_id
         self.new_trip_id.message_post(
-            body=f"Vehicle-driver pair '{self.vehicle_assignment_log_id.name}' has been assigned to this trip (reassigned from another trip).",
+            body="Vehicle-driver pair '%s - %s' has been reassigned to this trip from another trip." % (
+                self.vehicle_assignment_log_id.vehicle_id.name,
+                self.vehicle_assignment_log_id.driver_id.name
+            ),
             message_type='notification'
         )
 
