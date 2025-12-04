@@ -169,5 +169,20 @@
             <field name="type">city</field>
             <field name="country_id" ref="base.la"/>
         </record>
+        <record id="location_vn_city_nb" model="location.base">
+            <field name="name">Ninh Bình</field>
+            <field name="code">CT_NB</field>
+            <field name="type">city</field>
+            <field name="state_id" ref="base.state_vn_VN-18"/>
+            <field name="country_id" ref="base.vn"/>
+        </record>
+        <record id="location_vn_nb_giankhau" model="location.base">
+            <field name="name">Gián Khẩu</field>
+            <field name="code">CT_NB_GK</field>
+            <field name="type">other</field>
+            <field name="state_id" ref="base.state_vn_VN-18"/>
+            <field name="country_id" ref="base.vn"/>
+            <field name="parent_id" ref="location_vn_city_nb"/>
+        </record>
     </data>
 </odoo>

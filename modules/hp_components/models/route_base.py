@@ -6,7 +6,7 @@ from odoo.addons.hp_components.models import constants
 class RouteBase(models.Model):
     _name = "route.base"
     _inherit = ['unique.normalized.name.mixin', 'mail.thread', 'mail.activity.mixin']
-    _description = "Route Base"
+    _description = "Route For Truck Freight"
 
     name = fields.Char(
         compute='_compute_name',
@@ -14,17 +14,12 @@ class RouteBase(models.Model):
         string="Name",
         tracking=True,
     )
-    transport_mode = fields.Selection(
-        constants.TransportMode.SELECT_OPTIONS,
-        required=True,
-        default=constants.TransportMode.TRUCK,
-        tracking=True,
-    )
     route_level = fields.Selection(
         constants.RouteLevel.SELECT_OPTIONS,
         default=constants.RouteLevel.INTERNATIONAL,
         tracking=True,
         required=True,
+        compute='_compute_route_level',
     )
     from_location_id = fields.Many2one(
         comodel_name='location.base',
@@ -60,7 +55,11 @@ class RouteBase(models.Model):
         ('export', 'Export'),
         ('import', 'Import'),
         ('other', 'Other'),
-    ], default='export', string='Direction', tracking=True)
+    ], default='export',
+        string='Direction',
+        tracking=True,
+        compute='_compute_direction',
+    )
 
     distance_km = fields.Float(
         required=False,
@@ -119,39 +118,29 @@ class RouteBase(models.Model):
             else:
                 route.name = "New Route"
 
-    @api.constrains('from_location_id', 'to_location_id','transport_mode')
+    @api.constrains('from_location_id', 'to_location_id')
     def _validate_route(self):
         for route in self:
             if route.from_location_id == route.to_location_id:
                 raise ValidationError("Origin and destination must be different.")
-            if route.transport_mode == constants.TransportMode.TRUCK:
-                existing_route = self.search([
-                    ('id', '!=', route.id),
-                    ('transport_mode', '=', constants.TransportMode.TRUCK),
-                    '|',
-                    '&', ('from_location_id', '=', route.from_location_id.id),
-                    ('to_location_id', '=', route.to_location_id.id),
-                    '&', ('from_location_id', '=', route.to_location_id.id),
-                    ('to_location_id', '=', route.from_location_id.id),
-                ])
-            else:
-                existing_route = self.search([
-                    ('id', '!=', route.id),
-                    ('transport_mode', '=', route.transport_mode),
-                    '&', ('from_location_id', '=', route.from_location_id.id),
-                    ('to_location_id', '=', route.to_location_id.id),
-                ])
-
+            existing_route = self.search([
+                ('id', '!=', route.id),
+                '|',
+                '&', ('from_location_id', '=', route.from_location_id.id),
+                ('to_location_id', '=', route.to_location_id.id),
+                '&', ('from_location_id', '=', route.to_location_id.id),
+                ('to_location_id', '=', route.from_location_id.id),
+            ])
             if existing_route:
                 raise ValidationError(
                     f"A route between {route.from_location_id.name} and "
                     f"{route.to_location_id.name} already exists."
                 )
 
-    @onchange('transport_mode')
-    def _onchange_transport_mode(self):
+    @onchange('route_level')
+    def _onchange_route_level(self):
         for route in self:
-            if  route.transport_mode == constants.TransportMode.TRUCK:
+            if  route.route_level == constants.RouteLevel.DOMESTIC:
                 country = self.env['res.country'].search([('code', '=', 'VN')], limit=1)
                 if country:
                     country.country_id = country.id
@@ -166,67 +155,6 @@ class RouteBase(models.Model):
         for route in self:
             route.extra_fuel = route.from_location_id.extra_fuel or route.to_location_id.extra_fuel
 
-    def is_for_sea_freight(self):
-        for route in self:
-            return route.transport_mode == constants.TransportMode.SEA
-
-    def is_for_truck_freight(self):
-        for route in self:
-            return route.transport_mode == constants.TransportMode.TRUCK
-
-    @api.model
-    def create_freight_sea_from_port(self, location_base):
-        vals_list = []
-        if location_base.is_local:
-            ports = self.env['hp_components.geo.service'].get_international_ports()
-            for port in ports:
-                vals_list.append({
-                    'from_location_id': location_base.id,
-                    'to_location_id': port.id,
-                    'transport_mode': constants.TransportMode.SEA,
-                })
-        else:
-            ports = self.env['hp_components.geo.service'].get_local_ports()
-            for port in ports:
-                vals_list.append({
-                    'from_location_id': port.id,
-                    'to_location_id': location_base.id,
-                    'transport_mode': constants.TransportMode.SEA,
-                })
-
-        if len(vals_list) > 0:
-            super().create(vals_list)
-
-    @api.model_create_multi
-    def create(self, vals_list: list[ValuesType]) -> Self:
-        LocationBase = self.env['location.base']
-        for vals in vals_list:
-            if vals.get('from_location_id') and vals.get('to_location_id'):
-                fr = LocationBase.browse(vals['from_location_id'])
-                to = LocationBase.browse(vals['to_location_id'])
-                if fr and to and fr.is_local and to.is_local:
-                    vals['transport_mode'] = constants.TransportMode.TRUCK
-        return super().create(vals_list)
-
-    def write(self, vals):
-        LocationBase = self.env['location.base']
-        for route in self:
-            if 'from_location_id' in vals or 'to_location_id' in vals:
-                from_loc = route.from_location_id
-                to_loc = route.to_location_id
-                is_local = True
-                if 'from_location_id' in vals:
-                    from_loc = LocationBase.browse(vals['from_location_id'])
-                if 'to_location_id' in vals:
-                    to_loc = LocationBase.browse(vals['to_location_id'])
-
-                if not to_loc.is_local or not from_loc.is_local:
-                    is_local = False
-                vals['transport_mode'] = constants.TransportMode.SEA
-                if is_local:
-                    vals['transport_mode'] = constants.TransportMode.TRUCK
-        return super().write(vals)
-
     @api.depends('from_location_id', 'to_location_id')
     def _compute_region_id(self):
         for route in self:
@@ -237,3 +165,20 @@ class RouteBase(models.Model):
             elif not route.to_location_id.is_local:
                 region_id = route.to_location_id.country_id.region_id
             route.region_id = region_id
+
+    @api.depends('from_location_id', 'to_location_id')
+    def _compute_direction(self):
+        for route in self:
+            if not route.from_location_id.is_local:
+                route.direction = 'import'
+            elif not route.to_location_id.is_local or route.to_location_id.type == constants.LocationType.PORT:
+                route.direction = 'export'
+            else:
+                route.direction = 'other'
+    @api.depends('from_location_id.country_id', 'to_location_id.country_id')
+    def _compute_route_level(self):
+        for route in self:
+            if route.from_location_id.country_id != route.to_location_id.country_id:
+                route.route_level = constants.RouteLevel.INTERNATIONAL
+            else:
+                route.route_level = constants.RouteLevel.DOMESTIC

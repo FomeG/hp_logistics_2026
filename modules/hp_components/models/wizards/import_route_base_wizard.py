@@ -206,7 +206,6 @@ class ImportRouteBaseWizard(models.TransientModel):
             route_vals.update({
                 'from_location_id': from_location.id if from_location else False,
                 'to_location_id': to_location_id,
-                'transport_mode': constants.TransportMode.TRUCK,
                 'route_level': constants.RouteLevel.DOMESTIC,
             })
             route_vals_list.append(route_vals)

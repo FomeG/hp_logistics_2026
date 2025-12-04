@@ -41,6 +41,7 @@
                 <field name="direction" />
                 <field name="route_level" />
                 <field name="region_id" />
+                <field name="parent_id" widget="many2one_new_tab"/>
             </list>
         </field>
     </record>
@@ -53,14 +54,12 @@
                 <field name="name" />
                 <field name="from_location_id" />
                 <field name="to_location_id" />
-                <field name="transport_mode" />
                 <field name="region_id" />
                 <!-- Group By -->
                 <separator string="Group By"/>
                 <group expand="1" string="Group By">
-                    <filter string="POL" name="group_by_pol" context="{'group_by': 'from_location_id'}"/>
-                    <filter string="POD" name="group_by_pod" context="{'group_by': 'to_location_id'}"/>
-                    <filter string="Transport Mode" name="group_by_transport_mode" context="{'group_by': 'transport_mode'}" />
+                    <filter string="From" name="group_by_pol" context="{'group_by': 'from_location_id'}"/>
+                    <filter string="To" name="group_by_pod" context="{'group_by': 'to_location_id'}"/>
                 </group>
             </search>
         </field>
