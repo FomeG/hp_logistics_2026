@@ -8,5 +8,5 @@ class LocationBaseListener(Component):
     _apply_on = ['location.base']
 
     def on_record_create(self, record, fields=None):
-        if record.type == LocationType.PORT:
+         if record.type == LocationType.PORT:
             self.env['route.base'].create_freight_sea_from_port(record)

@@ -4,6 +4,9 @@
         <record id="base.vn" model="res.country">
             <field name="region_id" ref="hp_components.subregion_se_asia"/>
         </record>
+        <record id="base.la" model="res.country">
+            <field name="region_id" ref="hp_components.subregion_se_asia"/>
+        </record>
         <record id="base.th" model="res.country">
             <field name="region_id" ref="hp_components.subregion_se_asia"/>
         </record>

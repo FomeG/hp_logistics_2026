@@ -17,7 +17,7 @@ class RouteBase(models.Model):
     transport_mode = fields.Selection(
         constants.TransportMode.SELECT_OPTIONS,
         required=True,
-        default=constants.TransportMode.SEA,
+        default=constants.TransportMode.TRUCK,
         tracking=True,
     )
     route_level = fields.Selection(
@@ -98,6 +98,16 @@ class RouteBase(models.Model):
         readonly=True,
         store=True,
         index=True,
+    )
+    parent_id = fields.Many2one(
+        comodel_name='route.base',
+        string='Parent Route',
+        ondelete='set null',
+    )
+    children_ids = fields.One2many(
+        comodel_name='route.base',
+        inverse_name='parent_id',
+        string='Child Routes',
     )
 
     @api.depends('from_location_id', 'to_location_id')

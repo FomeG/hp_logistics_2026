@@ -169,6 +169,7 @@ class LocationType:
     GOODS_DELIVERY = 'goods_delivery'
     TRUCK_ROAD = 'truck_road'
     OTHER = 'other'
+    CITY = 'city'
     SELECT_OPTIONS = [
         (CONTAINER_PICKUP, 'Container Pickup'),
         (CONTAINER_DELIVERY, 'Container Delivery'),
@@ -179,6 +180,7 @@ class LocationType:
         (FACTORY, 'Factory'),
         (GOODS_PICKUP, 'Goods Pickup'),
         (GOODS_DELIVERY, 'Goods Delivery'),
+        (CITY, 'City'),
         (OTHER, 'Other'),
     ]
     TYPES_4_SEA_ROUTE = {PORT}

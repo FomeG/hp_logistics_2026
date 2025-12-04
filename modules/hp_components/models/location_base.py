@@ -74,7 +74,16 @@ class LocationBase(models.Model):
         store=False,
         readonly=True,
     )
-
+    parent_id = fields.Many2one(
+        comodel_name='location.base',
+        string='Parent Location',
+        ondelete='set null',
+    )
+    children_ids = fields.One2many(
+        comodel_name='location.base',
+        inverse_name='parent_id',
+        string='Child Locations',
+    )
 
     @api.constrains('latitude', 'longitude')
     def _check_coordinates(self):

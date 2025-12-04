@@ -10,6 +10,7 @@
                 <field name="contact_phone" />
                 <field name="state_id"/>
                 <field name="country_str"/>
+                <field name="parent_id" groups="base.group_system" widget="many2one"/>
                 <field name="create_date" groups="base.group_system" />
             </list>
         </field>
@@ -42,6 +43,15 @@
                             <field name="latitude"/>
                             <field name="longitude"/>
                     </group>
+                    <notebook>
+                        <page string="Children" invisible="parent_id">
+                            <field name="children_ids">
+                                <list>
+                                    <field name="name" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter />
             </form>
