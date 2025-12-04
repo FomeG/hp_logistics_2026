@@ -425,7 +425,17 @@ class Trip(models.Model):
         from_zalo = self.env.context.get('from_zalo_driver', False)
 
         old_status = self.status
-        self.write({'status': new_status})
+        vals_to_write = {'status': new_status}
+        # Tự động set is_current = True khi chuyển sang ON_ROUTE
+        if new_status == constants.TripStatus.ON_ROUTE and self.driver_id:
+            vals_to_write['is_current'] = True
+            _logger.info(f"Auto-setting is_current=True for trip {self.id} when status changed to ON_ROUTE")
+
+        # Tự động unset is_current khi chuyển sang DONE hoặc CANCELLED
+        elif new_status in [constants.TripStatus.DONE, constants.TripStatus.CANCELLED]:
+            vals_to_write['is_current'] = False
+            _logger.info(f"Auto-setting is_current=False for trip {self.id} when status changed to {new_status}")
+        self.write(vals_to_write)
 
         log_body = f"Status changed from {old_status} to {new_status} lúc {fields.Datetime.now()}."
         if note:
@@ -524,19 +534,28 @@ class Trip(models.Model):
             return new_trip
 
     def get_conflicting_trip(self, vehicle_assignment_log):
-        if not self or not self.plan_estimate_time_departure or not self.plan_estimate_time_arrival:
-            return self.browse()
+        self.ensure_one()
 
-        domain = [
-            ("id", "!=", self.id),
-            ("active", "=", True),
-            ("vehicle_assignment_log_id", "=", vehicle_assignment_log.id),
-            ("plan_estimate_time_departure", "<=", self.plan_estimate_time_arrival),
-            ("plan_estimate_time_arrival", ">=", self.plan_estimate_time_departure),
-            ("vehicle_assignment_log_id.date_end", "=", False),
-        ]
+        if self.plan_estimate_time_departure and self.plan_estimate_time_arrival:
+            time_conflict = self.search([
+                ('id', '!=', self.id),
+                ('vehicle_assignment_log_id', '=', vehicle_assignment_log.id),
+                ('plan_estimate_time_departure', '<=', self.plan_estimate_time_arrival),
+                ('plan_estimate_time_arrival', '>=', self.plan_estimate_time_departure),
+                ('vehicle_assignment_log_id.date_end', '=', False),
+            ], limit=1)
+            if time_conflict:
+                return time_conflict
 
-        return self.search(domain)
+        current_running_trip = self.search([
+            ('vehicle_assignment_log_id', '=', vehicle_assignment_log.id),
+            ('is_current', '=', True),
+            ('status', '=', constants.TripStatus.ON_ROUTE),
+        ], limit=1)
+
+        if current_running_trip:
+            return current_running_trip
+        return False
 
     def process_vehicle_driver_reassignment(self):
         for trip in self:
