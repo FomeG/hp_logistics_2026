@@ -61,12 +61,22 @@
                             <field name="location_id"
                                    string="Port Pickup"
                                    invisible="plan_type == 'import'"
-                                   context="{'default_type':'port', 'hide_type':True}"
+                                   context="{
+                                       'default_type':'port',
+                                       'hide_type':True,
+                                       'form_view_ref': 'hp_trucking_planning.view_location_form',
+                                       'list_view_ref': 'hp_trucking_planning.view_location_tree'
+                                   }"
                                    domain="[('type', '=', 'port')]"/>
                             <field name="location_id"
                                    string="Port Drop"
                                    invisible="plan_type == 'export'"
-                                   context="{'default_type':'port', 'hide_type':True}"
+                                   context="{
+                                       'default_type':'port',
+                                       'hide_type':True,
+                                       'form_view_ref': 'hp_trucking_planning.view_location_form',
+                                       'list_view_ref': 'hp_trucking_planning.view_location_tree'
+                                   }"
                                    domain="[('type', '=', 'port')]"/>
 <!--                            <field name="date"/>-->
                             <field name="goods_cut_off" string="Goods Cut Off Date"/>
@@ -151,7 +161,7 @@
 
                 <field name="create_date" string="Created Date"/>
 
-                <filter name="date_filter" string="Created Date" date="create_date" start_year="-4" start_month="-8" end_month="3"/>
+                <filter name="date_filter" string="Created Date" date="create_date"/>
                 <filter string="Created Today" name="created_today" domain="[('create_date','&gt;=', context_today())]"/>
                 <filter string="Export" name="export" domain="[('plan_type', '=', 'export')]"/>
                 <filter string="Import" name="import" domain="[('plan_type', '=', 'import')]"/>

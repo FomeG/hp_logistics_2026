@@ -48,7 +48,7 @@
             <field name="model">mail.mail</field>
             <field name="inherit_id" ref="mail.view_mail_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//button[@name='105']" position="replace"/>
+                <xpath expr="//button[@name='107']" position="replace"/>
             </field>
         </record>
 

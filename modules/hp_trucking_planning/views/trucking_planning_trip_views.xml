@@ -265,7 +265,7 @@
 
                 <field name="create_date" string="Created Date"/>
 
-                <filter name="create_date" string="Created Date" date="create_date" start_year="-4" start_month="-8" end_month="3"/>
+                <filter name="date_filter" string="Created Date" date="create_date"/>
                 <filter string="Created Today" name="created_today" domain="[('create_date','&gt;=', context_today())]"/>
                 <filter string="Draft" name="draft" domain="[('status', '=', 'draft')]"/>
                 <filter string="On Route" name="on_route" domain="[('status', '=', 'on_route')]"/>
@@ -302,6 +302,7 @@
             {
                 'default_status': 'draft',
                 'search_default_not_cancelled': 1,
+                'search_default_date_filter': 1,
             }
         </field>
     </record>

@@ -24,8 +24,16 @@
                     <field name="container_summary" string="Container Type/Size"/>
                     <field name="container_number_summary" string="Cont Number"/>
                     <field name="weight_class_summary" string="Weight Class"/>
-                    <field name="actual_source_location_id"/>
-                    <field name="actual_destination_location_id"/>
+                    <field name="actual_source_location_id"
+                           context="{
+                               'form_view_ref': 'hp_trucking_planning.view_location_form',
+                               'list_view_ref': 'hp_trucking_planning.view_location_tree'
+                           }"/>
+                    <field name="actual_destination_location_id"
+                           context="{
+                               'form_view_ref': 'hp_trucking_planning.view_location_form',
+                               'list_view_ref': 'hp_trucking_planning.view_location_tree'
+                           }"/>
                     <field name="date"/>
                     <field name="estimate_time_departure" string="Estimate Time Departure"/>
                     <field name="estimate_time_arrival" string="Estimate Time Arrival"/>
@@ -77,7 +85,11 @@
                     </header>
                     <sheet>
                         <group>
-                            <field name="plan_id" widget="many2one_new_tab" />
+                            <field name="plan_id"
+                                   widget="many2one_new_tab"
+                                   readonly="context.get('default_plan_id', False) or id"
+                                   required="1"
+                                   options="{'no_create': True, 'no_quick_create': True}"/>
                         </group>
                         <group>
                             <field name="code" required="1"/>
@@ -98,15 +110,43 @@
                             <field name="container_port_location_id"
                                    string="Empty Container Depot Pickup "
                                    invisible="plan_type == 'import'"
-                                   context="{'default_type':'depot', 'hide_type':True}"
+                                   context="{
+                                       'default_type':'depot',
+                                       'hide_type':True,
+                                       'form_view_ref': 'hp_trucking_planning.view_location_form',
+                                       'list_view_ref': 'hp_trucking_planning.view_location_tree'
+                                   }"
                                    domain="[('type', '=', 'depot')]"/>
                             <field name="container_port_location_id"
                                    string="Empty Container Depot Return "
                                    invisible="plan_type == 'export'"
-                                   context="{'default_type':'depot', 'hide_type':True}"
+                                   context="{
+                                       'default_type':'depot',
+                                       'hide_type':True,
+                                       'form_view_ref': 'hp_trucking_planning.view_location_form',
+                                       'list_view_ref': 'hp_trucking_planning.view_location_tree'
+                                   }"
                                    domain="[('type', '=', 'depot')]"/>
-                            <field name="goods_pickup_location_id" string="Place of Pickup" invisible="plan_type == 'import' or not route_id" required="plan_type == 'export' and route_id" context="{'default_type':'goods_pickup','hide_type':True}"/>
-                            <field name="goods_delivery_location_id" string="Place of Delivery" invisible="plan_type == 'export' or not route_id" required="plan_type == 'import' and route_id" context="{'default_type':'port','hide_type':True}"/>
+                            <field name="goods_pickup_location_id"
+                                   string="Place of Pickup"
+                                   invisible="plan_type == 'import' or not route_id"
+                                   required="plan_type == 'export' and route_id"
+                                   context="{
+                                       'default_type':'goods_pickup',
+                                       'hide_type':True,
+                                       'form_view_ref': 'hp_trucking_planning.view_location_form',
+                                       'list_view_ref': 'hp_trucking_planning.view_location_tree'
+                                   }"/>
+                            <field name="goods_delivery_location_id"
+                                   string="Place of Delivery"
+                                   invisible="plan_type == 'export' or not route_id"
+                                   required="plan_type == 'import' and route_id"
+                                   context="{
+                                       'default_type':'port',
+                                       'hide_type':True,
+                                       'form_view_ref': 'hp_trucking_planning.view_location_form',
+                                       'list_view_ref': 'hp_trucking_planning.view_location_tree'
+                                   }"/>
                         </group>
 
                         <div class="oe_button_box" name="button_box" invisible="not id">
@@ -155,14 +195,23 @@
                             <page string="Route">
                                 <group>
                                     <field name="route_id" context="{'client_id': client_id}"/>
-                                    <field name="actual_source_location_id" readonly="1"
-                                        widget="many2one_new_tab" />
-                                    <field name="actual_destination_location_id" readonly="1"
-                                        widget="many2one_new_tab" />
+                                    <field name="actual_source_location_id"
+                                           readonly="1"
+                                           options="{'no_create': True, 'no_edit': True}"
+                                           context="{
+                                               'form_view_ref': 'hp_trucking_planning.view_location_form',
+                                               'list_view_ref': 'hp_trucking_planning.view_location_tree'
+                                           }"/>
+                                    <field name="actual_destination_location_id"
+                                           readonly="1"
+                                           options="{'no_create': True, 'no_edit': True}"
+                                           context="{
+                                               'form_view_ref': 'hp_trucking_planning.view_location_form',
+                                               'list_view_ref': 'hp_trucking_planning.view_location_tree'
+                                           }"/>
                                     <field name="route_direction" string="Direction" readonly="1"/>
 <!--                                    <field name="plan_type" string="Direction"/>-->
                                 </group>
-
                             </page>
 
                             <page string="Truck" invisible="not trip_ids">
@@ -242,7 +291,7 @@
                 <search>
                     <field name="create_date" string="Created Date"/>
 
-                    <filter name="create_date" string="Created Date" date="create_date" start_year="-4" start_month="-8" end_month="3"/>
+                    <filter name="date_filter" string="Created Date" date="create_date"/>
                     <filter string="Created Today" name="created_today" domain="[('create_date','&gt;=', context_today())]"/>
                     <field name="code"/>
                     <field name="plan_id" string="Plan"/>
@@ -285,6 +334,7 @@
                 {
                     'default_status': 'checking',
                     'search_default_not_cancelled': 1,
+                    'search_default_date_filter': 1,
                 }
             </field>
         </record>
