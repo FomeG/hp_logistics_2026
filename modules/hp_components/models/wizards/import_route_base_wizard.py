@@ -208,6 +208,7 @@ class ImportRouteBaseWizard(models.TransientModel):
                     'address': f.get('address'),
                     'country_id': f.get('country_id'),
                     'parent_id': f.get('parent_id'),
+                    'source': constants.LocationSource.IMPORTED,
                 })
                 new_location_names.append(name_lower)
 

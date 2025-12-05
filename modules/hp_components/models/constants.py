@@ -203,3 +203,11 @@ class DepartmentTypeCode:
     TRUCKING = 'trucking'
     PRICING = 'pricing'
     CS = 'cs'
+
+class LocationSource:
+    MANUAL = 'manual'
+    IMPORTED = 'imported'
+    SELECT_OPTIONS = [
+        (MANUAL, 'Manual'),
+        (IMPORTED, 'Imported'),
+    ]

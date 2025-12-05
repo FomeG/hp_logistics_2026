@@ -12,6 +12,7 @@
                 <field name="state_id"/>
                 <field name="country_str"/>
                 <field name="parent_id" groups="base.group_system" widget="many2one"/>
+                <field name="source" groups="base.group_system" />
                 <field name="create_date" groups="base.group_system" />
             </list>
         </field>

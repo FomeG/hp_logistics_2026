@@ -89,6 +89,12 @@ class LocationBase(models.Model):
         string='Child Locations',
     )
 
+    source = fields.Selection(
+        selection=constants.LocationSource.SELECT_OPTIONS,
+        string='Source',
+        default=constants.LocationSource.MANUAL,
+    )
+
     @api.constrains('latitude', 'longitude')
     def _check_coordinates(self):
         """Validate tọa độ"""
