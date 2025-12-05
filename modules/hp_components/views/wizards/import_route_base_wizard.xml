@@ -18,6 +18,7 @@
                             <field name="to_state_id"
                                 options="{'no_create': True, 'no_quick_create': True}"
                             />
+                            <field name="to_location_type" />
                         </group>
                         <group string="File Upload" class="col-md-6">
                             <field name="file" filename="file_name" />

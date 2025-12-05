@@ -24,7 +24,10 @@ class LocationBase(models.Model):
         string="Address",
         tracking=True,
     )
-
+    contact_name = fields.Char(
+        string="Contact Name",
+        tracking=True,
+    )
     contact_phone = fields.Char(
         string="Contact Phone",
         tracking=True,

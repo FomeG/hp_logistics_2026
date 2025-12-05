@@ -24,6 +24,12 @@ class ImportRouteBaseWizard(models.TransientModel):
         domain="[('country_id', '=?', country_id)]",
         required=True,
     )
+    to_location_type = fields.Selection(
+        constants.LocationType.SELECT_OPTIONS,
+        string='Location Type',
+        default=constants.LocationType.PORT,
+        required=True,
+    )
     file = fields.Binary(string='Upload File (Excel)', required=True)
     file_name = fields.Char(string='File Name')
     sheet_name = fields.Char(string='Sheet Name', help='Select the Excel sheet to import')
@@ -35,7 +41,7 @@ class ImportRouteBaseWizard(models.TransientModel):
             'message': '',
             'data': []
         }
-        location_type = constants.LocationType.TRUCK_ROAD
+        to_location_type = self.to_location_type
         # check file type
         if not self.file_name.lower().endswith(('.xlsx', '.xls')):
             result['message'] = _("Only Excel files (.xlsx, .xls) are allowed.")
@@ -77,11 +83,11 @@ class ImportRouteBaseWizard(models.TransientModel):
         # models
         model_location = self.env['location.base']
         model_state = self.env['res.country.state']
-
+        geo_service = self.env['hp_components.geo.service']
         # check to location
         location_name = re.sub(r'\s+', ' ', match.group(1).strip())
         to_location = model_location.search([
-            ('type', '=', location_type),
+            ('type', '=', to_location_type),
             ('name', 'ilike', location_name),
             ('state_id','=', self.to_state_id.id),
         ], limit=1)
@@ -89,7 +95,7 @@ class ImportRouteBaseWizard(models.TransientModel):
         if not to_location:
             to_location = model_location.create({
                 'name': location_name,
-                'type': location_type,
+                'type': to_location_type,
                 'state_id': self.to_state_id.id,
                 'country_id': self.country_id.id,
                 'address': f"{location_name}, {self.to_state_id.name}",
@@ -97,6 +103,8 @@ class ImportRouteBaseWizard(models.TransientModel):
 
         #  build data
         current_state = False
+        location_parent = False
+        route_parent = False
         data = []
         for index, row in df.iterrows():
             address = row[location_header]
@@ -114,24 +122,37 @@ class ImportRouteBaseWizard(models.TransientModel):
             address = normalize_text(address)
             is_row_state = pd.notna(address) and pd.isna(road_fee) and pd.isna(trip_salary) and pd.isna(ticket_fee) and pd.isna(distance_km)
             if is_row_state:
-                state = model_state.search([
-                    ('country_id', '=', self.country_id.id),
-                    ('name', 'ilike', address)
-                ], limit=1)
-                if not state:
-                    result['message'] = _("Invalid state: %s.") % address
-                    return result
-
-                current_state = state
-
+                query = """
+                    SELECT id
+                    FROM res_country_state
+                    WHERE country_id = %s
+                    AND unaccent(lower(name)) ILIKE unaccent(lower(%s))
+                    LIMIT 1
+                """
+                self.env.cr.execute(query, (self.country_id.id, address))
+                rs = self.env.cr.fetchone()
+                if rs:
+                    state_id = rs[0]
+                    state = model_state.browse(state_id)  # Convert to recordset
+                    if not state:
+                        result['message'] = _("Invalid state: %s.") % address
+                        return result
+                    location_parent = geo_service.get_or_create_location_by_name(name=state.name, country_id=self.country_id,
+                                                                                 type=constants.LocationType.CITY,
+                                                                                 state_id=state.id
+                                                                                 )
+                    route_parent = geo_service.get_or_create_route_between_locations(from_location=location_parent,to_location=to_location)
+                    current_state = state
             if current_state and not is_row_state:
                 # build data
                 data.append({
                     'from_location': {
                         'name': address,
-                        'type': location_type,
-                        'state_id': state.id,
+                        'type': constants.LocationType.WAREHOUSE,
+                        'state_id': current_state.id,
                         'address': address,
+                        'country_id': self.country_id.id,
+                        'parent_id': location_parent.id if location_parent else False,
                     },
                     'to_location': {
                         'id': to_location.id,
@@ -141,6 +162,7 @@ class ImportRouteBaseWizard(models.TransientModel):
                         'trip_salary': float(trip_salary) if pd.notna(trip_salary) else 0,
                         'ticket_fee': float(ticket_fee) if pd.notna(ticket_fee) else 0,
                         'distance_km': float(distance_km) if pd.notna(distance_km) else 0,
+                        'parent_id': route_parent.id if route_parent else False,
                     }
                 })
             elif not current_state:
@@ -184,6 +206,8 @@ class ImportRouteBaseWizard(models.TransientModel):
                     'type': f.get('type'),
                     'state_id': f.get('state_id'),
                     'address': f.get('address'),
+                    'country_id': f.get('country_id'),
+                    'parent_id': f.get('parent_id'),
                 })
                 new_location_names.append(name_lower)
 
@@ -206,7 +230,6 @@ class ImportRouteBaseWizard(models.TransientModel):
             route_vals.update({
                 'from_location_id': from_location.id if from_location else False,
                 'to_location_id': to_location_id,
-                'route_level': constants.RouteLevel.DOMESTIC,
             })
             route_vals_list.append(route_vals)
 
