@@ -17,7 +17,6 @@
         'data/product_data.xml',
         'data/pricelist_data.xml',
         'data/demo_selling_week_data.xml',
-        'data/demo_product_template_data.xml',
         'data/demo_product_selling_week_data.xml',
         'data/demo_client_data.xml',
         'data/demo_quotations_data.xml',
