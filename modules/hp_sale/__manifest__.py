@@ -47,7 +47,6 @@
         'views/product_template_selling_week_line_views.xml',
         'views/sale_configuaration_views.xml',
         'views/product_template_normal_list_views.xml',
-        'views/route_base_views.xml',
         'views/sale_menus.xml',
         'report/ir_actions_report.xml',
         'report/report_quotation_template.xml',

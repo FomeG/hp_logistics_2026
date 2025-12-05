@@ -5,13 +5,6 @@ from odoo.addons.hp_components.models import constants
 class ProductTemplate(models.Model):
     _inherit = "product.template"
 
-    route_id = fields.Many2one(
-        'route.base',
-        string='Route',
-        tracking=True,
-        help="The route is used for freight type",
-        ondelete='cascade',
-    )
     type = fields.Selection(
         constants.ProductTemplateType.SELECT_OPTIONS,
         required=True,

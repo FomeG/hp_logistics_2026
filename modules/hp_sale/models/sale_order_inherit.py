@@ -236,7 +236,6 @@ class SaleOrderInherrit(models.Model):
             ],
             'target': 'new',
             'domain': [
-                ('route_id', '=', False),
                 ('categ_id.service_type', '=', self.service_type),
             ],
             'context': {
