@@ -11,7 +11,7 @@ class LocationBase(models.Model):
         constants.LocationType.SELECT_OPTIONS,
         required=True,
         tracking=True,
-        default=constants.LocationType.PORT
+        default=constants.LocationType.WAREHOUSE
     )
 
     name = fields.Char(
@@ -47,6 +47,7 @@ class LocationBase(models.Model):
     country_id = fields.Many2one(
         'res.country',
         string='Country',
+        required=True,
     )
 
     latitude = fields.Float(

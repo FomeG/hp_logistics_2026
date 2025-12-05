@@ -30,6 +30,7 @@
                     <group>
                         <field name="address"/>
                         <field name="contact_phone"/>
+                        <field name="parent_id" />
                     </group>
                     <group>
                         <field name="country_id"
@@ -45,7 +46,7 @@
                             <field name="longitude"/>
                     </group>
                     <notebook>
-                        <page string="Children" invisible="parent_id">
+                        <page string="Children" invisible="parent_id or not id">
                             <field name="children_ids">
                                 <list>
                                     <field name="name" />

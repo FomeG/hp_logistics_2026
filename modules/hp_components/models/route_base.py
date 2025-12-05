@@ -182,3 +182,11 @@ class RouteBase(models.Model):
                 route.route_level = constants.RouteLevel.INTERNATIONAL
             else:
                 route.route_level = constants.RouteLevel.DOMESTIC
+
+    @api.model
+    def create_domestic_route_to_local_port(self, location_base):
+        if location_base.is_local:
+            geo_service = self.env['hp_components.geo.service']
+            ports = geo_service.get_local_ports()
+            for port in ports:
+                geo_service.get_or_create_route_between_locations(location_base, port)
