@@ -1,5 +1,5 @@
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError
+from odoo.addons.hp_components.models.constants import LocationType
 
 class ProductTemplateSellingWeek(models.Model):
     _name = 'product.template.selling.week'
@@ -16,12 +16,19 @@ class ProductTemplateSellingWeek(models.Model):
         string="Selling Week",
         tracking=True
     )
-    product_template_id = fields.Many2one(
-        'product.template',
-        string="Route",
-        required=True,
+    from_location_id = fields.Many2one(
+        comodel_name='location.base',
+        string="POL",
         tracking=True,
-        domain="[('id', 'in', available_product_template_ids)]"
+        index=True,
+        domain="[('is_local', '=', True),('type', '=','port')]"
+    )
+    to_location_id = fields.Many2one(
+        comodel_name='location.base',
+        string="POD",
+        tracking=True,
+        index=True,
+        domain="[('id', 'in', available_location_ids)]"
     )
     team_id = fields.Many2one(
         'hr.team',
@@ -31,7 +38,7 @@ class ProductTemplateSellingWeek(models.Model):
     region_id = fields.Many2one(
         comodel_name='region',
         string="Region",
-        related='product_template_id.region_id'
+        related='team_id.region_id'
     )
     line_ids = fields.One2many(
         'product.template.selling.week.line',
@@ -42,19 +49,22 @@ class ProductTemplateSellingWeek(models.Model):
     note = fields.Char()
 
     name = fields.Text(string="Name", compute="_compute_name", store=True)
-    available_product_template_ids = fields.Many2many('product.template', compute='_compute_available_product_template_ids', store=False)
-
+    available_location_ids = fields.Many2many(
+        comodel_name='location.base',
+        compute='_compute_available_location_ids',
+        store=False
+    )
     week_info = fields.Char(
         string="Week",
         compute='_compute_week_info',
         store=False,
     )
 
-    @api.depends('goods_info', 'product_template_id', 'line_ids')
+    @api.depends('goods_info', 'from_location_id', 'to_location_id', 'line_ids')
     def _compute_name(self):
         for record in self:
             goods_part = record.goods_info or ''
-            product_part = record.product_template_id.name or ''
+            location_part = f"{record.from_location_id.name} - {record.to_location_id.name}"
 
             line_parts = []
             for line in record.line_ids:
@@ -67,22 +77,19 @@ class ProductTemplateSellingWeek(models.Model):
 
             lines_text = ', '.join(line_parts) if line_parts else ''
 
-            if goods_part or product_part or lines_text:
-                record.name = f"{goods_part}\n{product_part}: {lines_text}"
+            if goods_part or location_part or lines_text:
+                record.name = f"{goods_part}\n{location_part}: {lines_text}"
             else:
                 record.name = ''
-    
-    @api.depends('team_id')
-    def _compute_available_product_template_ids(self):
-        ProductTemplate = self.env['product.template']
-        for record in self:
-            locations = self.team_id.location_ids
-            if not locations:
-                record.available_product_template_ids = []
-            else:
-                routes = self.env['route.base'].search([('to_location_id', 'in', locations.ids)])
-                record.available_product_template_ids =  ProductTemplate.search([('route_id', 'in', routes.ids)])
 
     def _compute_week_info(self):
         for record in self:
             record.week_info = f"{record.selling_week_id.name} ({record.selling_week_id.start_date} - {record.selling_week_id.end_date})"
+
+    @api.depends('team_id')
+    def _compute_available_location_ids(self):
+        for record in self:
+            if record.team_id:
+                record.available_location_ids = record.team_id.location_ids
+            else:
+                record.available_location_ids = []

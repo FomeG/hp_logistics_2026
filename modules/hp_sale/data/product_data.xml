@@ -205,5 +205,17 @@
             <field name="list_price">1350</field>
         </record>
 
+        <record id="product_truck_freight" model="product.template">
+            <field name="name">Truck Freight</field>
+            <field name="type">truck_freight</field>
+            <field name="categ_id" ref="hp_sale.product_category_sea_freight"/>
+            <field name="list_price">0</field>
+        </record>
+        <record id="product_sea_freight" model="product.template">
+            <field name="name">Sea Freight</field>
+            <field name="type">sea_freight</field>
+            <field name="categ_id" ref="hp_sale.product_category_truck_freight"/>
+            <field name="list_price">0</field>
+        </record>
     </data>
 </odoo>

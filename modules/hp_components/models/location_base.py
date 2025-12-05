@@ -75,7 +75,7 @@ class LocationBase(models.Model):
     is_local =fields.Boolean(
         string="Is Local",
         compute='_compute_is_local',
-        store=False,
+        store=True,
         readonly=True,
     )
     parent_id = fields.Many2one(
@@ -115,7 +115,7 @@ class LocationBase(models.Model):
     def _compute_country_str(self):
         for record in self:
             record.country_str = f"{record.country_id.name} ({record.country_id.region_id.name})"
-
+    @api.depends('country_id')
     def _compute_is_local(self):
         vietnam = self.env['hp_components.geo.service'].get_vietnam()
         if not vietnam:

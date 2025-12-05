@@ -34,7 +34,8 @@
                             <field name="product_selling_week_ids" context="{'form_view_ref': 'hp_sale.view_product_template_selling_week_form'}">
                                 <list>
                                     <field name="name" />
-                                    <field name="product_template_id" />
+                                    <field name="from_location_id" />
+                                    <field name="to_location_id" />
                                     <field name="note" />
                                 </list>
                             </field>
