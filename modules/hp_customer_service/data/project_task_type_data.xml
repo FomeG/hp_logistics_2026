@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="stage_before_departure" model="project.task.type">
+        <field name="name">Before Departure</field>
+    </record>
+
+    <record id="stage_sailing" model="project.task.type">
+        <field name="name">Sailing</field>
+    </record>
+
+    <record id="stage_docking" model="project.task.type">
+        <field name="name">Docking</field>
+    </record>
+
+    <record id="stage_unloading" model="project.task.type">
+        <field name="name">Unloading</field>
+    </record>
+
+    <record id="stage_after_departure" model="project.task.type">
+        <field name="name">After Departure</field>
+    </record>
+</odoo>

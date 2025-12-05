@@ -3,7 +3,11 @@
 
 from odoo.addons.component.core import Component
 from odoo.addons.hp_components.models import constants
+<<<<<<< Updated upstream
 from ...hp_components.services.department_service import DepartmentService
+=======
+from ..services.cs_order_service import CsOrderService
+>>>>>>> Stashed changes
 
 
 class CsOrderCreateTruckingListener(Component):
@@ -36,12 +40,19 @@ class CsOrderCreateTruckingListener(Component):
     #         record.sudo()._auto_create_trucking_from_cs_order()
 
     def on_record_create(self, record, fields=None):
+<<<<<<< Updated upstream
         if not record.booking_id:
             return
         record.sudo()._auto_create_trucking_from_cs_order()
         plan = record.env['trucking_planning.plan'].sudo().search([
             ('cs_order_id', '=', record.id)
         ], limit=1)
+=======
+        if record.booking_id:
+            record.sudo()._auto_create_trucking_from_cs_order()
+        
+        CsOrderService(self.env).assgin_project_task_type_to_cs_order_project(record)
+>>>>>>> Stashed changes
 
         if plan:
             self._send_trucking_notification(record, plan)
