@@ -434,7 +434,7 @@ class SaleOrderInherit(models.Model):
             vals['from_location_id'] = pol
             vals['to_location_id'] = pod
 
-        else:
+        elif service_type != constants.ServiceType.OTHER:
             from_location = combined_vals.get('imp_from_location_id') or combined_vals.get('from_location_id')
             to_location = combined_vals.get('imp_to_location_id') or combined_vals.get('to_location_id')
 
@@ -444,7 +444,7 @@ class SaleOrderInherit(models.Model):
             vals['from_location_id'] = from_location
             vals['to_location_id'] = to_location
 
-        if vals['from_location_id'] == vals['to_location_id']:
+        if vals['from_location_id'] and vals['from_location_id'] == vals['to_location_id']:
             error_messages.append(_('From Location and To Location cannot be the same.'))
 
         if error_messages:

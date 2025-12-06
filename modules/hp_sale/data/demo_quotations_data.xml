@@ -11,6 +11,8 @@
             <field name="shipping_line_id" ref="hp_components.shipping_line_cosco"/>
             <field name="commodity">Electronic Components</field>
             <field name="commodity_hs_code">8542.31</field>
+            <field name="from_location_id" ref="hp_components.location_vn_city_hp"/>
+            <field name="to_location_id" ref="hp_components.location_vn_city_hn"/>
             <field name="user_id" ref="hp_employee.user_sm1_hn"/>
             <field name="date_order" eval="(datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')"/>
             <field name="state">draft</field>
@@ -44,10 +46,13 @@
             <field name="name">SALE/2025/002</field>
             <field name="partner_id" ref="hp_sale.res_partner_client_2"/>
             <field name="client_id" ref="hp_sale.res_partner_client_res_partner_2"/>
+            <field name="service_type">other</field>
             <field name="etd" eval="(datetime.now() + timedelta(days=12)).strftime('%Y-%m-%d')"/>
             <field name="shipping_line_id" ref="hp_components.shipping_line_maersk"/>
             <field name="commodity">Furniture</field>
             <field name="commodity_hs_code">9403.60</field>
+            <field name="from_location_id" ref="hp_components.location_vn_city_hp"/>
+            <field name="to_location_id" ref="hp_components.location_vn_city_hn"/>
             <field name="user_id" ref="hp_employee.user_sm1_hcm"/>
             <field name="date_order" eval="(datetime.now() - timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S')"/>
             <field name="state">draft</field>
@@ -81,10 +86,13 @@
             <field name="name">SALE/2025/003</field>
             <field name="partner_id" ref="hp_sale.res_partner_client_3"/>
             <field name="client_id" ref="hp_sale.res_partner_client_res_partner_3"/>
+            <field name="service_type">other</field>
             <field name="etd" eval="(datetime.now() + timedelta(days=8)).strftime('%Y-%m-%d')"/>
             <field name="shipping_line_id" ref="hp_components.shipping_line_kmtc"/>
             <field name="commodity">Textile Products</field>
             <field name="commodity_hs_code">6302.60</field>
+            <field name="from_location_id" ref="hp_components.location_vn_city_hp"/>
+            <field name="to_location_id" ref="hp_components.location_vn_city_hn"/>
             <field name="user_id" ref="hp_employee.user_sm1_hcm"/>
             <field name="date_order" eval="(datetime.now() - timedelta(days=10)).strftime('%Y-%m-%d %H:%M:%S')"/>
             <field name="state">sale</field>
@@ -130,10 +138,13 @@
             <field name="name">SALE/2025/004</field>
             <field name="partner_id" ref="hp_sale.res_partner_client_1"/>
             <field name="client_id" ref="hp_sale.res_partner_client_res_partner_1"/>
+            <field name="service_type">other</field>
             <field name="etd" eval="(datetime.now() + timedelta(days=15)).strftime('%Y-%m-%d')"/>
             <field name="shipping_line_id" ref="hp_components.shipping_line_maersk"/>
             <field name="commodity">Wood Products</field>
             <field name="commodity_hs_code">4412.31</field>
+            <field name="from_location_id" ref="hp_components.location_vn_city_hp"/>
+            <field name="to_location_id" ref="hp_components.location_vn_city_hn"/>
             <field name="user_id" ref="hp_employee.user_sm1_hn"/>
             <field name="date_order" eval="(datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d %H:%M:%S')"/>
             <field name="state">draft</field>
@@ -167,10 +178,13 @@
             <field name="name">SALE/2025/005</field>
             <field name="partner_id" ref="hp_sale.res_partner_client_2"/>
             <field name="client_id" ref="hp_sale.res_partner_client_res_partner_2"/>
+            <field name="service_type">other</field>
             <field name="etd" eval="(datetime.now() + timedelta(days=14)).strftime('%Y-%m-%d')"/>
             <field name="shipping_line_id" ref="hp_components.shipping_line_hmm"/>
             <field name="commodity">Machinery Parts</field>
             <field name="commodity_hs_code">8483.40</field>
+            <field name="from_location_id" ref="hp_components.location_vn_city_hp"/>
+            <field name="to_location_id" ref="hp_components.location_vn_city_hn"/>
             <field name="user_id" ref="hp_employee.user_sm1_hcm"/>
             <field name="date_order" eval="(datetime.now() - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')"/>
             <field name="state">draft</field>
@@ -198,10 +212,13 @@
             <field name="name">SALE/2025/006</field>
             <field name="partner_id" ref="hp_sale.res_partner_client_3"/>
             <field name="client_id" ref="hp_sale.res_partner_client_res_partner_3"/>
+            <field name="service_type">other</field>
             <field name="etd" eval="(datetime.now() + timedelta(days=6)).strftime('%Y-%m-%d')"/>
             <field name="shipping_line_id" ref="hp_components.shipping_line_kmtc"/>
             <field name="commodity">Agricultural Products</field>
             <field name="commodity_hs_code">1005.90</field>
+            <field name="from_location_id" ref="hp_components.location_vn_city_hp"/>
+            <field name="to_location_id" ref="hp_components.location_vn_city_hn"/>
             <field name="user_id" ref="hp_employee.user_sm1_hcm"/>
             <field name="date_order" eval="(datetime.now() - timedelta(days=15)).strftime('%Y-%m-%d %H:%M:%S')"/>
             <field name="state">sale</field>
@@ -235,10 +252,13 @@
             <field name="name">SALE/2025/007</field>
             <field name="partner_id" ref="hp_sale.res_partner_client_1"/>
             <field name="client_id" ref="hp_sale.res_partner_client_res_partner_1"/>
+            <field name="service_type">other</field>
             <field name="etd" eval="(datetime.now() + timedelta(days=20)).strftime('%Y-%m-%d')"/>
             <field name="shipping_line_id" ref="hp_components.shipping_line_hmm"/>
             <field name="commodity">Timber and Wood</field>
             <field name="commodity_hs_code">4407.12</field>
+            <field name="from_location_id" ref="hp_components.location_vn_city_hp"/>
+            <field name="to_location_id" ref="hp_components.location_vn_city_hn"/>
             <field name="user_id" ref="hp_employee.user_sm1_hn"/>
             <field name="date_order" eval="(datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
             <field name="state">draft</field>
@@ -278,10 +298,13 @@
             <field name="name">SALE/2025/008</field>
             <field name="partner_id" ref="hp_sale.res_partner_client_2"/>
             <field name="client_id" ref="hp_sale.res_partner_client_res_partner_2"/>
+            <field name="service_type">other</field>
             <field name="etd" eval="(datetime.now() + timedelta(days=11)).strftime('%Y-%m-%d')"/>
             <field name="shipping_line_id" ref="hp_components.shipping_line_kmtc"/>
             <field name="commodity">Consumer Goods</field>
             <field name="commodity_hs_code">9619.00</field>
+            <field name="from_location_id" ref="hp_components.location_vn_city_hp"/>
+            <field name="to_location_id" ref="hp_components.location_vn_city_hn"/>
             <field name="user_id" ref="hp_employee.user_sm1_hcm"/>
             <field name="date_order" eval="(datetime.now() - timedelta(days=4)).strftime('%Y-%m-%d %H:%M:%S')"/>
             <field name="state">draft</field>
@@ -309,10 +332,13 @@
             <field name="name">SALE/2025/009</field>
             <field name="partner_id" ref="hp_sale.res_partner_client_3"/>
             <field name="client_id" ref="hp_sale.res_partner_client_res_partner_3"/>
+            <field name="service_type">other</field>
             <field name="etd" eval="(datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')"/>
             <field name="shipping_line_id" ref="hp_components.shipping_line_cosco"/>
             <field name="commodity">Steel Products</field>
             <field name="commodity_hs_code">7308.90</field>
+            <field name="from_location_id" ref="hp_components.location_vn_city_hp"/>
+            <field name="to_location_id" ref="hp_components.location_vn_city_hn"/>
             <field name="user_id" ref="hp_employee.user_sm1_hcm"/>
             <field name="date_order" eval="(datetime.now() - timedelta(days=12)).strftime('%Y-%m-%d %H:%M:%S')"/>
             <field name="state">sale</field>
@@ -358,10 +384,13 @@
             <field name="name">SALE/2025/010</field>
             <field name="partner_id" ref="hp_sale.res_partner_client_1"/>
             <field name="client_id" ref="hp_sale.res_partner_client_res_partner_1"/>
+            <field name="service_type">other</field>
             <field name="etd" eval="(datetime.now() + timedelta(days=18)).strftime('%Y-%m-%d')"/>
             <field name="shipping_line_id" ref="hp_components.shipping_line_maersk"/>
             <field name="commodity">Mixed Cargo</field>
             <field name="commodity_hs_code">9999.00</field>
+            <field name="from_location_id" ref="hp_components.location_vn_city_hp"/>
+            <field name="to_location_id" ref="hp_components.location_vn_city_hn"/>
             <field name="user_id" ref="hp_employee.user_sm1_hn"/>
             <field name="date_order" eval="datetime.now().strftime('%Y-%m-%d %H:%M:%S')"/>
             <field name="state">draft</field>
