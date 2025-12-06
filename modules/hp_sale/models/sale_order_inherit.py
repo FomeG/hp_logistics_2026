@@ -1,15 +1,13 @@
 from logging import Logger
-
 from odoo import models, fields, _, api
-from odoo.exceptions import UserError, ValidationError
-# from odoo.addons.hp_components.services.sale_order_service import SaleOrderService
-# from ...hp_components.services.task_service import TaskService
+from odoo.api import ValuesType, Self
+from odoo.exceptions import ValidationError
 from ...hp_components.models import constants
 import logging
 
 _logger: Logger = logging.getLogger(__name__)
 
-class SaleOrderInherrit(models.Model):
+class SaleOrderInherit(models.Model):
     _inherit = 'sale.order'
 
     state = fields.Selection([
@@ -29,11 +27,78 @@ class SaleOrderInherrit(models.Model):
         tracking=True,
         domain=lambda self: self._get_client_domain(),
     )
+    client_vat = fields.Char(
+        string="Tax Code",
+        related='client_id.vat',
+        store=False
+    )
+    client_address = fields.Char(
+        string="Address",
+        related='client_id.address_display',
+        store=False
+    )
+    client_phone = fields.Char(
+        string="Phone",
+        related='client_id.phone',
+        store=False
+    )
+    client_email = fields.Char(
+        string="Email",
+        related='client_id.email',
+        store=False
+    )
     service_type = fields.Selection(
         constants.ServiceType.SELECT_OPTIONS,
         string="Service Type",
         default=constants.ServiceType.EXPORT,
         required=True,
+    )
+    main_transport_mode = fields.Selection(
+        constants.TransportMode.SELECT_OPTIONS,
+        string="Main Transport Mode",
+        default=constants.TransportMode.SEA,
+        required=True,
+    )
+    goods_location_id = fields.Many2one(
+        comodel_name='location.base',
+        string="Goods Location",
+        domain="[('is_local', '=', True),('type','not in', ['port'])]",
+    )
+    from_location_id = fields.Many2one(
+        comodel_name='location.base',
+        string="From Location"
+    )
+    to_location_id = fields.Many2one(
+        comodel_name='location.base',
+        string="To Location",
+    )
+    is_sea_exp_location = fields.Boolean(
+        string="Is Export Location",
+        compute='_compute_is_sea_exp_location',
+        store=False,
+    )
+    exp_from_location_id = fields.Many2one(
+        comodel_name='location.base',
+        string="POL",
+        domain="[('is_local', '=', True),('type', '=','port')]",
+        store=False,
+    )
+    exp_to_location_id = fields.Many2one(
+        comodel_name='location.base',
+        string="POD",
+        domain="[('is_local', '=', False),('type', '=','port')]",
+        store=False,
+    )
+    imp_from_location_id = fields.Many2one(
+        comodel_name='location.base',
+        string="From",
+        domain="[('is_local', '=', True)]",
+        store=False,
+    )
+    imp_to_location_id = fields.Many2one(
+        comodel_name='location.base',
+        string="To",
+        store=False,
     )
     incoterm_id = fields.Many2one(
         'account.incoterms',
@@ -54,12 +119,14 @@ class SaleOrderInherrit(models.Model):
     )
     etd = fields.Date(
         string="ETD",
-        help="Estimated Time of Departure"
+        help="Estimated Time of Departure",
+        required=True,
     )
     shipping_line_id = fields.Many2one(
         comodel_name='res.partner',
         domain="[('partner_main_type_id.code', '=', 'shipping_line')]",
         store=True,
+        string="Shipping Line preferred",
     )
     @api.onchange("client_id")
     def _onchange_client_id(self):
@@ -290,3 +357,111 @@ class SaleOrderInherrit(models.Model):
     def action_print_quotation(self):
         """in báo giá"""
         return self.env.ref('hp_sale.action_report_quotation_hpl').report_action(self)
+
+    @api.depends('service_type','main_transport_mode')
+    def _compute_is_sea_exp_location(self):
+        for record in self:
+            record.is_sea_exp_location = (record.service_type == constants.ServiceType.EXPORT and record.main_transport_mode == constants.TransportMode.SEA)
+
+    @api.onchange('exp_from_location_id', 'exp_to_location_id')
+    def _onchange_exp_locations(self):
+        for record in self:
+            if record.service_type == constants.ServiceType.EXPORT and record.main_transport_mode == constants.TransportMode.SEA:
+                if record.exp_from_location_id:
+                    record.from_location_id = record.exp_from_location_id
+                if record.exp_to_location_id:
+                    record.to_location_id = record.exp_to_location_id
+
+    @api.onchange('imp_from_location_id', 'imp_to_location_id')
+    def _onchange_imp_locations(self):
+        for record in self:
+            if not (record.service_type == constants.ServiceType.EXPORT and record.main_transport_mode == constants.TransportMode.SEA):
+                if record.imp_from_location_id:
+                    record.from_location_id = record.imp_from_location_id
+                if record.imp_to_location_id:
+                    record.to_location_id = record.imp_to_location_id
+
+    def _validate_form(self, vals):
+        error_messages = []
+
+        if 'client_id' in vals and not vals.get('client_id'):
+            error_messages.append(_('Client must be specified.'))
+
+        if 'etd' in vals:
+            if not vals.get('etd'):
+                error_messages.append(_('ETD must be specified.'))
+            elif fields.Date.from_string(vals['etd']) < fields.Date.today():
+                error_messages.append(_('ETD cannot be in the past.'))
+
+        # For existing records, combine with current values
+        if self:
+            # Get current values
+            current_values = {
+                'service_type': self.service_type,
+                'main_transport_mode': self.main_transport_mode,
+                'goods_location_id': self.goods_location_id.id if self.goods_location_id else False,
+                'from_location_id': self.from_location_id.id if self.from_location_id else False,
+                'to_location_id': self.to_location_id.id if self.to_location_id else False,
+                'exp_from_location_id': self.exp_from_location_id.id if self.exp_from_location_id else False,
+                'exp_to_location_id': self.exp_to_location_id.id if self.exp_to_location_id else False,
+                'imp_from_location_id': self.imp_from_location_id.id if self.imp_from_location_id else False,
+                'imp_to_location_id': self.imp_to_location_id.id if self.imp_to_location_id else False,
+            }
+            # Merge with new values
+            combined_vals = {**current_values, **vals}
+        else:
+            combined_vals = vals
+
+
+        service_type = combined_vals.get('service_type')
+        main_transport_mode = combined_vals.get('main_transport_mode')
+
+        is_sea_export = (
+                service_type == constants.ServiceType.EXPORT
+                and main_transport_mode == constants.TransportMode.SEA
+        )
+        if is_sea_export:
+            goods_location = combined_vals.get('goods_location_id')
+            pol = combined_vals.get('exp_from_location_id') or combined_vals.get('from_location_id')
+            pod = combined_vals.get('exp_to_location_id') or combined_vals.get('to_location_id')
+
+            if not goods_location:
+                error_messages.append(_('Goods Location must be specified for Sea Export.'))
+
+            if not pol or not pod:
+                error_messages.append(_('POL and POD must be specified for Sea Export.'))
+
+            vals['from_location_id'] = pol
+            vals['to_location_id'] = pod
+
+        else:
+            from_location = combined_vals.get('imp_from_location_id') or combined_vals.get('from_location_id')
+            to_location = combined_vals.get('imp_to_location_id') or combined_vals.get('to_location_id')
+
+            if not from_location or not to_location:
+                error_messages.append(_('From and To locations must be specified.'))
+
+            vals['from_location_id'] = from_location
+            vals['to_location_id'] = to_location
+
+        if vals['from_location_id'] == vals['to_location_id']:
+            error_messages.append(_('From Location and To Location cannot be the same.'))
+
+        if error_messages:
+            raise ValidationError('\n'.join(error_messages))
+
+        return vals
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        processed_vals_list = []
+        for vals in vals_list:
+            validated_vals = self._validate_form(vals)
+            processed_vals_list.append(validated_vals)
+        return super().create(processed_vals_list)
+
+    def write(self, vals):
+        for record in self:
+            record._validate_form(vals)
+
+        return super().write(vals)

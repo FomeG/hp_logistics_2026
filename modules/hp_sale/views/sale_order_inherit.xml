@@ -181,20 +181,58 @@
                 <attribute name="invisible">1</attribute>
             </xpath>
 
-            <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="client_id"
-                    widget="many2one"
-                    placeholder="Select Client ..."
-                    options="{'no_create': True, 'no_create_edit': True}"
-                    context="{'show_ref': True, 'form_view_ref': 'hp_sale.view_res_partner_client_form'}" />
-                <field name="service_type" />
-                <field name="incoterm_id" />
-                <field name="commodity" />
-                <field name="commodity_hs_code" />
+            <xpath expr="//group[@name='sale_header']" position="before">
+                <sheet>
+                    <group string="Client Information">
+                        <field name="client_id"
+                            widget="many2one"
+                            placeholder="Select Client ..."
+                            options="{'no_create': True, 'no_create_edit': True}"
+                            context="{'show_ref': True, 'form_view_ref': 'hp_sale.view_res_partner_client_form'}" />
+                        <field name="client_vat" />
+                        <field name="client_address" />
+                        <field name="client_phone" />
+                        <field name="client_email" />
+                    </group>
+                </sheet>
+                <sheet>
+                    <group string="Order Information">
+                        <field name="service_type" required="1" readonly="id > 0"/>
+                        <field name="main_transport_mode" required="1" readonly="id > 0"/>
+                        <field name="commodity" />
+                        <field name="commodity_hs_code" />
+                        <field name="etd" required="1"/>
+                        <field name="shipping_line_id"/>
+                        <field name="goods_location_id" invisible="not is_sea_exp_location" required="is_sea_exp_location"/>
+                    </group>
+                    <group invisible="not is_sea_exp_location or id">
+                        <field name="exp_from_location_id" required="is_sea_exp_location and not id"/>
+                        <field name="exp_to_location_id" required="is_sea_exp_location and not id"/>
+                    </group>
+                    <group invisible="is_sea_exp_location or id">
+                        <field name="imp_from_location_id" required="not is_sea_exp_location"/>
+                        <field name="imp_to_location_id" required="not is_sea_exp_location"/>
+                    </group>
+                    <group invisible="not id">
+                        <field name="from_location_id" />
+                        <field name="to_location_id" />
+                    </group>
+                </sheet>
+                <sheet>
+                    <group string="Actions">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <button name="select_normal_product"
+                                    type="object"
+                                    string="Add Product"
+                                    class="btn btn-primary btn-block"/>
+                            </div>
+                        </div>
+                    </group>
+                </sheet>
             </xpath>
             <xpath expr="//group/field[@name='payment_term_id']" position="after">
-                <field name="etd" required="1"/>
-                <field name="shipping_line_id" required="1"/>
+                <field name="incoterm_id" />
             </xpath>
             <xpath expr="//page[@name='customer_signature']" position="attributes">
                 <attribute name="invisible">1</attribute>
@@ -230,17 +268,6 @@
             </xpath>
             <xpath expr="//page[@name='other_information']" position="attributes">
                 <attribute name="invisible">1</attribute>
-            </xpath>
-            <xpath expr="//field[@name='sale_order_template_id']" position="after">
-                <button name="select_pricing_product"
-                    type="object"
-                    string="Add Pricing Product"
-                    class="btn btn-success"/>
-                
-                <button name="select_normal_product"
-                    type="object"
-                    string="Add Normal Product"
-                    class="btn btn-primary"/>
             </xpath>
         </field>
     </record>
