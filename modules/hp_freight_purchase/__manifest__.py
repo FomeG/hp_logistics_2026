@@ -31,7 +31,7 @@
         'views/freight_purchase_fee_line_views.xml',
         'views/freight_purchase_fee_type_views.xml',
         'views/freight_purchase_port_views.xml',
-        'views/freight_purchase_route_views.xml',
+        # 'views/freight_purchase_route_views.xml',
         'views/freight_purchase_vessel_views.xml',
         'views/freight_purchase_shipping_line_views.xml',
         'views/freight_purchase_container_type_views.xml',

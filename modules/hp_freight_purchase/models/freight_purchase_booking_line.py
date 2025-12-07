@@ -20,7 +20,7 @@ class FreightPurchaseBookingLine(models.Model):
         index=True,
     )
     #filter with perf reason
-    pod_id = fields.Many2one(related='booking_id.quotation_id.route_id.pod_id',store=True,readonly=True,string='Port of Discharge (POD)')
+    pod_id = fields.Many2one(related='booking_id.quotation_id.to_location_id',store=True,readonly=True,string='Port of Discharge (POD)')
 
     #keep ref with quotation line in order to track the price of    preorder vs order
     quotation_line_id = fields.Many2one(

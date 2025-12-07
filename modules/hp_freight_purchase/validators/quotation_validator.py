@@ -6,10 +6,16 @@ class QuotationCreateValidator(FreightValidator):
     @classmethod
     def validate(cls, data, env):
         field_rules = {
-            'route_id': {
-                'label': f"Route",
+            'from_location_id': {
+                'label': f"From",
                 'type': int,
-                'exists': 'route.base',
+                'exists': 'location.base',
+                'required': True,
+            },
+            'to_location_id': {
+                'label': f"To",
+                'type': int,
+                'exists': 'location.base',
                 'required': True,
             },
             'shipping_line_id': {
@@ -50,10 +56,17 @@ class QuotationUpdateValidator(FreightValidator):
     @classmethod
     def validate(cls, data, env):
         field_rules = {
-            'route_id': {
-                'label': f"Route",
+            'from_location_id': {
+                'label': f"From",
                 'type': int,
-                'exists': 'route.base',
+                'exists': 'location.base',
+                'required': True,
+            },
+            'to_location_id': {
+                'label': f"To",
+                'type': int,
+                'exists': 'location.base',
+                'required': True,
             },
             'shipping_line_id': {
                 'label': f"Shipping Line",

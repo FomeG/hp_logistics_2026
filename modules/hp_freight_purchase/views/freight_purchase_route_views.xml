@@ -20,7 +20,7 @@
                             />
                         <field name="pol_id" invisible="1"/>
                         <field name="pod_id" invisible="1"/>
-                        <field name="transport_mode" invisible="1" readonly="1"/>
+                        <!-- <field name="transport_mode" invisible="1" readonly="1"/> -->
                     </group>
                     <notebook>
                         <page string="Quotations" invisible=" not id">
@@ -52,8 +52,8 @@
                 <field name="pod_id" />
                 <field name="direction" />
                 <field name="total_quotations" />
-                <field name="product_id" groups="base.group_system" widget="many2one_new_tab"/>
-            </list>
+                <!-- <field name="product_id" groups="base.group_system" widget="many2one_new_tab"/> -->
+            </list> 
         </field>
     </record>
 

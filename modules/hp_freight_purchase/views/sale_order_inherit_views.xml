@@ -48,8 +48,7 @@
                         ('sale_ok', '=', True),
                         ('type', '=', product_type_filter),
                         '|',
-                        ('type', '!=', 'pricing'),
-                        ('route_id.direction', '=', parent.direction)
+                        ('type', '!=', 'pricing')
                     ]
                 </attribute>
             </xpath>

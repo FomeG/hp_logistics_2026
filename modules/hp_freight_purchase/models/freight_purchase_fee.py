@@ -26,9 +26,17 @@ class FreightPurchaseFee(models.Model):
         index=True,
         ondelete="cascade"
     )
-    route_id = fields.Many2one(
-        comodel_name="route.base",
-        required=False
+    from_location_id = fields.Many2one(
+        string="POL",
+        comodel_name='location.base',
+        required=False,
+        tracking=True,
+    )
+    to_location_id = fields.Many2one(
+        string="POD",
+        comodel_name='location.base',
+        required=False,
+        tracking=True,
     )
     date_from = fields.Date(
         required=False,

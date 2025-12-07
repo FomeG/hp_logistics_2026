@@ -6,10 +6,15 @@ class ProductTemplateInherit(models.Model):
     _inherit = "product.template"
     _order = 'create_date desc'
 
-    route_id = fields.Many2one(
-        'route.base',
-        string='Route',
-        tracking=True
+    from_location_id = fields.Many2one(
+        comodel_name='location.base',
+        required=True,
+        tracking=True,
+    )
+    to_location_id = fields.Many2one(
+        comodel_name='location.base',
+        required=True,
+        tracking=True,
     )
     freight_booking_id = fields.Many2one(
         'freight.purchase.booking', 

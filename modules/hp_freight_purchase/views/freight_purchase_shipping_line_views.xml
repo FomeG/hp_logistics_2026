@@ -117,7 +117,8 @@
         <field name="model">freight.purchase.quotation</field>
         <field name="arch" type="xml">
             <list>
-                <field name="route_id" />
+                <field name="from_location_id" />
+                <field name="to_location_id" />
                 <field name="available_from" string="From"/>
                 <field name="available_to" string="Until" />
 <!--                <field name="str_fees" />-->
@@ -135,8 +136,8 @@
             <list>
                 <field name="code" string="Code"/>
                 <field name="quotation_id" groups="base.group_system"/>
-                <field name="vessel_id"/>
-                <field name="route_id" />
+                <field name="from_location_id" />
+                <field name="to_location_id" />
                 <field name="etd" />
                 <field name="teu_volume" />
                 <field name="status" />

@@ -42,12 +42,6 @@
             parent="menu_base_team"
             sequence="40" />
 
-        <menuitem id="menu_freight_purchase_route"
-            name="Routes"
-            action="freight_purchase_route_action"
-            parent="menu_base_team"
-            sequence="50" />
-
         <menuitem id="menu_freight_purchase_container_type"
             name="Container Types"
             action="freight_purchase_container_type_action"

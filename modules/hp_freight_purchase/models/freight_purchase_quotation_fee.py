@@ -37,22 +37,3 @@ class FreightPurchaseQuotationFee(models.Model):
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super().write(vals)
-
-    # @api.onchange('quotation_id')
-    # def _onchange_quotation_id(self):
-    #     if not self.quotation_id:
-    #         return
-    #
-    #     quotation_route = self.quotation_id.route_id
-    #     if not quotation_route:
-    #         return
-    #
-    #     # Lọc fee theo shipping line và route trùng
-    #     domain = [
-    #         ('shipping_line_id', '=', self.quotation_id.shipping_line_id.id),
-    #         ('route_id', '=', quotation_route.id),
-    #     ]
-    #     # direction OR N/A
-    #     domain += ['|', ('direction', '=', quotation_route.direction), ('direction', '=', False)]
-    #
-    #     return {'domain': {'fee_id': domain}}
