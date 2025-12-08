@@ -63,21 +63,14 @@ class FreightPurchaseBooking(models.Model):
         comodel_name='location.base',
         required=True,
         tracking=True,
+        related='quotation_id.from_location_id',
     )
     to_location_id = fields.Many2one(
         string="POD",
         comodel_name='location.base',
         required=True,
         tracking=True,
-    )
-    direction = fields.Selection([
-        (constants.ServiceType.EXPORT, 'Export'),
-        (constants.ServiceType.IMPORT, 'Import'),
-        (constants.ServiceType.OTHER, 'Other'),
-    ],
-        default=constants.ServiceType.EXPORT,
-        string='Direction',
-        tracking=True,
+        related='quotation_id.to_location_id',
     )
     shipping_line_id = fields.Many2one(related='quotation_id.shipping_line_id', store=True)
     teu_volume = fields.Float()

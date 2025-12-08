@@ -4,7 +4,6 @@ from odoo import models, fields, api
 from odoo.addons.base.models.ir_actions_report import available
 from odoo.exceptions import ValidationError
 from ..validators.quotation_validator import QuotationCreateValidator, QuotationUpdateValidator
-from ...hp_components.models import constants
 
 class FreightPurchaseQuotation(models.Model):
     _name = 'freight.purchase.quotation'
@@ -23,21 +22,14 @@ class FreightPurchaseQuotation(models.Model):
         comodel_name='location.base',
         required=True,
         tracking=True,
+        domain="[('type', '=', 'port'), ('is_local', '=', True)]",
     )
     to_location_id = fields.Many2one(
         string='POD',
         comodel_name='location.base',
         required=True,
         tracking=True,
-    )
-    direction = fields.Selection([
-        (constants.ServiceType.EXPORT, 'Export'),
-        (constants.ServiceType.IMPORT, 'Import'),
-        (constants.ServiceType.OTHER, 'Other'),
-    ],
-        default=constants.ServiceType.EXPORT,
-        string='Direction',
-        tracking=True,
+        domain="[('is_local', '=', False)]",
     )
     shipping_line_id = fields.Many2one(
         'res.partner',

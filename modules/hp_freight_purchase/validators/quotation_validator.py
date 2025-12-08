@@ -60,13 +60,11 @@ class QuotationUpdateValidator(FreightValidator):
                 'label': f"From",
                 'type': int,
                 'exists': 'location.base',
-                'required': True,
             },
             'to_location_id': {
                 'label': f"To",
                 'type': int,
                 'exists': 'location.base',
-                'required': True,
             },
             'shipping_line_id': {
                 'label': f"Shipping Line",
