@@ -211,3 +211,23 @@ class LocationSource:
         (MANUAL, 'Manual'),
         (IMPORTED, 'Imported'),
     ]
+
+class ShippingDocumentType:
+    Delivery_Order = 'delivery_order'
+    Arrival_Notice = 'arrival_notice'
+    SELECT_OPTIONS = [
+        (Delivery_Order, 'Delivery Order'),
+        (Arrival_Notice, 'Arrival Notice'),
+    ]
+
+class ShippingDocumentState:
+    DRAFT = 'draft' #quotation
+    CONFIRMED = 'confirmed'
+    DELIVERED = 'delivered'
+    CANCELLED = 'cancelled'
+    SELECT_OPTIONS = [
+        (DRAFT, 'Draft'),
+        (CONFIRMED, 'Confirmed'),
+        (DELIVERED, 'Delivered'),
+        (CANCELLED, 'Cancelled'),
+    ]

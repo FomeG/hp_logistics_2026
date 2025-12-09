@@ -11,6 +11,7 @@
                 <field name="consignee"/>
                 <field name="incoterm_id"/>
                 <field name="freight_charge"/>
+                <field name="place_of_receipt"/>
             </list>
         </field>
     </record>
@@ -27,6 +28,7 @@
                             <field name="booking_code"/>
                             <field name="shipper"/>
                             <field name="consignee"/>
+                            <field name="place_of_receipt"/>
                         </group>
                         <group>
                             <field name="notify_party"/>

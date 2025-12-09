@@ -44,3 +44,6 @@ access_cs_task_user,cs.task.user,model_cs_task,base.group_user,1,1,1,0
 access_cs_task_member,cs.task.member,model_cs_task,group_hp_customer_service_member,1,1,1,0
 access_cs_task_leader,cs.task.leader,model_cs_task,group_hp_customer_service_leader,1,1,1,1
 
+access_cs_shipping_document_user,cs.shipping.document.user,model_cs_shipping_document,base.group_user,1,1,1,0
+access_cs_shipping_document_member,cs.shipping.document.member,model_cs_shipping_document,group_hp_customer_service_member,1,1,1,0
+access_cs_shipping_document_leader,cs.shipping.document.leader,model_cs_shipping_document,group_hp_customer_service_leader,1,1,1,1

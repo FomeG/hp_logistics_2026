@@ -24,3 +24,21 @@ class CsContainer(models.Model):
     )
     note = fields.Text()
 
+    shipping_document_id = fields.Many2one(
+        comodel_name='cs.shipping.document',
+        string="Shipping Document",
+        ondelete='cascade',
+        index=True,
+    )
+
+    packages = fields.Char(
+        string="Packages"
+    )
+
+    goods_description = fields.Text(
+        string="Goods Description"
+    )
+
+    measurement = fields.Char(
+        string="Measurement (M³)",
+    )
