@@ -164,6 +164,12 @@ class CsOrder(models.Model):
         string = "Tasks",
     )
 
+    cs_shipping_document_ids = fields.One2many(
+        comodel_name="cs.shipping.document",
+        inverse_name="cs_order_id",
+        string="Shipping Documents",
+    )
+
     def action_print_HBL_bill(self):
         if not self.cs_bill_lading_ids:
             raise ValidationError("No Bill of Lading found for this order!")

@@ -188,13 +188,13 @@
                         <group name="goods_pickup_delivery_group">
                             <field name="goods_pickup_location_id"
                                    string="Place of Pickup"
-                                   invisible="service_type == 'import' or not route_id"
-                                   required="service_type == 'export' and route_id"
+                                   invisible="service_type == 'import'"
+                                   required="service_type == 'export'"
                                    context="{'default_type':'goods_pickup','hide_type':True}"/>
                             <field name="goods_delivery_location_id"
                                    string="Place of Delivery"
-                                   invisible="service_type == 'export' or not route_id"
-                                   required="service_type == 'import' and route_id"
+                                   invisible="service_type == 'export'"
+                                   required="service_type == 'import'"
                                    context="{'default_type':'port','hide_type':True}"/>
                         </group>
                     </group>
@@ -265,6 +265,7 @@
                             <field name="notify_party"/>
                             <field name="incoterm_id"/>
                             <field name="freight_charge"/>
+                            <field name="place_of_receipt"/>
                         </list>
                         <form>
                             <group>
@@ -385,7 +386,114 @@
                         </form>
                     </field>
                 </page>
+                <page string="DO / AN" name="shipping_documents">
+                    <field name="cs_shipping_document_ids"
+                           context="{'default_cs_order_id': id}">
+                        <list decoration-muted="state=='draft'"
+                              decoration-info="state=='confirmed'"
+                              decoration-success="state=='delivered'"
+                              decoration-danger="state=='cancelled'">
+                            <field name="name"/>
+                            <field name="instruction_type" widget="badge"/>
+                            <field name="document_number"/>
+                            <field name="consignee_id"/>
+                            <field name="issue_date"/>
+                            <field name="eta"/>
+                            <field name="state" widget="badge"/>
+<!--                            <button name="action_print_do_an" -->
+<!--                                    string="Print" -->
+<!--                                    type="object" -->
+<!--                                    icon="fa-print"-->
+<!--                                    invisible="state == 'draft'"/>-->
+                        </list>
+                        <form>
+                            <header>
+<!--                                <button name="action_confirm" -->
+<!--                                        string="Confirm" -->
+<!--                                        type="object" -->
+<!--                                        class="oe_highlight"-->
+<!--                                        invisible="state != 'draft'"/>-->
+<!--                                <button name="action_delivered" -->
+<!--                                        string="Mark as Delivered" -->
+<!--                                        type="object" -->
+<!--                                        class="oe_highlight"-->
+<!--                                        invisible="state != 'confirmed'"/>-->
+<!--                                <button name="action_cancel" -->
+<!--                                        string="Cancel" -->
+<!--                                        type="object"-->
+<!--                                        invisible="state in ['cancelled', 'delivered']"/>-->
+<!--                                <button name="action_print_do_an" -->
+<!--                                        string="Print DO/AN" -->
+<!--                                        type="object" -->
+<!--                                        class="btn-primary"-->
+<!--                                        invisible="state == 'draft'"/>-->
+                                <field name="state" widget="statusbar"
+                                       statusbar_visible="draft,confirmed,delivered"/>
+                            </header>
+                            <sheet>
+                                <div class="oe_title">
+                                    <h1>
+                                        <field name="name" readonly="1"/>
+                                    </h1>
+                                </div>
+                                <group>
+                                    <group>
+                                        <field name="instruction_type" widget="radio"/>
+                                        <field name="document_number"/>
+                                        <field name="issue_date"/>
+                                    </group>
+                                    <group>
+                                        <field name="vessel_name"/>
+                                        <field name="voyage"/>
+                                        <field name="bl_number"/>
+                                        <field name="eta"/>
+                                    </group>
+                                </group>
 
+                                <group>
+                                    <group string="Party Information">
+                                        <field name="shipper_id"/>
+                                        <field name="consignee_id"/>
+                                        <field name="notify_party_id"/>
+                                    </group>
+                                    <group string="Contact Information">
+                                        <field name="contact_name"/>
+                                        <field name="contact_phone" widget="phone"/>
+                                        <field name="contact_tax_code"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="Location Information">
+                                        <field name="pol_id"/>
+                                        <field name="pod_id"/>
+                                        <field name="place_of_receipt"/>
+                                        <field name="place_of_delivery"/>
+                                    </group>
+                                </group>
+
+                                <notebook>
+                                    <page string="Containers">
+                                        <field name="container_line_ids">
+                                            <list editable="bottom">
+                                                <field name="container_type_id"/>
+                                                <field name="container_number"/>
+                                                <field name="seal_number"/>
+                                                <field name="packages"/>
+                                                <field name="goods_description"/>
+                                                <field name="measurement"/>
+                                                <field name="gross_weight"/>
+                                                <field name="net_weight"/>
+                                            </list>
+                                        </field>
+                                    </page>
+                                    <page string="Notes">
+                                        <field name="note"/>
+                                    </page>
+                                </notebook>
+                            </sheet>
+                        </form>
+                    </field>
+                </page>
                 <page string="Notes" name="cs_notes">
                     <field name="note" placeholder="Add internal notes here..."/>
                 </page>

@@ -25,6 +25,7 @@
         'views/cs_bill_lading_views.xml',
         'views/cs_booking_views.xml',
         'views/cs_container_views.xml',
+        'views/cs_shipping_document_views.xml',
         'views/cs_order_views.xml',
         'views/cs_pre_alert_views.xml',
         'views/cs_shipping_instruction_views.xml',

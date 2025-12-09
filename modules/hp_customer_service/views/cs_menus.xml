@@ -62,6 +62,12 @@
               action="action_cs_pre_alert"
               sequence="50"/>
 
+    <menuitem id="menu_cs_pre_alert"
+              name="DO/AN Documents"
+              parent="menu_cs_documents"
+              action="action_cs_shipping_document"
+              sequence="55"/>
+
     <menuitem id="menu_cs_settings"
               name="Settings"
               parent="menu_cs_root"

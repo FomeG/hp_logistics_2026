@@ -29,13 +29,13 @@ class CsBillLading(models.Model):
     pol_id = fields.Many2one(
         comodel_name='location.base',
         string="Port of Loading",
-        related = 'booking_id.pol_id',
+        related='booking_id.from_location_id',
         store=False,
     )
     pod_id = fields.Many2one(
         comodel_name='location.base',
         string="Port of Discharge",
-        related='booking_id.pod_id',
+        related='booking_id.to_location_id',
         store=False,
     )
 
