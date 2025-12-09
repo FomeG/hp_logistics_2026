@@ -9,7 +9,7 @@ class FreightPurchaseQuotationListener(Component):
     _inherit = 'base.event.listener'
     _apply_on = ['freight.purchase.quotation.line']
 
-    # def on_record_create(self, record, fields=None):
-    #     record._auto_create_product_selling_week()
+    def on_record_create(self, record, fields=None):
+        record._auto_create_product_selling_week()
         
 

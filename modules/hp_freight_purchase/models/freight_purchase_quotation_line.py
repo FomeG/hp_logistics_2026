@@ -1,6 +1,8 @@
 from odoo import models, fields, api, exceptions
 from ..validators.quotation_line_validator import QuotationLineValidator
 from ..services.freight_purchase_quotation_service import FreightPurchaseQuotationService
+from ...hp_components.models import constants
+
 import logging
 _logger = logging.getLogger(__name__)
 class FreightPurchaseQuotationLine(models.Model):
@@ -141,41 +143,20 @@ class FreightPurchaseQuotationLine(models.Model):
         if not from_location or not to_location:
             return
 
-        # create product.template
-        Product = self.env['product.template']
-        product_template = Product.search([
-            ('from_location_id', '=', from_location.id),
-            ('to_location_id', '=', to_location.id)
-        ], limit=1)
-        if not product_template:
-            Product.with_context(create_from_route=True).create({
-                'type': 'pricing',
-                'from_location_id': from_location.id,
-                'to_location_id': to_location.id,
-                'name': f"{from_location.name} -> {to_location.name}",
-                'categ_id': self.env.ref('product.product_category_all').id,
-                'uom_id': self.env.ref('uom.product_uom_unit').id,
-                'uom_po_id': self.env.ref('uom.product_uom_unit').id,
-                'project_id': False,
-                'project_template_id': False,
-                'region_id': to_location.region_id.id if to_location.region_id else False,
-            })
-        else:
-            product_template.write({
-                'region_id': to_location.region_id.id if to_location.region_id else False,
-            })
-
         # create product.template.selling.week
         ProductSellingWeek = self.env['product.template.selling.week']
         product_selling_week = ProductSellingWeek.search([
             ('selling_week_id', '=', selling_week.id),
-            ('product_template_id', '=', product_template.id),
+            ('from_location_id', '=', from_location.id),
+            ('to_location_id', '=', to_location.id),
         ], limit=1)
         if not product_selling_week:
             product_selling_week = ProductSellingWeek.create({
                 'goods_info': ' ',
                 'selling_week_id': selling_week.id,
-                'product_template_id': product_template.id,
+                'from_location_id': from_location.id,
+                'to_location_id': to_location.id,
+                'region_id': to_location.region_id.id if to_location.region_id else False,
             })
 
         # create product.template.selling.week.line
