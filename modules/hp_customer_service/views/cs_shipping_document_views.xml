@@ -35,6 +35,21 @@
         <field name="arch" type="xml">
             <form string="Shipping Document">
                 <header>
+                    <!-- Nút Xuất Excel cho Arrival Notice -->
+                    <button name="action_export_an_excel"
+                            string="Export AN (Excel)"
+                            type="object"
+                            class="btn-success"
+                            icon="fa-file-excel-o"
+                            invisible="instruction_type != 'arrival_notice'"/>
+
+                    <!-- Nút Xuất Word cho Delivery Order -->
+                    <button name="action_export_do_word"
+                            string="Export DO (Word)"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-file-word-o"
+                            invisible="instruction_type != 'delivery_order'"/>
 <!--                    <button name="action_confirm"-->
 <!--                            string="Confirm"-->
 <!--                            type="object"-->
@@ -70,15 +85,20 @@
                     </div>
                     <group>
                         <group name="basic_info" string="Basic Information">
-                            <field name="instruction_type" widget="radio" options="{'horizontal': true}"/>
+                            <field name="instruction_type"
+                                   widget="radio"
+                                   options="{'horizontal': true}"
+                                   readonly="id"/>
                             <field name="document_number"/>
                             <field name="issue_date"/>
                             <field name="cs_order_id"
                                    options="{'no_create': True, 'no_open': False}"/>
                             <field name="cs_shipping_instruction_id"
-                                   options="{'no_create': True, 'no_open': True}"/>
+                                   options="{'no_create': True, 'no_open': True}"
+                                   invisible="1"/>
                             <field name="cs_bill_lading_id"
-                                   options="{'no_create': True, 'no_open': True}"/>
+                                   options="{'no_create': True, 'no_open': True}"
+                                   invisible="1"/>
                             <field name="booking_id"/>
                             <field name="cs_task_id"/>
                         </group>
@@ -86,6 +106,8 @@
                             <field name="vessel_name"/>
                             <field name="voyage"/>
                             <field name="bl_number"/>
+                            <field name="mbl_number" invisible="instruction_type != 'delivery_order'"/>
+                            <field name="hbl_number" invisible="instruction_type != 'delivery_order'"/>
                             <field name="etd"/>
                             <field name="eta"/>
                         </group>

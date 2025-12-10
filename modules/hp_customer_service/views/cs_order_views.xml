@@ -63,6 +63,12 @@
                             </span>
                         </div>
                     </button>
+                    <button name="action_view_shipping_documents"
+                            string="Shipping Documents"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-file"
+                            invisible="not id or not cs_shipping_document_ids"/>
                 </div>
             </xpath>
 
