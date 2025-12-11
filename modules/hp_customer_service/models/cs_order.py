@@ -344,6 +344,7 @@ class CsOrder(models.Model):
             job = PlanLine.sudo().create(job_vals)
             job.message_post(body=f"Tự động tạo từ CS Order {self.code}")
         return plan
+
     def action_view_tasks(self):
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id(
@@ -366,6 +367,16 @@ class CsOrder(models.Model):
         action['context'] = ctx
         return action
 
+    def action_view_shipping_documents(self):
+        self.ensure_one()
+        return {
+            'name': 'Shipping Documents',
+            'type': 'ir.actions.act_window',
+            'res_model': 'cs.shipping.document',
+            'view_mode': 'list,form',
+            'domain': [('cs_order_id', '=', self.id)],
+            'context': {'default_cs_order_id': self.id},
+        }
     # def _auto_create_trucking_from_cs_order(self):
     #     """Tự động tạo Plan → Job → Trip từ CS Order"""
     #     if not self.booking_id:
