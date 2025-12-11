@@ -45,6 +45,7 @@
 #        'views/sale_order_line_selection_views.xml',
 #        'views/sale_order_inherit_views.xml',
         'views/res_country_views.xml',
+        'views/freight_purchase_assign_booking_views.xml',
         # wizard views
         'views/wizards/freight_purchase_port_route_request.xml',
         'views/wizards/import_shipping_line_wizard.xml',

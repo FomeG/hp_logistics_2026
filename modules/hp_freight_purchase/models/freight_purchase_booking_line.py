@@ -311,3 +311,17 @@ class FreightPurchaseBookingLine(models.Model):
     def _reservation_expiration_reminder(self):
         service = FreightPurchaseBookingLineService(self.env)
         service.reservation_expiration_reminder()
+
+    def action_link_to_order(self):    
+        return {
+            'name': 'Select Sale Order',
+            'type': 'ir.actions.act_window',
+            'res_model': 'sale.order',
+            'view_mode': 'list,form',
+            'views': [(self.env.ref('hp_freight_purchase.sale_order_assign_booking_list_view').id, 'list')],
+            'domain': [('state', '=', 'request_booking'), ('booking_line_id', '!=', False)], 
+            'target': 'new',
+            'context': {
+                'booking_line_id': self.id,
+            },
+        }
