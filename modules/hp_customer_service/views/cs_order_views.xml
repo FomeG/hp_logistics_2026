@@ -399,49 +399,33 @@
                               decoration-info="state=='confirmed'"
                               decoration-success="state=='delivered'"
                               decoration-danger="state=='cancelled'">
-                            <field name="name"/>
-                            <field name="instruction_type" widget="badge"/>
+                            <field name="instruction_type" widget="badge"
+                                   decoration-info="instruction_type == 'arrival_notice'"
+                                   decoration-warning="instruction_type == 'delivery_order'"/>
                             <field name="document_number"/>
                             <field name="consignee_id"/>
                             <field name="issue_date"/>
                             <field name="eta"/>
                             <field name="state" widget="badge"/>
-<!--                            <button name="action_print_do_an" -->
-<!--                                    string="Print" -->
-<!--                                    type="object" -->
-<!--                                    icon="fa-print"-->
-<!--                                    invisible="state == 'draft'"/>-->
+                            <button name="action_export_an_excel"
+                                    string="Export AN"
+                                    type="object"
+                                    icon="fa-file-excel-o"
+                                    class="btn-success"
+                                    invisible="instruction_type != 'arrival_notice'"/>
+                            <button name="action_export_do_word"
+                                    string="Export DO"
+                                    type="object"
+                                    icon="fa-file-word-o"
+                                    class="btn-primary"
+                                    invisible="instruction_type != 'delivery_order'"/>
                         </list>
                         <form>
                             <header>
-<!--                                <button name="action_confirm" -->
-<!--                                        string="Confirm" -->
-<!--                                        type="object" -->
-<!--                                        class="oe_highlight"-->
-<!--                                        invisible="state != 'draft'"/>-->
-<!--                                <button name="action_delivered" -->
-<!--                                        string="Mark as Delivered" -->
-<!--                                        type="object" -->
-<!--                                        class="oe_highlight"-->
-<!--                                        invisible="state != 'confirmed'"/>-->
-<!--                                <button name="action_cancel" -->
-<!--                                        string="Cancel" -->
-<!--                                        type="object"-->
-<!--                                        invisible="state in ['cancelled', 'delivered']"/>-->
-<!--                                <button name="action_print_do_an" -->
-<!--                                        string="Print DO/AN" -->
-<!--                                        type="object" -->
-<!--                                        class="btn-primary"-->
-<!--                                        invisible="state == 'draft'"/>-->
                                 <field name="state" widget="statusbar"
                                        statusbar_visible="draft,confirmed,delivered"/>
                             </header>
                             <sheet>
-                                <div class="oe_title">
-                                    <h1>
-                                        <field name="name" readonly="1"/>
-                                    </h1>
-                                </div>
                                 <group>
                                     <group>
                                         <field name="instruction_type" widget="radio"/>

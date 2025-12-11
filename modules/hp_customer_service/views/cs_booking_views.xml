@@ -29,6 +29,7 @@
                             <field name="Booking_code"/>
                             <field name="shipping_line_id"/>
                             <field name="vessel_id"/>
+                            <field name="voyage"/>
                         </group>
                         <group>
                             <field name="pol_id"/>

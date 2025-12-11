@@ -10,9 +10,8 @@
                   decoration-info="state=='confirmed'"
                   decoration-success="state=='delivered'"
                   decoration-danger="state=='cancelled'">
-                <field name="name"/>
+                <field name="document_number" decoration-bf="1"/>
                 <field name="instruction_type" widget="badge" decoration-info="instruction_type == 'arrival_notice'" decoration-warning="instruction_type == 'delivery_order'"/>
-                <field name="document_number"/>
                 <field name="cs_order_id"/>
                 <field name="consignee_id"/>
                 <field name="vessel_name"/>
@@ -24,6 +23,8 @@
                        decoration-info="state=='confirmed'"
                        decoration-success="state=='delivered'"
                        decoration-danger="state=='cancelled'"/>
+                <button name="action_export_an_excel" string="Excel AN" type="object" icon="fa-file-excel-o" invisible="instruction_type != 'arrival_notice'"/>
+                <button name="action_export_do_word" string="Word DO" type="object" icon="fa-file-word-o" invisible="instruction_type != 'delivery_order'"/>
             </list>
         </field>
     </record>
@@ -50,59 +51,25 @@
                             class="btn-primary"
                             icon="fa-file-word-o"
                             invisible="instruction_type != 'delivery_order'"/>
-<!--                    <button name="action_confirm"-->
-<!--                            string="Confirm"-->
-<!--                            type="object"-->
-<!--                            class="oe_highlight"-->
-<!--                            invisible="state != 'draft'"/>-->
-<!--                    <button name="action_delivered"-->
-<!--                            string="Mark as Delivered"-->
-<!--                            type="object"-->
-<!--                            class="oe_highlight"-->
-<!--                            invisible="state != 'confirmed'"/>-->
-<!--                    <button name="action_cancel"-->
-<!--                            string="Cancel"-->
-<!--                            type="object"-->
-<!--                            invisible="state in ['cancelled', 'delivered']"/>-->
-<!--                    <button name="action_set_to_draft"-->
-<!--                            string="Set to Draft"-->
-<!--                            type="object"-->
-<!--                            invisible="state == 'draft'"/>-->
-<!--                    <button name="action_print_do_an"-->
-<!--                            string="Print DO/AN"-->
-<!--                            type="object"-->
-<!--                            class="btn-primary"-->
-<!--                            invisible="state == 'draft'"/>-->
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,confirmed,delivered"/>
                 </header>
                 <sheet>
-                    <div class="oe_title">
-                        <label for="name" class="oe_edit_only"/>
-                        <h1>
-                            <field name="name" placeholder="CS Shipping Document" readonly="id"/>
-                        </h1>
-                    </div>
                     <group>
-                        <group name="basic_info" string="Basic Information">
-                            <field name="instruction_type"
-                                   widget="radio"
-                                   options="{'horizontal': true}"
-                                   readonly="id"/>
-                            <field name="document_number"/>
-                            <field name="issue_date"/>
+                        <div class="oe_title">
+                            <label for="document_number" class="oe_edit_only"/>
+                            <h1>
+                                <field name="document_number"/>
+                            </h1>
+                            <label for="instruction_type"/>
+                            <field name="instruction_type" widget="radio" options="{'horizontal': true}"/>
+                        </div>
+                        <group string="General &amp; Vessel Info">
                             <field name="cs_order_id"
                                    options="{'no_create': True, 'no_open': False}"/>
-                            <field name="cs_shipping_instruction_id"
-                                   options="{'no_create': True, 'no_open': True}"
-                                   invisible="1"/>
-                            <field name="cs_bill_lading_id"
-                                   options="{'no_create': True, 'no_open': True}"
-                                   invisible="1"/>
-                            <field name="booking_id"/>
-                            <field name="cs_task_id"/>
-                        </group>
-                        <group name="vessel_info" string="Vessel Information">
+                            <field name="booking_id" readonly="1"/>
+                            <field name="issue_date"/>
+                            <separator string="Vessel Details"/>
                             <field name="vessel_name"/>
                             <field name="voyage"/>
                             <field name="bl_number"/>
@@ -110,42 +77,38 @@
                             <field name="hbl_number" invisible="instruction_type != 'delivery_order'"/>
                             <field name="etd"/>
                             <field name="eta"/>
+                            <field name="cs_shipping_instruction_id" invisible="1"/>
+                            <field name="cs_bill_lading_id" invisible="1"/>
+                            <field name="cs_task_id" invisible="1"/>
                         </group>
-                    </group>
-
-                    <group string="Parties Information">
-                        <group>
+                        <group string="Parties &amp; Locations">
+                            <field name="consignee_id"
+                                   options="{'no_create': True}"/>
                             <field name="shipper_id"
                                    options="{'no_create': True}"
                                    invisible="instruction_type == 'delivery_order'"/>
-                            <field name="consignee_id"
-                                   options="{'no_create': True}"/>
                             <field name="notify_party_id"
                                    options="{'no_create': True}"
                                    invisible="instruction_type == 'delivery_order'"/>
-                        </group>
-                        <group string="Contact / Signatory" invisible="instruction_type != 'delivery_order'">
-                            <field name="contact_name"/>
-                            <field name="contact_phone" widget="phone"/>
-                            <field name="contact_tax_code"/>
-                        </group>
-                    </group>
-
-                    <group>
-                        <group name="location_info" string="Location Information">
+                            <separator string="Location Information"/>
                             <field name="pol_id"/>
                             <field name="pod_id"/>
-                            <field name="place_of_receipt"
-                                   invisible="instruction_type == 'delivery_order'"/>
-                            <field name="place_of_delivery"
-                                   invisible="instruction_type == 'delivery_order'"/>
+                            <field name="place_of_receipt" invisible="instruction_type == 'delivery_order'"/>
+                            <field name="place_of_delivery" invisible="instruction_type == 'delivery_order'"/>
+
+                            <separator string="Contact / Pickup Info" invisible="instruction_type != 'delivery_order'"/>
+                            <field name="contact_name" invisible="instruction_type != 'delivery_order'"/>
+                            <field name="contact_phone" widget="phone" invisible="instruction_type != 'delivery_order'"/>
+                            <field name="contact_tax_code" invisible="instruction_type != 'delivery_order'"/>
                         </group>
                     </group>
-
                     <notebook>
                         <page string="Container List" name="containers">
                             <field name="container_line_ids"
-                                   context="{'default_shipping_document_id': id}">
+                                   context="{
+                                       'default_shipping_document_id': id,
+                                       'default_cs_order_id': cs_order_id
+                                   }">
                                 <list editable="bottom">
                                     <field name="container_type_id"/>
                                     <field name="container_number"/>
@@ -179,6 +142,9 @@
                                 </form>
                             </field>
                         </page>
+                        <page string="Notes" name="notes">
+                            <field name="note" placeholder="Additional notes..."/>
+                        </page>
                     </notebook>
                 </sheet>
                 <chatter />
@@ -192,7 +158,7 @@
         <field name="model">cs.shipping.document</field>
         <field name="arch" type="xml">
             <search string="Search Shipping Documents">
-                <field name="name"/>
+<!--                <field name="name"/>-->
                 <field name="document_number"/>
                 <field name="cs_order_id"/>
                 <field name="consignee_id"/>
@@ -211,7 +177,7 @@
                         domain="[('state', '=', 'cancelled')]"/>
 
                 <separator/>
-                <filter string="Delivery_Order" name="type_do"
+                <filter string="Delivery Order" name="type_do"
                         domain="[('instruction_type', '=', 'delivery_order')]"/>
                 <filter string="Arrival Notice" name="type_an"
                         domain="[('instruction_type', '=', 'arrival_notice')]"/>
@@ -221,7 +187,7 @@
                         date="issue_date"/>
 
                 <group expand="0" string="Group By">
-                    <filter string="instruction_type" name="group_type"
+                    <filter string="Type" name="group_type"
                             context="{'group_by': 'instruction_type'}"/>
                     <filter string="State" name="group_state"
                             context="{'group_by': 'state'}"/>
@@ -242,6 +208,6 @@
         <field name="res_model">cs.shipping.document</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_cs_shipping_document_search"/>
-        <field name="context">{'search_default_confirmed': 1}</field>
+        <field name="context">{'search_default_group_type': 1}</field>
     </record>
 </odoo>
