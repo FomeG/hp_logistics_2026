@@ -31,8 +31,11 @@ class FreightPurchaseBooking(models.Model):
     )
     vessel_id = fields.Many2one('freight.purchase.vessel', string="Vessel",required=True,  tracking=True)
     voyage = fields.Char(
+        string="Voyage",
+        required=True,
+        tracking=True,
+    ) # need to recheck, maybe many2one to voyage model, 1 voyage can have many booking
 
-    )
     quotation_id = fields.Many2one(
         'freight.purchase.quotation',
         required=False,
@@ -128,6 +131,10 @@ class FreightPurchaseBooking(models.Model):
         inverse_name='booking_id',
         string='Documents'
     )
+
+    _sql_constraints = [
+        ('vessel_voyage_unique', 'unique(vessel_id,voyage)', 'The voyage and vessel must be unique.'),
+    ]
 
     @api.onchange('booking_mode')
     def _onchange_booking_mode(self):
