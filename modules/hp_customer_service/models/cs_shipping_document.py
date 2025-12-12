@@ -311,3 +311,16 @@ class CsShippingDocument(models.Model):
             raise UserError("Chức năng này chỉ dành cho Delivery Order.")
         return self.env['hp.document.service.cs'].generate_delivery_order_word(self)
 
+    def action_print_arrival_notice_pdf(self):
+        self.ensure_one()
+        if self.instruction_type != 'arrival_notice':
+            raise UserError(_("Chức năng này chỉ dành cho Arrival Notice."))
+
+        return self.env.ref('hp_customer_service.action_report_arrival_notice_pdf').report_action(self)
+
+    def action_print_delivery_order_pdf(self):
+        self.ensure_one()
+        if self.instruction_type != 'delivery_order':
+            raise UserError(_("Chức  này chỉ dành cho Delivery Order."))
+
+        return self.env.ref('hp_customer_service.action_report_delivery_order_pdf').report_action(self)

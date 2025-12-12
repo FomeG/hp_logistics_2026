@@ -36,6 +36,21 @@
         <field name="arch" type="xml">
             <form string="Shipping Document">
                 <header>
+                    <!-- Nút PDF Arrival Notice -->
+                    <button name="action_print_arrival_notice_pdf"
+                            string="Print AN (PDF)"
+                            type="object"
+                            class="btn-secondary"
+                            icon="fa-print"
+                            invisible="instruction_type != 'arrival_notice'"/>
+
+                    <!-- Nút PDF Delivery Order -->
+                    <button name="action_print_delivery_order_pdf"
+                            string="Print DO (PDF)"
+                            type="object"
+                            class="btn-secondary"
+                            icon="fa-print"
+                            invisible="instruction_type != 'delivery_order'"/>
                     <!-- Nút Xuất Excel cho Arrival Notice -->
                     <button name="action_export_an_excel"
                             string="Export AN (Excel)"

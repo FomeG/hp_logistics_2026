@@ -15,29 +15,17 @@ class DocumentServiceTrucking(models.AbstractModel):
         workbook, output = self._get_excel_workbook()
         worksheet = workbook.add_worksheet('Jobs')
         formats = self._define_excel_formats(workbook)
-        self._write_company_info(worksheet)
+        self._write_company_info_excel(worksheet, row_start=0, col_start=2)
         headers = self._get_plan_line_headers()
         self._write_excel_header(worksheet, headers, formats, row=8)
         self._write_plan_line_data(worksheet, plan_lines, formats)
         last_data_row = 9 + len(plan_lines) - 1 if plan_lines else 9
-        self._write_signature_section(worksheet, workbook, last_data_row)
+        self._write_signature_section_excel(worksheet, workbook, last_data_row)
         for col in range(len(headers)):
             worksheet.set_column(col, col, 15)
 
         filename = f"{filename_prefix}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
         return self._finalize_excel(workbook, output, filename)
-
-    def _write_company_info(self, worksheet):
-        # thông tin công ty vào Excel
-        company_info = [
-                "CHI NHÁNH CÔNG TY CP TIẾP VẬN HP TẠI TP.HẢI PHÒNG",
-                "Room 202A, Dau Khi Hotel, 441 Da Nang Street, Hai An, Hai Phong, Vietnam",
-                "Tel: + 84 225 3556133 Fax: + 84 225 3556132",
-                "Email: cs@hplogistics.com.vn",
-                "Website: www.hplogistics.com.vn"
-            ]
-        for i, info in enumerate(company_info):
-            worksheet.write(i, 2, info)
 
     def _get_plan_line_headers(self):
         # header cho plan line excel
@@ -102,30 +90,6 @@ class DocumentServiceTrucking(models.AbstractModel):
 
             self._write_excel_data_row(worksheet, row_data, formats, row, date_columns=[1, 2, 3])
 
-    def _write_signature_section(self, worksheet, workbook, last_data_row):
-        """Viết phần signature vào Excel"""
-        center_format = workbook.add_format({'align': 'center', 'valign': 'vcenter'})
-        center_bold_format = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'bold': True})
-        italic_center_format = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'italic': True})
-        merged_border = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'border': 0})
-
-        # Người lập phiếu
-        worksheet.merge_range(last_data_row + 7, 0, last_data_row + 7, 1, 'Người lập phiếu', merged_border)
-        worksheet.merge_range(last_data_row + 8, 0, last_data_row + 8, 1, '(Ký, họ tên)', italic_center_format)
-        worksheet.merge_range(last_data_row + 12, 0, last_data_row + 12, 1, 'Lê Quý Hùng', center_bold_format)
-
-        # Kế toán trưởng
-        col_T = 19
-        worksheet.write(last_data_row + 7, col_T, 'Kế toán trưởng', center_bold_format)
-        worksheet.write(last_data_row + 8, col_T, '(Ký, họ tên)', italic_center_format)
-
-        # Giám đốc
-        col_AM = 38
-        worksheet.write(last_data_row + 6, col_AM, 'Ngày …..  tháng …..  năm 201….', center_format)
-        worksheet.write(last_data_row + 7, col_AM, 'Giám đốc', center_bold_format)
-        worksheet.write(last_data_row + 8, col_AM, '(Đóng dấu, ký tên)', italic_center_format)
-        worksheet.write(last_data_row + 12, col_AM, 'Nguyễn Văn Bân', center_bold_format)
-
     # docx export for trip
     def generate_docx(self, trip, filename_prefix="trip"):
         """Generate DOCX for trip transport document"""
@@ -136,9 +100,17 @@ class DocumentServiceTrucking(models.AbstractModel):
 
         doc = self._get_docx_document()
         # Build document sections
-        self._add_docx_header(doc, trip)
+        self._add_docx_company_header(doc, {'style': 'trucking', 'show_logo': False})
         self._add_docx_body(doc, trip)
-        self._add_docx_footer(doc, trip)
+        # Use base method for footer with trucking config
+        signature_config = {
+            'signatures': [
+                {'title': 'NHÂN VIÊN LÀM LỆNH'},
+                {'title': 'LÁI XE NHẬN LỆNH'},
+                {'title': 'T/L GIÁM ĐỐC CÔNG TY'}
+            ]
+        }
+        self._add_docx_signature_section(doc, signature_config)
 
         # Create attachment with ASCII-only filename to avoid encoding issues
         import re
@@ -149,51 +121,6 @@ class DocumentServiceTrucking(models.AbstractModel):
         filename = f"GiayVanTai_{safe_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
 
         return self._finalize_docx(doc, filename)
-
-    def _add_docx_header(self, doc, trip):
-        """Add header section to trip document"""
-        from docx.shared import Pt
-        from docx.enum.text import WD_ALIGN_PARAGRAPH
-        from docx.enum.table import WD_TABLE_ALIGNMENT
-        from docx.oxml import parse_xml
-
-        # Header Table
-        header_table = doc.add_table(rows=1, cols=2)
-        header_table.style = 'Table Grid'
-        header_table.alignment = WD_TABLE_ALIGNMENT.LEFT
-
-        # Remove table borders
-        for row in header_table.rows:
-            for cell in row.cells:
-                cell._tc.get_or_add_tcPr().append(parse_xml(
-                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
-                for paragraph in cell.paragraphs:
-                    for run in paragraph.runs:
-                        run.font.size = Pt(9.5)
-
-        # Left cell - Company info
-        company_cell = header_table.cell(0, 0)
-        for paragraph in company_cell.paragraphs:
-            p = paragraph._element
-            p.getparent().remove(p)
-
-        company_para = company_cell.add_paragraph()
-        title_run = company_para.add_run("1. Thông tin về đơn vị kinh doanh")
-        title_run.bold = True
-        company_para.add_run("\nĐơn vị vận tải: CHI NHÁNH CÔNG TY CP TIẾP VẬN HP TẠI TP. HẢI PHÒNG")
-        company_para.add_run("\nĐịa chỉ: Room 202A, Dau Khi Hotel, 441 Da Nang Street, Hai An, Hai Phong, Vietnam")
-        company_para.add_run("\nTel: +84 225 3556133 Fax: + 84 225 3556132")
-
-        # Right cell - Government heading
-        gov_cell = header_table.cell(0, 1)
-        for paragraph in gov_cell.paragraphs:
-            p = paragraph._element
-            p.getparent().remove(p)
-
-        gov_para = gov_cell.add_paragraph()
-        gov_para.add_run("CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM")
-        gov_para.add_run("\nĐộc lập - Tự do - Hạnh phúc")
-        gov_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     def _add_docx_body(self, doc, trip):
         """Add body content to trip document"""
@@ -212,23 +139,12 @@ class DocumentServiceTrucking(models.AbstractModel):
         info_table.style = 'Table Grid'
         info_table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-        # Remove table borders
-        for row in info_table.rows:
-            for cell in row.cells:
-                cell._tc.get_or_add_tcPr().append(parse_xml(
-                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
-                for paragraph in cell.paragraphs:
-                    for run in paragraph.runs:
-                        run.font.size = Pt(9.5)
+        self._remove_table_borders(info_table)
 
         # Merge first column across both rows for driver info
         info_table.cell(0, 0).merge(info_table.cell(1, 0))
         driver_cell = info_table.cell(0, 0)
-
-        # Clear paragraphs
-        for paragraph in driver_cell.paragraphs:
-            p = paragraph._element
-            p.getparent().remove(p)
+        self._clear_cell_paragraphs(driver_cell)
 
         # Add empty paragraphs to push content to bottom
         for i in range(4):
@@ -248,32 +164,26 @@ class DocumentServiceTrucking(models.AbstractModel):
         # Merge 2nd and 3rd columns for the first row (Title)
         info_table.cell(0, 1).merge(info_table.cell(0, 2))
         title_cell = info_table.cell(0, 1)
+        self._clear_cell_paragraphs(title_cell)
 
-        # Clear existing content
-        for paragraph in title_cell.paragraphs:
-            p = paragraph._element
-            p.getparent().remove(p)
-
-        # Add title paragraph
         title_para = title_cell.add_paragraph()
         title_run = title_para.add_run("GIẤY VẬN TẢI")
         title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
         title_run.bold = True
         title_run.font.size = Pt(14)
 
-        # Add subtitle paragraph
         subtitle_para = title_cell.add_paragraph()
         subtitle_run = subtitle_para.add_run(
             "(Ban hành kèm theo Thông tư số: 63/2014/TT-BGTVT ngày 07 tháng 11 năm 2014 của Bộ trưởng Bộ giao thông vận tải)")
         subtitle_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-        # Second row - Vehicle number and Document info
-        vehicle_cell = info_table.cell(1, 1)
+        # Vehicle and document info
+        self._add_vehicle_and_doc_info(info_table, trip)
 
-        # Clear paragraphs
-        for paragraph in vehicle_cell.paragraphs:
-            p = paragraph._element
-            p.getparent().remove(p)
+    def _add_vehicle_and_doc_info(self, info_table, trip):
+        """Add vehicle number and document info"""
+        vehicle_cell = info_table.cell(1, 1)
+        self._clear_cell_paragraphs(vehicle_cell)
 
         vehicle_cell.add_paragraph()
         vehicle_para = vehicle_cell.add_paragraph()
@@ -292,11 +202,7 @@ class DocumentServiceTrucking(models.AbstractModel):
 
         # Document info cell
         doc_info_cell = info_table.cell(1, 2)
-
-        # Clear paragraphs
-        for paragraph in doc_info_cell.paragraphs:
-            p = paragraph._element
-            p.getparent().remove(p)
+        self._clear_cell_paragraphs(doc_info_cell)
 
         doc_info_cell.add_paragraph()
         doc_para = doc_info_cell.add_paragraph()
@@ -311,9 +217,7 @@ class DocumentServiceTrucking(models.AbstractModel):
     def _add_main_content_table(self, doc, trip):
         """Add main content table with outbound, inbound, and permit sections"""
         from docx.shared import Inches, Pt
-        from docx.oxml import parse_xml
 
-        # Main Table with 3 columns
         main_table = doc.add_table(rows=2, cols=3)
         main_table.style = 'Table Grid'
 
@@ -321,22 +225,16 @@ class DocumentServiceTrucking(models.AbstractModel):
         hdr_cells = main_table.rows[0].cells
         # Clear all paragraphs first
         for cell in hdr_cells:
-            for paragraph in cell.paragraphs:
-                p = paragraph._element
-                p.getparent().remove(p)
+            self._clear_cell_paragraphs(cell)
 
-        # Add bold headers
         hdr_para1 = hdr_cells[0].add_paragraph()
-        title_run = hdr_para1.add_run("Hàng Đi")
-        title_run.bold = True
+        hdr_para1.add_run("Hàng Đi").bold = True
 
         hdr_para2 = hdr_cells[1].add_paragraph()
-        title_run = hdr_para2.add_run("Hàng Về")
-        title_run.bold = True
+        hdr_para2.add_run("Hàng Về").bold = True
 
         hdr_para3 = hdr_cells[2].add_paragraph()
-        title_run = hdr_para3.add_run("Cấp Phép")
-        title_run.bold = True
+        hdr_para3.add_run("Cấp Phép").bold = True
 
         detail_cells = main_table.rows[1].cells
 
@@ -350,34 +248,17 @@ class DocumentServiceTrucking(models.AbstractModel):
         self._generate_permit_section(doc, trip, detail_cells[2])
 
     def _generate_trip_section(self, doc, trip, cell, is_outbound=True):
-        """Generate trip section content - reusable for both outbound and inbound"""
-        from docx.oxml import parse_xml
+        """Generate trip section content"""
+        self._clear_cell_paragraphs(cell)
+        self._add_cell_top_padding(cell)
 
-        # Clear all paragraphs first
-        for paragraph in cell.paragraphs:
-            p = paragraph._element
-            p.getparent().remove(p)
-
-        if is_outbound:
-            # Outbound content with actual data
-            self._add_booking_info(cell, trip, show_data=True)
-            self._add_client_info(cell, trip, show_data=True)
-            self._add_contract_info(cell, trip, show_data=True)
-            self._add_trip_info(cell, trip, show_data=True)
-            self._add_goods_info(cell, trip, show_data=True)
-            self._add_notes(cell, trip, show_data=True)
-        else:
-            # Inbound content - template only
-            self._add_booking_info(cell, trip, show_data=False)
-            self._add_client_info(cell, trip, show_data=False)
-            self._add_contract_info(cell, trip, show_data=False)
-            self._add_trip_info(cell, trip, show_data=False)
-            self._add_goods_info(cell, trip, show_data=False)
-            self._add_notes(cell, trip, show_data=False)
-
-        # Add top padding to the cell
-        cell._tc.get_or_add_tcPr().append(parse_xml(
-            r'<w:tcMar xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
+        show_data = is_outbound
+        self._add_booking_info(cell, trip, show_data=show_data)
+        self._add_client_info(cell, trip, show_data=show_data)
+        self._add_contract_info(cell, trip, show_data=show_data)
+        self._add_trip_info(cell, trip, show_data=show_data)
+        self._add_goods_info(cell, trip, show_data=show_data)
+        self._add_notes(cell, trip, show_data=show_data)
 
     def _add_booking_info(self, cell, trip, show_data=True):
         """Add booking information section"""
@@ -545,14 +426,10 @@ class DocumentServiceTrucking(models.AbstractModel):
 
     def _generate_permit_section(self, doc, trip, cell):
         """Generate permit section with fuel and cost information"""
-        from docx.oxml import parse_xml
+        self._clear_cell_paragraphs(cell)
+        self._add_cell_top_padding(cell)
 
-        # Clear all paragraphs first
-        for paragraph in cell.paragraphs:
-            p = paragraph._element
-            p.getparent().remove(p)
-
-        # Add fuel info
+        # Fuel info
         para1_permit = cell.add_paragraph()
         title_run = para1_permit.add_run("Nhiên Liệu - (LÍT DIZEL)")
         title_run.bold = True
@@ -598,11 +475,9 @@ class DocumentServiceTrucking(models.AbstractModel):
         bold_run = para2_permit_content.add_run(f"{trip.total_cost or ''}")
         bold_run.bold = True
 
-        # Add loading/unloading info
-        cell.add_paragraph()
-        cell.add_paragraph()
-        cell.add_paragraph()
-        cell.add_paragraph()
+        for _ in range(4):
+            cell.add_paragraph()
+
         para3_permit = cell.add_paragraph()
         para3_permit.add_run("Nâng hàng/vỏ: ")
         bold_run = para3_permit.add_run(" ")
@@ -616,59 +491,3 @@ class DocumentServiceTrucking(models.AbstractModel):
         para3_permit.add_run("\nTổng Tiền: ")
         bold_run = para3_permit.add_run(f"{trip.total_cost or ''}")
         bold_run.bold = True
-
-    def _add_docx_footer(self, doc, trip):
-        """Add footer/signature section to trip document"""
-        from docx.shared import Pt
-        from docx.enum.table import WD_TABLE_ALIGNMENT
-        from docx.oxml import parse_xml
-
-        # Signature table
-        sig_table = doc.add_table(rows=1, cols=3)
-        sig_table.style = 'Table Grid'
-        sig_table.alignment = WD_TABLE_ALIGNMENT.CENTER
-
-        # Remove borders and add top padding
-        for row in sig_table.rows:
-            for cell in row.cells:
-                # Remove borders
-                cell._tc.get_or_add_tcPr().append(parse_xml(
-                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
-                # Add top padding
-                cell._tc.get_or_add_tcPr().append(parse_xml(
-                    r'<w:tcMar xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
-                for paragraph in cell.paragraphs:
-                    for run in paragraph.runs:
-                        run.font.size = Pt(9.5)
-
-        sig_cells = sig_table.rows[0].cells
-
-        # Clear cells and add bold titles
-        for cell in sig_cells:
-            for paragraph in cell.paragraphs:
-                p = paragraph._element
-                p.getparent().remove(p)
-
-        # First cell - NHÂN VIÊN LÀM LỆNH
-        sig_para1 = sig_cells[0].add_paragraph()
-        title_run = sig_para1.add_run("NHÂN VIÊN LÀM LỆNH")
-        title_run.bold = True
-        sig_cells[0].add_paragraph()
-        sig_cells[0].add_paragraph()
-        sig_cells[0].add_paragraph()
-
-        # Second cell - LÁI XE NHẬN LỆNH
-        sig_para2 = sig_cells[1].add_paragraph()
-        title_run = sig_para2.add_run("LÁI XE NHẬN LỆNH")
-        title_run.bold = True
-        sig_cells[1].add_paragraph()
-        sig_cells[1].add_paragraph()
-        sig_cells[1].add_paragraph()
-
-        # Third cell - T/L GIÁM ĐỐC CÔNG TY
-        sig_para3 = sig_cells[2].add_paragraph()
-        title_run = sig_para3.add_run("T/L GIÁM ĐỐC CÔNG TY")
-        title_run.bold = True
-        sig_cells[2].add_paragraph()
-        sig_cells[2].add_paragraph()
-        sig_cells[2].add_paragraph()
