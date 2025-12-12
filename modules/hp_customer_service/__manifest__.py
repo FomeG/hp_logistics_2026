@@ -20,7 +20,10 @@
         'wizard/hp_bank_wizard_view.xml',
         'report/HBL_template.xml',
         'report/debit_template.xml',
+        'report/arrival_notice_template.xml',
+        'report/delivery_order_template.xml',
         'report/ir_actions_report.xml',
+
         'views/cs_batch_order_views.xml',
         'views/cs_bill_lading_views.xml',
         'views/cs_booking_views.xml',

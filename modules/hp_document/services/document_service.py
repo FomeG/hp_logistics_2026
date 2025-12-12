@@ -76,6 +76,80 @@ class HpDocumentService(models.AbstractModel):
             else:
                 worksheet.write(row_index, col, value, formats['cell'])
 
+    def _write_company_info_excel(self, worksheet, row_start=0, col_start=2):
+        """Viết thông tin công ty vào Excel - Common for all modules"""
+        company_info = [
+            "CHI NHÁNH CÔNG TY CP TIẾP VẬN HP TẠI TP.HẢI PHÒNG",
+            "Room 202A, Dau Khi Hotel, 441 Da Nang Street, Hai An, Hai Phong, Vietnam",
+            "Tel: + 84 225 3556133 Fax: + 84 225 3556132",
+            "Email: cs@hplogistics.com.vn",
+            "Website: www.hplogistics.com.vn"
+        ]
+        for i, info in enumerate(company_info):
+            worksheet.write(row_start + i, col_start, info)
+
+    def _write_signature_section_excel(self, worksheet, workbook, last_data_row,
+                                       signature_configs=None):
+        """
+        Viết phần signature vào Excel - Flexible để cs và trucking custom
+        signature_configs: dict với format:
+        {
+            'signatures': [
+                {'title': 'Người lập phiếu', 'name': 'Lê Quý Hùng', 'cols': (0, 1)},
+                {'title': 'Kế toán trưởng', 'name': '', 'cols': (19, 19)},
+                {'title': 'Giám đốc', 'name': 'Nguyễn Văn Bân', 'cols': (38, 38), 'show_date': True}
+            ]
+        }
+        """
+        center_format = workbook.add_format({'align': 'center', 'valign': 'vcenter'})
+        center_bold_format = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'bold': True})
+        italic_center_format = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'italic': True})
+        merged_border = workbook.add_format({'align': 'center', 'valign': 'vcenter', 'border': 0})
+
+        if not signature_configs:
+            # Default trucking style
+            signature_configs = {
+                'signatures': [
+                    {'title': 'Người lập phiếu', 'subtitle': '(Ký, họ tên)',
+                     'name': 'Lê Quý Hùng', 'cols': (0, 1)},
+                    {'title': 'Kế toán trưởng', 'subtitle': '(Ký, họ tên)',
+                     'name': '', 'cols': (19, 19)},
+                    {'title': 'Giám đốc', 'subtitle': '(Đóng dấu, ký tên)',
+                     'name': 'Nguyễn Văn Bân', 'cols': (38, 38), 'show_date': True}
+                ]
+            }
+
+        for sig in signature_configs['signatures']:
+            col_start, col_end = sig['cols']
+
+            # Show date if needed
+            if sig.get('show_date'):
+                worksheet.write(last_data_row + 6, col_start,
+                                'Ngày …..  tháng …..  năm 201….', center_format)
+
+            # Title
+            if col_start == col_end:
+                worksheet.write(last_data_row + 7, col_start, sig['title'], center_bold_format)
+            else:
+                worksheet.merge_range(last_data_row + 7, col_start, last_data_row + 7, col_end,
+                                      sig['title'], merged_border)
+
+            # Subtitle
+            if sig.get('subtitle'):
+                if col_start == col_end:
+                    worksheet.write(last_data_row + 8, col_start, sig['subtitle'], italic_center_format)
+                else:
+                    worksheet.merge_range(last_data_row + 8, col_start, last_data_row + 8, col_end,
+                                          sig['subtitle'], italic_center_format)
+
+            # Name
+            if sig.get('name'):
+                if col_start == col_end:
+                    worksheet.write(last_data_row + 12, col_start, sig['name'], center_bold_format)
+                else:
+                    worksheet.merge_range(last_data_row + 12, col_start, last_data_row + 12, col_end,
+                                          sig['name'], center_bold_format)
+
     def _finalize_excel(self, workbook, output, filename):
         """Close workbook và tạo attachment"""
         workbook.close()
@@ -123,17 +197,152 @@ class HpDocumentService(models.AbstractModel):
 
         return doc
 
-    def _add_docx_header(self, doc, header_data):
-        """Thêm header vào document."""
-        pass
+    def _add_docx_company_header(self, doc, header_config=None):
+        """
+        Thêm header công ty vào document - Common pattern
+        header_config: dict để customize, ví dụ:
+        {
+            'style': 'trucking' hoặc 'cs',
+            'show_logo': True,
+            'company_info': {...}
+        }
+        """
+        from docx.shared import Pt, Cm
+        from docx.enum.text import WD_ALIGN_PARAGRAPH
+        from docx.enum.table import WD_TABLE_ALIGNMENT
+        from docx.oxml import parse_xml
 
-    def _add_docx_body(self, doc, body_data):
-        """Thêm body content vào document."""
-        pass
+        if not header_config:
+            header_config = {'style': 'trucking', 'show_logo': True}
 
-    def _add_docx_footer(self, doc, footer_data):
-        """Thêm footer/signature vào document."""
-        pass
+        # Header Table
+        header_table = doc.add_table(rows=1, cols=2)
+        header_table.style = 'Table Grid'
+        header_table.alignment = WD_TABLE_ALIGNMENT.LEFT
+
+        # Remove table borders
+        self._remove_table_borders(header_table)
+
+        # Left cell - Company info
+        company_cell = header_table.cell(0, 0)
+        self._clear_cell_paragraphs(company_cell)
+
+        if header_config['style'] == 'trucking':
+            self._add_trucking_company_info(company_cell)
+        elif header_config['style'] == 'cs':
+            self._add_cs_company_info(company_cell, header_config.get('show_logo', True))
+
+        # Right cell - Government heading (for trucking style)
+        if header_config['style'] == 'trucking':
+            gov_cell = header_table.cell(0, 1)
+            self._clear_cell_paragraphs(gov_cell)
+
+            gov_para = gov_cell.add_paragraph()
+            gov_para.add_run("CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM")
+            gov_para.add_run("\nĐộc lập - Tự do - Hạnh phúc")
+            gov_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    def _add_trucking_company_info(self, cell):
+        """Thêm thông tin công ty theo style trucking"""
+        company_para = cell.add_paragraph()
+        title_run = company_para.add_run("1. Thông tin về đơn vị kinh doanh")
+        title_run.bold = True
+        company_para.add_run("\nĐơn vị vận tải: CHI NHÁNH CÔNG TY CP TIẾP VẬN HP TẠI TP. HẢI PHÒNG")
+        company_para.add_run("\nĐịa chỉ: Room 202A, Dau Khi Hotel, 441 Da Nang Street, Hai An, Hai Phong, Vietnam")
+        company_para.add_run("\nTel: +84 225 3556133 Fax: + 84 225 3556132")
+
+    def _add_cs_company_info(self, cell, show_logo=True):
+        """Thêm thông tin công ty theo style CS"""
+        from docx.shared import Cm
+
+        p_logo = cell.paragraphs[0]
+        if show_logo and self.env.company.logo:
+            image_data = io.BytesIO(base64.b64decode(self.env.company.logo))
+            p_logo.add_run().add_picture(image_data, width=Cm(3.5))
+
+    def _add_docx_signature_section(self, doc, signature_config=None):
+        """
+        Thêm phần signature - Common pattern
+        signature_config: dict để customize
+        {
+            'signatures': [
+                {'title': 'NHÂN VIÊN LÀM LỆNH', 'name': ''},
+                {'title': 'LÁI XE NHẬN LỆNH', 'name': ''},
+                {'title': 'T/L GIÁM ĐỐC CÔNG TY', 'name': ''}
+            ]
+        }
+        """
+        from docx.shared import Pt
+        from docx.enum.table import WD_TABLE_ALIGNMENT
+        from docx.oxml import parse_xml
+
+        if not signature_config:
+            # Default trucking style
+            signature_config = {
+                'signatures': [
+                    {'title': 'NHÂN VIÊN LÀM LỆNH'},
+                    {'title': 'LÁI XE NHẬN LỆNH'},
+                    {'title': 'T/L GIÁM ĐỐC CÔNG TY'}
+                ]
+            }
+
+        num_sigs = len(signature_config['signatures'])
+        sig_table = doc.add_table(rows=1, cols=num_sigs)
+        sig_table.style = 'Table Grid'
+        sig_table.alignment = WD_TABLE_ALIGNMENT.CENTER
+
+        # Remove borders and add top padding
+        for row in sig_table.rows:
+            for cell in row.cells:
+                cell._tc.get_or_add_tcPr().append(parse_xml(
+                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
+                cell._tc.get_or_add_tcPr().append(parse_xml(
+                    r'<w:tcMar xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:w="20" w:type="dxa"/></w:tcMar>'))
+                for paragraph in cell.paragraphs:
+                    for run in paragraph.runs:
+                        run.font.size = Pt(9.5)
+
+        sig_cells = sig_table.rows[0].cells
+
+        # Add signatures
+        for i, sig in enumerate(signature_config['signatures']):
+            self._clear_cell_paragraphs(sig_cells[i])
+
+            sig_para = sig_cells[i].add_paragraph()
+            title_run = sig_para.add_run(sig['title'])
+            title_run.bold = True
+
+            # Add spacing
+            for _ in range(3):
+                sig_cells[i].add_paragraph()
+
+            # Add name if provided
+            if sig.get('name'):
+                name_para = sig_cells[i].add_paragraph()
+                name_run = name_para.add_run(sig['name'])
+                name_run.bold = True
+
+    def _remove_table_borders(self, table):
+        """Remove borders from all cells in table"""
+        from docx.oxml import parse_xml
+
+        for row in table.rows:
+            for cell in row.cells:
+                cell._tc.get_or_add_tcPr().append(parse_xml(
+                    r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/></w:tcBorders>'))
+
+    def _clear_cell_paragraphs(self, cell):
+        """Clear all paragraphs in a cell"""
+        for paragraph in cell.paragraphs:
+            p = paragraph._element
+            p.getparent().remove(p)
+
+    def _add_cell_top_padding(self, cell, padding='20'):
+        """Add top padding to a cell"""
+        from docx.oxml import parse_xml
+
+        cell._tc.get_or_add_tcPr().append(parse_xml(
+            f'<w:tcMar xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:top w:w="{padding}" w:type="dxa"/></w:tcMar>'))
 
     def _finalize_docx(self, doc, filename):
         """Save document và tạo attachment"""

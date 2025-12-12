@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="report_delivery_order">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.basic_layout">
+                    <style>
+                        /* Thiết lập font chữ chung */
+                        .do-body {
+                            font-family: 'Times New Roman', Times, serif !important;
+                            font-size: 14px;
+                            line-height: 1.4;
+                            color: #000;
+                        }
+
+                        /* Reset border cho tất cả table để tránh lỗi khung bao quanh */
+                        table { border-collapse: collapse; width: 100%; }
+                        td { padding: 2px; vertical-align: top; }
+
+                        /* 1. Header Styles */
+                        .header-table td { border: none !important; }
+                        .header-line { border-bottom: 2px solid #000; margin-top: 5px; margin-bottom: 20px; }
+
+                        /* 2. Title Address Styles */
+                        .doc-title { text-align: center; font-weight: bold; font-size: 18px; text-transform: uppercase; margin-bottom: 5px; }
+                        .doc-subtitle { text-align: center; font-weight: bold; font-size: 16px; margin-bottom: 10px; }
+                        .doc-ref { text-align: center; font-style: italic; margin-bottom: 15px; }
+                        .addressee { text-align: center; font-weight: bold; margin-bottom: 25px; }
+
+                        /* 3. Info Table (MBL, Vessel...) - KHÔNG VIỀN */
+                        .info-table { margin-bottom: 10px; }
+                        .info-table td { border: none !important; padding-top: 5px; padding-bottom: 5px; }
+                        .label-txt { white-space: nowrap; }
+                        .data-txt { font-weight: bold; padding-left: 10px; }
+                        /* Tạo dòng kẻ chấm hoặc khoảng trống cho dữ liệu */
+                        .data-line { border-bottom: 1px dotted #ccc; display: inline-block; width: 90%; }
+
+                        /* 4. Cargo Table (Container) - CÓ VIỀN ĐẬM */
+                        .cargo-table { margin-top: 15px; margin-bottom: 20px; border: 1px solid #000; }
+                        .cargo-table th {
+                            border: 1px solid #000;
+                            text-align: center;
+                            font-weight: bold;
+                            vertical-align: middle;
+                            padding: 8px;
+                        }
+                        .cargo-table td {
+                            border: 1px solid #000;
+                            text-align: center;
+                            vertical-align: middle;
+                            padding: 8px;
+                        }
+
+                        /* 5. Footer Styles */
+                        .footer-note { font-style: italic; margin-bottom: 20px; margin-top: 10px; }
+                        .signature-table td { border: none !important; }
+                    </style>
+
+                    <div class="page do-body">
+                        <!-- HEADER: Logo & Company Info -->
+                        <table class="header-table">
+                            <tr>
+                                <td style="width: 20%; padding-right: 15px;">
+                                    <img t-if="o.env.company.logo" t-att-src="image_data_uri(o.env.company.logo)" style="max-height: 80px; width: auto;"/>
+                                </td>
+                                <td style="width: 80%;">
+                                    <div style="font-weight: bold; font-size: 15px; margin-bottom: 3px;">CÔNG TY CỔ PHẦN TIẾP VẬN HP</div>
+                                    <div style="font-weight: bold; margin-bottom: 3px;">VP-1A 3rd Floor, GreenPearl Building, No. 378 Minh Khai Ward, Vinh Tuy, Hai Ba Trung, Hanoi, Vietnam</div>
+                                    <div style="margin-bottom: 3px;">Tel: (84-4) 3848 9189 - Fax: (84-4) 3734 7995</div>
+                                    <div>Email: cs@hplogistics.com.vn</div>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="header-line"></div>
+
+                        <!-- TITLE -->
+                        <div class="doc-title">LỆNH GIAO HÀNG</div>
+                        <div class="doc-subtitle">(Delivery Order)</div>
+                        <div class="doc-ref">Số (No.): <span t-field="o.document_number"/></div>
+
+                        <!-- KÍNH GỬI -->
+                        <div class="addressee">
+                            <div>Kính gửi: CẢNG <span t-esc="(o.pod_id.name or '').upper()"/></div>
+                            <div>Đồng kính gửi: CÁC CƠ QUAN HỮU QUAN.</div>
+                        </div>
+
+                        <!-- LỜI MỞ ĐẦU -->
+                        <div style="margin-bottom: 5px;">
+                            Trân trọng đề nghị giao lô hàng sau cho: <span style="font-weight: bold;" t-field="o.consignee_id.name"/>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            Please deliver the following merchandise to
+                        </div>
+                        <div style="margin-bottom: 5px;">
+                            Số Vận đơn: <b><span t-field="o.bl_number"/></b>
+                        </div>
+
+                        <!-- THÔNG TIN LÔ HÀNG  -->
+                        <table class="info-table">
+                            <!-- Dòng 1: MBL và HBL -->
+                            <tr>
+                                <td width="15%" class="label-txt">Số MBL:</td>
+                                <td width="35%" class="data-txt"><span t-field="o.mbl_number"/></td>
+                                <td width="10%" class="label-txt text-right" style="padding-right: 5px;">HBL:</td>
+                                <td width="40%" class="data-txt"><span t-field="o.hbl_number"/></td>
+                            </tr>
+
+                            <!-- Dòng 2: Tàu và Chuyến -->
+                            <tr>
+                                <td colspan="4">
+                                    <span class="label-txt">Lô hàng kê khai dưới đây ở tàu:</span>
+                                    <span class="data-txt" t-field="o.vessel_name"/>
+                                    <span class="label-txt" style="margin-left: 30px;">Chuyến:</span>
+                                    <span class="data-txt" t-field="o.voyage"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="font-style: italic; font-size: 12px;">Vessel Name</td>
+                            </tr>
+
+                            <!-- Dòng 3: Từ - Đến -->
+                            <tr>
+                                <td>Từ <span style="font-size: 11px; font-style: italic;">(From)</span></td>
+                                <td class="data-txt"><span t-field="o.pol_id.name"/></td>
+                                <td>đến <span style="font-size: 11px; font-style: italic;">(to)</span></td>
+                                <td class="data-txt"><span t-field="o.pod_id.name"/></td>
+                            </tr>
+
+                            <!-- Dòng 4: Ngày đến -->
+                            <tr>
+                                <td colspan="2"></td>
+                                <td class="label-txt">Ngày đến:</td>
+                                <td class="data-txt"><span t-field="o.eta" t-options='{"widget": "date"}'/></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2"></td>
+                                <td colspan="2" style="font-style: italic; font-size: 11px; padding-left: 20px;">Arrival Date</td>
+                            </tr>
+                        </table>
+
+                        <!-- BẢNG HÀNG HÓA -->
+                        <table class="cargo-table">
+                            <thead>
+                                <tr>
+                                    <th width="30%">SỐ CONTAINER;<br/>SỐ SEAL<br/><span style="font-weight: normal; font-style: italic; font-size: 12px;">Marks and Nos; Container/Seal No.</span></th>
+                                    <th width="15%">SỐ KIỆN<br/><span style="font-weight: normal; font-style: italic; font-size: 12px;">No. of Package</span></th>
+                                    <th width="30%">KÝ MÃ HIỆU<br/>TÊN HÀNG HÓA<br/><span style="font-weight: normal; font-style: italic; font-size: 12px;">Description of Goods</span></th>
+                                    <th width="12%">TRỌNG LƯỢNG<br/>(MT)<br/><span style="font-weight: normal; font-style: italic; font-size: 12px;">Gross Weight</span></th>
+                                    <th width="13%">KÍCH THƯỚC<br/>(m3)<br/><span style="font-weight: normal; font-style: italic; font-size: 12px;">Measurement</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="o.container_line_ids" t-as="line">
+                                    <td>
+                                        <div t-field="line.container_number" style="font-weight: bold;"/>
+                                        <div t-field="line.seal_number"/>
+                                    </td>
+                                    <td><span t-field="line.packages"/></td>
+                                    <td><span t-field="line.goods_description"/></td>
+                                    <td><span t-field="line.gross_weight"/></td>
+                                    <td><span t-field="line.measurement"/></td>
+                                </tr>
+                                <!-- Dòng trống fill data nếu không có container  -->
+                                <tr t-if="not o.container_line_ids">
+                                    <td style="height: 50px;"></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- FOOTER & SIGNATURE  -->
+                        <div class="footer-note">
+                            <div>LƯU Ý: Xin quý khách vui lòng đối chiếu chi tiết hàng khi nhận lệnh giao hàng</div>
+                            <div>Rất cảm ơn sự hợp tác và ủng hộ của Quý khách hàng</div>
+                        </div>
+
+                        <table class="signature-table" style="margin-top: 30px;">
+                            <tr>
+                                <td width="55%">
+                                    <b>Ký nhận đủ bộ chứng từ</b><br/>
+                                    Ngày:<br/><br/>
+                                    Họ và tên: <span t-field="o.contact_name"/><br/>
+                                    Số điện thoại: <span t-field="o.contact_phone"/><br/>
+                                    Mã số thuế: <span t-field="o.contact_tax_code"/>
+                                </td>
+                                <td width="45%" style="text-align: center;">
+                                    <div style="margin-bottom: 60px;">
+                                        ................., ngày <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d')"/>
+                                        tháng <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%m')"/>
+                                        năm <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y')"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>
