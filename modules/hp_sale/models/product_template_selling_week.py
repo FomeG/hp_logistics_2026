@@ -3,7 +3,7 @@ from odoo.addons.hp_components.models.constants import LocationType
 
 class ProductTemplateSellingWeek(models.Model):
     _name = 'product.template.selling.week'
-    _description = 'Product Template Selling Week'
+    _description = 'Weekly Sea Freight For Team sale'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
     goods_info = fields.Char(

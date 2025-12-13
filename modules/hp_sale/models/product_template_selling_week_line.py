@@ -3,7 +3,7 @@ from odoo.exceptions import ValidationError
 
 class ProductTemplateSellingWeekLine(models.Model):
     _name = 'product.template.selling.week.line'
-    _description = 'Product Template Selling Week Line'
+    _description = 'Weekly Sea Freight Of Each Shipping Line For Sale Team'
 
     product_template_selling_week_id = fields.Many2one(
         'product.template.selling.week',
