@@ -1,4 +1,3 @@
-from . import price_category
 from . import product_template_inherit
 from . import product_category_inherit
 from . import res_partner_inherit
