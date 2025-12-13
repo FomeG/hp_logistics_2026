@@ -30,6 +30,23 @@
                         /* Values */
                         .field-value { font-size: 13px; display: block; }
                         .field-value-bold { font-size: 14px; font-weight: bold; }
+
+                        /* Footer section */
+                        .footer-section {
+                            margin-top: 10px;
+                            width: 100%;
+                            font-size: 13px;
+                        }
+                        .footer-box {
+                            border: 1px solid #000;
+                            padding: 10px;
+                        }
+                        .footer-row {
+                            display: flex;
+                            margin-bottom: 5px;
+                        }
+                        .footer-layout-table { width: 100%; border-collapse: collapse; }
+                        .footer-layout-table td { border: none; padding: 2px; vertical-align: top; }
                     </style>
 
                     <div class="page an-body">
@@ -54,107 +71,79 @@
                         <!-- MAIN INFO TABLE -->
                         <table class="excel-table">
                             <colgroup>
-                                <col style="width: 35%;"/>
-                                <col style="width: 15%;"/>
+                                <col style="width: 50%;"/>
                                 <col style="width: 25%;"/>
                                 <col style="width: 25%;"/>
                             </colgroup>
 
                             <!-- ROW 1: Labels Shipper & BL -->
                             <tr>
-                                <td colspan="2">
+                                <td>
                                     <span class="field-label">NGƯỜI GỬI HÀNG (Shipper):</span>
+                                    <span class="field-value" t-field="o.shipper_id.name"/>
+                                    <div class="field-value" t-field="o.shipper_id.street"/>
                                 </td>
                                 <td>
                                     <span class="field-label">SỐ VẬN ĐƠN (B/L No):</span>
                                 </td>
                                 <td class="text-center" style="vertical-align: middle;">
-                                    <span class="field-value-bold" t-field="o.bl_number"/>
+                                    <span class="field-value-bold" style="font-size: 15px;" t-field="o.bl_number"/>
                                 </td>
                             </tr>
 
                             <!-- ROW 2: Shipper Data (Start), Vessel Label, ETA Label -->
                             <tr>
-                                <!-- Shipper Data (Rowspan 2 to cover Vessel Label & Data rows) -->
-                                <td colspan="2" rowspan="2">
-                                    <span class="field-value" t-field="o.shipper_id.name"/>
-                                    <div t-field="o.shipper_id.street"/>
+                                <td rowspan="3">
+                                    <span class="field-label">NGƯỜI NHẬN HÀNG (Consignee):</span>
+                                    <span class="field-value" t-field="o.consignee_id.name"/>
+                                    <div class="field-value" t-field="o.consignee_id.street"/>
                                 </td>
-                                <!-- Vessel Label -->
                                 <td>
                                     <span class="field-label-plain">TÊN TÀU / CHUYẾN (Vol/Voy):</span>
+                                    <div class="text-center field-value" t-esc="o.vessel_name + ' / ' + o.voyage"/>
                                 </td>
-                                <!-- ETA Label -->
-                                <td>
+                                <td rowspan="2"> <!-- ETA gộp 2 hàng -->
                                     <span class="field-label-plain">NGÀY DỰ KIẾN TÀU ĐẾN (ETA):</span>
+                                    <div class="text-center field-value-bold" style="margin-top: 20px;" t-field="o.eta" t-options='{"widget": "date"}'/>
                                 </td>
                             </tr>
 
-                            <!-- ROW 3: Vessel Data, ETA Data (Start) -->
+                            <!-- HÀNG 3: (Consignee) | CONNECTING VESSEL | (ETA) -->
                             <tr>
-                                <!-- Shipper occupies left -->
-                                <!-- Vessel Data (Nằm ngay dưới Label Vessel) -->
-                                <td style="height: 50px; vertical-align: top;">
-                                    <div class="text-center field-value" style="margin-top: 5px;" t-esc="o.vessel_name + ' / ' + o.voyage"/>
-                                </td>
-                                <!-- ETA Data (Rowspan 3: Covers Vessel Data, Cnee Label, Connecting Label rows) -->
-                                <td rowspan="3" class="text-center" style="vertical-align: middle;">
-                                    <span class="field-value-bold" t-field="o.eta" t-options='{"widget": "date"}'/>
-                                </td>
-                            </tr>
-
-                            <!-- ROW 4: Consignee Label, Connecting Label -->
-                            <tr>
-                                <td colspan="2">
-                                    <span class="field-label">NGƯỜI NHẬN HÀNG (Consignee):</span>
-                                </td>
+                                <!-- Cột 1: Consignee occupied -->
                                 <td>
                                     <span class="field-label-plain">TÀU NỐI / CHUYẾN (Vol/Voy):</span>
+                                    <div class="text-center field-value" style="height: 15px;"></div>
                                 </td>
-                                <!-- ETA occupies right -->
+                                <!-- Cột 3: ETA occupied -->
                             </tr>
 
-                            <!-- ROW 5: Consignee Data, Connecting Data -->
+                            <!-- HÀNG 4: (Consignee) | PLACE OF RECEIPT | PORT OF LOADING -->
                             <tr>
-                                <td colspan="2" rowspan="2">
-                                    <span class="field-value" t-field="o.consignee_id.name"/>
-                                    <div t-field="o.consignee_id.street"/>
-                                </td>
-                                <td style="height: 40px;">
-                                    <!-- Connecting Vessel Data (Empty) -->
-                                </td>
-                                <!-- ETA occupies right (End) -->
-                            </tr>
-
-                            <!-- ROW 6: Place Receipt, Port Loading -->
-                            <tr>
-                                <!-- Consignee occupies left (partially) or ends? Let's check logic. -->
-                                <!-- To be safe layout, Consignee usually spans down. But here let's start new row logic for Places -->
-
                                 <td>
                                     <span class="field-label">Nơi nhận hàng (Place of receipt)</span>
-                                    <div class="field-value" style="margin-top:5px;" t-field="o.place_of_receipt"/>
+                                    <div class="field-value text-center" style="margin-top: 5px;" t-field="o.place_of_receipt"/>
                                 </td>
                                 <td>
                                     <span class="field-label">CẢNG XẾP (Port of loading)</span>
-                                    <div class="field-value" style="margin-top:5px;" t-field="o.pol_id.name"/>
+                                    <div class="field-value text-center" style="margin-top: 5px;" t-field="o.pol_id.name"/>
                                 </td>
                             </tr>
 
-                            <!-- ROW 7: Notify & POD -->
+                            <!-- HÀNG 5: NOTIFY | PORT OF DISCHARGE | PLACE OF DELIVERY -->
                             <tr>
-                                <td colspan="2">
+                                <td>
                                     <span class="field-label">NGƯỜI THÔNG BÁO (Notify Party):</span>
                                     <span class="field-value" t-field="o.notify_party_id.name"/>
-                                    <div t-field="o.notify_party_id.street"/>
+                                    <div class="field-value" t-field="o.notify_party_id.street"/>
                                 </td>
                                 <td>
                                     <span class="field-label">CẢNG DỠ (Port of discharge)</span>
-                                    <div class="field-value" style="margin-top:5px;" t-field="o.pod_id.name"/>
+                                    <div class="field-value text-center" style="margin-top: 5px;" t-field="o.pod_id.name"/>
                                 </td>
                                 <td>
                                     <span class="field-label">NƠI GIAO HÀNG (Place of delivery)</span>
-                                    <div class="field-value" style="margin-top:5px;" t-field="o.place_of_delivery"/>
+                                    <div class="field-value text-center" style="margin-top: 5px;" t-field="o.place_of_delivery"/>
                                 </td>
                             </tr>
                         </table>
@@ -188,9 +177,8 @@
                                     <td class="text-center"><span t-field="line.gross_weight"/></td>
                                     <td class="text-center"><span t-field="line.measurement"/></td>
                                 </tr>
-                                <!-- Filler rows -->
-                                <tr>
-                                    <td class="text-center">....................</td>
+                                <tr t-if="not o.container_line_ids">
+                                    <td class="text-center" style="height: 30px;">....................</td>
                                     <td class="text-center">....................</td>
                                     <td class="text-center">....................</td>
                                     <td class="text-center">....................</td>
@@ -200,7 +188,7 @@
                         </table>
 
                         <!-- FOOTER -->
-                        <table class="excel-table">
+                         <table class="footer-layout-table" style="margin-top: 10px; border: 1px solid #000;">
                             <colgroup>
                                 <col style="width: 20%;"/>
                                 <col style="width: 5%;"/>
@@ -215,24 +203,26 @@
                                     Tel: +84.225.3556133
                                 </td>
                             </tr>
+                            <tr><td colspan="4" style="height: 5px;"></td></tr>
                             <tr>
                                 <td rowspan="3" class="text-bold text-italic">Khi đến cần mang theo:</td>
-                                <td>1</td>
+                                <td>1.</td>
                                 <td>Giấy giới thiệu</td>
                                 <td>2. Thanh toán cước và phụ phí (nếu có)</td>
                             </tr>
                             <tr>
-                                <td>3</td>
+                                <td>3.</td>
                                 <td>Căn cước công dân</td>
                                 <td>4. Trường hợp nhận ủy thác phải có giấy ủy quyền bản gốc</td>
                             </tr>
                             <tr>
-                                <td>5</td>
+                                <td>5.</td>
                                 <td>Bill gốc (nếu có)</td>
                                 <td></td>
                             </tr>
+                            <tr><td colspan="4" style="height: 5px;"></td></tr>
                             <tr>
-                                <td class="text-bold text-italic" style="text-decoration: underline;">XIN LƯU Ý</td>
+                                <td class="text-bold text-italic" style="text-decoration: underline;">XIN LƯU Ý:</td>
                                 <td colspan="3">
                                     Trước khi đến nhận Lệnh giao hàng, vui lòng liên hệ với chúng tôi theo số: +84.225.3556133<br/>
                                     Vui lòng lấy lệnh giao hàng sau 1 ngày từ ngày đến cho hàng lẻ (LCL)<br/>
