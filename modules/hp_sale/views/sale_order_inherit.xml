@@ -203,6 +203,7 @@
                         <field name="commodity_hs_code" />
                         <field name="etd" required="1"/>
                         <field name="shipping_line_id"/>
+                        <field name="container_type_id" />
                         <field name="goods_location_id" invisible="not is_sea_exp_location" required="is_sea_exp_location"/>
                     </group>
                     <group invisible="not is_sea_exp_location or id">
@@ -210,11 +211,11 @@
                         <field name="exp_to_location_id" required="is_sea_exp_location and not id"/>
                     </group>
                     <group invisible="is_sea_exp_location or id">
-                        <field name="imp_from_location_id" required="not is_sea_exp_location"/>
-                        <field name="imp_to_location_id" required="not is_sea_exp_location"/>
+                        <field name="imp_from_location_id" required="not is_sea_exp_location and not id"/>
+                        <field name="imp_to_location_id" required="not is_sea_exp_location and not id"/>
                     </group>
                     <group invisible="not id">
-                        <field name="from_location_id" />
+                        <field name="from_location_id"/>
                         <field name="to_location_id" />
                     </group>
                 </sheet>
@@ -226,6 +227,10 @@
                                     type="object"
                                     string="Add Product"
                                     class="btn btn-primary btn-block"/>
+                                <button name="action_open_freight_price_wizard"
+                                    type="object"
+                                    string="Get Freight Price"
+                                    class="btn btn-second btn-block"/>
                             </div>
                         </div>
                     </group>

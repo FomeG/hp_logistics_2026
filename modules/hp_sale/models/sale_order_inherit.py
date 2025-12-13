@@ -1,3 +1,4 @@
+from datetime import timedelta
 from logging import Logger
 from odoo import models, fields, _, api
 from odoo.api import ValuesType, Self
@@ -121,12 +122,16 @@ class SaleOrderInherit(models.Model):
         string="ETD",
         help="Estimated Time of Departure",
         required=True,
+        default=lambda self: fields.Date.today() + timedelta(days=1)
     )
     shipping_line_id = fields.Many2one(
         comodel_name='res.partner',
         domain="[('partner_main_type_id.code', '=', 'shipping_line')]",
-        store=True,
         string="Shipping Line preferred",
+    )
+    container_type_id = fields.Many2one(
+        comodel_name='container.type',
+        string="Container Type preferred",
     )
     @api.onchange("client_id")
     def _onchange_client_id(self):
@@ -465,3 +470,20 @@ class SaleOrderInherit(models.Model):
             record._validate_form(vals)
 
         return super().write(vals)
+
+    def action_open_freight_price_wizard(self):
+        self.ensure_one()
+        return {
+            'name': self._generate_freight_price_wizard_title(),
+            'type': 'ir.actions.act_window',
+            'res_model': 'hp_sale.freight.price.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_sale_order_id': self.id,            }
+        }
+    def _generate_freight_price_wizard_title(self):
+        for record in self:
+            if record.is_sea_exp_location:
+                return f"Select Freight Price For Trip {record.goods_location_id.name} - {record.from_location_id.name} - {record.to_location_id.name}"
+            return f"Select Freight Price For {record.from_location_id.name} - {record.to_location_id.name}"

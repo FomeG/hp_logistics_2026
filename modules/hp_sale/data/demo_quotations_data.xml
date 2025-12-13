@@ -7,12 +7,15 @@
             <field name="name">SALE/2025/001</field>
             <field name="partner_id" ref="hp_sale.res_partner_client_1"/>
             <field name="client_id" ref="hp_sale.res_partner_client_res_partner_1"/>
-            <field name="etd" eval="(datetime.now() + timedelta(days=10)).strftime('%Y-%m-%d')"/>
+            <field name="service_type">export</field>
+            <field name="main_transport_mode">sea</field>
+            <field name="etd" eval="(datetime.now() + timedelta(days=2)).strftime('%Y-%m-%d')"/>
             <field name="shipping_line_id" ref="hp_components.shipping_line_cosco"/>
             <field name="commodity">Electronic Components</field>
             <field name="commodity_hs_code">8542.31</field>
-            <field name="from_location_id" ref="hp_components.location_vn_city_hp"/>
-            <field name="to_location_id" ref="hp_components.location_vn_city_hn"/>
+            <field name="goods_location_id" ref="hp_components.location_vn_hn_kcn_quangminh" />
+            <field name="from_location_id" ref="hp_components.location_port_vn_hpp"/>
+            <field name="to_location_id" ref="hp_components.location_port_us_la"/>
             <field name="user_id" ref="hp_employee.user_sm1_hn"/>
             <field name="date_order" eval="(datetime.now() - timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')"/>
             <field name="state">draft</field>

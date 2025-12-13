@@ -26,7 +26,7 @@
         # wizards
         'views/wizards/import_client_wizard.xml',
         'views/wizards/mass_assign_sale_client_wizard.xml',
-
+        'views/wizards/freight_price_wizard.xml',
         # security
         'security/hp_sale_security.xml',
         'security/ir.model.access.csv',
@@ -49,6 +49,7 @@
         'views/sale_menus.xml',
         'report/ir_actions_report.xml',
         'report/report_quotation_template.xml',
+
     ],
     'demo': [],
     'assets': {
