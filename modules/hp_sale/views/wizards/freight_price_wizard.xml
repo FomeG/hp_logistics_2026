@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_freight_price_wizard_form" model="ir.ui.view">
+        <field name="name">hp_sale.freight.price.wizard.form</field>
+        <field name="model">hp_sale.freight.price.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Freight Prices">
+                <group>
+                    <field name="sale_order_id" readonly="1"/>
+                </group>
+                <field name="line_ids">
+                    <list create="0" delete="0" editable="bottom" decoration-info="suggestion"  decoration-success="transport_mode == 'truck'" decoration-muted="price == 0" >
+                        <field name="selected" invisible="price==0" readonly="price == 0"/>
+                        <field name="transport_mode"/>
+                        <field name="shipping_line_id" />
+                        <field name="container_type_id" />
+                        <field name="from_location_id" />
+                        <field name="to_location_id" />
+                        <field name="price" invisible="price == 0"/>
+                        <field name="currency_id" invisible="price == 0"/>
+                        <field name="note" />
+                        <field name="source_ref" invisible="1" readonly="price == 0"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_add_to_order" string="Add To Order" type="object" class="btn-primary" invisible="not can_add_item"/>
+                    <button name="action_request_price" string="Request Price" type="object" class="btn-info" invisible="not can_request_price" />
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_freight_price_wizard" model="ir.actions.act_window">
+        <field name="name">Freight Prices</field>
+        <field name="res_model">hp_sale.freight.price.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
