@@ -158,12 +158,23 @@
 <!--            <field name="perm_unlink" eval="0"/>-->
 <!--        </record>-->
 
+        <record id="rule_location_base_member" model="ir.rule">
+            <field name="name">Freight Purchase Port - Member Access Own Team</field>
+            <field name="model_id" ref="model_location_base"/>
+            <field name="domain_force">[('team_ids.user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
         <!-- Freight Purchase Port - Leader+ Override Rule -->
         <record id="rule_freight_purchase_port_leader_plus" model="ir.rule">
-            <field name="name">Freight Purchase Port - Leader+ Access All</field>
+            <field name="name">Freight Purchase Port - Director Access All</field>
             <field name="model_id" ref="model_location_base"/>
             <field name="domain_force">[(1, '=', 1)]</field>
-            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_lead')), (4, ref('group_hp_freight_purchase_director')), (4, ref('group_hp_freight_purchase_administrator'))]"/>
+            <field name="groups" eval="[(4, ref('group_hp_freight_purchase_director'))]"/>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="1"/>
             <field name="perm_create" eval="1"/>
