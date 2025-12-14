@@ -2,7 +2,7 @@ from datetime import timedelta
 from logging import Logger
 from odoo import models, fields, _, api
 from odoo.api import ValuesType, Self
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, AccessError
 from ...hp_components.models import constants
 import logging
 
@@ -467,6 +467,18 @@ class SaleOrderInherit(models.Model):
 
     def write(self, vals):
         for record in self:
+            # Check permissions for Salesman group
+            if self.env.user.has_group('sales_team.group_sale_salesman'):
+                allowed_states = [
+                    constants.SaleOrderState.DRAFT,
+                    constants.SaleOrderState.SENT_TO_CLIENT,
+                    constants.SaleOrderState.REVIEW,
+                ]
+                if record.state not in allowed_states:
+                    raise AccessError(
+                        "You are not allowed to modify the order when its state is '%s'." % record.state
+                    )
+
             record._validate_form(vals)
 
         return super().write(vals)
