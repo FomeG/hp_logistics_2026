@@ -81,6 +81,8 @@ class SaleService(models.AbstractModel):
             ('from_location_id', '=', from_location_id),
             ('to_location_id', '=', to_location_id),
         ]
+        trip_per_team_domain = self.env['hp_employee.user.service'].inject_user_teams_domain(trip_per_team_domain)
+
         selling_price_trip_team = self.env['product.template.selling.week'].search_read(trip_per_team_domain, ['id'], limit=1)
 
         if not selling_price_trip_team:
