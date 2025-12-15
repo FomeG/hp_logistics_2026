@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="department_type_pricing" model="department.type">
+        <field name="name">Pricing</field>
+        <field name="code">pricing</field>
+        <field name="manager_group_xml_id">group_hp_freight_purchase_lead</field>
+        <field name="member_group_xml_id">group_hp_freight_purchase_member</field>
+    </record>
+    <record id="user_dopr_hn" model="res.users">
+        <field name="name">DOPR HN</field>
+        <field name="login">dopr_hn@test.com</field>
+        <field name="password">123456</field>
+    </record>
+    <record id="emp_dopr_hn" model="hr.employee">
+        <field name="name">DOPR HN</field>
+        <field name="job_title">Director Of Pricing HN</field>
+        <field name="user_id" ref="user_dopr_hn"/>
+        <field name="work_email">dopr_hn@test.com</field>
+    </record>
+    <record id="dep_pricing_hn" model="hr.department">
+        <field name="name">Pricing HN</field>
+        <field name="color" eval="5"/>
+        <field name="branch_id" ref="hp_employee.branch_hn" />
+        <field name="department_type_id" ref="department_type_pricing" />
+        <field name="manager_id" ref="emp_dopr_hn" />
+    </record>
+
+    <record id="user_dopr_hcm" model="res.users">
+        <field name="name">DOPR HCM</field>
+        <field name="login">dopr_hcm@test.com</field>
+        <field name="password">123456</field>
+    </record>
+    <record id="emp_dopr_hcm" model="hr.employee">
+        <field name="name">DOPR HCM</field>
+        <field name="job_title">Director Of Pricing HCM</field>
+        <field name="user_id" ref="user_dopr_hcm"/>
+        <field name="work_email">dopr_hcm@test.com</field>
+    </record>
+
+    <record id="dep_pricing_hcm" model="hr.department">
+        <field name="name">Pricing HCM</field>
+        <field name="color" eval="6"/>
+        <field name="branch_id" ref="hp_employee.branch_hcm" />
+        <field name="department_type_id" ref="department_type_pricing" />
+        <field name="manager_id" ref="emp_dopr_hcm" />
+    </record>
+
+</odoo>

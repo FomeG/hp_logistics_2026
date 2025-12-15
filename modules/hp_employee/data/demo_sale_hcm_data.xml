@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
-        <record id="branch_hcm" model="hr.branch">
-            <field name="name">Hồ Chí Minh</field>
-            <field name="branch_prefix">HCM</field>
-        </record>
         <record id="user_dos_hcm" model="res.users">
             <field name="name">DOS HCM</field>
             <field name="login">dos_hcm@test.com</field>

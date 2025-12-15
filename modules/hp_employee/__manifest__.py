@@ -16,7 +16,7 @@ HP Employee App
     'data': [
         # security
         'security/ir.model.access.csv',
-
+        'data/demo_branch_data.xml',
         'data/demo_sale_hn_data.xml',
         'data/demo_sale_hcm_data.xml',
         'data/demo_team_data.xml',
