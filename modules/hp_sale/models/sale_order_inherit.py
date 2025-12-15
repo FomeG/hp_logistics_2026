@@ -398,6 +398,13 @@ class SaleOrderInherit(models.Model):
             elif fields.Date.from_string(vals['etd']) < fields.Date.today():
                 error_messages.append(_('ETD cannot be in the past.'))
 
+        # Lấy ngày báo giá và ngày hết hạn từ vals hoặc dữ liệu cũ
+        d_order = fields.Datetime.to_datetime(vals.get('date_order') or (self and self.date_order))
+        d_valid = fields.Date.to_date(vals.get('validity_date') or (self and self.validity_date))
+
+        if d_order and d_valid and d_valid < d_order.date():
+            error_messages.append(_("Expiration date must be superior to quotation date."))
+
         # For existing records, combine with current values
         if self:
             # Get current values
@@ -449,7 +456,8 @@ class SaleOrderInherit(models.Model):
             vals['from_location_id'] = from_location
             vals['to_location_id'] = to_location
 
-        if vals['from_location_id'] and vals['from_location_id'] == vals['to_location_id']:
+        # Use vals.get to avoid key errors
+        if vals.get('from_location_id') and vals.get('from_location_id') == vals.get('to_location_id'):
             error_messages.append(_('From Location and To Location cannot be the same.'))
 
         if error_messages:
