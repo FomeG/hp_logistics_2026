@@ -4,8 +4,8 @@
     <record id="department_type_pricing" model="department.type">
         <field name="name">Pricing</field>
         <field name="code">pricing</field>
-        <field name="manager_group_xml_id">group_hp_freight_purchase_lead</field>
-        <field name="member_group_xml_id">group_hp_freight_purchase_member</field>
+        <field name="manager_group_xml_id">hp_freight_purchase.group_hp_freight_purchase_lead</field>
+        <field name="member_group_xml_id">hp_freight_purchase.group_hp_freight_purchase_member</field>
     </record>
     <record id="user_dopr_hn" model="res.users">
         <field name="name">DOPR HN</field>
