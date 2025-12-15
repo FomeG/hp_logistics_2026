@@ -71,7 +71,7 @@
                     string="Sent To Client"
                     class="btn-primary"
                     context="{'new_state': 'sent_to_client'}"
-                    invisible="state != 'draft'"/>
+                    invisible="not id or state != 'draft'"/>
                 <button name="action_update_state" 
                     type="object" 
                     string="Review"
@@ -96,10 +96,11 @@
             <!-- Add buttons for each state transition -->
             <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email']" position="after">
                 <button name="action_print_quotation"
-                    type="object"
-                    string="In Báo Giá"
-                    class="btn-secondary"
-                    icon="fa-print"/>
+                        type="object"
+                        string="In Báo Giá"
+                        class="btn-secondary"
+                        invisible="not id"
+                        icon="fa-print"/>
 <!--                <button name="action_customer_confirm" id="action_customer_confirm"-->
 <!--                        string="Customer Confirmed" type="object" class="btn-primary"-->
 <!--                        data-hotkey="c" invisible="state != 'activated'"/>-->
@@ -120,7 +121,9 @@
 <!--                        invisible="state != 'pricing_leader_confirm' or (uid != create_uid and uid != user_id)"/>-->
             </xpath>
 
-
+            <xpath expr="//button[@name='action_preview_sale_order']" position="attributes">
+                <attribute name="invisible">not id</attribute>
+            </xpath>
             <!-- Hide the Confirm button for sent state completely -->
             <xpath expr="//button[@name='action_confirm'][@id='action_confirm']" position="attributes">
                 <attribute name="invisible">1</attribute>
