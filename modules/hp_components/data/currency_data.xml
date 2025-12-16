@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Base Currency: VND -->
+        <record id="currency_vnd" model="currency">
+            <field name="name">Vietnamese Dong</field>
+            <field name="code">VND</field>
+            <field name="symbol">₫</field>
+            <field name="is_base_currency" eval="True"/>
+            <field name="sequence">1</field>
+        </record>
+
+        <!-- USD -->
+        <record id="currency_usd" model="currency">
+            <field name="name">US Dollar</field>
+            <field name="code">USD</field>
+            <field name="symbol">$</field>
+            <field name="is_base_currency" eval="False"/>
+            <field name="sequence">2</field>
+        </record>
+
+        <!-- EUR -->
+        <record id="currency_eur" model="currency">
+            <field name="name">Euro</field>
+            <field name="code">EUR</field>
+            <field name="symbol">€</field>
+            <field name="is_base_currency" eval="False"/>
+            <field name="sequence">3</field>
+        </record>
+
+        <!-- Exchange Rates -->
+        <!-- VND base rate (always 1) -->
+        <record id="rate_vnd_base" model="currency.rate">
+            <field name="currency_id" ref="currency_vnd"/>
+            <field name="date" eval="(DateTime.today() - timedelta(days=30)).strftime('%Y-%m-%d')"/>
+            <field name="rate">1.0</field>
+        </record>
+
+        <!-- USD to VND rate (1 USD = 26,332 VND) -->
+        <record id="rate_usd_current" model="currency.rate">
+            <field name="currency_id" ref="currency_usd"/>
+            <field name="date" eval="(DateTime.today() - timedelta(days=30)).strftime('%Y-%m-%d')"/>
+            <field name="rate">26332.0</field>
+        </record>
+
+        <!-- EUR to VND rate (1 EUR = 30,933 VND) -->
+        <record id="rate_eur_current" model="currency.rate">
+            <field name="currency_id" ref="currency_eur"/>
+            <field name="date" eval="(DateTime.today() - timedelta(days=30)).strftime('%Y-%m-%d')"/>
+            <field name="rate">30933.0</field>
+        </record>
+    </data>
+</odoo>

@@ -133,6 +133,129 @@ class SaleOrderInherit(models.Model):
         comodel_name='container.type',
         string="Container Type preferred",
     )
+
+    hp_currency_id = fields.Many2one(
+        comodel_name='currency',
+        string='HP Currency',
+        required=False,
+        default=lambda self: self._get_default_currency(),
+        tracking=True,
+        help='Custom currency for HP system'
+    )
+    hp_currency_rate_id = fields.Many2one(
+        comodel_name='currency.rate',
+        string='Exchange Rate',
+        domain="[('currency_id', '=', hp_currency_id)]",
+        help='Select specific exchange rate or leave empty for automatic selection'
+    )
+    hp_currency_rate = fields.Float(
+        string='HP Exchange Rate',
+        compute='_compute_hp_currency_rate',
+        store=True,
+        help='Exchange rate to base currency at order date'
+    )
+    hp_currency_rate_manual = fields.Float(
+        string='Manual Exchange Rate',
+        help='Override automatic exchange rate with manual rate'
+    )
+    use_manual_rate = fields.Boolean(
+        string='Use Manual Rate',
+        default=False,
+        help='Use manual exchange rate instead of automatic rate'
+    )
+    hp_currency_display = fields.Char(
+        string='Currency Info',
+        compute='_compute_hp_currency_display',
+        store=False
+    )
+
+    @api.model
+    def _get_default_currency(self):
+        """Lấy base currency làm mặc định"""
+        base_currency = self.env['currency'].search([
+            ('is_base_currency', '=', True)
+        ], limit=1)
+        return base_currency.id if base_currency else False
+
+    @api.depends('hp_currency_id', 'date_order', 'use_manual_rate', 'hp_currency_rate_manual')
+    def _compute_hp_currency_rate(self):
+        """Tính tỷ giá dựa trên currency và ngày order"""
+        for order in self:
+            if order.use_manual_rate and order.hp_currency_rate_manual:
+                # Priority 1: Manual rate
+                order.hp_currency_rate = order.hp_currency_rate_manual
+            elif order.hp_currency_rate_id:
+                # Priority 2: Selected specific rate
+                order.hp_currency_rate = order.hp_currency_rate_id.rate
+            elif order.hp_currency_id and order.date_order:
+                # Priority 3: Auto rate by date
+                order_date = fields.Date.to_date(order.date_order)
+                order.hp_currency_rate = order.hp_currency_id.get_rate(order_date)
+            else:
+                order.hp_currency_rate = 1.0
+
+    @api.depends('hp_currency_id', 'hp_currency_rate', 'use_manual_rate', 'hp_currency_rate_id')
+    def _compute_hp_currency_display(self):
+        """Hiển thị thông tin currency trong 1 dòng"""
+        for order in self:
+            if order.hp_currency_id:
+                rate_source = ""
+                if order.use_manual_rate:
+                    rate_source = "(Manual)"
+                elif order.hp_currency_rate_id:
+                    rate_date = order.hp_currency_rate_id.date.strftime('%d/%m/%Y')
+                    rate_source = f"(Selected - {rate_date})"
+                else:
+                    rate_source = "(Auto)"
+
+                order.hp_currency_display = f"1 {order.hp_currency_id.code} = {order.hp_currency_rate} VND {rate_source}"
+            else:
+                order.hp_currency_display = ""
+
+    @api.onchange('hp_currency_id', 'date_order')
+    def _onchange_currency_or_date(self):
+        """Reset manual rate khi đổi currency hoặc date"""
+        for order in self:
+            if not order.use_manual_rate:
+                order.hp_currency_rate_manual = 0.0
+            if order.hp_currency_rate_id and order.hp_currency_rate_id.currency_id != order.hp_currency_id:
+                order.hp_currency_rate_id = False
+
+    @api.onchange('use_manual_rate')
+    def _onchange_use_manual_rate(self):
+        """Khi bật/tắt manual rate"""
+        for order in self:
+            if not order.use_manual_rate:
+                order.hp_currency_rate_manual = 0.0
+            else:
+                # Điền giá trị hiện tại vào manual rate để user có thể edit
+                order.hp_currency_rate_manual = order.hp_currency_rate
+                order.hp_currency_rate_id = False
+
+    @api.onchange('hp_currency_rate_id')
+    def _onchange_currency_rate_id(self):
+        for order in self:
+            if order.hp_currency_rate_id:
+                # Clear manual rate khi chọn rate từ list
+                order.use_manual_rate = False
+                order.hp_currency_rate_manual = 0.0
+
+
+
+    def convert_amount_to_base(self, amount):
+        """Convert số tiền từ currency của order sang base currency"""
+        self.ensure_one()
+        if not self.hp_currency_rate or self.hp_currency_rate == 0:
+            raise ValidationError(_('Invalid exchange rate!'))
+        return amount * self.hp_currency_rate
+
+    def convert_amount_from_base(self, amount):
+        """Convert số tiền từ base currency sang currency của order"""
+        self.ensure_one()
+        if not self.hp_currency_rate or self.hp_currency_rate == 0:
+            raise ValidationError(_('Invalid exchange rate!'))
+        return amount / self.hp_currency_rate
+
     @api.onchange("client_id")
     def _onchange_client_id(self):
         if self.client_id and self.client_id.partner_id:

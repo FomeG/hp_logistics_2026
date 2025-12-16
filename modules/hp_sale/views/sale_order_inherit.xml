@@ -221,6 +221,43 @@
                         <field name="from_location_id"/>
                         <field name="to_location_id" />
                     </group>
+                    <group string="Currency">
+                        <field name="hp_currency_id"
+                               options="{'no_create': True, 'no_create_edit': True}"/>
+                        <field name="hp_currency_display"
+                               readonly="1"
+                               invisible="not hp_currency_id"/>
+                    </group>
+                    <group string="Exchange Rate Settings" name="currency_rate_settings" invisible="not hp_currency_id">
+                        <group>
+                            <label for="hp_currency_rate_id" string="Select Rate"/>
+                            <div class="o_row">
+                                <field name="hp_currency_rate_id"
+                                       options="{'no_create': True, 'no_create_edit': True}"
+                                       placeholder="Auto (latest rate by date)"
+                                       class="oe_inline"/>
+                            </div>
+                            <field name="use_manual_rate" widget="boolean_toggle" string="Or Use Manual Rate"/>
+                            <field name="hp_currency_rate_manual"
+                                   invisible="not use_manual_rate"
+                                   required="use_manual_rate"
+                                   placeholder="Enter manual rate..."/>
+                        </group>
+                        <group>
+                            <field name="hp_currency_rate" readonly="1" string="Current Rate Value"/>
+                        </group>
+                        <div class="alert alert-info text-center" role="alert"
+                             invisible="not hp_currency_id or not id"
+                             style="margin: 16px 0; padding: 12px;">
+                            <h4 style="margin: 0;">
+                                <i class="fa fa-info-circle"/>
+                                <field name="hp_currency_display" readonly="1" nolabel="1" class="oe_inline"/>
+                            </h4>
+                            <small invisible="not use_manual_rate" class="text-warning">
+                                <i class="fa fa-warning"/> Using manual exchange rate
+                            </small>
+                        </div>
+                    </group>
                 </sheet>
                 <sheet>
                     <group string="Actions">
