@@ -24,7 +24,6 @@ from . import product_template_inherit
 from . import wizards
 from . import freight_purchase_remind
 from . import sale_order_inherit
-from . import hr_team_inherit
 from . import container_type_inherit
 from . import selling_week_inherit
 from . import ir_attachment_inherit
