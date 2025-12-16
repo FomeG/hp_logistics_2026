@@ -122,7 +122,7 @@
             </xpath>
 
             <xpath expr="//button[@name='action_preview_sale_order']" position="attributes">
-                <attribute name="invisible">not id</attribute>
+                <attribute name="invisible">1</attribute>
             </xpath>
             <!-- Hide the Confirm button for sent state completely -->
             <xpath expr="//button[@name='action_confirm'][@id='action_confirm']" position="attributes">
@@ -151,6 +151,15 @@
 
             <xpath expr="//button[@name='action_quotation_send'][@id='send_proforma']" position="attributes">
                 <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Hide the Create Invoice buttons when not in sale state -->
+            <xpath expr="//button[@id='create_invoice']" position="attributes">
+                <attribute name="invisible">state == 'sale'</attribute>
+            </xpath>
+
+            <xpath expr="//button[@id='create_invoice_percentage']" position="attributes">
+                <attribute name="invisible">state == 'sale'</attribute>
             </xpath>
 
             <xpath expr="//field[@name='partner_id']" position="attributes">
