@@ -122,7 +122,7 @@
             </xpath>
 
             <xpath expr="//button[@name='action_preview_sale_order']" position="attributes">
-                <attribute name="invisible">not id</attribute>
+                <attribute name="invisible">1</attribute>
             </xpath>
             <!-- Hide the Confirm button for sent state completely -->
             <xpath expr="//button[@name='action_confirm'][@id='action_confirm']" position="attributes">
@@ -151,6 +151,15 @@
 
             <xpath expr="//button[@name='action_quotation_send'][@id='send_proforma']" position="attributes">
                 <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Hide the Create Invoice buttons when not in sale state -->
+            <xpath expr="//button[@id='create_invoice']" position="attributes">
+                <attribute name="invisible">state == 'sale'</attribute>
+            </xpath>
+
+            <xpath expr="//button[@id='create_invoice_percentage']" position="attributes">
+                <attribute name="invisible">state == 'sale'</attribute>
             </xpath>
 
             <xpath expr="//field[@name='partner_id']" position="attributes">
@@ -221,6 +230,12 @@
                         <field name="from_location_id" domain="[('id', 'in', allow_from_location_ids)]"/>
                         <field name="to_location_id" domain="[('id', 'in', allow_to_location_ids)]"/>
                     </group>
+                    <group string="Currency">
+                        <field name="currency_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                        <field name="currency_display_info"
+                               readonly="1"
+                               invisible="not currency_id"/>
+                    </group>
                 </sheet>
                 <sheet>
                     <group string="Actions">
@@ -259,6 +274,40 @@
             </xpath>
             <xpath expr="//field[@name='order_line']/list" position="attributes">
                 <attribute name="create">false</attribute>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Exchange Rate Settings" name="currency_settings">
+                    <group>
+                        <group string="Currency">
+                            <field name="currency_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                        </group>
+                        <group string="Exchange Rate Configuration" invisible="not currency_id">
+                            <label for="currency_rate_ref_id" string="Select Rate"/>
+                            <div class="o_row">
+                                <field name="currency_rate_ref_id"
+                                       options="{'no_create': True, 'no_create_edit': True}"
+                                       placeholder="Auto (latest rate by date)"
+                                       class="oe_inline"/>
+                            </div>
+                            <field name="use_manual_rate" widget="boolean_toggle" string="Or Use Manual Rate"/>
+                            <field name="manual_currency_rate"
+                                   invisible="not use_manual_rate"
+                                   required="use_manual_rate"
+                                   placeholder="Enter manual rate..."/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info text-center" role="alert"
+                         invisible="not currency_id or not id"
+                         style="margin: 16px 0; padding: 12px;">
+                        <h4 style="margin: 0;">
+                            <i class="fa fa-info-circle"/>
+                            <field name="currency_display_info" readonly="1" nolabel="1" class="oe_inline"/>
+                        </h4>
+                        <small invisible="not use_manual_rate" class="text-warning">
+                            <i class="fa fa-warning"/> Using manual exchange rate
+                        </small>
+                    </div>
+                </page>
             </xpath>
         </field>
     </record>

@@ -22,6 +22,7 @@
         'views/route_base_views.xml',
         'views/container_type_views.xml',
         'views/shipping_line_views.xml',
+        'views/res_currency_inherit_views.xml',
         'views/wizards/import_shipping_line_wizard.xml',
         'views/wizards/import_route_base_wizard.xml',
         'views/hp_menu.xml'

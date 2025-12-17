@@ -26,5 +26,18 @@
             sequence="20"
         />
 
+        <menuitem
+            id="menu_currency_root"
+            name="Currency"
+            parent="hp_menu_root"
+            sequence="40"/>
+
+        <menuitem
+            id="menu_hp_currency"
+            name="Currencies"
+            parent="menu_currency_root"
+            action="base.action_currency_form"
+            sequence="10"
+            groups="base.group_user"/>
     </data>
 </odoo>
