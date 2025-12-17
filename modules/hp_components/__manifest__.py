@@ -15,7 +15,6 @@
         'data/shipping_line_data.xml',
         'data/region_data.xml',
         'data/country_region_data.xml',
-        'data/currency_data.xml',
         'data/demo_location_data.xml',
         'data/demo_route_data.xml',
         'views/region_base_views.xml',
@@ -23,8 +22,7 @@
         'views/route_base_views.xml',
         'views/container_type_views.xml',
         'views/shipping_line_views.xml',
-        'views/currency_views.xml',
-        'views/currency_rate_views.xml',
+        'views/res_currency_inherit_views.xml',
         'views/wizards/import_shipping_line_wizard.xml',
         'views/wizards/import_route_base_wizard.xml',
         'views/hp_menu.xml'
