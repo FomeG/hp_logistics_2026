@@ -133,6 +133,25 @@ class SaleOrderInherit(models.Model):
         comodel_name='container.type',
         string="Container Type preferred",
     )
+    allow_from_location_ids = fields.Many2many('location.base', compute='_compute_allow_from_location_ids', store=False)
+    allow_to_location_ids = fields.Many2many('location.base', compute='_compute_allow_to_location_ids', store=False)
+
+    @api.depends('service_type', 'main_transport_mode')
+    def _compute_allow_from_location_ids(self):
+        for rec in self:
+            domain = []
+            if rec.service_type == constants.ServiceType.EXPORT and rec.main_transport_mode == constants.TransportMode.SEA:
+                domain = [('is_local', '=', True)]
+            rec.allow_from_location_ids = self.env['location.base'].search(domain)
+
+    @api.depends('service_type', 'main_transport_mode')
+    def _compute_allow_to_location_ids(self):
+        for rec in self:
+            domain = []
+            if rec.service_type == constants.ServiceType.EXPORT and rec.main_transport_mode == constants.TransportMode.SEA:
+                domain = [('is_local', '=', False)]
+            rec.allow_to_location_ids = self.env['location.base'].search(domain)
+
 
     currency_id = fields.Many2one(
         comodel_name='res.currency',

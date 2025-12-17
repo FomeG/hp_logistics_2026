@@ -227,8 +227,8 @@
                         <field name="imp_to_location_id" required="not is_sea_exp_location and not id"/>
                     </group>
                     <group invisible="not id">
-                        <field name="from_location_id"/>
-                        <field name="to_location_id" />
+                        <field name="from_location_id" domain="[('id', 'in', allow_from_location_ids)]"/>
+                        <field name="to_location_id" domain="[('id', 'in', allow_to_location_ids)]"/>
                     </group>
                     <group string="Currency">
                         <field name="currency_id" options="{'no_create': True, 'no_create_edit': True}"/>
