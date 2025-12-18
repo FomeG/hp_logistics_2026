@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- HR HN Department -->
+        <!-- Department Manager -->
+        <record id="user_dohr_hn" model="res.users">
+            <field name="name">HR Manager HN</field>
+            <field name="login">dohr_hn@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_dohr_hn" model="hr.employee">
+            <field name="name">HR Manager HN</field>
+            <field name="job_title">HR Manager HN</field>
+            <field name="user_id" ref="user_dohr_hn"/>
+            <field name="work_email">dohr_hn@test.com</field>
+        </record>
+
+        <record id="dep_hr_hn" model="hr.department">
+            <field name="name">HR HN</field>
+            <field name="color" eval="3"/>
+            <field name="branch_id" ref="branch_hn" />
+            <field name="department_type_id" ref="hp_components.department_type_hr" />
+            <field name="manager_id" ref="emp_dohr_hn" />
+        </record>
+
+        <!-- 3 Managers -->
+        <record id="user_hrm1_hn" model="res.users">
+            <field name="name">HR Team Manager 1 HN</field>
+            <field name="login">hrm1_hn@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hrm1_hn" model="hr.employee">
+            <field name="name">HR Team Manager 1 HN</field>
+            <field name="job_title">HR Team Manager</field>
+            <field name="user_id" ref="user_hrm1_hn"/>
+            <field name="parent_id" ref="emp_dohr_hn"/>
+            <field name="coach_id" ref="emp_dohr_hn"/>
+            <field name="work_email">hrm1_hn@test.com</field>
+            <field name="department_id" ref="dep_hr_hn" />
+        </record>
+
+        <record id="user_hrm2_hn" model="res.users">
+            <field name="name">HR Team Manager 2 HN</field>
+            <field name="login">hrm2_hn@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hrm2_hn" model="hr.employee">
+            <field name="name">HR Team Manager 2 HN</field>
+            <field name="job_title">HR Team Manager</field>
+            <field name="user_id" ref="user_hrm2_hn"/>
+            <field name="parent_id" ref="emp_dohr_hn"/>
+            <field name="coach_id" ref="emp_dohr_hn"/>
+            <field name="work_email">hrm2_hn@test.com</field>
+            <field name="department_id" ref="dep_hr_hn" />
+        </record>
+
+        <record id="user_hrm3_hn" model="res.users">
+            <field name="name">HR Team Manager 3 HN</field>
+            <field name="login">hrm3_hn@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hrm3_hn" model="hr.employee">
+            <field name="name">HR Team Manager 3 HN</field>
+            <field name="job_title">HR Team Manager</field>
+            <field name="user_id" ref="user_hrm3_hn"/>
+            <field name="parent_id" ref="emp_dohr_hn"/>
+            <field name="coach_id" ref="emp_dohr_hn"/>
+            <field name="work_email">hrm3_hn@test.com</field>
+            <field name="department_id" ref="dep_hr_hn" />
+        </record>
+
+        <!-- 3 Employees -->
+        <record id="user_hr1_hn" model="res.users">
+            <field name="name">HR member 1 HN</field>
+            <field name="login">hr1_hn@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hr1_hn" model="hr.employee">
+            <field name="name">HR member 1 HN</field>
+            <field name="job_title">HR</field>
+            <field name="user_id" ref="user_hr1_hn"/>
+            <field name="parent_id" ref="emp_hrm1_hn"/>
+            <field name="coach_id" ref="emp_hrm1_hn"/>
+            <field name="work_email">hr1_hn@test.com</field>
+            <field name="department_id" ref="dep_hr_hn" />
+        </record>
+
+        <record id="user_hr2_hn" model="res.users">
+            <field name="name">HR member 2 HN</field>
+            <field name="login">hr2_hn@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hr2_hn" model="hr.employee">
+            <field name="name">HR member 2 HN</field>
+            <field name="job_title">HR</field>
+            <field name="user_id" ref="user_hr2_hn"/>
+            <field name="parent_id" ref="emp_hrm2_hn"/>
+            <field name="coach_id" ref="emp_hrm2_hn"/>
+            <field name="work_email">hr2_hn@test.com</field>
+            <field name="department_id" ref="dep_hr_hn" />
+        </record>
+
+        <record id="user_hr3_hn" model="res.users">
+            <field name="name">HR member 3 HN</field>
+            <field name="login">hr3_hn@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hr3_hn" model="hr.employee">
+            <field name="name">HR member 3 HN</field>
+            <field name="job_title">HR</field>
+            <field name="user_id" ref="user_hr3_hn"/>
+            <field name="parent_id" ref="emp_hrm3_hn"/>
+            <field name="coach_id" ref="emp_hrm3_hn"/>
+            <field name="work_email">hr3_hn@test.com</field>
+            <field name="department_id" ref="dep_hr_hn" />
+        </record>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <!-- HR HCM Department -->
+
+        <!-- Department Manager -->
+        <record id="user_dohr_hcm" model="res.users">
+            <field name="name">HR Manager HCM</field>
+            <field name="login">dohr_hcm@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_dohr_hcm" model="hr.employee">
+            <field name="name">HR Manager HCM</field>
+            <field name="job_title">HR Manager HCM</field>
+            <field name="user_id" ref="user_dohr_hcm"/>
+            <field name="work_email">dohr_hcm@test.com</field>
+        </record>
+
+        <record id="dep_hr_hcm" model="hr.department">
+            <field name="name">HR HCM</field>
+            <field name="color" eval="3"/>
+            <field name="branch_id" ref="branch_hcm" />
+            <field name="department_type_id" ref="hp_components.department_type_hr" />
+            <field name="manager_id" ref="emp_dohr_hcm" />
+        </record>
+
+        <!-- 3 Managers -->
+        <record id="user_hrm1_hcm" model="res.users">
+            <field name="name">HR Team Manager 1 HCM</field>
+            <field name="login">hrm1_hcm@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hrm1_hcm" model="hr.employee">
+            <field name="name">HR Team Manager 1 HCM</field>
+            <field name="job_title">HR Team Manager</field>
+            <field name="user_id" ref="user_hrm1_hcm"/>
+            <field name="parent_id" ref="emp_dohr_hcm"/>
+            <field name="coach_id" ref="emp_dohr_hcm"/>
+            <field name="work_email">hrm1_hcm@test.com</field>
+            <field name="department_id" ref="dep_hr_hcm" />
+        </record>
+
+        <record id="user_hrm2_hcm" model="res.users">
+            <field name="name">HR Team Manager 2 HCM</field>
+            <field name="login">hrm2_hcm@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hrm2_hcm" model="hr.employee">
+            <field name="name">HR Team Manager 2 HCM</field>
+            <field name="job_title">HR Team Manager</field>
+            <field name="user_id" ref="user_hrm2_hcm"/>
+            <field name="parent_id" ref="emp_dohr_hcm"/>
+            <field name="coach_id" ref="emp_dohr_hcm"/>
+            <field name="work_email">hrm2_hcm@test.com</field>
+            <field name="department_id" ref="dep_hr_hcm" />
+        </record>
+
+        <record id="user_hrm3_hcm" model="res.users">
+            <field name="name">HR Team Manager 3 HCM</field>
+            <field name="login">hrm3_hcm@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hrm3_hcm" model="hr.employee">
+            <field name="name">HR Team Manager 3 HCM</field>
+            <field name="job_title">HR Team Manager</field>
+            <field name="user_id" ref="user_hrm3_hcm"/>
+            <field name="parent_id" ref="emp_dohr_hcm"/>
+            <field name="coach_id" ref="emp_dohr_hcm"/>
+            <field name="work_email">hrm3_hcm@test.com</field>
+            <field name="department_id" ref="dep_hr_hcm" />
+        </record>
+
+        <!-- 3 Employees -->
+        <record id="user_hr1_hcm" model="res.users">
+            <field name="name">HR member 1 HCM</field>
+            <field name="login">hr1_hcm@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hr1_hcm" model="hr.employee">
+            <field name="name">HR member 1 HCM</field>
+            <field name="job_title">HR</field>
+            <field name="user_id" ref="user_hr1_hcm"/>
+            <field name="parent_id" ref="emp_hrm1_hcm"/>
+            <field name="coach_id" ref="emp_hrm1_hcm"/>
+            <field name="work_email">hr1_hcm@test.com</field>
+            <field name="department_id" ref="dep_hr_hcm" />
+        </record>
+
+        <record id="user_hr2_hcm" model="res.users">
+            <field name="name">HR member 2 HCM</field>
+            <field name="login">hr2_hcm@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hr2_hcm" model="hr.employee">
+            <field name="name">HR member 2 HCM</field>
+            <field name="job_title">HR</field>
+            <field name="user_id" ref="user_hr2_hcm"/>
+            <field name="parent_id" ref="emp_hrm2_hcm"/>
+            <field name="coach_id" ref="emp_hrm2_hcm"/>
+            <field name="work_email">hr2_hcm@test.com</field>
+            <field name="department_id" ref="dep_hr_hcm" />
+        </record>
+
+        <record id="user_hr3_hcm" model="res.users">
+            <field name="name">HR member 3 HCM</field>
+            <field name="login">hr3_hcm@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hr3_hcm" model="hr.employee">
+            <field name="name">HR member 3 HCM</field>
+            <field name="job_title">HR</field>
+            <field name="user_id" ref="user_hr3_hcm"/>
+            <field name="parent_id" ref="emp_hrm3_hcm"/>
+            <field name="coach_id" ref="emp_hrm3_hcm"/>
+            <field name="work_email">hr3_hcm@test.com</field>
+            <field name="department_id" ref="dep_hr_hcm" />
+        </record>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <!-- HR HPH Department -->
+
+        <!-- Department Manager -->
+        <record id="user_dohr_hph" model="res.users">
+            <field name="name">HR Manager HPH</field>
+            <field name="login">dohr_hph@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_dohr_hph" model="hr.employee">
+            <field name="name">HR Manager HPH</field>
+            <field name="job_title">HR Manager HPH</field>
+            <field name="user_id" ref="user_dohr_hph"/>
+            <field name="work_email">dohr_hph@test.com</field>
+        </record>
+
+        <record id="dep_hr_hph" model="hr.department">
+            <field name="name">HR HPH</field>
+            <field name="color" eval="3"/>
+            <field name="branch_id" ref="branch_hph" />
+            <field name="department_type_id" ref="hp_components.department_type_hr" />
+            <field name="manager_id" ref="emp_dohr_hph" />
+        </record>
+
+        <!-- 3 Managers -->
+        <record id="user_hrm1_hph" model="res.users">
+            <field name="name">HR Team Manager 1 HPH</field>
+            <field name="login">hrm1_hph@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hrm1_hph" model="hr.employee">
+            <field name="name">HR Team Manager 1 HPH</field>
+            <field name="job_title">HR Team Manager</field>
+            <field name="user_id" ref="user_hrm1_hph"/>
+            <field name="parent_id" ref="emp_dohr_hph"/>
+            <field name="coach_id" ref="emp_dohr_hph"/>
+            <field name="work_email">hrm1_hph@test.com</field>
+            <field name="department_id" ref="dep_hr_hph" />
+        </record>
+
+        <record id="user_hrm2_hph" model="res.users">
+            <field name="name">HR Team Manager 2 HPH</field>
+            <field name="login">hrm2_hph@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hrm2_hph" model="hr.employee">
+            <field name="name">HR Team Manager 2 HPH</field>
+            <field name="job_title">HR Team Manager</field>
+            <field name="user_id" ref="user_hrm2_hph"/>
+            <field name="parent_id" ref="emp_dohr_hph"/>
+            <field name="coach_id" ref="emp_dohr_hph"/>
+            <field name="work_email">hrm2_hph@test.com</field>
+            <field name="department_id" ref="dep_hr_hph" />
+        </record>
+
+        <record id="user_hrm3_hph" model="res.users">
+            <field name="name">HR Team Manager 3 HPH</field>
+            <field name="login">hrm3_hph@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hrm3_hph" model="hr.employee">
+            <field name="name">HR Team Manager 3 HPH</field>
+            <field name="job_title">HR Team Manager</field>
+            <field name="user_id" ref="user_hrm3_hph"/>
+            <field name="parent_id" ref="emp_dohr_hph"/>
+            <field name="coach_id" ref="emp_dohr_hph"/>
+            <field name="work_email">hrm3_hph@test.com</field>
+            <field name="department_id" ref="dep_hr_hph" />
+        </record>
+
+        <!-- 3 Employees -->
+        <record id="user_hr1_hph" model="res.users">
+            <field name="name">HR member 1 HPH</field>
+            <field name="login">hr1_hph@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hr1_hph" model="hr.employee">
+            <field name="name">HR member 1 HPH</field>
+            <field name="job_title">HR</field>
+            <field name="user_id" ref="user_hr1_hph"/>
+            <field name="parent_id" ref="emp_hrm1_hph"/>
+            <field name="coach_id" ref="emp_hrm1_hph"/>
+            <field name="work_email">hr1_hph@test.com</field>
+            <field name="department_id" ref="dep_hr_hph" />
+        </record>
+
+        <record id="user_hr2_hph" model="res.users">
+            <field name="name">HR member 2 HPH</field>
+            <field name="login">hr2_hph@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hr2_hph" model="hr.employee">
+            <field name="name">HR member 2 HPH</field>
+            <field name="job_title">HR</field>
+            <field name="user_id" ref="user_hr2_hph"/>
+            <field name="parent_id" ref="emp_hrm2_hph"/>
+            <field name="coach_id" ref="emp_hrm2_hph"/>
+            <field name="work_email">hr2_hph@test.com</field>
+            <field name="department_id" ref="dep_hr_hph" />
+        </record>
+
+        <record id="user_hr3_hph" model="res.users">
+            <field name="name">HR member 3 HPH</field>
+            <field name="login">hr3_hph@test.com</field>
+            <field name="password">1</field>
+        </record>
+        <record id="emp_hr3_hph" model="hr.employee">
+            <field name="name">HR member 3 HPH</field>
+            <field name="job_title">HR</field>
+            <field name="user_id" ref="user_hr3_hph"/>
+            <field name="parent_id" ref="emp_hrm3_hph"/>
+            <field name="coach_id" ref="emp_hrm3_hph"/>
+            <field name="work_email">hr3_hph@test.com</field>
+            <field name="department_id" ref="dep_hr_hph" />
+        </record>
+    </data>
+</odoo>
