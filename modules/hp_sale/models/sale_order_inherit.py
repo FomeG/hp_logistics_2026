@@ -157,7 +157,7 @@ class SaleOrderInherit(models.Model):
         comodel_name='res.currency',
         string='Currency',
         required=True,
-        default=lambda self: self._get_default_currency(),
+        default=lambda self: self.env['res.currency'].get_base_currency(),
         tracking=True,
         readonly=False,
         help='Currency for this order'
@@ -197,12 +197,6 @@ class SaleOrderInherit(models.Model):
         compute='_compute_currency_display_info',
         store=False
     )
-
-    @api.model
-    def _get_default_currency(self):
-        """Lấy currency mặc định dựa trên field is_base_currency."""
-        base_currency = self.env['res.currency'].get_base_currency()
-        return base_currency.id
 
     @api.depends('currency_id', 'date_order', 'use_manual_rate', 'manual_currency_rate', 'currency_rate_ref_id')
     def _compute_currency_rate(self):
@@ -314,6 +308,15 @@ class SaleOrderInherit(models.Model):
         if rate == 0:
             return 0.0
         return amount / rate
+
+    @api.onchange('currency_id', 'use_manual_rate', 'manual_currency_rate', 'currency_rate_ref_id')
+    def _onchange_recompute_lines_currency(self):
+        # Đảm bảo tỷ giá ở được tính toán lại khi thay đổi tỷ giá
+        self._compute_currency_rate()
+        for line in self.order_line:
+            # Gọi hàm tính toán trên dòng
+            line._onchange_price_currency_conversion()
+
 
     @api.onchange("client_id")
     def _onchange_client_id(self):
