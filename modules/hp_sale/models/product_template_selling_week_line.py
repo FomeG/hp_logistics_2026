@@ -75,16 +75,28 @@ class ProductTemplateSellingWeekLine(models.Model):
         if not sale_order_id or not lines:
             raise ValidationError("No Sale Order or selected lines found.")
 
+        so = self.env['sale.order'].browse(sale_order_id)
         product_id = self.env.ref('hp_sale.product_truck_freight').id
         values = []
         for line in lines:
+            price_in_so_currency = line.price
+            if line.currency_id and so.currency_id and line.currency_id != so.currency_id:
+                price_in_so_currency = line.currency_id._convert(
+                    line.price,
+                    so.currency_id,
+                    so.company_id or self.env.company,
+                    so.date_order or fields.Date.today()
+                )
+
             values.append({
                 'name': f"{line.from_location_id.name} - {line.to_location_id.name}",
                 'order_id': sale_order_id,
                 'product_id': product_id,
                 'container_type_id': line.container_type_id.id,
                 'product_uom_qty': 1.0,
-                'price_unit': line.price,
+                'currency_id_line': line.currency_id.id,
+                'price_unit_original': line.price,
+                'price_unit': price_in_so_currency,
             })
 
         self.env['sale.order.line'].sudo().create(values)

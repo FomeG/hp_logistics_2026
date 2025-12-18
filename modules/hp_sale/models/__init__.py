@@ -10,3 +10,4 @@ from . import product_template_selling_week_line
 from . import res_config_settings
 from . import sale_order_line_inherit
 from . import res_user_inherit
+from . import product_pricelist_inherit

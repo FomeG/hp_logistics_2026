@@ -40,6 +40,35 @@ class ProductTemplate(models.Model):
         store=False,
         required=False,
     )
+    currency_id = fields.Many2one(
+        'res.currency',
+        'Currency',
+        compute='_compute_currency_id_hpl',
+        store=True,
+        readonly=False,
+        default=lambda self: self.env['res.currency'].get_base_currency()
+    )
+
+    cost_currency_id = fields.Many2one(
+        'res.currency',
+        'Cost Currency',
+        compute='_compute_cost_currency_id_hpl',
+        store=True,
+    )
+
+    @api.depends('company_id')
+    def _compute_currency_id_hpl(self):
+        """Force Sales Price Currency to be Base Currency (e.g., VND)"""
+        base_currency = self.env['res.currency'].get_base_currency()
+        for template in self:
+            template.currency_id = base_currency
+
+    @api.depends('company_id')
+    def _compute_cost_currency_id_hpl(self):
+        """Force Cost Price Currency to be Base Currency (e.g., VND)"""
+        base_currency = self.env['res.currency'].get_base_currency()
+        for template in self:
+            template.cost_currency_id = base_currency
 
     @api.depends('product_type')
     def _compute_product_type_editable(self):
@@ -111,15 +140,29 @@ class ProductTemplate(models.Model):
         lines = self
         if not sale_order_id or not lines:
             raise ValidationError("No Sale Order or selected lines found.")
+        so = self.env['sale.order'].browse(sale_order_id)
 
         values = []
         for line in lines:
+            source_currency = line.currency_id or self.env.company.currency_id
+
+            price_in_so_currency = line.list_price
+            if source_currency and so.currency_id and source_currency != so.currency_id:
+                price_in_so_currency = source_currency._convert(
+                    line.list_price,
+                    so.currency_id,
+                    so.company_id or self.env.company,
+                    so.date_order or fields.Date.today()
+                )
+
             values.append({
                 'name': line.name,
                 'order_id': sale_order_id,
                 'product_id': line.product_variant_id.id,
                 'product_uom_qty': 1.0,
-                'price_unit': line.list_price,
+                'currency_id_line': source_currency.id,
+                'price_unit_original': line.list_price,
+                'price_unit': price_in_so_currency,
             })
 
         self.env['sale.order.line'].sudo().create(values)
