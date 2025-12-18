@@ -16,6 +16,8 @@ class SaleOrderInherit(models.Model):
         (constants.SaleOrderState.SENT_TO_CLIENT, 'Sent To Client'),
         (constants.SaleOrderState.REVIEW, 'Review'),
         (constants.SaleOrderState.SENT_TO_LEADER, 'Sent To Leader'),
+        (constants.SaleOrderState.REQUEST_BOOKING, 'Request Booking'),
+        (constants.SaleOrderState.DENIED, 'Denied'),
         (constants.SaleOrderState.SALE, 'Sales Order'),
         (constants.SaleOrderState.DONE, 'Done'),
         (constants.SaleOrderState.CANCELLED, 'Cancelled'),
@@ -661,7 +663,11 @@ class SaleOrderInherit(models.Model):
     def write(self, vals):
         for record in self:
             # Check permissions for Salesman group
-            if self.env.user.has_group('sales_team.group_sale_salesman'):
+            if (
+                self.env.user.has_group('sales_team.group_sale_salesman')
+                and not self.env.user.has_group('sales_team.group_sale_salesman_all_leads')
+                and not self.env.user.has_group('sales_team.group_sale_manager')
+            ):
                 allowed_states = [
                     constants.SaleOrderState.DRAFT,
                     constants.SaleOrderState.SENT_TO_CLIENT,
@@ -692,3 +698,21 @@ class SaleOrderInherit(models.Model):
             if record.is_sea_exp_location:
                 return f"Select Freight Price For Trip {record.goods_location_id.name} - {record.from_location_id.name} - {record.to_location_id.name}"
             return f"Select Freight Price For {record.from_location_id.name} - {record.to_location_id.name}"
+    
+    @api.model
+    def action_quotations_dynamic(self):
+        if self.env.user.has_group('sales_team.group_sale_salesman_all_leads'):
+            context = {'search_default_sent_to_leader': 1}
+        else:
+            context = {'search_default_my_quotation': 1}
+        
+        return {
+            'name': 'Quotations',
+            'type': 'ir.actions.act_window',
+            'res_model': 'sale.order',
+            'view_mode': 'list,kanban,form,calendar,pivot,graph,activity',
+            'views': [(self.env.ref('sale.view_quotation_tree_with_onboarding').id, 'list')],
+            'search_view_id': [self.env.ref('sale.sale_order_view_search_inherit_quotation').id],
+            'context': context,
+            'domain': [],
+        }

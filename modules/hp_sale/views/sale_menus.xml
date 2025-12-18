@@ -156,4 +156,13 @@
         action="action_import_client_wizard"
         groups="base.group_system"/>
 
+    
+    <record id="sale.menu_sale_quotations" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <menuitem id="menu_sale_quotations_salesman"
+          name="Quotations"
+          parent="sale.sale_order_menu"
+          action="hp_sale.action_quotations_dynamic"
+          sequence="10"/>
 </odoo>

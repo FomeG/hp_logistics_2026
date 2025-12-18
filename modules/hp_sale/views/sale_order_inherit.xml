@@ -24,7 +24,7 @@
 
             <!-- Modify the statusbar -->
             <xpath expr="//field[@name='state']" position="attributes">
-                <attribute name="statusbar_visible">draft,sent_to_client,review,sent_to_leader,sale</attribute>
+                <attribute name="statusbar_visible">draft,sent_to_client,review,sent_to_leader,request_booking,sale</attribute>
             </xpath>
 
             <!-- Add state-specific alert messages after the state statusbar -->
@@ -56,7 +56,7 @@
             <!-- </xpath> -->
 
             <!-- Replace the "Send by Email" primary button with first stage transition button -->
-            <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email_primary']" position="replace">
+            <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email']" position="after">
                 <!-- <button name="action_activate_quotation" id="action_activate_quotation"
                         string="Activate" type="object" data-hotkey="g"
                         invisible="state != 'draft' or not id" class="btn-primary"
@@ -84,12 +84,26 @@
                     class="btn-primary"
                     context="{'new_state': 'sent_to_leader'}"
                     invisible="state != 'review'"/>
+                <button name="action_update_state"
+                    type="object" 
+                    string="Approve"
+                    class="btn-primary"
+                    context="{'new_state': 'request_booking'}"
+                    invisible="state != 'sent_to_leader'"
+                    groups="sales_team.group_sale_salesman_all_leads"/>
+                <button name="action_update_state" 
+                    type="object" 
+                    string="Deny"
+                    class="btn-danger"
+                    context="{'new_state': 'denied'}"
+                    invisible="state != 'sent_to_leader'"
+                    groups="sales_team.group_sale_salesman_all_leads"/>
                 <button name="action_update_state" 
                     type="object" 
                     string="Confirm"
                     class="btn-primary"
                     context="{'new_state': 'sale'}"
-                    invisible="state != 'sent_to_leader'"
+                    invisible="state != 'request_booking'"
                     groups="sales_team.group_sale_salesman_all_leads"/>
             </xpath>
 
@@ -370,4 +384,38 @@
 
         </field>
     </record>
+    <record id="view_sales_order_filter_inherit_custom_states" model="ir.ui.view">
+        <field name="name">sale.order.list.select.inherit.states</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter string="Sent To Client" name="sent_to_client"
+                        domain="[('state', '=', 'sent_to_client')]"/>
+                <filter string="Review" name="review"
+                        domain="[('state', '=', 'review')]"/>
+                <filter string="Sent To Leader" name="sent_to_leader"
+                        domain="[('state', '=', 'sent_to_leader')]"/>
+                <filter string="Request Booking" name="request_booking"
+                        domain="[('state', '=', 'request_booking')]"/>
+                <filter string="Denied" name="denied"
+                        domain="[('state', '=', 'denied')]"/>
+                <filter string="Sales Order" name="sale_custom"
+                        domain="[('state', '=', 'sale')]"/>
+                <filter string="Done" name="done"
+                        domain="[('state', '=', 'done')]"/>
+                <filter string="Cancelled" name="cancelled"
+                        domain="[('state', '=', 'cancel')]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_quotations_dynamic" model="ir.actions.server">
+        <field name="name">Quotations</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_quotations_dynamic()</field>
+    </record>
+
 </odoo>
