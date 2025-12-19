@@ -152,14 +152,7 @@ class ProductTemplate(models.Model):
         for line in lines:
             source_currency = line.currency_id or self.env.company.currency_id
 
-            price_in_so_currency = line.list_price
-            if source_currency and so.currency_id and source_currency != so.currency_id:
-                price_in_so_currency = source_currency._convert(
-                    line.list_price,
-                    so.currency_id,
-                    so.company_id or self.env.company,
-                    so.date_order or fields.Date.today()
-                )
+            price_in_so_currency = so._convert_to_order_currency(line.list_price, source_currency)
 
             values.append({
                 'name': line.name,

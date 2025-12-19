@@ -165,10 +165,17 @@ class SaleOrderInherit(models.Model):
         help='Currency for this order'
     )
 
+    ref_currency_id = fields.Many2one(
+        comodel_name='res.currency',
+        string='Currency',
+        default=lambda self: self.env['res.currency'].search([('name', '=', 'USD')], limit=1),
+        help="Chọn đồng tiền ngoại tệ bạn muốn cấu hình tỷ giá (VD: USD)"
+    )
+
     currency_rate_ref_id = fields.Many2one(
         comodel_name='res.currency.rate',
         string='Exchange Rate Ref',
-        domain="[('currency_id', '=', currency_id), ('company_id', 'in', (False, company_id))]",
+        domain="[('currency_id', '=', ref_currency_id), ('company_id', 'in', (False, company_id))]",
         help='Select specific exchange rate record from system'
     )
 
@@ -200,7 +207,20 @@ class SaleOrderInherit(models.Model):
         store=False
     )
 
-    @api.depends('currency_id', 'date_order', 'use_manual_rate', 'manual_currency_rate', 'currency_rate_ref_id')
+    def _convert_to_order_currency(self, amount, from_currency):
+        """ chuyển đổi một số tiền từ tiền tệ bất kỳ về tiền tệ của Sale Order. Sử dụng ngày của đơn hàng và company của đơn hàng."""
+        self.ensure_one()
+        if not from_currency or from_currency == self.currency_id:
+            return amount
+
+        return from_currency._convert(
+            amount,
+            self.currency_id,
+            self.company_id or self.env.company,
+            self.date_order or fields.Date.today()
+        )
+
+    @api.depends('ref_currency_id', 'use_manual_rate', 'manual_currency_rate', 'currency_rate_ref_id', 'date_order')
     def _compute_currency_rate(self):
         """Quy đổi 1 đơn vị của Order Currency -> Base Currency"""
         base_currency = self.env['res.currency'].get_base_currency()
@@ -210,29 +230,23 @@ class SaleOrderInherit(models.Model):
             if order.use_manual_rate and order.manual_currency_rate:
                 order.currency_rate = order.manual_currency_rate
 
-            elif order.currency_id:
+            elif order.ref_currency_id:
                 # Nếu tiền đơn hàng trùng với tiền Base => Tỷ giá 1.0
-                if order.currency_id == base_currency:
+                if order.ref_currency_id == base_currency:
                     order.currency_rate = 1.0
                 else:
                     # Case 2: Chọn record tỷ giá
                     if order.currency_rate_ref_id:
+                        # Odoo lưu tỷ giá dạng (1 Base Company = X Foreign) -> Nghịch đảo để lấy giá trị Base
                         rate_val = order.currency_rate_ref_id.rate
-                        if rate_val:
-                            # Odoo lưu tỷ giá dạng (1 Base Company = X Foreign)
-                            # Nếu Base Currency == Base Company Currency
-                            # Thì ta cần lấy nghịch đảo để ra giá trị quy đổi về Base.
-                            order.currency_rate = 1.0 / rate_val
-                        else:
-                            order.currency_rate = 1.0
+                        order.currency_rate = 1.0 / rate_val if rate_val else 1.0
                     else:
-                        # Case 3: Tự động tính theo ngày (Standard Odoo)
-                        # convert(amount, to_currency, company, date)
-                        # Quy đổi 1.0 đồng Order Currency -> Base Currency
+                        # Case 3: Tự động lấy theo ngày
                         date_val = order.date_order.date() if order.date_order else fields.Date.today()
                         company = order.company_id or self.env.company
                         try:
-                            order.currency_rate = order.currency_id._convert(
+                            # Quy đổi 1.0 Ref Currency -> Base Currency
+                            order.currency_rate = order.ref_currency_id._convert(
                                 1.0, base_currency, company, date_val
                             )
                         except Exception:
@@ -240,14 +254,14 @@ class SaleOrderInherit(models.Model):
             else:
                 order.currency_rate = 1.0
 
-    @api.depends('currency_id', 'currency_rate', 'use_manual_rate', 'currency_rate_ref_id')
+    @api.depends('ref_currency_id', 'currency_rate', 'use_manual_rate', 'currency_rate_ref_id')
     def _compute_currency_display_info(self):
         """Hiển thị thông tin tỷ giá so với Base Currency"""
         base_currency = self.env['res.currency'].get_base_currency()
         base_code = base_currency.name or 'Base'
 
         for order in self:
-            if order.currency_id:
+            if order.ref_currency_id:
                 rate_source = "(Auto)"
                 if order.use_manual_rate:
                     rate_source = "(Manual)"
@@ -255,48 +269,19 @@ class SaleOrderInherit(models.Model):
                     date_str = order.currency_rate_ref_id.name or str(order.currency_rate_ref_id.date)
                     rate_source = f"(Selected - {date_str})"
 
-                curr_code = order.currency_id.name
+                curr_code = order.ref_currency_id.name
                 rate = order.currency_rate or 0.0
 
-                if rate == 0:
-                    order.currency_display_info = f"1 {curr_code} = 0.00 {base_code} {rate_source}"
-                # Nếu tỷ giá nhỏ (VD: 1 VND = 0.00004 USD), hiển thị ngược lại (1 USD = 25,000 VND), 'rate' là giá trị của 1 đơn vị Order Currency tính bằng Base Currency.
-                # Ví dụ: Order=USD, Base=VND. Rate = 25,000. => Hiển thị: 1 USD = 25,000.00 VND
-                elif rate < 0.01:
-                    # Trường hợp Order=VND, Base=USD. Rate=0.00004
-                    # Hiển thị: 1 USD = 25,000 VND
-                    inverse_rate = 1.0 / rate
-                    order.currency_display_info = f"1 {base_code} = {inverse_rate:,.2f} {curr_code} {rate_source}"
-                else:
-                    rate_str = f"{rate:,.6f}" if rate < 1 else f"{rate:,.2f}"
-                    order.currency_display_info = f"1 {curr_code} = {rate_str} {base_code} {rate_source}"
+                # Format hiển thị (VD: 1 USD = 25,000.00 VND)
+                rate_str = f"{rate:,.6f}" if 0 < rate < 1 else f"{rate:,.2f}"
+                order.currency_display_info = f"1 {curr_code} = {rate_str} {base_code} {rate_source}"
             else:
                 order.currency_display_info = ""
 
-    @api.onchange('currency_id', 'date_order')
-    def _onchange_currency_or_date(self):
-        for order in self:
-            if not order.use_manual_rate:
-                order.manual_currency_rate = 0.0
-            # Reset rate ID nếu đổi tiền tệ
-            if order.currency_rate_ref_id and order.currency_rate_ref_id.currency_id != order.currency_id:
-                order.currency_rate_ref_id = False
-
     @api.onchange('use_manual_rate')
     def _onchange_use_manual_rate(self):
-        for order in self:
-            if order.use_manual_rate:
-                order.manual_currency_rate = order.currency_rate
-                order.currency_rate_ref_id = False
-            else:
-                order.manual_currency_rate = 0.0
-
-    @api.onchange('currency_rate_ref_id')
-    def _onchange_currency_rate_ref_id(self):
-        for order in self:
-            if order.currency_rate_ref_id:
-                order.use_manual_rate = False
-                order.manual_currency_rate = 0.0
+        if not self.use_manual_rate:
+            self.manual_currency_rate = 0.0
 
     def convert_amount_to_base(self, amount):
         """Convert số tiền từ Order Currency sang Base Currency"""
@@ -311,13 +296,6 @@ class SaleOrderInherit(models.Model):
             return 0.0
         return amount / rate
 
-    @api.onchange('currency_id', 'use_manual_rate', 'manual_currency_rate', 'currency_rate_ref_id')
-    def _onchange_recompute_lines_currency(self):
-        # Đảm bảo tỷ giá ở được tính toán lại khi thay đổi tỷ giá
-        self._compute_currency_rate()
-        for line in self.order_line:
-            # Gọi hàm tính toán trên dòng
-            line._onchange_price_currency_conversion()
 
 
     @api.onchange("client_id")

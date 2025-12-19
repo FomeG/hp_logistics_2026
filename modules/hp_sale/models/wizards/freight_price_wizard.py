@@ -92,14 +92,7 @@ class GetFreightPriceWizard(models.TransientModel):
             # Lấy ir.model tương ứng
             model_rec = self.env['ir.model']._get(model_name)
 
-            price_in_so_currency = line.price
-            if line.currency_id and so.currency_id and line.currency_id != so.currency_id:
-                price_in_so_currency = line.currency_id._convert(
-                    line.price,
-                    so.currency_id,
-                    so.company_id or self.env.company,
-                    so.date_order or fields.Date.today()
-                )
+            price_in_so_currency = so._convert_to_order_currency(line.price, line.currency_id)
 
             so.order_line.create({
                 'order_id': so.id,
@@ -109,7 +102,6 @@ class GetFreightPriceWizard(models.TransientModel):
                 'res_id': record_id,
                 'currency_id_line': line.currency_id.id,
                 'price_unit_original': line.price,
-                # Sets the converted price for Odoo's standard field (VND)
                 'price_unit': price_in_so_currency,
             })
 
