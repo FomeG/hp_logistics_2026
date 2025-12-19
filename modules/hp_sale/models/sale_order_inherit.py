@@ -207,6 +207,19 @@ class SaleOrderInherit(models.Model):
         store=False
     )
 
+    def _convert_to_order_currency(self, amount, from_currency):
+        """ chuyển đổi một số tiền từ tiền tệ bất kỳ về tiền tệ của Sale Order. Sử dụng ngày của đơn hàng và company của đơn hàng."""
+        self.ensure_one()
+        if not from_currency or from_currency == self.currency_id:
+            return amount
+
+        return from_currency._convert(
+            amount,
+            self.currency_id,
+            self.company_id or self.env.company,
+            self.date_order or fields.Date.today()
+        )
+
     @api.depends('ref_currency_id', 'use_manual_rate', 'manual_currency_rate', 'currency_rate_ref_id', 'date_order')
     def _compute_currency_rate(self):
         """Quy đổi 1 đơn vị của Order Currency -> Base Currency"""

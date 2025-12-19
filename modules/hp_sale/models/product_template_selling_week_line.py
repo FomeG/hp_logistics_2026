@@ -79,14 +79,7 @@ class ProductTemplateSellingWeekLine(models.Model):
         product_id = self.env.ref('hp_sale.product_truck_freight').id
         values = []
         for line in lines:
-            price_in_so_currency = line.price
-            if line.currency_id and so.currency_id and line.currency_id != so.currency_id:
-                price_in_so_currency = line.currency_id._convert(
-                    line.price,
-                    so.currency_id,
-                    so.company_id or self.env.company,
-                    so.date_order or fields.Date.today()
-                )
+            price_in_so_currency = so._convert_to_order_currency(line.price, line.currency_id)
 
             values.append({
                 'name': f"{line.from_location_id.name} - {line.to_location_id.name}",
