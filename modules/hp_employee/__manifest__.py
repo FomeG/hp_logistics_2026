@@ -15,7 +15,7 @@ HP Employee App
     'depends': ['hp_components'],
     'data': [
         # security
-        'security/hr_employee_security.xml',
+        'security/hp_employee_security.xml',
         'security/ir.model.access.csv',
         'data/demo_branch_data.xml',
         'data/demo_sale_hn_data.xml',
