@@ -7,6 +7,7 @@
             <field name="name">HR Manager HN</field>
             <field name="login">dohr_hn@test.com</field>
             <field name="password">1</field>
+            <field name="groups_id" eval="[(4, ref('group_hr_director'))]"/>
         </record>
         <record id="emp_dohr_hn" model="hr.employee">
             <field name="name">HR Manager HN</field>
@@ -23,11 +24,17 @@
             <field name="manager_id" ref="emp_dohr_hn" />
         </record>
 
+        <!-- Update DOHR with department_id -->
+        <record id="emp_dohr_hn" model="hr.employee">
+            <field name="department_id" ref="dep_hr_hn" />
+        </record>
+
         <!-- 3 Managers -->
         <record id="user_hrm1_hn" model="res.users">
             <field name="name">HR Team Manager 1 HN</field>
             <field name="login">hrm1_hn@test.com</field>
             <field name="password">1</field>
+            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
         </record>
         <record id="emp_hrm1_hn" model="hr.employee">
             <field name="name">HR Team Manager 1 HN</field>
@@ -43,6 +50,7 @@
             <field name="name">HR Team Manager 2 HN</field>
             <field name="login">hrm2_hn@test.com</field>
             <field name="password">1</field>
+            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
         </record>
         <record id="emp_hrm2_hn" model="hr.employee">
             <field name="name">HR Team Manager 2 HN</field>
@@ -58,6 +66,7 @@
             <field name="name">HR Team Manager 3 HN</field>
             <field name="login">hrm3_hn@test.com</field>
             <field name="password">1</field>
+            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
         </record>
         <record id="emp_hrm3_hn" model="hr.employee">
             <field name="name">HR Team Manager 3 HN</field>
@@ -74,6 +83,7 @@
             <field name="name">HR member 1 HN</field>
             <field name="login">hr1_hn@test.com</field>
             <field name="password">1</field>
+            <field name="groups_id" eval="[(4, ref('hr.group_hr_user'))]"/>
         </record>
         <record id="emp_hr1_hn" model="hr.employee">
             <field name="name">HR member 1 HN</field>
@@ -89,6 +99,7 @@
             <field name="name">HR member 2 HN</field>
             <field name="login">hr2_hn@test.com</field>
             <field name="password">1</field>
+            <field name="groups_id" eval="[(4, ref('hr.group_hr_user'))]"/>
         </record>
         <record id="emp_hr2_hn" model="hr.employee">
             <field name="name">HR member 2 HN</field>
@@ -104,6 +115,7 @@
             <field name="name">HR member 3 HN</field>
             <field name="login">hr3_hn@test.com</field>
             <field name="password">1</field>
+            <field name="groups_id" eval="[(4, ref('hr.group_hr_user'))]"/>
         </record>
         <record id="emp_hr3_hn" model="hr.employee">
             <field name="name">HR member 3 HN</field>
@@ -138,6 +150,7 @@
         <record id="user_dohr_hcm" model="res.users">
             <field name="name">HR Manager HCM</field>
             <field name="login">dohr_hcm@test.com</field>
+            <field name="groups_id" eval="[(4, ref('group_hr_director'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_dohr_hcm" model="hr.employee">
@@ -155,10 +168,16 @@
             <field name="manager_id" ref="emp_dohr_hcm" />
         </record>
 
+        <!-- Update DOHR with department_id -->
+        <record id="emp_dohr_hcm" model="hr.employee">
+            <field name="department_id" ref="dep_hr_hcm" />
+        </record>
+
         <!-- 3 Managers -->
         <record id="user_hrm1_hcm" model="res.users">
             <field name="name">HR Team Manager 1 HCM</field>
             <field name="login">hrm1_hcm@test.com</field>
+            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hrm1_hcm" model="hr.employee">
@@ -174,6 +193,7 @@
         <record id="user_hrm2_hcm" model="res.users">
             <field name="name">HR Team Manager 2 HCM</field>
             <field name="login">hrm2_hcm@test.com</field>
+            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hrm2_hcm" model="hr.employee">
@@ -189,6 +209,7 @@
         <record id="user_hrm3_hcm" model="res.users">
             <field name="name">HR Team Manager 3 HCM</field>
             <field name="login">hrm3_hcm@test.com</field>
+            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hrm3_hcm" model="hr.employee">
@@ -205,6 +226,7 @@
         <record id="user_hr1_hcm" model="res.users">
             <field name="name">HR member 1 HCM</field>
             <field name="login">hr1_hcm@test.com</field>
+            <field name="groups_id" eval="[(4, ref('hr.group_hr_user'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hr1_hcm" model="hr.employee">
@@ -220,6 +242,7 @@
         <record id="user_hr2_hcm" model="res.users">
             <field name="name">HR member 2 HCM</field>
             <field name="login">hr2_hcm@test.com</field>
+            <field name="groups_id" eval="[(4, ref('hr.group_hr_user'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hr2_hcm" model="hr.employee">
@@ -235,6 +258,7 @@
         <record id="user_hr3_hcm" model="res.users">
             <field name="name">HR member 3 HCM</field>
             <field name="login">hr3_hcm@test.com</field>
+            <field name="groups_id" eval="[(4, ref('hr.group_hr_user'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hr3_hcm" model="hr.employee">
@@ -272,6 +296,7 @@
         <record id="user_dohr_hph" model="res.users">
             <field name="name">HR Manager HPH</field>
             <field name="login">dohr_hph@test.com</field>
+            <field name="groups_id" eval="[(4, ref('group_hr_director'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_dohr_hph" model="hr.employee">
@@ -289,10 +314,16 @@
             <field name="manager_id" ref="emp_dohr_hph" />
         </record>
 
+        <!-- Update DOHR with department_id -->
+        <record id="emp_dohr_hph" model="hr.employee">
+            <field name="department_id" ref="dep_hr_hph" />
+        </record>
+
         <!-- 3 Managers -->
         <record id="user_hrm1_hph" model="res.users">
             <field name="name">HR Team Manager 1 HPH</field>
             <field name="login">hrm1_hph@test.com</field>
+            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hrm1_hph" model="hr.employee">
@@ -308,6 +339,7 @@
         <record id="user_hrm2_hph" model="res.users">
             <field name="name">HR Team Manager 2 HPH</field>
             <field name="login">hrm2_hph@test.com</field>
+            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hrm2_hph" model="hr.employee">
@@ -323,6 +355,7 @@
         <record id="user_hrm3_hph" model="res.users">
             <field name="name">HR Team Manager 3 HPH</field>
             <field name="login">hrm3_hph@test.com</field>
+            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hrm3_hph" model="hr.employee">
@@ -339,6 +372,7 @@
         <record id="user_hr1_hph" model="res.users">
             <field name="name">HR member 1 HPH</field>
             <field name="login">hr1_hph@test.com</field>
+            <field name="groups_id" eval="[(4, ref('hr.group_hr_user'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hr1_hph" model="hr.employee">
@@ -354,6 +388,7 @@
         <record id="user_hr2_hph" model="res.users">
             <field name="name">HR member 2 HPH</field>
             <field name="login">hr2_hph@test.com</field>
+            <field name="groups_id" eval="[(4, ref('hr.group_hr_user'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hr2_hph" model="hr.employee">
@@ -369,6 +404,7 @@
         <record id="user_hr3_hph" model="res.users">
             <field name="name">HR member 3 HPH</field>
             <field name="login">hr3_hph@test.com</field>
+            <field name="groups_id" eval="[(4, ref('hr.group_hr_user'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hr3_hph" model="hr.employee">

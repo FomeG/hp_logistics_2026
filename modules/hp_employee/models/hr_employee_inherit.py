@@ -1,5 +1,5 @@
 from odoo import models, api, fields, _
-from odoo.exceptions import ValidationError, UserError
+from odoo.exceptions import ValidationError, UserError, AccessError
 
 class HrEmployeeInherit(models.Model):
     _inherit = 'hr.employee'
@@ -91,6 +91,63 @@ class HrEmployeeInherit(models.Model):
                     employee.user_id.write(sync_fields)
         
         return result
+
+
+
+
+
+
+
+    def unlink(self):
+        """
+        Delete access control for HR employees:
+        - HR members: cannot delete anyone.
+        - HR Team Managers: cannot delete Directors (higher) OR other Managers (same level).
+        - HR Directors: cannot delete other Directors (same level).
+        """
+        current_user = self.env.user
+        
+        # Định nghĩa các Group ID
+        group_director_xml_id = 'hp_employee.group_hr_director'
+        group_manager_xml_id = 'hp_employee.group_hr_team_manager'
+        group_user_xml_id = 'hr.group_hr_user'
+
+        # Xác định vai trò của người đang thực hiện xóa
+        is_director = current_user.has_group(group_director_xml_id)
+        is_manager = current_user.has_group(group_manager_xml_id) and not is_director
+        is_user = current_user.has_group(group_user_xml_id) and not is_manager and not is_director
+
+        # 1. HR User thường: Không được xóa bất kỳ ai
+        if is_user:
+            raise AccessError(_("Only HR Managers or Directors can delete employees."))
+
+        for employee in self:
+            # Nếu nhân viên bị xóa không có user liên kết, bỏ qua check quyền (cho phép xóa theo quyền mặc định)
+            if not employee.user_id:
+                continue
+            
+            target_user = employee.user_id
+
+            # 2. Nếu người xóa là Manager
+            if is_manager:
+                # Không được xóa Director (Cấp trên)
+                if target_user.has_group(group_director_xml_id):
+                    raise AccessError(_("HR Team Managers cannot delete HR Directors."))
+                
+                # Không được xóa Manager khác (Cùng cấp)
+                if target_user.has_group(group_manager_xml_id):
+                    raise AccessError(_("HR Team Managers cannot delete other Team Managers."))
+
+            # 3. Nếu người xóa là Director
+            if is_director:
+                # Không được xóa Director khác (Cùng cấp)
+                if target_user.has_group(group_director_xml_id):
+                    raise AccessError(_("HR Directors cannot delete other HR Directors."))
+
+        return super().unlink()
+
+
+
 
     @api.depends('address_id')
     def _compute_phones(self):
