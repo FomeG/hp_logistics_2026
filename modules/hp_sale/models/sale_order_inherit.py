@@ -639,12 +639,13 @@ class SaleOrderInherit(models.Model):
         return super().create(processed_vals_list)
 
     def write(self, vals):
+        user_service = self.env['hp_components.user.service']
         for record in self:
             # Check permissions for Salesman group
             if (
-                self.env.user.has_group('sales_team.group_sale_salesman')
-                and not self.env.user.has_group('sales_team.group_sale_salesman_all_leads')
-                and not self.env.user.has_group('sales_team.group_sale_manager')
+                user_service.is_salesman_member()
+                and not user_service.is_salesman_leader()
+                and not user_service.is_salesman_manager()
             ):
                 allowed_states = [
                     constants.SaleOrderState.DRAFT,
@@ -679,7 +680,8 @@ class SaleOrderInherit(models.Model):
     
     @api.model
     def action_quotations_dynamic(self):
-        if self.env.user.has_group('sales_team.group_sale_salesman_all_leads'):
+        user_service = self.env['hp_components.user.service']
+        if user_service.is_salesman_leader():
             context = {'search_default_sent_to_leader': 1}
         else:
             context = {'search_default_my_quotation': 1}
@@ -689,7 +691,10 @@ class SaleOrderInherit(models.Model):
             'type': 'ir.actions.act_window',
             'res_model': 'sale.order',
             'view_mode': 'list,kanban,form,calendar,pivot,graph,activity',
-            'views': [(self.env.ref('sale.view_quotation_tree_with_onboarding').id, 'list')],
+            'views': [
+                (self.env.ref('sale.view_quotation_tree_with_onboarding').id, 'list'),
+                (self.env.ref('sale.view_order_form').id, 'form'),
+            ],
             'search_view_id': [self.env.ref('sale.sale_order_view_search_inherit_quotation').id],
             'context': context,
             'domain': [],
