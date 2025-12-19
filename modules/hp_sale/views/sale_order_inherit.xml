@@ -289,40 +289,32 @@
             <xpath expr="//field[@name='order_line']/list" position="attributes">
                 <attribute name="create">false</attribute>
             </xpath>
-<!--            <xpath expr="//notebook" position="inside">-->
-<!--                <page string="Exchange Rate Settings" name="currency_settings">-->
-<!--                    <group>-->
-<!--                        <group string="Currency">-->
-<!--                            <field name="currency_id" options="{'no_create': True, 'no_create_edit': True}"/>-->
-<!--                        </group>-->
-<!--                        <group string="Exchange Rate Configuration" invisible="not currency_id">-->
-<!--                            <label for="currency_rate_ref_id" string="Select Rate"/>-->
-<!--                            <div class="o_row">-->
-<!--                                <field name="currency_rate_ref_id"-->
-<!--                                       options="{'no_create': True, 'no_create_edit': True}"-->
-<!--                                       placeholder="Auto (latest rate by date)"-->
-<!--                                       class="oe_inline"/>-->
-<!--                            </div>-->
-<!--                            <field name="use_manual_rate" widget="boolean_toggle" string="Or Use Manual Rate"/>-->
-<!--                            <field name="manual_currency_rate"-->
-<!--                                   invisible="not use_manual_rate"-->
-<!--                                   required="use_manual_rate"-->
-<!--                                   placeholder="Enter manual rate..."/>-->
-<!--                        </group>-->
-<!--                    </group>-->
-<!--                    <div class="alert alert-info text-center" role="alert"-->
-<!--                         invisible="not currency_id or not id"-->
-<!--                         style="margin: 16px 0; padding: 12px;">-->
-<!--                        <h4 style="margin: 0;">-->
-<!--                            <i class="fa fa-info-circle"/>-->
-<!--                            <field name="currency_display_info" readonly="1" nolabel="1" class="oe_inline"/>-->
-<!--                        </h4>-->
-<!--                        <small invisible="not use_manual_rate" class="text-warning">-->
-<!--                            <i class="fa fa-warning"/> Using manual exchange rate-->
-<!--                        </small>-->
-<!--                    </div>-->
-<!--                </page>-->
-<!--            </xpath>-->
+            <xpath expr="//notebook" position="inside">
+                <page string="Exchange Rate Settings" name="currency_settings">
+                    <group>
+                        <group string="Currency">
+                            <field name="ref_currency_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                        </group>
+                        <group string="Exchange Rate Configuration" invisible="not currency_id">
+                            <label for="currency_rate_ref_id" string="Select Rate"/>
+                            <div class="o_row">
+                                <field name="currency_rate_ref_id"
+                                       invisible="use_manual_rate"
+                                       domain="[('currency_id', '=', ref_currency_id)]"
+                                       options="{'no_create': True}"/>
+                            </div>
+                            <field name="use_manual_rate" widget="boolean_toggle" string="Or Use Manual Rate"/>
+                            <field name="manual_currency_rate"
+                                   invisible="not use_manual_rate"
+                                   required="use_manual_rate"
+                                   placeholder="Enter manual rate..."/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info text-center" role="alert">
+                         <field name="currency_display_info" readonly="1"/>
+                    </div>
+                </page>
+            </xpath>
         </field>
     </record>
 
@@ -377,7 +369,7 @@
             <!-- Changed: String to Price in VND -->
             <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="attributes">
                 <attribute name="string">Price in VND</attribute>
-                <attribute name="readonly">0</attribute>
+                <attribute name="readonly">1</attribute>
                 <attribute name="force_save">1</attribute>
                 <attribute name="optional">show</attribute>
             </xpath>

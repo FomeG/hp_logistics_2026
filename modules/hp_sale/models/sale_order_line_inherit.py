@@ -39,61 +39,66 @@ class SaleOrderLineInherit(models.Model):
         default=0.0
     )
 
-    @api.onchange('product_id')
-    def _onchange_product_id_set_currency(self):
-        """Khi chọn sản phẩm, mặc định lấy tiền tệ của đơn hàng"""
-        if not self.currency_id_line and self.order_id:
-            self.currency_id_line = self.order_id.currency_id
+    order_currency_rate = fields.Float(
+        related='order_id.currency_rate',
+        readonly=True,
+        store=False
+    )
 
-    @api.onchange('price_unit_original', 'currency_id_line', 'order_id.currency_id', 'order_id.currency_rate')
-    def _onchange_price_currency_conversion(self):
-        """
-        Logic cốt lõi (Updated):
-        1. Line Currency -> Base Currency
-        2. Base Currency -> Order Currency
-        """
-        # Lấy Base Currency (VND)
-        base_currency = self.env['res.currency'].get_base_currency()
+    order_currency_id = fields.Many2one(
+        'res.currency',
+        related='order_id.currency_id',
+        readonly=True,
+        store=False
+    )
+    order_ref_currency_id = fields.Many2one(
+        'res.currency',
+        related='order_id.ref_currency_id',
+        readonly=True,
+        store=False
+    )
 
+    @api.depends('price_unit_original','currency_id_line','order_currency_rate','order_currency_id','order_ref_currency_id')
+    def _compute_price_unit(self):
+        """
+        Tự động tính price_unit (giá hiển thị trong đơn hàng, thường là VND)
+        dựa trên price_unit_original và cấu hình tỷ giá của Sale Order.
+        """
         for line in self:
-            if not line.currency_id_line or not line.order_id.currency_id:
+            if not line.order_id or not line.currency_id_line:
+                line.price_unit = line.price_unit_original
                 continue
+
+            current_rate = line.order_id.currency_rate or 1.0
 
             # Case 1: Nếu Line Currency trùng với Order Currency -> Giữ nguyên
             if line.currency_id_line == line.order_id.currency_id:
                 line.price_unit = line.price_unit_original
+
+            # Case 2: Dòng dùng tiền tham chiếu (ref_currency_id)
+            # → nhân với tỷ giá đã cấu hình trên SO (1 Ref = X Base)
+            elif line.currency_id_line == line.order_id.ref_currency_id:
+                line.price_unit = line.price_unit_original * current_rate
+
+            # Case 3: Dòng dùng tiền tệ khác → dùng hàm convert chuẩn của Odoo
             else:
-                # BƯỚC 1: Quy đổi Line Currency -> Base Currency (VND) ---
-                # Sử dụng tỷ giá hệ thống cho bước này (vì Line Price Original là giá chuẩn đầu vào)
-                amount_in_base = 0.0
-                if line.currency_id_line == base_currency:
-                    amount_in_base = line.price_unit_original
-                else:
-                    try:
-                        # convert(amount, to_currency, company, date)
-                        amount_in_base = line.currency_id_line._convert(
-                            line.price_unit_original,
-                            base_currency,
-                            line.company_id or self.env.company,
-                            line.order_id.date_order or fields.Date.today()
-                        )
-                    except Exception:
-                        amount_in_base = line.price_unit_original
+                line.price_unit = line.currency_id_line._convert(
+                    line.price_unit_original,
+                    line.order_id.currency_id,  # chuyển về tiền của SO
+                    line.company_id or self.env.company,
+                    line.order_id.date_order or fields.Date.today()
+                )
 
-                # BƯỚC 2: Quy đổi Base Currency (VND) -> Order Currency (USD/...) ---
-                # Sử dụng tỷ giá của đơn hàng (currency_rate) để đảm bảo khớp với Manual Rate
-                # order.currency_rate được định nghĩa là: 1 Đơn vị Order Currency = X Đơn vị Base Currency
-                # Ví dụ: Order là USD, Base là VND. Rate = 25,000.
-                # Công thức: Amount_Order = Amount_Base / Rate
-                order_rate = line.order_id.currency_rate
-                if order_rate and order_rate > 0:
-                    line.price_unit = amount_in_base / order_rate
-                else:
-                    line.price_unit = amount_in_base
+    @api.onchange('price_unit_original', 'currency_id_line', 'product_id')
+    def _onchange_price_currency_conversion(self):
+        self._compute_price_unit()
 
-    # Khi người dùng sửa tay price_unit (cột thành tiền quy đổi), update lại price_original tương ứng
+        # Khi chọn sản phẩm mới, mặc định currency theo đơn hàng nếu chưa có
+        if self.product_id and not self.currency_id_line and self.order_id:
+            self.currency_id_line = self.order_id.currency_id
+
     @api.onchange('price_unit')
     def _onchange_price_unit_reverse(self):
         for line in self:
-            if line.currency_id_line == line.order_id.currency_id:
+            if line.currency_id_line and line.order_id and line.currency_id_line == line.order_id.currency_id:
                 line.price_unit_original = line.price_unit
