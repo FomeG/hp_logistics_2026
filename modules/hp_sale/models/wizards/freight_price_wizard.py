@@ -13,7 +13,7 @@ class GetFreightPriceWizard(models.TransientModel):
 
     sale_order_id = fields.Many2one(
         comodel_name='sale.order',
-        limit =1
+        # limit =1,
     )
     line_ids = fields.One2many(
         comodel_name='hp_sale.freight.price.wizard.line',

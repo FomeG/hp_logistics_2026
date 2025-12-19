@@ -46,6 +46,7 @@ class HrTeam(models.Model):
     )
 
     department_type_code = fields.Char(
+        string="Department Type Code",
         related='department_id.department_type_id.code',
         store=False
     )

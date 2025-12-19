@@ -34,7 +34,7 @@ class FreightPurchaseBookingInventory(models.Model):
     )
 
     str_inventory_booking_line = fields.Char(
-        string='Booking Line',
+        string='Str Inventory Booking Line',
         compute='_compute_inventory_booking_line',
         store=False
     )

@@ -5,6 +5,7 @@
     'author': 'HPL',
     'category': 'HP',
     'version': '18.0.0.0.1',
+    'license': 'LGPL-3',
     'depends': ['base'],
     'data': [
         'security/ir.model.access.csv',

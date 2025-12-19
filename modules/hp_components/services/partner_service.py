@@ -3,7 +3,8 @@ from ..models.constants import PartnerMainTypeCode
 
 class PartnerService(models.AbstractModel):
     _name = 'hp_components.partner.service'
-
+    _description = 'Partner Service'
+    
     @tools.ormcache('partner_main_type_code')
     def _get_or_create_partner_main_type_by_code(self, partner_main_type_code):
         PartnerMainType = self.env['partner.main.type']

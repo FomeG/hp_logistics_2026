@@ -60,7 +60,7 @@ class FreightPurchaseQuotation(models.Model):
         comodel_name="freight.purchase.quotation.fee",
         inverse_name="quotation_id",
         string="Common Fees",
-        ondelete="cascade"
+        # ondelete="cascade",
     )
     total_quotation_lines = fields.Char(
         string="Total Quotation Lines",

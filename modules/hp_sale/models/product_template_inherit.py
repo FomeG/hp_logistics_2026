@@ -6,16 +6,22 @@ class ProductTemplate(models.Model):
     _inherit = "product.template"
 
     type = fields.Selection(
-        constants.ProductTemplateType.SELECT_OPTIONS,
+        selection_add=constants.ProductTemplateType.SELECT_OPTIONS,
         required=True,
-        default=constants.ProductTemplateType.SEA_FREIGHT
+        default=constants.ProductTemplateType.SEA_FREIGHT,
+        ondelete={
+            constants.ProductTemplateType.SEA_FREIGHT: 'set default',
+            constants.ProductTemplateType.TRUCK_FREIGHT: 'set default',
+            constants.ProductTemplateType.SERVICES: 'set default',
+            constants.ProductTemplateType.CUSTOM: 'set default',
+        }, # khi module này bị xóa -> set về default của odoo (vd: product)
     )
 
     product_type = fields.Selection(
         constants.ProductTemplateType.SELECT_OPTIONS,
         string='HP Product Type',
         tracking=True,
-        help="Product type for HP Logistics system"
+        help="Product type for HP Logistics system",
     )
 
     # Field hiển thị cho user khi tạo mới/edit - chỉ Custom và Services
@@ -24,7 +30,7 @@ class ProductTemplate(models.Model):
             (constants.ProductTemplateType.CUSTOM, 'Custom'),
             (constants.ProductTemplateType.SERVICES, 'Services'),
         ],
-        string='Product Type',
+        string='Product Type Editable',
         compute='_compute_product_type_editable',
         inverse='_inverse_product_type_editable',
         store=False,
@@ -34,7 +40,7 @@ class ProductTemplate(models.Model):
     # Field hiển thị cho user khi xem - tất cả 4 loại
     product_type_display = fields.Selection(
         selection=constants.ProductTemplateType.SELECT_OPTIONS,
-        string='Product Type',
+        string='Product Type Display',
         compute='_compute_product_type_display',
         inverse='_inverse_product_type_display',
         store=False,

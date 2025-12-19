@@ -4,6 +4,7 @@ from odoo import models, api
 class UserServiceInherit(models.AbstractModel):
     _name = 'hp_employee.user.service'
     _inherit = 'hp_components.user.service'
+    _description = 'User Service Inherit'
 
     @api.model
     def get_user_teams(self, user=None):

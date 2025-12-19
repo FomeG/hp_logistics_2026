@@ -1,4 +1,4 @@
-from pkg_resources import require
+# from pkg_resources import require
 
 from odoo import models, fields
 from odoo.addons.hp_components.models import constants

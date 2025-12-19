@@ -1,4 +1,4 @@
-from pkg_resources import require
+# from pkg_resources import require
 from odoo import models, fields, api
 from odoo.api import ValuesType, Self
 from odoo.exceptions import ValidationError, UserError
@@ -94,7 +94,7 @@ class FreightPurchaseBooking(models.Model):
         'freight.purchase.booking.inventory',
         'booking_id', 
         string='Booking Inventories',
-        ondelete = "cascade",
+        # ondelete = "cascade",
     )
     is_show_inventory = fields.Boolean(compute='_compute_is_show_inventory', store=False)
     has_inventory = fields.Boolean(
@@ -112,8 +112,7 @@ class FreightPurchaseBooking(models.Model):
         comodel_name="freight.purchase.booking.fee",
         inverse_name="booking_id",
         string="Common Fees",
-        ondelete = "cascade",
-
+        # ondelete = "cascade",
     )
     has_fees = fields.Boolean(
         compute='_compute_has_fees',
