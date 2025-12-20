@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
+        <record id="res_partner_category_steel" model="res.partner.category">
+            <field name="name">Steel Manufacture</field>
+            <field name="color" eval="2"/>
+        </record>
+        <record id="res_partner_category_seafood" model="res.partner.category">
+            <field name="name">Sea Food</field>
+            <field name="color" eval="2"/>
+        </record>
         <record id="res_partner_client_1" model="res.partner">
             <field name="name">Công Ty TNHH ABC Việt Nam</field>
-            <field eval="[Command.set([ref('base.res_partner_category_14'), ref('base.res_partner_category_12')])]" name="category_id"/>
+            <field eval="[Command.set([ref('res_partner_category_steel'), ref('res_partner_category_seafood')])]" name="category_id"/>
             <field name="is_company">1</field>
             <field name="street">123 Đường Lê Lợi</field>
             <field name="city">Quận Tây Hồ</field>
@@ -18,7 +26,7 @@
         </record>
         <record id="res_partner_client_2" model="res.partner">
             <field name="name">Công Ty Cổ Phần XYZ</field>
-            <field eval="[Command.set([ref('base.res_partner_category_14')])]" name="category_id"/>
+            <field eval="[Command.set([ref('res_partner_category_steel'), ref('res_partner_category_seafood')])]" name="category_id"/>
             <field name="is_company">1</field>
             <field name="street">456 Đường Nguyễn Huệ</field>
             <field name="city">Quận 1</field>
@@ -33,7 +41,7 @@
         </record>
         <record id="res_partner_client_3" model="res.partner">
             <field name="name">Công Ty TNHH Thương Mại Dịch Vụ Global</field>
-            <field eval="[Command.set([ref('base.res_partner_category_8'), ref('base.res_partner_category_14')])]" name="category_id"/>
+            <field eval="[Command.set([ref('res_partner_category_steel'), ref('res_partner_category_seafood')])]" name="category_id"/>
             <field name="is_company">1</field>
             <field name="street">789 Đường Trần Hưng Đạo</field>
             <field name="city">Quận 1</field>
