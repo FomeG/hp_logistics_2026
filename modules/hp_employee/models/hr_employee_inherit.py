@@ -33,6 +33,26 @@ class HrEmployeeInherit(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        # Check branch restriction for HR users (skip for sudo/admin)
+        if not self.env.su and not self.env.user.has_group('base.group_system'):
+            user_service = self.env['hp_employee.user.service']
+            if user_service.is_hr_role(self.env.user):
+                # Get current user's branch
+                current_user = self.env.user
+                if current_user.employee_id and current_user.employee_id.department_id:
+                    user_branch = current_user.employee_id.department_id.branch_id
+
+                    # Check each employee being created
+                    for vals in vals_list:
+                        department_id = vals.get('department_id')
+                        if department_id:
+                            department = self.env['hr.department'].browse(department_id)
+                            if department.branch_id and department.branch_id != user_branch:
+                                raise AccessError(_(
+                                    "You can only create employees in departments from your own branch (%s). "
+                                    "The selected department '%s' belongs to branch '%s'."
+                                ) % (user_branch.name, department.name, department.branch_id.name))
+
         emails = {vals.get('work_email') for vals in vals_list if vals.get('work_email')}
         phones = {vals.get('work_phone') for vals in vals_list if vals.get('work_phone')}
 

@@ -89,11 +89,15 @@ class UserServiceInherit(models.AbstractModel):
             # No user linked, can edit
             return True
 
-        # HR User (member) cannot edit HR staff
+        # HR User (member) - can edit other HR members, but not Team Managers or Directors
         if self.is_hr_user(user) and not self.is_hr_team_manager(user):
-            # Check if target is HR (has any HR group)
-            if target_user.has_group('hp_employee.group_hr_user'):
+            # Cannot edit Team Manager
+            if target_user.has_group('hp_employee.group_hr_team_manager'):
                 return False
+            # Cannot edit Director
+            if target_user.has_group('hp_employee.group_hr_director'):
+                return False
+            # Can edit other HR members and non-HR staff
             return True
 
         # HR Team Manager cannot edit Directors or other Managers
