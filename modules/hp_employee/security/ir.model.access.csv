@@ -1,6 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
 access_hr_branch_user,hr.branch.user,model_hr_branch,base.group_user,1,1,1,0
+access_hr_team_base_user,hr.team.base.user,model_hr_team,base.group_user,1,0,0,0
 access_hr_team_user,hr.team.user,model_hr_team,hp_employee.group_hr_user,1,1,1,1
 
 access_hr_employee_non_hr1,hr.employee.non.hr,hr.model_hr_employee,base.group_user,1,0,0,0
