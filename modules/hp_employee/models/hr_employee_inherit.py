@@ -37,6 +37,8 @@ class HrEmployeeInherit(models.Model):
                 department = employee.department_id
                 if department:
                     employee._assign_group_to_member(department)
+                    # Assign HR-specific groups if in HR department
+                    employee._assign_hr_groups()
 
         if duplicate_emails or duplicate_phones:
             message_parts = []
@@ -49,6 +51,17 @@ class HrEmployeeInherit(models.Model):
         return created_records
     
     def write(self, vals):
+        # Skip permission check for sudo/system operations
+        if not self.env.su:
+            # Check permissions using user_service
+            user_service = self.env['hp_employee.user.service']
+            for employee in self:
+                # Allow users to edit their own employee record
+                if employee.user_id and employee.user_id.id == self.env.uid:
+                    continue
+                if not user_service.can_edit_employee(employee):
+                    raise AccessError(_("You don't have permission to edit this employee."))
+
         # Check for duplicate emails and phones
         for field in ['work_email', 'work_phone']:
             value = vals.get(field)
@@ -58,8 +71,18 @@ class HrEmployeeInherit(models.Model):
                     (field, '=', value)
                 ], limit=1)
                 if conflict:
+                    # check sdt
                     raise UserError(_("%s '%s' is already used by another employee.") % (field.replace('_', ' ').title(), value))
-        
+
+        # Handle user_id changes (when user is created for employee)
+        if 'user_id' in vals and vals.get('user_id'):
+            for employee in self:
+                if employee.department_id:
+                    # Assign department groups when user is created
+                    employee._assign_group_to_member(employee.department_id)
+                    # Assign HR-specific groups if in HR department
+                    employee._assign_hr_groups()
+
         # Handle department changes
         if 'department_id' in vals:
             for employee in self:
@@ -69,6 +92,8 @@ class HrEmployeeInherit(models.Model):
                     employee._remove_group_of_member(old_department)
                     new_department = self.env['hr.department'].sudo().browse(new_department_id)
                     employee._assign_group_to_member(new_department)
+                    # Assign HR-specific groups if in HR department
+                    employee._assign_hr_groups()
 
         # Sync employee changes to user (if user exists and values are different)
         sync_fields = {}
@@ -80,16 +105,14 @@ class HrEmployeeInherit(models.Model):
                     sync_fields['email'] = vals['work_email']
                 if 'mobile_phone' in vals and vals['mobile_phone'] and vals['mobile_phone'] != employee.user_id.phone:
                     sync_fields['phone'] = vals['mobile_phone']
-        
-        # Perform the employee update first
+
         result = super().write(vals)
-        
-        # Then sync to user if needed
+
         if sync_fields:
             for employee in self:
                 if employee.user_id:
-                    employee.user_id.write(sync_fields)
-        
+                    employee.user_id.sudo().write(sync_fields)
+
         return result
 
 
@@ -100,49 +123,17 @@ class HrEmployeeInherit(models.Model):
 
     def unlink(self):
         """
-        Delete access control for HR employees:
+        Delete access control using user_service.
         - HR members: cannot delete anyone.
-        - HR Team Managers: cannot delete Directors (higher) OR other Managers (same level).
-        - HR Directors: cannot delete other Directors (same level).
+        - HR Team Managers/Directors: can delete employees in their branch (with some restrictions).
         """
-        current_user = self.env.user
-        
-        # Định nghĩa các Group ID
-        group_director_xml_id = 'hp_employee.group_hr_director'
-        group_manager_xml_id = 'hp_employee.group_hr_team_manager'
-        group_user_xml_id = 'hr.group_hr_user'
-
-        # Xác định vai trò của người đang thực hiện xóa
-        is_director = current_user.has_group(group_director_xml_id)
-        is_manager = current_user.has_group(group_manager_xml_id) and not is_director
-        is_user = current_user.has_group(group_user_xml_id) and not is_manager and not is_director
-
-        # 1. HR User thường: Không được xóa bất kỳ ai
-        if is_user:
-            raise AccessError(_("Only HR Managers or Directors can delete employees."))
-
-        for employee in self:
-            # Nếu nhân viên bị xóa không có user liên kết, bỏ qua check quyền (cho phép xóa theo quyền mặc định)
-            if not employee.user_id:
-                continue
-            
-            target_user = employee.user_id
-
-            # 2. Nếu người xóa là Manager
-            if is_manager:
-                # Không được xóa Director (Cấp trên)
-                if target_user.has_group(group_director_xml_id):
-                    raise AccessError(_("HR Team Managers cannot delete HR Directors."))
-                
-                # Không được xóa Manager khác (Cùng cấp)
-                if target_user.has_group(group_manager_xml_id):
-                    raise AccessError(_("HR Team Managers cannot delete other Team Managers."))
-
-            # 3. Nếu người xóa là Director
-            if is_director:
-                # Không được xóa Director khác (Cùng cấp)
-                if target_user.has_group(group_director_xml_id):
-                    raise AccessError(_("HR Directors cannot delete other HR Directors."))
+        # Skip permission check for sudo/system operations
+        if not self.env.su:
+            # Check permissions using user_service
+            user_service = self.env['hp_employee.user.service']
+            for employee in self:
+                if not user_service.can_delete_employee(employee):
+                    raise AccessError(_("You don't have permission to delete this employee."))
 
         return super().unlink()
 
@@ -187,7 +178,7 @@ class HrEmployeeInherit(models.Model):
         if not user.has_group(group_xml_id):
             group = self.env.ref(group_xml_id)
             user.write({'groups_id': [(4, group.id)]})
-    
+
     def _remove_group_of_member(self, department):
         user = self.user_id
         if not user or not department:
@@ -197,3 +188,35 @@ class HrEmployeeInherit(models.Model):
         if user.has_group(group_xml_id):
             group = self.env.ref(group_xml_id)
             user.write({'groups_id': [(3, group.id)]})
+
+    def _assign_hr_groups(self):
+        """
+        Assign HR-specific groups based on employee role in HR department.
+        - HR Team Manager: employee who is manager of HR department
+        - HR Director: employee with is_hr_director flag (or other criteria)
+        - HR User: all other HR employees (already handled by _assign_group_to_member)
+        """
+        self.ensure_one()
+        user = self.user_id
+
+        # Only process if user exists and employee is in HR department
+        if not user or not self.department_id:
+            return
+
+        dept_type_code = self.department_id.department_type_id.code if self.department_id.department_type_id else None
+        if dept_type_code != 'hr':
+            return
+
+        # Check if employee is manager of HR department → Team Manager
+        is_hr_manager = self.env['hr.department'].search_count([
+            ('manager_id', '=', self.id),
+            ('department_type_id.code', '=', 'hr')
+        ]) > 0
+
+        if is_hr_manager:
+            # Assign Team Manager group (which implies hp_employee.group_hr_user)
+            team_manager_group = self.env.ref('hp_employee.group_hr_team_manager')
+            if team_manager_group.id not in user.groups_id.ids:
+                user.write({'groups_id': [(4, team_manager_group.id)]})
+
+        # TODO: Add logic for Director (e.g., check is_hr_director field or job position)

@@ -32,7 +32,7 @@
     <record id="department_type_hr" model="department.type">
         <field name="name">HR</field>
         <field name="code">hr</field>
-        <field name="manager_group_xml_id">hr.group_hr_manager</field>
-        <field name="member_group_xml_id">hr.group_hr_user</field>
+        <field name="manager_group_xml_id">hp_employee.group_hr_team_manager</field>
+        <field name="member_group_xml_id">hp_employee.group_hr_user</field>
     </record>
 </odoo>
