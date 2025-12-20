@@ -5,6 +5,7 @@
             <field name="name">DOS HCM</field>
             <field name="login">dos_hcm@test.com</field>
             <field name="password">123456</field>
+            <field name="groups_id" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
         </record>
         <record id="emp_dos_hcm" model="hr.employee">
             <field name="name">DOS HCM</field>
@@ -25,6 +26,7 @@
             <field name="name">Sale member 1 HCM</field>
             <field name="login">sm1_hcm@test.com</field>
             <field name="password">123456</field>
+            <field name="groups_id" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
         </record>
         <record id="emp_sm1_hcm" model="hr.employee">
             <field name="name">Sale member 1 HCM</field>
@@ -40,6 +42,7 @@
             <field name="name">Sale member 2 HCM</field>
             <field name="login">sm2_hcm@test.com</field>
             <field name="password">123456</field>
+            <field name="groups_id" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
         </record>
         <record id="emp_sm2_hcm" model="hr.employee">
             <field name="name">Sale member 2 HCM</field>
