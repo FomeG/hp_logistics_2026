@@ -5,11 +5,30 @@ class HrEmployeeInherit(models.Model):
     _inherit = 'hr.employee'
 
     dept_manager_id = fields.Many2one('hr.employee', compute='_compute_manager_id', store=False)
+    current_user_branch_id = fields.Many2one(
+        'hr.branch',
+        compute='_compute_current_user_branch',
+        default=lambda self: self._default_current_user_branch(),
+        store=False
+    )
 
     @api.depends('department_id')
     def _compute_manager_id(self):
         for employee in self:
             employee.dept_manager_id = employee.department_id.manager_id if employee.department_id else False
+
+    def _default_current_user_branch(self):
+        """Default value for current user's branch"""
+        current_user = self.env.user
+        if current_user.employee_id and current_user.employee_id.department_id:
+            return current_user.employee_id.department_id.branch_id
+        return False
+
+    @api.depends_context('uid')
+    def _compute_current_user_branch(self):
+        """Compute current user's branch for domain filtering"""
+        for employee in self:
+            employee.current_user_branch_id = self._default_current_user_branch()
                 
 
     @api.model_create_multi

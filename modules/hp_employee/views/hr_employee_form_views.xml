@@ -27,6 +27,14 @@
                 <field name="dept_manager_id" readonly="1" />
             </xpath>
 
+            <!-- Restrict department selection to same branch as current user -->
+            <xpath expr="//field[@name='department_id']" position="before">
+                <field name="current_user_branch_id" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='department_id']" position="attributes">
+                <attribute name="domain">[('branch_id', '=', current_user_branch_id)]</attribute>
+            </xpath>
+
         </field>
     </record>
 </odoo>
