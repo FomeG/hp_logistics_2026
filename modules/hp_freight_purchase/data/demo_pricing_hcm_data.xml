@@ -5,6 +5,7 @@
             <field name="name">Pricing member 1 HCM</field>
             <field name="login">pricing1_hcm@test.com</field>
             <field name="password">123456</field>
+            <field name="groups_id" eval="[(4, ref('hp_freight_purchase.group_hp_freight_purchase_member'))]"/>
         </record>
         <record id="emp_pricing1_hcm" model="hr.employee">
             <field name="name">Pricing member 1 HCM</field>
@@ -20,6 +21,7 @@
             <field name="name">Pricing member 2 HCM</field>
             <field name="login">pricing2_hcm@test.com</field>
             <field name="password">123456</field>
+            <field name="groups_id" eval="[(4, ref('hp_freight_purchase.group_hp_freight_purchase_member'))]"/>
         </record>
         <record id="emp_pricing2_hcm" model="hr.employee">
             <field name="name">Pricing member 2 HCM</field>
