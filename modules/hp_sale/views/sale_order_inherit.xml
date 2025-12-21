@@ -68,6 +68,12 @@
         class="btn-primary"/> -->
                 <button name="action_update_state" 
                     type="object" 
+                    string="Request Approval"
+                    class="btn-success"
+                    context="{'new_state': 'sent_to_leader'}"
+                    invisible="not id or state not in ('draft','review','sent_to_client')"/>
+                <button name="action_update_state" 
+                    type="object" 
                     string="Sent To Client"
                     class="btn-primary"
                     context="{'new_state': 'sent_to_client'}"
