@@ -158,7 +158,9 @@
             <xpath expr="//button[@name='action_cancel']" position="attributes">
                 <attribute name="invisible">state in ['cancel', 'sale'] or not id or locked</attribute>
             </xpath>
-
+            <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email_primary']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
             <!-- Hide the original "Send by Email" button -->
             <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email']" position="attributes">
                 <attribute name="invisible">1</attribute>
