@@ -12,3 +12,26 @@ access_hr_department_non_hr1,hr.department.non.hr,hr.model_hr_department,base.gr
 access_hr_department_hr_user,hr.department.hr.user,hr.model_hr_department,hp_employee.group_hr_user,1,1,1,1
 access_hr_department_admin,hr.department.admin,hr.model_hr_department,base.group_system,1,1,1,1
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+access_hr_team_sale_department_manager,hr.team.department.manager,hp_employee.model_hr_team,sales_team.group_sale_salesman_all_leads,1,1,1,1
+access_hr_team_sale_department_member,hr.team.department.member,hp_employee.model_hr_team,sales_team.group_sale_salesman,1,0,0,0
+
+access_hr_team_freight_purchase_department_manager,hr.team.freight.purchase.department.manager,hp_employee.model_hr_team,hp_freight_purchase.group_hp_freight_purchase_lead,1,1,1,1
+access_hr_team_freight_purchase_department_member,hr.team.freight.purchase.department.member,hp_employee.model_hr_team,hp_freight_purchase.group_hp_freight_purchase_member,1,0,0,0
