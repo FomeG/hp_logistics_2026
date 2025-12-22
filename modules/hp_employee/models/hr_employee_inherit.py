@@ -254,7 +254,7 @@ class HrEmployeeInherit(models.Model):
 
         if is_hr_manager:
             # Assign Team Manager group (which implies hp_employee.group_hr_user)
-            team_manager_group = self.env.ref('hp_employee.group_hr_team_manager')
+            team_manager_group = self.env.ref('hp_employee.group_hr_lead')
             if team_manager_group.id not in user.groups_id.ids:
                 user.write({'groups_id': [(4, team_manager_group.id)]})
 

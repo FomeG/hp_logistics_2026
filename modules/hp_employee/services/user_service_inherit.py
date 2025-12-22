@@ -32,7 +32,7 @@ class UserServiceInherit(models.AbstractModel):
     @api.model
     def is_hr_team_manager(self, user=None):
         """Check if user is HR Team Manager"""
-        return self._check_user_has_group('hp_employee.group_hr_team_manager', user.id if user else None)
+        return self._check_user_has_group('hp_employee.group_hr_lead', user.id if user else None)
 
     @api.model
     def is_hr_user(self, user=None):
@@ -92,7 +92,7 @@ class UserServiceInherit(models.AbstractModel):
         # HR User (member) - can edit other HR members, but not Team Managers or Directors
         if self.is_hr_user(user) and not self.is_hr_team_manager(user):
             # Cannot edit Team Manager
-            if target_user.has_group('hp_employee.group_hr_team_manager'):
+            if target_user.has_group('hp_employee.group_hr_lead'):
                 return False
             # Cannot edit Director
             if target_user.has_group('hp_employee.group_hr_director'):
@@ -106,7 +106,7 @@ class UserServiceInherit(models.AbstractModel):
             if target_user.has_group('hp_employee.group_hr_director'):
                 return False
             # Cannot edit other Team Managers
-            if target_user.has_group('hp_employee.group_hr_team_manager'):
+            if target_user.has_group('hp_employee.group_hr_lead'):
                 return False
             return True
 

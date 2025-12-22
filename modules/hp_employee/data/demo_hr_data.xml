@@ -34,7 +34,7 @@
             <field name="name">HR Team Manager 1 HN</field>
             <field name="login">hrm1_hn@test.com</field>
             <field name="password">1</field>
-            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('group_hr_lead'))]"/>
         </record>
         <record id="emp_hrm1_hn" model="hr.employee">
             <field name="name">HR Team Manager 1 HN</field>
@@ -50,7 +50,7 @@
             <field name="name">HR Team Manager 2 HN</field>
             <field name="login">hrm2_hn@test.com</field>
             <field name="password">1</field>
-            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('group_hr_lead'))]"/>
         </record>
         <record id="emp_hrm2_hn" model="hr.employee">
             <field name="name">HR Team Manager 2 HN</field>
@@ -66,7 +66,7 @@
             <field name="name">HR Team Manager 3 HN</field>
             <field name="login">hrm3_hn@test.com</field>
             <field name="password">1</field>
-            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('group_hr_lead'))]"/>
         </record>
         <record id="emp_hrm3_hn" model="hr.employee">
             <field name="name">HR Team Manager 3 HN</field>
@@ -177,7 +177,7 @@
         <record id="user_hrm1_hcm" model="res.users">
             <field name="name">HR Team Manager 1 HCM</field>
             <field name="login">hrm1_hcm@test.com</field>
-            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('group_hr_lead'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hrm1_hcm" model="hr.employee">
@@ -193,7 +193,7 @@
         <record id="user_hrm2_hcm" model="res.users">
             <field name="name">HR Team Manager 2 HCM</field>
             <field name="login">hrm2_hcm@test.com</field>
-            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('group_hr_lead'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hrm2_hcm" model="hr.employee">
@@ -209,7 +209,7 @@
         <record id="user_hrm3_hcm" model="res.users">
             <field name="name">HR Team Manager 3 HCM</field>
             <field name="login">hrm3_hcm@test.com</field>
-            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('group_hr_lead'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hrm3_hcm" model="hr.employee">
@@ -327,7 +327,7 @@
         <record id="user_hrm1_hph" model="res.users">
             <field name="name">HR Team Manager 1 HPH</field>
             <field name="login">hrm1_hph@test.com</field>
-            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('group_hr_lead'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hrm1_hph" model="hr.employee">
@@ -343,7 +343,7 @@
         <record id="user_hrm2_hph" model="res.users">
             <field name="name">HR Team Manager 2 HPH</field>
             <field name="login">hrm2_hph@test.com</field>
-            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('group_hr_lead'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hrm2_hph" model="hr.employee">
@@ -359,7 +359,7 @@
         <record id="user_hrm3_hph" model="res.users">
             <field name="name">HR Team Manager 3 HPH</field>
             <field name="login">hrm3_hph@test.com</field>
-            <field name="groups_id" eval="[(4, ref('group_hr_team_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('group_hr_lead'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_hrm3_hph" model="hr.employee">
