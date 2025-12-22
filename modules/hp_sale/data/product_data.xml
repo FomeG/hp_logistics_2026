@@ -6,6 +6,7 @@
         <record id="product_im_cont_1" model="product.template">
             <field name="name">Luồng Xanh</field>
             <field name="type">custom</field>
+            <field name="product_type">custom</field>
             <field name="categ_id" ref="hp_sale.product_category_im_cont"/>
             <field name="complete_time">2</field>
             <field name="list_price">350</field>
@@ -14,6 +15,7 @@
         <record id="product_im_cont_2" model="product.template">
             <field name="name">Luồng Vàng</field>
             <field name="type">custom</field>
+            <field name="product_type">custom</field>
             <field name="categ_id" ref="hp_sale.product_category_im_cont"/>
             <field name="complete_time">4</field>
             <field name="list_price">350</field>
@@ -22,6 +24,7 @@
         <record id="product_im_cont_3" model="product.template">
             <field name="name">Kiểm Thủ công</field>
             <field name="type">custom</field>
+            <field name="product_type">custom</field>
             <field name="categ_id" ref="hp_sale.product_category_im_cont"/>
             <field name="complete_time">7</field>
             <field name="list_price">900</field>
@@ -30,6 +33,7 @@
         <record id="product_im_cont_4" model="product.template">
             <field name="name">Hải quan NK Hàng gỗ</field>
             <field name="type">custom</field>
+            <field name="product_type">custom</field>
             <field name="categ_id" ref="hp_sale.product_category_im_cont"/>
             <field name="list_price">1100</field>
         </record>
@@ -38,6 +42,7 @@
         <record id="product_im_lcl_1" model="product.template">
             <field name="name">Luồng Xanh</field>
             <field name="type">custom</field>
+            <field name="product_type">custom</field>
             <field name="categ_id" ref="hp_sale.product_category_im_lcl"/>
             <field name="complete_time">2</field>
             <field name="list_price">450</field>
@@ -46,6 +51,7 @@
         <record id="product_im_1" model="product.template">
             <field name="name">TK Chuyển cửa Khẩu</field>
             <field name="type">services</field>
+            <field name="product_type">services</field>
             <field name="categ_id" ref="hp_sale.product_category_im"/>
             <field name="complete_time">2</field>
             <field name="list_price">200</field>
@@ -55,6 +61,7 @@
         <record id="product_ex_cont_1" model="product.template">
             <field name="name">Miễn kiểm</field>
             <field name="type">custom</field>
+            <field name="product_type">custom</field>
             <field name="categ_id" ref="hp_sale.product_category_ex_cont"/>
             <field name="complete_time">2</field>
             <field name="list_price">350</field>
@@ -63,6 +70,7 @@
         <record id="product_ex_cont_2" model="product.template">
             <field name="name">Kiểm hóa</field>
             <field name="type">custom</field>
+            <field name="product_type">custom</field>
             <field name="categ_id" ref="hp_sale.product_category_ex_cont"/>
             <field name="complete_time">5</field>
             <field name="list_price">900</field>
@@ -71,6 +79,7 @@
         <record id="product_ex_cont_3" model="product.template">
             <field name="name">Chi thêm hàng Plywood luồng vàng</field>
             <field name="type">custom</field>
+            <field name="product_type">custom</field>
             <field name="categ_id" ref="hp_sale.product_category_ex_cont"/>
             <field name="list_price">300</field>
         </record>
@@ -78,6 +87,7 @@
         <record id="product_ex_1" model="product.template">
             <field name="name">TK Chuyển cửa Khẩu</field>
             <field name="type">services</field>
+            <field name="product_type">services</field>
             <field name="categ_id" ref="hp_sale.product_category_ex"/>
             <field name="complete_time">2</field>
             <field name="list_price">300</field>
@@ -86,6 +96,7 @@
         <record id="product_ex_2" model="product.template">
             <field name="name">Nộp Tờ khai vàng, xanh</field>
             <field name="type">custom</field>
+            <field name="product_type">custom</field>
             <field name="categ_id" ref="hp_sale.product_category_ex"/>
             <field name="complete_time">1</field>
             <field name="list_price">100</field>
@@ -95,12 +106,14 @@
         <record id="product_imex_1" model="product.template">
             <field name="name">Thông thường</field>
             <field name="type">custom</field>
+            <field name="product_type">custom</field>
             <field name="categ_id" ref="hp_sale.product_category_imex"/>
         </record>
 
         <record id="product_imex_2" model="product.template">
             <field name="name">Luồng Đỏ</field>
             <field name="type">custom</field>
+            <field name="product_type">custom</field>
             <field name="categ_id" ref="hp_sale.product_category_imex"/>
             <field name="list_price">500</field>
         </record>
@@ -110,6 +123,7 @@
         <record id="product_doc_phyto_1" model="product.template">
             <field name="name">Chi phí làm Phyto</field>
             <field name="type">services</field>
+            <field name="product_type">services</field>
             <field name="categ_id" ref="hp_sale.product_category_doc_phyto"/>
             <field name="complete_time">3</field>
             <field name="list_price">700</field>
@@ -118,6 +132,7 @@
         <record id="product_doc_phyto_2" model="product.template">
             <field name="name">Chi phí làm Phyto Show Hun trùng</field>
             <field name="type">services</field>
+            <field name="product_type">services</field>
             <field name="categ_id" ref="hp_sale.product_category_doc_phyto"/>
             <field name="complete_time">3</field>
             <field name="list_price">750</field>
@@ -127,6 +142,7 @@
         <record id="product_doc_co_1" model="product.template">
             <field name="name">Chi phí làm CO</field>
             <field name="type">services</field>
+            <field name="product_type">services</field>
             <field name="categ_id" ref="hp_sale.product_category_doc_co"/>
             <field name="complete_time">1</field>
             <field name="list_price">300</field>
@@ -136,6 +152,7 @@
         <record id="product_doc_package_1" model="product.template">
             <field name="name">Cont 20'</field>
             <field name="type">services</field>
+            <field name="product_type">services</field>
             <field name="categ_id" ref="hp_sale.product_category_doc_package"/>
             <field name="list_price">300</field>
         </record>
@@ -143,6 +160,7 @@
         <record id="product_doc_package_2" model="product.template">
             <field name="name">Cont 40'</field>
             <field name="type">services</field>
+            <field name="product_type">services</field>
             <field name="categ_id" ref="hp_sale.product_category_doc_package"/>
             <field name="list_price">400</field>
         </record>
@@ -151,6 +169,7 @@
         <record id="product_fumigation_1" model="product.template">
             <field name="name">48-50 g/m3</field>
             <field name="type">services</field>
+            <field name="product_type">services</field>
             <field name="categ_id" ref="hp_sale.product_category_doc_fumigation"/>
             <field name="list_price">350</field>
         </record>
@@ -158,6 +177,7 @@
         <record id="product_fumigation_2" model="product.template">
             <field name="name">80 g/m3</field>
             <field name="type">services</field>
+            <field name="product_type">services</field>
             <field name="categ_id" ref="hp_sale.product_category_doc_fumigation"/>
             <field name="list_price">500</field>
         </record>
@@ -165,6 +185,7 @@
         <record id="product_fumigation_3" model="product.template">
             <field name="name">Australia /ISPMl 5</field>
             <field name="type">services</field>
+            <field name="product_type">services</field>
             <field name="categ_id" ref="hp_sale.product_category_doc_fumigation"/>
             <field name="list_price">2000</field>
         </record>
@@ -172,6 +193,7 @@
         <record id="product_fumigation_4" model="product.template">
             <field name="name">Australia I AFAS</field>
             <field name="type">services</field>
+            <field name="product_type">services</field>
             <field name="categ_id" ref="hp_sale.product_category_doc_fumigation"/>
             <field name="list_price">2500</field>
         </record>
@@ -180,6 +202,7 @@
         <record id="product_doc_lift_on_off_1" model="product.template">
             <field name="name">Cont 20' Rỗng</field>
             <field name="type">services</field>
+            <field name="product_type">services</field>
             <field name="categ_id" ref="hp_sale.product_category_doc_lift_on_off"/>
             <field name="list_price">900</field>
         </record>
@@ -187,6 +210,7 @@
         <record id="product_doc_lift_on_off_2" model="product.template">
             <field name="name">Cont 40' Rỗng</field>
             <field name="type">services</field>
+            <field name="product_type">services</field>
             <field name="categ_id" ref="hp_sale.product_category_doc_lift_on_off"/>
             <field name="list_price">1300</field>
         </record>
@@ -194,6 +218,7 @@
         <record id="product_doc_lift_on_off_3" model="product.template">
             <field name="name">Cont 20' Hàng</field>
             <field name="type">services</field>
+            <field name="product_type">services</field>
             <field name="categ_id" ref="hp_sale.product_category_doc_lift_on_off"/>
             <field name="list_price">920</field>
         </record>
@@ -201,6 +226,7 @@
         <record id="product_doc_lift_on_off_4" model="product.template">
             <field name="name">Cont 40' Hàng</field>
             <field name="type">services</field>
+            <field name="product_type">services</field>
             <field name="categ_id" ref="hp_sale.product_category_doc_lift_on_off"/>
             <field name="list_price">1350</field>
         </record>
@@ -208,13 +234,15 @@
         <record id="product_truck_freight" model="product.template">
             <field name="name">Truck Freight</field>
             <field name="type">truck_freight</field>
-            <field name="categ_id" ref="hp_sale.product_category_sea_freight"/>
+            <field name="product_type">truck_freight</field>
+            <field name="categ_id" ref="hp_sale.product_category_truck_freight"/>
             <field name="list_price">0</field>
         </record>
         <record id="product_sea_freight" model="product.template">
             <field name="name">Sea Freight</field>
             <field name="type">sea_freight</field>
-            <field name="categ_id" ref="hp_sale.product_category_truck_freight"/>
+            <field name="product_type">sea_freight</field>
+            <field name="categ_id" ref="hp_sale.product_category_sea_freight"/>
             <field name="list_price">0</field>
         </record>
     </data>
