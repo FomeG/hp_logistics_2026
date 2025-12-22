@@ -32,10 +32,12 @@ class ShippingLineUpdateValidator(FreightValidator):
             'name': {
                 'label': f"Shipping Line Name",
                 'type': str,
+                'required': False,
             },
             'email': {
                 'label': f"Shipping Line Email",
                 'type': str,
+                'required': False,
                 'format': 'email',
             },
         }

@@ -59,7 +59,10 @@
                                     <hr/>
                                     <group>
                                         <group>
-                                            <field name="name" string="Contact Name" required="type == 'contact'" placeholder="e.g. New Address"/>
+                                            <field name="name"
+                                                   string="Contact Name"
+                                                   required="1"
+                                                   placeholder="e.g. New Address"/>
                                             <field name="title" options="{'no_open': True}" placeholder="e.g. Mr." invisible="type != 'contact'"/>
                                             <field name="function" placeholder="e.g. Sales Director" invisible="type != 'contact'"/>
                                             <label for="street" string="Address" invisible="type == 'contact'"/>
@@ -75,7 +78,9 @@
                                             </div>
                                         </group>
                                         <group>
-                                            <field name="email" widget="email"/>
+                                            <field name="email"
+                                                   required="1"
+                                                   widget="email"/>
                                             <field name="phone" widget="phone"/>
                                             <field name="mobile" widget="phone"/>
                                             <field name="company_id" invisible="1"/>
