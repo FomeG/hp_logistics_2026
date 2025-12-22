@@ -23,5 +23,13 @@
             action="hr_team_action"
             groups="base.group_system"
             sequence="12" />
+
+        <menuitem
+            id="hp_menu_department_replacement"
+            name="Departments"
+            parent="hr.menu_hr_root"
+            action="hp_department_kanban_action"
+            groups="hr.group_hr_user"
+            sequence="7" />
     </data>
 </odoo>

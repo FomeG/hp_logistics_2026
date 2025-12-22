@@ -45,7 +45,7 @@
             </xpath>
         </field>
     </record>
-
+    
     <record id="add_department_type_to_view_department_filter" model="ir.ui.view">
         <field name="name">add.department.type.to.view.department.filter</field>
         <field name="model">hr.department</field>
@@ -68,22 +68,6 @@
             </xpath>
         </field>
     </record>
-
-
-
-
-
-    
-    <!-- đặt group by mặc định trong action, mõi lần vào view sẽ tự động nhóm theo branch id -->
-    <record id="hr.hr_department_kanban_action" model="ir.actions.act_window">
-        <field name="context">{'group_by': 'branch_id'}</field>
-    </record>
-
-    <record id="hr.hr_department_tree_action" model="ir.actions.act_window">
-        <field name="context">{'group_by': 'branch_id'}</field>
-    </record>
-
-
 
 
 
