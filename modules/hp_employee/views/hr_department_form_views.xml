@@ -27,6 +27,7 @@
         <field name="arch" type="xml">
             <xpath expr="//list/field[@name='name']" position="after">
                 <field name="department_type_id"/>
+                <field name="branch_id"/>
             </xpath>
         </field>
     </record>
@@ -36,6 +37,9 @@
         <field name="model">hr.department</field>
         <field name="inherit_id" ref="hr.hr_department_view_kanban" />
         <field name="arch" type="xml">
+            <xpath expr="//kanban" position="inside">
+                <field name="branch_id" />
+            </xpath>
             <xpath expr="//t[@t-name='card']/a/field[@name='name']" position="after">
                 <field name="department_type_id" class="text-muted small ms-2" />
             </xpath>
@@ -57,6 +61,30 @@
                 <filter string="Customer Service" name="cs"
                     domain="[('department_type_id.code','=','cs')]" />
             </xpath>
+            <xpath expr="//search" position="inside">
+                <group expand="0" string="Group By">
+                    <filter string="Branch" name="group_by_branch" context="{'group_by': 'branch_id'}" />
+                </group>
+            </xpath>
         </field>
     </record>
+
+
+
+
+
+    
+    <!-- đặt group by mặc định trong action, mõi lần vào view sẽ tự động nhóm theo branch id -->
+    <record id="hr.hr_department_kanban_action" model="ir.actions.act_window">
+        <field name="context">{'group_by': 'branch_id'}</field>
+    </record>
+
+    <record id="hr.hr_department_tree_action" model="ir.actions.act_window">
+        <field name="context">{'group_by': 'branch_id'}</field>
+    </record>
+
+
+
+
+
 </odoo>
