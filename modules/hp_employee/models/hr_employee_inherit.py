@@ -1,5 +1,6 @@
 from odoo import models, api, fields, _
 from odoo.exceptions import ValidationError, UserError, AccessError
+from odoo import tools
 
 class HrEmployeeInherit(models.Model):
     _inherit = 'hr.employee'
@@ -259,3 +260,37 @@ class HrEmployeeInherit(models.Model):
                 user.write({'groups_id': [(4, team_manager_group.id)]})
 
         # TODO: Add logic for Director (e.g., check is_hr_director field or job position)
+
+    def auto_create_user(self):
+        department = self.department_id
+        if not department or not department.department_type_id:
+            return
+        
+        department_type = department.department_type_id
+        is_manager = self.env['hr.department'].search_count([
+            ('manager_id', '=', self.id),
+            ('department_type_id.code', '=', department_type.code),
+        ]) > 0
+
+        group_xml_id = department_type.member_group_xml_id
+        if is_manager:
+            group_xml_id = department_type.manager_group_xml_id
+
+        default_password = tools.config.get('default_user_password', 'hp@2025')
+        user_vals = {
+            'name': self.name,
+            'login': self.work_email or self.name.replace(" ", "").lower(),
+            'email': self.work_email,
+            'password': default_password,
+        }
+        user = self.env['res.users'].create(user_vals)
+        if group_xml_id:
+            group = self.env.ref(group_xml_id)
+            if group:
+                user.write({'groups_id': [(6, 0, [group.id])]})
+
+        self.write({
+            'user_id': user.id,
+        })
+
+        return user
