@@ -85,13 +85,13 @@
         <record id="product_category_sea_freight" model="product.category">
             <field name="name">Sea Freight</field>
             <field name="parent_id" eval="False"/>
-            <field name="service_type">export</field>
+            <field name="service_type">oversea</field>
         </record>
 
         <record id="product_category_truck_freight" model="product.category">
             <field name="name">Truck Freight</field>
             <field name="parent_id" eval="False"/>
-            <field name="service_type">export</field>
+            <field name="service_type">land</field>
         </record>
     </data>
 </odoo>
