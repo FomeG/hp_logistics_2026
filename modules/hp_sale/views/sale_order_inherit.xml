@@ -411,11 +411,4 @@
         </field>
     </record>
 
-    <record id="action_quotations_dynamic" model="ir.actions.server">
-        <field name="name">Quotations</field>
-        <field name="model_id" ref="sale.model_sale_order"/>
-        <field name="state">code</field>
-        <field name="code">action = model.action_quotations_dynamic()</field>
-    </record>
-
 </odoo>

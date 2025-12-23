@@ -158,11 +158,14 @@
 
     
     <record id="sale.menu_sale_quotations" model="ir.ui.menu">
-        <field name="active" eval="False"/>
+        <field name="active" eval="True"/>
     </record>
-    <menuitem id="menu_sale_quotations_salesman"
-          name="Quotations"
-          parent="sale.sale_order_menu"
-          action="hp_sale.action_quotations_dynamic"
-          sequence="10"/>
+
+    <menuitem id="menu_sale_quotations_sale_lead"
+        name="Quotations Sent To Leader"
+        parent="sale.sale_order_menu"
+        action="hp_sale.action_quotations_send_to_leader"
+        groups="sales_team.group_sale_salesman_all_leads"
+        sequence="15"/>
+
 </odoo>

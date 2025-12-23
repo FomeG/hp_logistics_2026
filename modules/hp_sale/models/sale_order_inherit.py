@@ -677,25 +677,3 @@ class SaleOrderInherit(models.Model):
             if record.is_sea_exp_location:
                 return f"Select Freight Price For Trip {record.goods_location_id.name} - {record.from_location_id.name} - {record.to_location_id.name}"
             return f"Select Freight Price For {record.from_location_id.name} - {record.to_location_id.name}"
-    
-    @api.model
-    def action_quotations_dynamic(self):
-        user_service = self.env['hp_components.user.service']
-        if user_service.is_salesman_leader():
-            context = {'search_default_sent_to_leader': 1}
-        else:
-            context = {'search_default_my_quotation': 1}
-        
-        return {
-            'name': 'Quotations',
-            'type': 'ir.actions.act_window',
-            'res_model': 'sale.order',
-            'view_mode': 'list,kanban,form,calendar,pivot,graph,activity',
-            'views': [
-                (self.env.ref('sale.view_quotation_tree_with_onboarding').id, 'list'),
-                (self.env.ref('sale.view_order_form').id, 'form'),
-            ],
-            'search_view_id': [self.env.ref('sale.sale_order_view_search_inherit_quotation').id],
-            'context': context,
-            'domain': [],
-        }
