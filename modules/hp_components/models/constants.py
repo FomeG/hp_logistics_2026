@@ -70,6 +70,22 @@ class ServiceType:
         (OTHER, 'Other'),
     ]
 
+class ProductCategoryServiceType:
+    IMPORT = 'import'
+    EXPORT = 'export'
+    DOMESTIC = 'domestic'
+    OTHER = 'other'
+    OVERSEA = 'oversea'
+    LAND = 'land'
+    SELECT_OPTIONS = [
+        (IMPORT, 'Import'),
+        (EXPORT, 'Export'),
+        (DOMESTIC, 'Domestic'),
+        (OVERSEA, 'Oversea'),
+        (LAND, 'Land'),
+        (OTHER, 'Other'),
+    ]
+
 class SaleOrderState:
     DRAFT = 'draft' #quotation
     SENT_TO_CLIENT = 'sent_to_client'
