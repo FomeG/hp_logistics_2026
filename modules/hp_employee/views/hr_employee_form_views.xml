@@ -33,6 +33,12 @@
             </xpath>
             <xpath expr="//field[@name='department_id']" position="attributes">
                 <attribute name="domain">[('branch_id', '=', current_user_branch_id)]</attribute>
+                <attribute name="groups">!base.group_system</attribute> 
+            </xpath>
+            <xpath expr="//field[@name='department_id']" position="after">
+                <field name="department_id" 
+                    string="Department" 
+                    groups="base.group_system"/>
             </xpath>
 
         </field>

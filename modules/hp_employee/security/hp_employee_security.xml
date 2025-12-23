@@ -13,21 +13,21 @@
 
         <!-- Cấp 1: HR User (Kế thừa Internal User) -->
         <record id="group_hr_user" model="res.groups">
-            <field name="name">HP HR User</field>
+            <field name="name">HR User</field>
             <field name="category_id" ref="hp"/>
             <field name="implied_ids" eval="[(4, ref('hr.group_hr_user'))]"/> 
         </record>
 
         <!-- Cấp 2: HR Team Manager (Kế thừa HR User) -->
         <record id="group_hr_lead" model="res.groups">
-            <field name="name">HP HR Team Manager</field>
+            <field name="name">HR Team Manager</field>
             <field name="category_id" ref="hp"/>
             <field name="implied_ids" eval="[(4, ref('group_hr_user'))]"/>
         </record>
 
         <!-- Cấp 3: HR Director (Kế thừa HR Team Manager) -->
         <record id="group_hr_director" model="res.groups">
-            <field name="name">HP HR Director</field>
+            <field name="name">HR Director</field>
             <field name="category_id" ref="hp"/>
             <field name="implied_ids" eval="[(4, ref('group_hr_lead'))]"/>
         </record>
