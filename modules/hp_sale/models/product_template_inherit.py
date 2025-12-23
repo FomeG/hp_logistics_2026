@@ -152,7 +152,7 @@ class ProductTemplate(models.Model):
         for line in lines:
             source_currency = line.currency_id or self.env.company.currency_id
 
-            price_in_so_currency = so._convert_to_order_currency(line.list_price, source_currency)
+            price_in_so_currency = so.pricelist_id._get_product_price(line.product_variant_id, 1.0)
 
             values.append({
                 'name': line.name,

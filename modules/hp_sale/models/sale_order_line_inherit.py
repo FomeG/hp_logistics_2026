@@ -29,6 +29,7 @@ class SaleOrderLineInherit(models.Model):
     currency_id_line = fields.Many2one(
         'res.currency',
         string='Line Currency',
+        compute='_compute_currency_id_line',
         default=lambda self: self.env.company.currency_id
     )
 
@@ -36,7 +37,8 @@ class SaleOrderLineInherit(models.Model):
     price_unit_original = fields.Float(
         string='Original Price',
         digits='Product Price',
-        default=0.0
+        default=0.0,
+        store = True
     )
 
     order_currency_rate = fields.Float(
@@ -57,6 +59,14 @@ class SaleOrderLineInherit(models.Model):
         readonly=True,
         store=False
     )
+
+    @api.depends('product_id', 'order_id.pricelist_id')
+    def _compute_currency_id_line(self):
+        for line in self:
+            if line.order_id.pricelist_id:
+                line.currency_id_line = line.order_id.pricelist_id.currency_id
+            else:
+                line.currency_id_line = line.company_id.currency_id
 
     @api.depends('price_unit_original','currency_id_line','order_currency_rate','order_currency_id','order_ref_currency_id')
     def _compute_price_unit(self):
@@ -99,6 +109,34 @@ class SaleOrderLineInherit(models.Model):
 
     @api.onchange('price_unit')
     def _onchange_price_unit_reverse(self):
+        for line in self:
+            if line.currency_id_line and line.order_id and line.currency_id_line == line.order_id.currency_id:
+                line.price_unit_original = line.price_unit
+
+    @api.onchange('product_id', 'product_uom', 'product_uom_qty')
+    def _onchange_product_id_set_price_from_pricelist(self):
+        """Khi chọn sản phẩm, lấy giá từ Pricelist của đơn hàng gán vào price_unit_original"""
+        if not self.product_id or not self.order_id.pricelist_id:
+            return
+
+        # Lấy giá từ Pricelist dựa trên số lượng và đơn vị tính
+        price = self.order_id.pricelist_id._get_product_price(
+            self.product_id,
+            self.product_uom_qty or 1.0,
+            uom=self.product_uom
+        )
+
+        self.price_unit_original = price
+        self.currency_id_line = self.order_id.pricelist_id.currency_id
+        self._compute_price_unit()
+
+    @api.onchange('price_unit_original', 'currency_id_line')
+    def _onchange_price_unit_original(self):
+        self._compute_price_unit()
+
+    @api.onchange('price_unit')
+    def _onchange_price_unit_reverse(self):
+        """Nếu sửa trực tiếp price_unit (VND), cập nhật ngược lại giá gốc nếu cùng tiền tệ"""
         for line in self:
             if line.currency_id_line and line.order_id and line.currency_id_line == line.order_id.currency_id:
                 line.price_unit_original = line.price_unit
