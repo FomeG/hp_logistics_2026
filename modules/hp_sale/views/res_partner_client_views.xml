@@ -75,21 +75,40 @@
                             <field name="mobile" widget="phone" />
                             <field name="email" widget="email" context="{'gravatar_image': True}"
                                 required="user_ids" />
-                            <field name="branch_id" required="1" />
+                            <field name="is_sale_man_user" invisible="1" />
+                            <field name="is_system_user" invisible="1" />
+                            <field name="sale_user_ids" invisible="1" />
+
+
+                            <field name="branch_id"
+                                required="1"
+                                readonly="is_system_user == False"
+                                options="{'no_create': True}"
+                                groups="sales_team.group_sale_manager,sales_team.group_sale_salesman_all_leads,base.group_system"
+                            />
+
+
                         </group>
                     </group>
 
                     <notebook colspan="4">
-                        <page name='sales_purchases' string="Sales" autofocus="autofocus">
+                         <page name='sales_purchases' string="Sales" autofocus="autofocus" groups="sales_team.group_sale_manager,sales_team.group_sale_salesman_all_leads,base.group_system">
                             <group name="container_row_2">
                                 <group string="Sales" name="sale" priority="1">
+                                    
                                     <field name="user_id"
+                                        required="1"
                                         widget="many2one_avatar_user"
-                                        readonly="is_sale_man_user"
-                                        domain="[('id', 'in', sale_user_ids)]" />
+                                        domain="[('id', 'in', sale_user_ids)]"
+                                        options="{'no_quick_create': True, 'no_create_edit': True}"
+                                        groups="sales_team.group_sale_manager,sales_team.group_sale_salesman_all_leads,base.group_system"
+                                    />
+                                    
                                 </group>
                             </group>
                         </page>
+
+
                         <page string="Contacts &amp; Addresses" name="contact_addresses">
                             <field name="child_ids" mode="kanban"
                                 context="{'default_parent_id': partner_id.id, 'default_street': street, 'default_street2': street2, 'default_city': city, 'default_state_id': state_id, 'default_zip': zip, 'default_country_id': country_id, 'default_lang': lang, 'default_user_id': user_id, 'default_type': 'other'}">

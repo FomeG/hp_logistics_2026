@@ -21,29 +21,61 @@ class ResPartnerClient(models.Model):
     )
 
     is_sale_man_user = fields.Boolean(string="Is Sale Man", compute="_compute_is_sale_man_user", store=False)
+    is_system_user = fields.Boolean(
+        string="Is System User",
+        compute="_compute_is_system_user",
+        default=lambda self: self.env.user.has_group('base.group_system'),
+    )
     sale_user_ids = fields.Many2many('res.users', compute='_compute_sale_user_ids', store=False)
     _unique_fields = ["vat", "ref", "phone"]
 
-    @api.depends()
+    @api.depends_context('uid')
     def _compute_is_sale_man_user(self):
         for client in self:
             client.is_sale_man_user = client.is_only_group_sale_salesman()
+
+
+    @api.depends_context('uid')
+    def _compute_is_system_user(self):
+        is_system = self.env.user.has_group('base.group_system')
+        for client in self:
+            client.is_system_user = is_system
     
-    @api.depends()
+    @api.depends('branch_id')
     def _compute_sale_user_ids(self):
         sale_dept_type = self.env['department.type'].search([('code', '=', 'sale')], limit=1)
-        if not sale_dept_type:
-            for client in self:
-                client.sale_user_ids = self.env['res.users']
-            return
-        sale_departments = self.env['hr.department'].search([('department_type_id', '=', sale_dept_type.id)])
-        sale_employees = self.env['hr.employee'].search([('department_id', 'in', sale_departments.ids)])
-        users = sale_employees.mapped('user_id').filtered(lambda u: u.active and not u.share)
-        admin_user = self.env.ref('base.user_admin', raise_if_not_found=False)
-        if admin_user and admin_user in users:
-            users = users - admin_user
+        
+        current_user = self.env.user
+        is_admin = current_user.has_group('base.group_system')
+        # is_manager = current_user.has_group('sales_team.group_sale_manager')
+
         for client in self:
+            if client.is_only_group_sale_salesman():
+                client.sale_user_ids = current_user
+                continue
+            domain_emp = [('user_id', '!=', False)]
+            if sale_dept_type:
+                domain_emp.append(('department_id.department_type_id', '=', sale_dept_type.id))
+
+            if client.branch_id:
+                domain_emp.append(('department_id.branch_id', '=', client.branch_id.id))
+            else:
+                if is_admin:
+                    pass 
+                else:
+                    client.sale_user_ids = self.env['res.users'] 
+                    continue
+            employees = self.env['hr.employee'].search(domain_emp)
+            
+            users = employees.mapped('user_id').filtered(lambda u: u.active and not u.share)
+
+            if not is_admin:
+                users = users.filtered(lambda u: not u.has_group('base.group_system'))
+
             client.sale_user_ids = users
+
+
+
 
     @api.onchange('user_id')
     def _onchange_user_id(self):
@@ -104,3 +136,79 @@ class ResPartnerClient(models.Model):
             'target': 'new',
         }
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def _default_branch_id(self):
+        import logging
+        _logger = logging.getLogger(__name__)
+        
+        # Skip auto-fill for system admin
+        if self.env.user.has_group('base.group_system'):
+            _logger.error(f"User {self.env.user.login} is admin - skip auto-fill branch")
+            return False
+        
+        current_user = self.env.user
+        _logger.error(f"Auto-filling branch for user {current_user.login}, has employee: {bool(current_user.employee_id)}")
+        
+        if current_user.employee_id and current_user.employee_id.department_id:
+            branch = current_user.employee_id.department_id.branch_id
+            _logger.error(f"Found branch: {branch.name if branch else 'None'}")
+            return branch
+        
+        _logger.warning(f"User {current_user.login} has no employee or department configured")
+        return False
+
+
+
+
+    def _default_user_id(self):
+        if not self.is_only_group_sale_salesman():
+            return False
+        
+        return self.env.user
+
+
+
+
+
+
+
+    @api.model
+    def default_get(self, fields_list):
+        defaults = super().default_get(fields_list)
+        
+        if not self.env.user.has_group('base.group_system'):
+            if 'branch_id' in fields_list and not defaults.get('branch_id'):
+                emp = self.env.user.employee_id
+                if emp and emp.department_id.branch_id:
+                    defaults['branch_id'] = emp.department_id.branch_id.id
+        
+        if self.is_only_group_sale_salesman():
+            if 'user_id' in fields_list:
+                defaults['user_id'] = self.env.user.id
+                
+        return defaults
