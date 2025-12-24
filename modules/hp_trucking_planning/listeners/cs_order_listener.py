@@ -4,7 +4,7 @@
 from odoo.addons.component.core import Component
 from odoo.addons.hp_components.models import constants
 from ...hp_components.services.department_service import DepartmentService
-from ..services.cs_order_service import CsOrderService
+from odoo.addons.hp_customer_service.services.cs_order_service import CsOrderService
 
 
 class CsOrderCreateTruckingListener(Component):
