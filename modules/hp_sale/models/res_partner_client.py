@@ -46,44 +46,57 @@ class ResPartnerClient(models.Model):
         sale_dept_type = self.env['department.type'].search([('code', '=', 'sale')], limit=1)
         
         current_user = self.env.user
+        current_employee = current_user.employee_id
         is_admin = current_user.has_group('base.group_system')
-        # is_manager = current_user.has_group('sales_team.group_sale_manager')
 
         for client in self:
             if client.is_only_group_sale_salesman():
                 client.sale_user_ids = current_user
                 continue
-            domain_emp = [('user_id', '!=', False)]
-            if sale_dept_type:
-                domain_emp.append(('department_id.department_type_id', '=', sale_dept_type.id))
-
-            if client.branch_id:
-                domain_emp.append(('department_id.branch_id', '=', client.branch_id.id))
-            else:
-                if is_admin:
-                    pass 
-                else:
-                    client.sale_user_ids = self.env['res.users'] 
-                    continue
-            employees = self.env['hr.employee'].search(domain_emp)
             
-            users = employees.mapped('user_id').filtered(lambda u: u.active and not u.share)
-
-            if not is_admin:
-                users = users.filtered(lambda u: not u.has_group('base.group_system'))
-
-            client.sale_user_ids = users
+            if is_admin:
+                domain_emp = [('user_id', '!=', False)]
+                if sale_dept_type:
+                    domain_emp.append(('department_id.department_type_id', '=', sale_dept_type.id))
+                
+                employees = self.env['hr.employee'].search(domain_emp)
+                users = employees.mapped('user_id').filtered(lambda u: u.active and not u.share)
+                client.sale_user_ids = users
+                continue
+            
+            if current_employee:
+                subordinates = self.env['hr.employee'].search([
+                    ('parent_id', '=', current_employee.id),
+                    ('user_id', '!=', False)
+                ])
+                
+                if subordinates:
+                    all_employees = subordinates | current_employee
+                    users = all_employees.mapped('user_id').filtered(lambda u: u.active and not u.share)
+                    users = users.filtered(lambda u: not u.has_group('base.group_system'))
+                    client.sale_user_ids = users
+                    continue
+            
+            if current_user:
+                client.sale_user_ids = current_user
+            else:
+                client.sale_user_ids = self.env['res.users']
 
 
 
 
     @api.onchange('user_id')
     def _onchange_user_id(self):
-        if not self._origin.id:
-            return
-        if self.is_only_group_sale_salesman():
+        # Kiểm tra nếu là salesman thường thì không cho đổi
+        if self._origin.id and self.is_only_group_sale_salesman():
             self.user_id = self._origin.user_id
             raise UserError(_("Can not change saleperson"))
+        
+        # Tự động cập nhật branch_id theo branch của employee được chọn
+        if self.user_id and self.user_id.employee_id:
+            employee = self.user_id.employee_id
+            if employee.department_id and employee.department_id.branch_id:
+                self.branch_id = employee.department_id.branch_id
 
     @api.model_create_multi
     def create(self, vals_list):
