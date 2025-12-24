@@ -102,7 +102,7 @@ class HpDepartmentInherit(models.Model):
                     # Xoá group cũ
                     if old_manager_id:
                         try:
-                            department._remove_group_of_manage(old_manager_id)
+                            department._remove_group_of_manager(old_manager_id)
                         except (ValidationError, ValueError) as e:
                             _logger.warning("Could not remove group from old manager: %s", str(e))
                     # Gán group mới
@@ -135,7 +135,7 @@ class HpDepartmentInherit(models.Model):
             manager = department.manager_id
             if manager:
                 try:
-                    department._remove_group_of_manage(manager.id)
+                    department._remove_group_of_manager(manager.id)
                 except (ValidationError, ValueError):
                     pass
 
@@ -190,7 +190,6 @@ class HpDepartmentInherit(models.Model):
 
 
     def _assign_group_to_manager(self, manager_id):
-        # SỬA: Thêm check .exists() để loại bỏ các ID rác
         if not self.department_type_id or not self.department_type_id.exists():
             _logger.warning("Cannot assign group: department_type_id is missing or deleted for department %s", self.name)
             return
@@ -198,7 +197,6 @@ class HpDepartmentInherit(models.Model):
         manager = self.env['hr.employee'].sudo().browse(manager_id)
         user = manager.user_id
         if not user:
-            # Sửa: Chỉ warning chứ không raise lỗi chặn dòng khi đang load data
             _logger.warning("Manager %s is not associated with user. Skipping group assignment.", manager.name)
             return 
             # raise ValidationError(_("Manager is not associated with user.")) 
@@ -223,13 +221,17 @@ class HpDepartmentInherit(models.Model):
 
 
     
-    def _remove_group_of_manage(self, manager_id):
-        # SỬA: Thêm check .exists()
+    def _remove_group_of_manager(self, manager_id):
         if not self.department_type_id or not self.department_type_id.exists():
             return
 
         manager = self.env['hr.employee'].sudo().browse(manager_id)
-        # ... (đoạn code giữa giữ nguyên) ...
+        count_department = self.env['hr.department'].sudo().search_count([
+            ('manager_id', '=', manager_id)
+        ]) 
+        user = manager.user_id
+        if not user or count_department > 1:
+            return
         
         try:
             group_xml_id = self._get_group_by_role(self.ROLE_MANAGER)
@@ -239,14 +241,6 @@ class HpDepartmentInherit(models.Model):
                     user.write({'groups_id': [(3, group.id)]})
         except ValidationError:
             pass
-
-
-
-
-
-
-
-
 
 
 
