@@ -2,7 +2,7 @@
 {
     'name': 'HP Sale',
     'description': "HP Sale",
-    'version': '1.0',
+    'version': '1.1',
     'sequence': 1,
     'author': 'NgocVu',
     'license': 'Other proprietary',

@@ -137,6 +137,13 @@ class SaleOrderInherit(models.Model):
     )
     allow_from_location_ids = fields.Many2many('location.base', compute='_compute_allow_from_location_ids', store=False)
     allow_to_location_ids = fields.Many2many('location.base', compute='_compute_allow_to_location_ids', store=False)
+    department_id = fields.Many2one('hr.department', compute='_compute_department_id', store=True)
+
+    @api.depends('user_id')
+    def _compute_department_id(self):
+        for rec in self:
+            employee = self.env['hr.employee'].search([('user_id', '=', rec.user_id.id)], limit=1)
+            rec.department_id = employee.department_id.id if employee else False
 
     @api.depends('service_type', 'main_transport_mode')
     def _compute_allow_from_location_ids(self):

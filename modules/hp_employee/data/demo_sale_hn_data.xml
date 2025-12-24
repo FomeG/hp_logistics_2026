@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
+        <record id="dep_sales_hn" model="hr.department">
+            <field name="name">Sales HN</field>
+            <field name="color" eval="5"/>
+            <field name="branch_id" ref="branch_hn" />
+            <field name="department_type_id" ref="hp_components.department_type_sale" />
+            <field name="manager_id" ref="emp_dos_hn" />
+        </record>
 
         <record id="user_dos_hn" model="res.users">
             <field name="name">DOS HN</field>
@@ -13,14 +20,7 @@
             <field name="job_title">Sale Director HN</field>
             <field name="user_id" ref="user_dos_hn"/>
             <field name="work_email">dos_hn@test.com</field>
-        </record>
-
-        <record id="dep_sales_hn" model="hr.department">
-            <field name="name">Sales HN</field>
-            <field name="color" eval="5"/>
-            <field name="branch_id" ref="branch_hn" />
-            <field name="department_type_id" ref="hp_components.department_type_sale" />
-            <field name="manager_id" ref="emp_dos_hn" />
+            <field name="department_id" ref="dep_sales_hn" />
         </record>
 
         <record forcecreate="True" id="user_sm1_hn" model="res.users">
