@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.odoo.tools import float_compare
 
 
 class SaleOrderLineInherit(models.Model):
@@ -59,6 +60,44 @@ class SaleOrderLineInherit(models.Model):
         readonly=True,
         store=False
     )
+
+    price_list_price = fields.Float(
+        string='Original Price',
+        compute='_compute_price_list_price',
+        digits='Product Price',
+        store=False,
+        help="Giá niêm yết gốc của sản phẩm trước khi áp dụng Pricelist"
+    )
+
+    @api.depends('product_id', 'price_unit_original', 'currency_id_line', 'order_id.pricelist_id')
+    def _compute_price_list_price(self):
+        """Tính toán Giá niêm yết gốc từ Product Template, quy đổi về tiền tệ của dòng. Chỉ hiển thị nếu nó khác với giá thực tế đã áp dụng (price_unit_original)."""
+        for line in self:
+            if not line.product_id:
+                line.price_list_price = 0.0
+                continue
+
+            product_price = line.product_id.list_price
+            product_currency = line.product_id.currency_id
+            line_currency = line.currency_id_line or line.order_id.currency_id or line.env.company.currency_id
+
+            # 3. Quy đổi giá niêm yết từ tiền tệ của Product sang tiền tệ của dòng
+            original_price_in_line_currency = product_currency._convert(
+                product_price,
+                line_currency,
+                line.company_id or line.env.company,
+                line.order_id.date_order or fields.Date.today()
+            )
+
+            # So sánh với giá đã áp dụng (đã qua pricelist)
+            prec = line_currency.rounding or 0.01
+
+            # Nếu giá gốc khác giá đã áp dụng (do pricelist làm thay đổi) -> Hiện giá gốc
+            if float_compare(line.price_unit_original, original_price_in_line_currency, precision_rounding=prec) != 0:
+                line.price_list_price = original_price_in_line_currency
+            else:
+                # Nếu bằng nhau -> Ẩn
+                line.price_list_price = 0.0
 
     @api.depends('product_id', 'order_id.pricelist_id')
     def _compute_currency_id_line(self):
