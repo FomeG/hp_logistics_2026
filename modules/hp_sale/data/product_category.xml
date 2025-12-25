@@ -7,91 +7,91 @@
         <record id="product_category_im" model="product.category">
             <field name="name">HÀNG NHẬP KHẨU HP</field>
             <field name="parent_id" eval="False"/>
-            <field name="service_type">import</field>
+<!--            <field name="service_type">import</field>-->
         </record>
 
         <record id="product_category_im_cont" model="product.category">
             <field name="parent_id" ref="product_category_im"/>
             <field name="name">CONT 20'/40'</field>
-            <field name="service_type">import</field>
+<!--            <field name="service_type">import</field>-->
         </record>
 
         <record id="product_category_im_lcl" model="product.category">
             <field name="parent_id" ref="product_category_im"/>
             <field name="name">HÀNG LCL</field>
-            <field name="service_type">import</field>
+<!--            <field name="service_type">import</field>-->
         </record>
 
         <record id="product_category_ex" model="product.category">
             <field name="name">HÀNG XUẤT KHẨU HP</field>
             <field name="parent_id" eval="False"/>
-            <field name="service_type">export</field>
+<!--            <field name="service_type">export</field>-->
         </record>
 
         <record id="product_category_ex_cont" model="product.category">
             <field name="parent_id" ref="product_category_ex"/>
             <field name="name">CONT 20'/40'</field>
-            <field name="service_type">export</field>
+<!--            <field name="service_type">export</field>-->
         </record>
 
         <record id="product_category_ex_lcl" model="product.category">
             <field name="parent_id" ref="product_category_ex"/>
             <field name="name">HÀNG LCL</field>
-            <field name="service_type">export</field>
+<!--            <field name="service_type">export</field>-->
         </record>
 
         <record id="product_category_imex" model="product.category">
             <field name="name">HÀNG XUẤT/NHẬP CCHQĐTGC, CHI CỤC HQ BẮC HÀ NỘI, CC HQ GIA LÂM</field>
             <field name="parent_id" eval="False"/>
-            <field name="service_type">other</field>
+<!--            <field name="service_type">other</field>-->
         </record>
 
         <record id="product_category_doc" model="product.category">
             <field name="name">PHÍ CHỨNG TỪ</field>
             <field name="parent_id" eval="False"/>
-            <field name="service_type">other</field>
+<!--            <field name="service_type">other</field>-->
         </record>
 
         <record id="product_category_doc_phyto" model="product.category">
             <field name="parent_id" ref="product_category_doc"/>
             <field name="name">Phyto</field>
-            <field name="service_type">other</field>
+<!--            <field name="service_type">other</field>-->
         </record>
 
         <record id="product_category_doc_co" model="product.category">
             <field name="parent_id" ref="product_category_doc"/>
             <field name="name">C/O</field>
-            <field name="service_type">other</field>
+<!--            <field name="service_type">other</field>-->
         </record>
 
          <record id="product_category_doc_package" model="product.category">
             <field name="parent_id" ref="product_category_doc"/>
             <field name="name">Đóng hàng tại bãi</field>
-            <field name="service_type">domestic</field>
+<!--            <field name="service_type">domestic</field>-->
         </record>
 
         <record id="product_category_doc_fumigation" model="product.category">
             <field name="parent_id" ref="product_category_doc"/>
             <field name="name">Phí Hun Trùng</field>
-            <field name="service_type">domestic</field>
+<!--            <field name="service_type">domestic</field>-->
         </record>
 
         <record id="product_category_doc_lift_on_off" model="product.category">
             <field name="parent_id" ref="product_category_doc"/>
             <field name="name">Chi phí nâng hạ tại Cảng </field>
-            <field name="service_type">domestic</field>
+<!--            <field name="service_type">domestic</field>-->
         </record>
 
         <record id="product_category_sea_freight" model="product.category">
             <field name="name">Sea Freight</field>
             <field name="parent_id" eval="False"/>
-            <field name="service_type">oversea</field>
+<!--            <field name="service_type">oversea</field>-->
         </record>
 
         <record id="product_category_truck_freight" model="product.category">
             <field name="name">Truck Freight</field>
             <field name="parent_id" eval="False"/>
-            <field name="service_type">land</field>
+<!--            <field name="service_type">land</field>-->
         </record>
     </data>
 </odoo>

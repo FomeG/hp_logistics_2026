@@ -14,6 +14,7 @@
     'data': [
         # data
         'data/product_category.xml',
+        'data/product_tag_data.xml',
         'data/product_data.xml',
         'data/pricelist_data.xml',
         'data/demo_selling_week_data.xml',

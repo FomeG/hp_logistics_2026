@@ -6,7 +6,7 @@
         <field name="inherit_id" ref="product.product_category_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='parent_id']" position="before">
-                <field name="service_type"/>
+<!--                <field name="service_type"/>-->
             </xpath>
         </field>
     </record>
@@ -18,7 +18,7 @@
         <field name="inherit_id" ref="product.product_category_list_view"/>
         <field name="arch" type="xml">
             <field name="display_name" position="after">
-                <field name="service_type" class="oe_inline"/>
+<!--                <field name="service_type" class="oe_inline"/>-->
             </field>
         </field>
     </record>
@@ -30,7 +30,7 @@
         <field name="inherit_id" ref="product.product_category_search_view"/>
         <field name="arch" type="xml">
             <field name="parent_id" position="after">
-                <filter string="Service Type" name="service_type" context="{'group_by':'service_type'}"/>
+<!--                <filter string="Service Type" name="service_type" context="{'group_by':'service_type'}"/>-->
             </field>
         </field>
     </record>

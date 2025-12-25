@@ -469,6 +469,15 @@ class SaleOrderInherit(models.Model):
         }
 
     def select_normal_product(self):
+        self.ensure_one()
+        # danh sách tên Tag luôn được phép chọn
+        allowed_tag_names = list(constants.DEFAULT_NORMAL_PRODUCT_TAGS)
+        # thêm các Tag tương ứng với service_type của Sale Order
+        additional_tags = constants.SERVICE_TYPE_TO_TAG_MAP.get(self.service_type, [])
+        allowed_tag_names.extend(additional_tags)
+
+        tag_ids = self.env['product.tag'].search([('name', 'in', allowed_tag_names)]).ids
+
         return {
             'type': 'ir.actions.act_window',
             'name': 'Select Normal Product',
@@ -480,7 +489,8 @@ class SaleOrderInherit(models.Model):
             ],
             'target': 'new',
             'domain': [
-                ('categ_id.service_type', '=', self.service_type),
+                ('product_tag_ids', 'in', tag_ids),
+                ('product_type', 'in', [constants.ProductTemplateType.CUSTOM, constants.ProductTemplateType.SERVICES])
             ],
             'context': {
                 'sale_order_id': self.id,

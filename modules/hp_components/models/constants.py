@@ -70,21 +70,41 @@ class ServiceType:
         (OTHER, 'Other'),
     ]
 
-class ProductCategoryServiceType:
-    IMPORT = 'import'
-    EXPORT = 'export'
-    DOMESTIC = 'domestic'
-    OTHER = 'other'
-    OVERSEA = 'oversea'
-    LAND = 'land'
-    SELECT_OPTIONS = [
-        (IMPORT, 'Import'),
-        (EXPORT, 'Export'),
-        (DOMESTIC, 'Domestic'),
-        (OVERSEA, 'Oversea'),
-        (LAND, 'Land'),
-        (OTHER, 'Other'),
-    ]
+# class ProductCategoryServiceType:
+#     IMPORT = 'import'
+#     EXPORT = 'export'
+#     DOMESTIC = 'domestic'
+#     OTHER = 'other'
+#     OVERSEA = 'oversea'
+#     LAND = 'land'
+#     SELECT_OPTIONS = [
+#         (IMPORT, 'Import'),
+#         (EXPORT, 'Export'),
+#         (DOMESTIC, 'Domestic'),
+#         (OVERSEA, 'Oversea'),
+#         (LAND, 'Land'),
+#         (OTHER, 'Other'),
+#     ]
+
+class ProductTagName:
+    IMPORT = 'Import'
+    EXPORT = 'Export'
+    DOMESTIC = 'Domestic'
+    LAND = 'Land'
+    OVERSEA = 'Oversea'
+
+DEFAULT_NORMAL_PRODUCT_TAGS = [
+    ProductTagName.DOMESTIC,
+    ProductTagName.LAND,
+    ProductTagName.OVERSEA
+]
+
+SERVICE_TYPE_TO_TAG_MAP = {
+    ServiceType.IMPORT: [ProductTagName.IMPORT],
+    ServiceType.EXPORT: [ProductTagName.EXPORT],
+    ServiceType.OTHER: [ProductTagName.IMPORT, ProductTagName.EXPORT],
+    ServiceType.DOMESTIC: [ProductTagName.DOMESTIC],
+}
 
 class SaleOrderState:
     DRAFT = 'draft' #quotation

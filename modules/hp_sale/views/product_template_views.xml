@@ -100,6 +100,11 @@
                 <xpath expr="//page[@name='variants']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
+                <!-- Add tags field-->
+                <xpath expr="//field[@name='categ_id']" position="after">
+                    <field name="product_tag_ids" widget="many2many_tags" placeholder="Tags (Import, Export, Domestic...)"
+                           readonly="id and not is_editable"/>
+                </xpath>
             </field>
         </record>
 
