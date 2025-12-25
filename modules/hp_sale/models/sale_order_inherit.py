@@ -676,6 +676,11 @@ class SaleOrderInherit(models.Model):
 
             record._validate_form(vals)
 
+        if 'state' in vals and len(self) == 1:
+            ctx = dict(self.env.context)
+            ctx['old_state'] = self.state
+            return super(SaleOrderInherit, self.with_context(ctx)).write(vals)
+
         return super().write(vals)
 
     def action_open_freight_price_wizard(self):
