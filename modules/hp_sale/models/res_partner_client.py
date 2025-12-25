@@ -26,6 +26,11 @@ class ResPartnerClient(models.Model):
         compute="_compute_is_system_user",
         default=lambda self: self.env.user.has_group('base.group_system'),
     )
+    is_owner_or_admin = fields.Boolean(
+        string="Is Owner or Admin",
+        compute="_compute_is_owner_or_admin",
+        default=lambda self: self.env.user.has_group('base.group_system'),
+    )
     sale_user_ids = fields.Many2many('res.users', compute='_compute_sale_user_ids', store=False)
     _unique_fields = ["vat", "ref", "phone"]
 
@@ -40,7 +45,17 @@ class ResPartnerClient(models.Model):
         is_system = self.env.user.has_group('base.group_system')
         for client in self:
             client.is_system_user = is_system
-    
+
+    @api.depends_context('uid')
+    @api.depends('user_id', 'create_uid')
+    def _compute_is_owner_or_admin(self):
+        current_user = self.env.user
+        is_admin = current_user.has_group('base.group_system')
+        for client in self:
+            is_salesperson = client.user_id and client.user_id.id == current_user.id
+            is_creator = client.create_uid and client.create_uid.id == current_user.id
+            client.is_owner_or_admin = is_admin or is_salesperson or is_creator
+
     @api.depends('branch_id')
     def _compute_sale_user_ids(self):
         sale_dept_type = self.env['department.type'].search([('code', '=', 'sale')], limit=1)
@@ -146,7 +161,7 @@ class ResPartnerClient(models.Model):
                 'default_partner_id': self.partner_id.id,
                 'default_pricelist_id': self.partner_id.property_product_pricelist.id,
             },
-            'target': 'new',
+            'target': 'current',
         }
     
 

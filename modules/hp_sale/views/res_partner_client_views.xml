@@ -34,6 +34,7 @@
                             class="oe_stat_button"
                             icon="fa-file-text-o"
                             string="New Quotation"
+                            invisible="not is_owner_or_admin"
                             groups="sales_team.group_sale_salesman,sales_team.group_sale_manager" />
                     </div>
                     <div class="oe_button_box" name="button_box" />
@@ -77,6 +78,7 @@
                                 required="user_ids" />
                             <field name="is_sale_man_user" invisible="1" />
                             <field name="is_system_user" invisible="1" />
+                            <field name="is_owner_or_admin" invisible="1" />
                             <field name="sale_user_ids" invisible="1" />
 
 
