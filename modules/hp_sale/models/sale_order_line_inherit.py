@@ -1,5 +1,5 @@
 from odoo import models, fields, api
-from odoo.odoo.tools import float_compare
+from odoo.tools import float_compare
 
 
 class SaleOrderLineInherit(models.Model):
