@@ -6,7 +6,7 @@
             <field name="color" eval="5"/>
             <field name="branch_id" ref="branch_hcm" />
             <field name="department_type_id" ref="hp_components.department_type_sale" />
-            <field name="manager_id" ref="emp_dos_hcm" />
+            <!-- <field name="manager_id" ref="emp_dos_hcm" /> -->
         </record>
 
         <record id="user_dos_hcm" model="res.users">
@@ -54,5 +54,11 @@
             <field name="work_email">sm2_hcm@test.com</field>
             <field name="department_id" ref="dep_sales_hcm" />
         </record>
+
+        <record id="dep_sales_hcm" model="hr.department">
+            <field name="manager_id" ref="emp_dos_hcm" />
+        </record>
+
+
     </data>
 </odoo>
