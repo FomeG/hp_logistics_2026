@@ -8,6 +8,11 @@
             <xpath expr="//field[@name='parent_id']" position="before">
 <!--                <field name="service_type"/>-->
             </xpath>
+            <xpath expr="//div[@name='button_box']/button[1]" position="attributes">
+                <attribute name="name">action_show_category_products</attribute>
+                <attribute name="type">object</attribute>
+                <attribute name="context">{'default_categ_id': id}</attribute>
+            </xpath>
         </field>
     </record>
 
