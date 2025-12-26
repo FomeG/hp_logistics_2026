@@ -4,47 +4,47 @@ class UserService(models.AbstractModel):
     _name = 'hp_components.user.service'
     _description = 'User Service'
 
-    # current_user = fields.Many2one(
-    #     comodel_name='res.users',
-    #     string='Current User',
-    #     default=lambda self: self.env.user,
-    # )
-
     @api.model
-    def is_admin_user(self, user_id=None):
-        """Check if the given user (or current user if none provided) is an admin."""
+    def _get_user(self, user_id=None):
+        """Get the user record. If user_id is None, returns the current user."""
         if user_id is None:
-            user = self.env.user
-        else:
-            user = self.env['res.users'].browse(user_id)
-
-        admin_group = self.env.ref('base.group_system', raise_if_not_found=False)
-        return admin_group and admin_group in user.groups_id
+            return self.env.user
+        return self.env['res.users'].browse(user_id)
 
     @api.model
     def _check_user_has_group(self, group_name, user_id=None):
         """Check if the given user (or current user if none provided) has the specified group."""
-        if user_id is None:
-            user = self.env.user
-        else:
-            user = self.env['res.users'].browse(user_id)
-
+        user = self._get_user(user_id)
         return user.has_group(group_name)
 
     @api.model
-    def is_salesman_member(self):
+    def is_admin_user(self, user_id=None):
+        """Check if the given user (or current user if none provided) is an admin (system group)."""
+        return self._check_user_has_group('base.group_system', user_id)
+
+    @api.model
+    def is_salesman_member(self, user_id=None):
         """Check if the given user (or current user if none provided) is a salesman."""
-        return self._check_user_has_group('sales_team.group_sale_salesman')
+        return self._check_user_has_group('sales_team.group_sale_salesman', user_id)
 
     @api.model
-    def is_salesman_manager(self):
+    def is_salesman_manager(self, user_id=None):
         """Check if the given user (or current user if none provided) is a sales manager."""
-        return self._check_user_has_group('sales_team.group_sale_manager')
+        return self._check_user_has_group('sales_team.group_sale_manager', user_id)
 
     @api.model
-    def is_salesman_leader(self):
+    def is_salesman_leader(self, user_id=None):
         """Check if the given user (or current user if none provided) is a salesman leader."""
-        return self._check_user_has_group('sales_team.group_sale_salesman_all_leads')
+        return self._check_user_has_group('sales_team.group_sale_salesman_all_leads', user_id)
 
+
+    @api.model
+    def is_only_salesman(self, user_id=None):
+
+        is_salesman = self.is_salesman_member(user_id)
+        is_leader = self.is_salesman_leader(user_id)
+        is_manager = self.is_salesman_manager(user_id)
+
+        return is_salesman and not is_leader and not is_manager
 
 
