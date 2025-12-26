@@ -164,7 +164,7 @@ class SaleOrderInherit(models.Model):
 
     currency_id = fields.Many2one(
         comodel_name='res.currency',
-        string='Currency ID',
+        string='Currency ',
         required=True,
         default=lambda self: self.env['res.currency'].get_base_currency(),
         tracking=True,

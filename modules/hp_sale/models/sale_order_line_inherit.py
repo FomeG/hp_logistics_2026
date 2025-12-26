@@ -36,7 +36,7 @@ class SaleOrderLineInherit(models.Model):
 
     # 2. Giá gốc theo tiền tệ của dòng
     price_unit_original = fields.Float(
-        string='Original Unit Price',
+        string='Original Price ',
         digits='Product Price',
         default=0.0,
         store = True
