@@ -139,6 +139,47 @@ class SaleOrderInherit(models.Model):
     allow_to_location_ids = fields.Many2many('location.base', compute='_compute_allow_to_location_ids', store=False)
     department_id = fields.Many2one('hr.department', compute='_compute_department_id', store=True)
 
+    task_count = fields.Integer(
+        string='Task Count',
+        compute='_compute_task_count',
+        store=False,
+    )
+
+    def _get_related_task_ids(self):
+        self.ensure_one()
+        task_ids = []
+
+        if 'cs.order' in self.env:
+            cs_orders = self.env['cs.order'].search([('sale_order_id', '=', self.id)])
+            for cs_order in cs_orders:
+                if cs_order.project_id:
+                    tasks = self.env['project.task'].search([
+                        ('project_id', '=', cs_order.project_id.id)
+                    ])
+                    task_ids.extend(tasks.ids)
+
+        return task_ids
+
+    def _compute_task_count(self):
+        for order in self:
+            order.task_count = len(order._get_related_task_ids())
+
+    def action_view_tasks(self):
+        """Open tasks linked to this sale order via CS Orders."""
+        self.ensure_one()
+        task_ids = self._get_related_task_ids()
+
+        return {
+            'name': _('Tasks'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'project.task',
+            'view_mode': 'list,form,kanban',
+            'domain': [('id', 'in', task_ids)],
+            'context': {
+                'create': False,
+            },
+        }
+
     @api.depends('user_id')
     def _compute_department_id(self):
         for rec in self:

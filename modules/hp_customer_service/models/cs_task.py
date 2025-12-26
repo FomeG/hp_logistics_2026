@@ -1,4 +1,4 @@
-from odoo import models, fields
+from odoo import models, fields, api
 
 
 class CsTask(models.Model):
@@ -19,7 +19,7 @@ class CsTask(models.Model):
         store=True,
         precompute=True,
     )
-    
+
     stage_id = fields.Many2one(
         'project.task.type',
         string='Stage',
@@ -28,3 +28,16 @@ class CsTask(models.Model):
         store=True,
         readonly=False,
     )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """
+        Override create to set sale_order_id on the project.task record.
+        This allows salesman to read CS tasks of their sale orders via ir.rule.
+        """
+        for vals in vals_list:
+            if 'cs_order_id' in vals and 'sale_order_id' not in vals:
+                cs_order = self.env['cs.order'].browse(vals['cs_order_id'])
+                if cs_order.sale_order_id:
+                    vals['sale_order_id'] = cs_order.sale_order_id.id
+        return super().create(vals_list)

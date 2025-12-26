@@ -143,47 +143,53 @@
 
 
 
+        <!--
+            Salesman có thể đọc những tasks:
+            - Được assign cho họ (user_ids), HOẶC
+            - Thuộc về Sale Order của họ (sale_order_id.user_id), HOẶC
+            - Họ tạo ra (create_uid)
+        -->
+        <record id="rule_project_task_salesman_read" model="ir.rule">
+            <field name="name">Project Task: Salesman can read related tasks</field>
+            <field name="model_id" ref="project.model_project_task"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="domain_force">['|', '|', ('user_ids', 'in', user.id), ('sale_order_id.user_id', '=', user.id), ('create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
 
+        <!--
+            Salesman chỉ được chỉnh sửa tasks được ASSIGN cho họ
+            (Không được manipulate tasks của SO mà họ không được assign)
+        -->
+        <record id="rule_project_task_salesman_write" model="ir.rule">
+            <field name="name">Project Task: Salesman can write assigned tasks only</field>
+            <field name="model_id" ref="project.model_project_task"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="domain_force">[('user_ids', 'in', user.id)]</field>
+            <field name="perm_read" eval="0"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <!-- Salesman truy cập được task của họ -->
-        <record id="rule_project_task_salesman" model="ir.rule">
-            <field name="name">Project Task: Salesman access all</field>
+        <!--
+            Salesman có thể tạo task mới
+            (Họ phải assign cho chính họ hoặc là người tạo (hiện tại để tạo )
+        -->
+        <record id="rule_project_task_salesman_create" model="ir.rule">
+            <field name="name">Project Task: Salesman can create tasks</field>
             <field name="model_id" ref="project.model_project_task"/>
             <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
             <field name="domain_force">['|', ('user_ids', 'in', user.id), ('create_uid', '=', user.id)]</field>
-            <field name="perm_read" eval="1"/>
-            <field name="perm_write" eval="1"/>
+            <field name="perm_read" eval="0"/>
+            <field name="perm_write" eval="0"/>
             <field name="perm_create" eval="1"/>
             <field name="perm_unlink" eval="0"/>
         </record>
+
 
         <record id="sale_order_sale_manager_rule" model="ir.rule">
             <field name="name">Sale Order Sale Manager Rule</field>
