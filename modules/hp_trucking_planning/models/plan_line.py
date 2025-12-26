@@ -23,11 +23,11 @@ class PlanLine(models.Model):
         required=True,
         readonly=True,
     )
-    job_id = fields.Many2one(
-        comodel_name='cs.job',
-        string='Job',
-        index=True,
-    )
+    # job_id = fields.Many2one(
+    #     comodel_name='cs.job',
+    #     string='Job',
+    #     index=True,
+    # )
     code = fields.Char(
         string='Job Number',
         tracking=True,
@@ -54,10 +54,12 @@ class PlanLine(models.Model):
         required=True,
         tracking=True,
     )
-    plan_type = fields.Selection([],
-                                 related='plan_id.plan_type',
-                                 store=False,
-                                 )
+    plan_type = fields.Selection(
+        related='plan_id.plan_type',
+        store=False,
+    )
+
+
     # route_id = fields.Many2one(
     #     comodel_name='trucking_planning.route',
     #     required=False,
@@ -141,7 +143,7 @@ class PlanLine(models.Model):
 
     combined_vehicles = fields.Integer(
         string="Combined Vehicles",
-        computed='_compute_vehicle_count',
+        compute='_compute_vehicle_count',
         store=False,
         help="Number of combined vehicles"
     )

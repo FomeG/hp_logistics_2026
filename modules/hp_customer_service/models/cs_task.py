@@ -17,12 +17,14 @@ class CsTask(models.Model):
         'project.project',
         related='cs_order_id.project_id',
         store=True,
+        precompute=True,
     )
+    
     stage_id = fields.Many2one(
         'project.task.type',
         string='Stage',
         domain="[('project_ids','=',project_id)]",
         related='task_id.stage_id',
         store=True,
-        readonly=False
+        readonly=False,
     )

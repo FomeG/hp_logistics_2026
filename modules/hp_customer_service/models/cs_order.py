@@ -7,6 +7,7 @@ class CsOrder(models.Model):
     _name = 'cs.order'
     _inherits = {'project.project': 'project_id'}
     _inherit = ['mail.thread', 'cs.order.base'] # mail activity already have field attachment id so if we add field attachment id in other order it will give error
+    _description = 'Customer Service Order'
 
     project_id = fields.Many2one(
         comodel_name='project.project',
@@ -85,7 +86,7 @@ class CsOrder(models.Model):
         required=True,
     )
     service_type = fields.Selection( #service type from sale order is selection
-        constants.ServiceType.SELECT_OPTIONS,
+        # constants.ServiceType.SELECT_OPTIONS,
         related='sale_order_id.service_type',
         string="Service Type",
         help="Import/Export/Other Service",
@@ -121,8 +122,8 @@ class CsOrder(models.Model):
     cs_booking_id = fields.One2many(
         comodel_name="cs.booking",
         inverse_name="cs_order_id",
-        string="Booking",
-        limit=1
+        string="Booking ",
+        # limit=1
     )
     Booking_code = fields.Char(
         related='cs_booking_id.Booking_code',
@@ -136,7 +137,7 @@ class CsOrder(models.Model):
         comodel_name="cs.shipping.instruction",
         inverse_name="cs_order_id",
         string="Shipping Instruction",
-        limit=1
+        # limit=1
     )
     cs_bill_lading_ids = fields.One2many(
         comodel_name="cs.bill.lading",
@@ -146,7 +147,7 @@ class CsOrder(models.Model):
     cs_pre_alert_id = fields.One2many(
         comodel_name="cs.pre.alert",
         inverse_name="cs_order_id",
-        limit=1
+        # limit=1
     )
     cs_container_ids = fields.One2many(
         comodel_name="cs.container",
@@ -161,7 +162,7 @@ class CsOrder(models.Model):
     cs_task_ids = fields.One2many(
         comodel_name="cs.task",
         inverse_name="cs_order_id",
-        string = "Tasks",
+        string = "Tasks ",
     )
 
     cs_shipping_document_ids = fields.One2many(

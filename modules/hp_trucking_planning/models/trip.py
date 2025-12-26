@@ -22,7 +22,7 @@ class Trip(models.Model):
 
     plan_line_id = fields.Many2one(
         comodel_name='trucking_planning.plan.line',
-        string='Plan',
+        string='Plan ',
         required=True,
     )
     # Related fields để hiển thị thông tin Plan

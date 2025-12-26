@@ -18,5 +18,5 @@ class CsOrderDetail(models.AbstractModel):
     )
     cs_task_id = fields.Many2one(
         comodel_name='cs.task',
-        string="Task",
+        string="Task ",
     )

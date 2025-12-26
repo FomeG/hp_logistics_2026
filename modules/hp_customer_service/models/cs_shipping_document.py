@@ -113,6 +113,7 @@ class CsShippingDocument(models.Model):
         compute='_compute_bill_lading_info',
         domain="[('cs_order_id', '=', cs_order_id)]",
         tracking=True,
+        store=True,
     )
 
     issue_date = fields.Date(
@@ -209,7 +210,7 @@ class CsShippingDocument(models.Model):
                 # Tạo command để link containers vào shipping document
                 self.container_line_ids = [(6, 0, existing_containers.ids)]
 
-    @api.model
+    @api.model_create_multi
     def create(self, vals):
         record = super(CsShippingDocument, self).create(vals)
         # Sau khi tạo, update cs_order_id cho tất cả containers

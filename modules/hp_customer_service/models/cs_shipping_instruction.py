@@ -21,7 +21,7 @@ class CsShippingInstruction(models.Model):
     )
     notify_party = fields.Many2one(
         comodel_name='res.partner',
-        string="Notify",
+        string="Notify ",
     )
     also_notify = fields.Many2one(
         comodel_name='res.partner',

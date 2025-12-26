@@ -5,6 +5,7 @@ from odoo import models
 
 class CsService(models.AbstractModel):
     _name = 'cs.service'
+    _description = 'Customer Service Service'
 
     def generate_code_from_sale_order(self, sale_order, sequence_code):
 

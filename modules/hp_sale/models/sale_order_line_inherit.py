@@ -36,7 +36,7 @@ class SaleOrderLineInherit(models.Model):
 
     # 2. Giá gốc theo tiền tệ của dòng
     price_unit_original = fields.Float(
-        string='Original Price',
+        string='Original Unit Price',
         digits='Product Price',
         default=0.0,
         store = True
@@ -51,12 +51,14 @@ class SaleOrderLineInherit(models.Model):
     order_currency_id = fields.Many2one(
         'res.currency',
         related='order_id.currency_id',
+        string='Order Currency',
         readonly=True,
         store=False
     )
     order_ref_currency_id = fields.Many2one(
         'res.currency',
         related='order_id.ref_currency_id',
+        string='Order Ref Currency',
         readonly=True,
         store=False
     )

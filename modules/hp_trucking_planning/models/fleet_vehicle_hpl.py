@@ -8,6 +8,7 @@ class FleetVehicleHpl(models.Model):
     _name = 'fleet.vehicle.hpl'
     _inherits = {'fleet.vehicle': 'vehicle_id'}
     _inherit = ['mail.thread', 'mail.activity.mixin']
+    _description = 'HPL Fleet Vehicle'
 
     vehicle_id = fields.Many2one(
         comodel_name='fleet.vehicle',

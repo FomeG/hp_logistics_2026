@@ -64,30 +64,30 @@ class BusyVehicleConfirmationWizard(models.TransientModel):
     # New trip details
     new_trip_plan_name = fields.Char(
         related='new_trip_id.plan_id.name',
-        string='Plan',
+        string='Plan ',
         readonly=True
     )
 
     new_trip_client = fields.Char(
         related='new_trip_id.client_id.name',
-        string='Client',
+        string='Client ',
         readonly=True
     )
 
     new_trip_etd = fields.Datetime(
         related='new_trip_id.plan_estimate_time_departure',
-        string='Estimate Time Departure',
+        string='Estimate Time Departure ',
         readonly=True
     )
 
     new_trip_eta = fields.Datetime(
         related='new_trip_id.plan_estimate_time_arrival',
-        string='Estimate Time Arrival',
+        string='Estimate Time Arrival ',
         readonly=True
     )
     new_trip_route = fields.Char(
         related='new_trip_id.route_id.name',
-        string='Route',
+        string='Route ',
         readonly=True
     )
 
