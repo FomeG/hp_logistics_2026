@@ -1,10 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
+         <!-- Pricelist: BẢNG GIÁ PHÍ CHỨNG TỪ -->
+         <record id="pricelist_document_fees" model="product.pricelist">
+            <field name="name">Bảng Giá Phí Chứng Từ</field>
+            <field name="active">True</field>
+         </record>
+
+        <!-- Phí Hun Trùng - 48-50 g/m3 -->
+        <record id="pricelist_item_fumigation_4850" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_document_fees"/>
+            <field name="product_tmpl_id" ref="product_fumigation_1"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">500</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <!-- Phí Hun Trùng - 80 g/m3 -->
+        <record id="pricelist_item_fumigation_80" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_document_fees"/>
+            <field name="product_tmpl_id" ref="product_fumigation_2"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">800</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <!-- Phí Hun Trùng - Australia /ISPM15 -->
+        <record id="pricelist_item_fumigation_australia_ispm" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_document_fees"/>
+            <field name="product_tmpl_id" ref="product_fumigation_3"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">2500</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <!-- Phí Hun Trùng - Australia / AFAS -->
+        <record id="pricelist_item_fumigation_australia_afas" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_document_fees"/>
+            <field name="product_tmpl_id" ref="product_fumigation_4"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">3000</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
         <!-- Pricelist: BẢNG GIÁ HÀNG NHẬP KHẨU HP -->
         <record id="pricelist_import_hp" model="product.pricelist">
             <field name="name">Bảng Giá Hàng Nhập Khẩu HP</field>
             <field name="active">True</field>
+        </record>
+
+        <!-- QUY TẮC LỒNG: Cho phép bảng Nhập khẩu sử dụng giá từ bảng Phí chứng từ -->
+        <record id="pricelist_item_import_link_doc" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_import_hp"/>
+            <field name="base">pricelist</field>
+            <field name="base_pricelist_id" ref="pricelist_document_fees"/>
+            <field name="applied_on">3_global</field>
         </record>
 
         <!-- CONT 20'/40' - Luồng Xanh -->
@@ -58,6 +108,14 @@
             <field name="active">True</field>
         </record>
 
+        <!-- Cho phép bảng Xuất khẩu sử dụng giá từ bảng Phí chứng từ -->
+        <record id="pricelist_item_export_link_doc" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_export_hp"/>
+            <field name="base">pricelist</field>
+            <field name="base_pricelist_id" ref="pricelist_document_fees"/>
+            <field name="applied_on">3_global</field>
+        </record>
+
         <!-- CONT 20'/40' - Miễn kiểm -->
         <record id="pricelist_item_ex_cont_mien_kiem" model="product.pricelist.item">
             <field name="pricelist_id" ref="pricelist_export_hp"/>
@@ -93,48 +151,5 @@
             <field name="fixed_price">200</field>
             <field name="compute_price">fixed</field>
         </record>
-
-        <!-- Pricelist: BẢNG GIÁ PHÍ CHỨNG TỪ -->
-        <record id="pricelist_document_fees" model="product.pricelist">
-            <field name="name">Bảng Giá Phí Chứng Từ</field>
-            <field name="active">True</field>
-        </record>
-
-        <!-- Phí Hun Trùng - 48-50 g/m3 -->
-        <record id="pricelist_item_fumigation_4850" model="product.pricelist.item">
-            <field name="pricelist_id" ref="pricelist_document_fees"/>
-            <field name="product_tmpl_id" ref="product_fumigation_1"/>
-            <field name="min_quantity">2</field>
-            <field name="fixed_price">500</field>
-            <field name="compute_price">fixed</field>
-        </record>
-
-        <!-- Phí Hun Trùng - 80 g/m3 -->
-        <record id="pricelist_item_fumigation_80" model="product.pricelist.item">
-            <field name="pricelist_id" ref="pricelist_document_fees"/>
-            <field name="product_tmpl_id" ref="product_fumigation_2"/>
-            <field name="min_quantity">2</field>
-            <field name="fixed_price">800</field>
-            <field name="compute_price">fixed</field>
-        </record>
-
-        <!-- Phí Hun Trùng - Australia /ISPM15 -->
-        <record id="pricelist_item_fumigation_australia_ispm" model="product.pricelist.item">
-            <field name="pricelist_id" ref="pricelist_document_fees"/>
-            <field name="product_tmpl_id" ref="product_fumigation_3"/>
-            <field name="min_quantity">2</field>
-            <field name="fixed_price">2500</field>
-            <field name="compute_price">fixed</field>
-        </record>
-
-        <!-- Phí Hun Trùng - Australia / AFAS -->
-        <record id="pricelist_item_fumigation_australia_afas" model="product.pricelist.item">
-            <field name="pricelist_id" ref="pricelist_document_fees"/>
-            <field name="product_tmpl_id" ref="product_fumigation_4"/>
-            <field name="min_quantity">2</field>
-            <field name="fixed_price">3000</field>
-            <field name="compute_price">fixed</field>
-        </record>
-
     </data>
 </odoo>

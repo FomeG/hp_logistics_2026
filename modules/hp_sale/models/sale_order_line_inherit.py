@@ -1,6 +1,6 @@
 from odoo import models, fields, api
 from odoo.tools import float_compare
-
+from ...hp_components.models import constants
 
 class SaleOrderLineInherit(models.Model):
     _inherit = 'sale.order.line'
@@ -160,15 +160,30 @@ class SaleOrderLineInherit(models.Model):
         if not self.product_id or not self.order_id.pricelist_id:
             return
 
-        # Lấy giá từ Pricelist dựa trên số lượng và đơn vị tính
-        price = self.order_id.pricelist_id._get_product_price(
-            self.product_id,
-            self.product_uom_qty or 1.0,
-            uom=self.product_uom
-        )
+        qty = self.product_uom_qty or 1.0
+        uom = self.product_uom
+        pricelist = self.order_id.pricelist_id
+
+        if not pricelist:
+            self.price_unit_original = self.product_id.list_price
+            return
+
+        # Lấy giá từ bảng giá hiện tại của SO
+        price = pricelist._get_product_price(self.product_id, qty, uom=uom)
+
+        # 2. Nếu vẫn = 0 (do không khớp số lượng tối thiểu) lấy giá từ bảng giá Phí chứng từ
+        if price <= 0:
+            doc_pricelist_xml_id = constants.XML_ID_DOCUMENT_FEES
+            doc_pricelist = self.env.ref(doc_pricelist_xml_id, raise_if_not_found=False)
+            if doc_pricelist:
+                price = doc_pricelist._get_product_price(self.product_id, qty, uom=uom)
+
+        # 3. Nếu vẫn = 0 thì lấy giá gốc từ product
+        if price <= 0:
+            price = self.product_id.list_price
 
         self.price_unit_original = price
-        self.currency_id_line = self.order_id.pricelist_id.currency_id
+        self.currency_id_line = pricelist.currency_id
         self._compute_price_unit()
 
     @api.onchange('price_unit_original', 'currency_id_line')

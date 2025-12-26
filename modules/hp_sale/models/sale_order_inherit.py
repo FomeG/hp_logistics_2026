@@ -53,7 +53,7 @@ class SaleOrderInherit(models.Model):
     service_type = fields.Selection(
         constants.ServiceType.SELECT_OPTIONS,
         string="Service Type",
-        default=constants.ServiceType.EXPORT,
+        # default=constants.ServiceType.EXPORT,
         required=True,
     )
     main_transport_mode = fields.Selection(
@@ -214,6 +214,23 @@ class SaleOrderInherit(models.Model):
         store=False
     )
 
+    @api.onchange('service_type')
+    def _onchange_service_type_set_pricelist(self):
+        if not self.service_type:
+            return
+
+        # Lấy pricelist tương ứng với service_type
+        xml_id = constants.SERVICE_TYPE_PRICELIST_MAP.get(self.service_type)
+        if xml_id:
+            pricelist = self.env.ref(xml_id, raise_if_not_found=False)
+            if pricelist:
+                self.pricelist_id = pricelist.id
+
+                # Cập nhật lại giá
+                if self.order_line:
+                    self.order_line._onchange_product_id_set_price_from_pricelist()
+
+
     def _convert_to_order_currency(self, amount, from_currency):
         """ chuyển đổi một số tiền từ tiền tệ bất kỳ về tiền tệ của Sale Order. Sử dụng ngày của đơn hàng và company của đơn hàng."""
         self.ensure_one()
@@ -311,6 +328,8 @@ class SaleOrderInherit(models.Model):
             self.partner_id = self.client_id.partner_id.id if self.client_id else False
         else:
             self.partner_id = False
+        # Cập nhật pricelist theo service type
+        self._onchange_service_type_set_pricelist()
 
 
     # When activate Quotation => check if some product is missing booking/price => make task and assgin to all users relating to the pod
