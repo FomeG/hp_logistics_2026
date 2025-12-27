@@ -105,15 +105,14 @@ SERVICE_TYPE_TO_TAG_MAP = {
     ServiceType.OTHER: [ProductTagName.IMPORT, ProductTagName.EXPORT],
     ServiceType.DOMESTIC: [ProductTagName.DOMESTIC],
 }
+
 SERVICE_TYPE_PRICELIST_MAP = {
     ServiceType.IMPORT: 'hp_sale.pricelist_import_hp',
     ServiceType.EXPORT: 'hp_sale.pricelist_export_hp',
-    ServiceType.OTHER: 'hp_sale.pricelist_document_fees',
-    ServiceType.DOMESTIC: 'hp_sale.pricelist_document_fees',
+    # Khi là Other hoặc Domestic, mặc định dùng bảng Nhập (Bảng này được cấu hình chứa đủ cả giá Xuất)
+    ServiceType.OTHER: 'hp_sale.pricelist_import_hp',
+    ServiceType.DOMESTIC: 'hp_sale.pricelist_import_hp',
 }
-
-# XML ID của bảng giá gốc
-XML_ID_DOCUMENT_FEES = 'hp_sale.pricelist_document_fees'
 
 class SaleOrderState:
     DRAFT = 'draft' #quotation

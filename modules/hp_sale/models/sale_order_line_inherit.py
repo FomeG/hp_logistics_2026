@@ -156,7 +156,7 @@ class SaleOrderLineInherit(models.Model):
 
     @api.onchange('product_id', 'product_uom', 'product_uom_qty')
     def _onchange_product_id_set_price_from_pricelist(self):
-        """Khi chọn sản phẩm, lấy giá từ Pricelist của đơn hàng gán vào price_unit_original"""
+        """Khi chọn sản phẩm, lấy giá từ Pricelist  trên đơn hàng"""
         if not self.product_id or not self.order_id.pricelist_id:
             return
 
@@ -164,21 +164,10 @@ class SaleOrderLineInherit(models.Model):
         uom = self.product_uom
         pricelist = self.order_id.pricelist_id
 
-        if not pricelist:
-            self.price_unit_original = self.product_id.list_price
-            return
-
-        # Lấy giá từ bảng giá hiện tại của SO
+        # tìm quy tắc trong bảng
         price = pricelist._get_product_price(self.product_id, qty, uom=uom)
 
-        # 2. Nếu vẫn = 0 (do không khớp số lượng tối thiểu) lấy giá từ bảng giá Phí chứng từ
-        if price <= 0:
-            doc_pricelist_xml_id = constants.XML_ID_DOCUMENT_FEES
-            doc_pricelist = self.env.ref(doc_pricelist_xml_id, raise_if_not_found=False)
-            if doc_pricelist:
-                price = doc_pricelist._get_product_price(self.product_id, qty, uom=uom)
-
-        # 3. Nếu vẫn = 0 thì lấy giá gốc từ product
+        # Nếu không khớp bất kỳ quy tắc nào trong bảng giá, lấy giá list_price của sản phẩm
         if price <= 0:
             price = self.product_id.list_price
 

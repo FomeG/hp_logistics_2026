@@ -225,7 +225,6 @@ class SaleOrderInherit(models.Model):
             pricelist = self.env.ref(xml_id, raise_if_not_found=False)
             if pricelist:
                 self.pricelist_id = pricelist.id
-
                 # Cập nhật lại giá
                 if self.order_line:
                     self.order_line._onchange_product_id_set_price_from_pricelist()
