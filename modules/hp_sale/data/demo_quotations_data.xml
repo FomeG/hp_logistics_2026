@@ -397,7 +397,7 @@
             <field name="user_id" ref="hp_employee.user_sm1_hn"/>
             <field name="date_order" eval="datetime.now().strftime('%Y-%m-%d %H:%M:%S')"/>
             <field name="state">draft</field>
-            <field name="pricelist_id" ref="hp_sale.pricelist_document_fees"/>
+            <field name="pricelist_id" ref="hp_sale.pricelist_import_hp"/>
             <field name="branch_id" ref="hp_employee.branch_hn"/>
             <field name="validity_date" eval="(datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')"/>
             <field name="order_line" eval="[

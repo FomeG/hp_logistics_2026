@@ -106,6 +106,14 @@ SERVICE_TYPE_TO_TAG_MAP = {
     ServiceType.DOMESTIC: [ProductTagName.DOMESTIC],
 }
 
+SERVICE_TYPE_PRICELIST_MAP = {
+    ServiceType.IMPORT: 'hp_sale.pricelist_import_hp',
+    ServiceType.EXPORT: 'hp_sale.pricelist_export_hp',
+    # Khi là Other hoặc Domestic, mặc định dùng bảng Nhập (Bảng này được cấu hình chứa đủ cả giá Xuất)
+    ServiceType.OTHER: 'hp_sale.pricelist_import_hp',
+    ServiceType.DOMESTIC: 'hp_sale.pricelist_import_hp',
+}
+
 class SaleOrderState:
     DRAFT = 'draft' #quotation
     SENT_TO_CLIENT = 'sent_to_client'
