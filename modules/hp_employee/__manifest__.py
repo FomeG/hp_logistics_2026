@@ -18,24 +18,17 @@ HP Employee App
         'security/hp_employee_security.xml',
         'security/ir.model.access.csv',
 
-
-
-
-
-
+        # demo data
         'data/demo_branch_data.xml',
         'data/demo_sale_hn_data.xml',
         'data/demo_sale_hcm_data.xml',
         'data/demo_team_data.xml',
         'data/demo_hr_data.xml',
 
+        # wizard
+        'views/wizards/import_employee_wizard.xml',
 
-
-
-
-
-
-        
+        # views
         'views/cs_department_type_views.xml',
         'views/hidden_btn_new_views.xml',
         'views/hr_department_form_views.xml',
@@ -44,6 +37,8 @@ HP Employee App
         # 'views/cs_department_type_views.xml',
         'views/hr_branch_views.xml',
         'views/hr_team_views.xml',
+
+        # menu
         'views/menu.xml',
 
     ],

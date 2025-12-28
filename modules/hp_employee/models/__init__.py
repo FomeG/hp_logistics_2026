@@ -5,3 +5,4 @@ from . import hr_branch
 from . import hr_team
 from . import region_inherit
 from . import location_base_inherit
+from . import wizards

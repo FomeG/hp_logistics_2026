@@ -7,5 +7,5 @@ class HrEmployeeListener(Component):
     _apply_on = ['hr.employee']
 
     def on_record_create(self, record, fields=None):
-        record.auto_create_user()
+        record.with_delay().auto_create_user()
         return
