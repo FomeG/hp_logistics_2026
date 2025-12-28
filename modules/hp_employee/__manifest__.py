@@ -37,6 +37,7 @@ HP Employee App
         # 'views/cs_department_type_views.xml',
         'views/hr_branch_views.xml',
         'views/hr_team_views.xml',
+        'views/hp_work_shift_views.xml',
 
         # menu
         'views/menu.xml',

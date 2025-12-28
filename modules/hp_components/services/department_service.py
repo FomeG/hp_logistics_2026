@@ -36,3 +36,10 @@ class DepartmentService:
             domain.append(('department_id.branch_id', '=', branch_id))
 
         return self.env['hr.employee'].sudo().search(domain).mapped('user_id')
+    
+    def get_department_leader_by_employee(self, employee):
+        if not employee.department_id:
+            return False
+        
+        department = employee.department_id
+        return department.manager_id.user_id if department.manager_id else False

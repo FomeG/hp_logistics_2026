@@ -26,6 +26,10 @@
             <xpath expr="//group/field[@name='parent_id']" position="replace">
                 <field name="dept_manager_id" readonly="1" />
             </xpath>
+            <xpath expr="//group[@name='managers']" position="inside">
+                <field name="work_shift_id" string="Work Shift"
+                    options="{'no_create_edit': True, 'no_quick_create': True}" />
+            </xpath>
 
             <!-- Restrict department selection to same branch as current user -->
             <xpath expr="//field[@name='department_id']" position="before">

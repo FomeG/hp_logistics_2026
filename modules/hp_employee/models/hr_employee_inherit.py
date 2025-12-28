@@ -1,5 +1,6 @@
 from odoo import models, api, fields, _
 from odoo.exceptions import ValidationError, UserError, AccessError
+from ...hp_components.models import constants
 from odoo import tools
 
 class HrEmployeeInherit(models.Model):
@@ -11,6 +12,12 @@ class HrEmployeeInherit(models.Model):
         compute='_compute_current_user_branch',
         default=lambda self: self._default_current_user_branch(),
         store=False
+    )
+
+    work_shift_id = fields.Many2one(
+        comodel_name="hr.work.shift",
+        string="Work Shift",
+        default=lambda self: self.env['hr.work.shift'].search([('shift_type', '=', constants.WorkShiftType.FIXED)], limit=1)
     )
 
     @api.depends('department_id')

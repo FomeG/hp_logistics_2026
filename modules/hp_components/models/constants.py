@@ -279,3 +279,7 @@ class ShippingDocumentState:
         (DELIVERED, 'Delivered'),
         (CANCELLED, 'Cancelled'),
     ]
+
+class WorkShiftType:
+    FIXED = 'fixed'
+    FLEXIBLE = 'flexible'
