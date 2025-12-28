@@ -1,28 +1,152 @@
 <odoo>
-    <!-- Inherit and Move the "Product Categories" Menu to "Products" -->
-    <record id="sale.menu_product_categories" model="ir.ui.menu">
-        <field name="parent_id" ref="sale.product_menu_catalog"/>
-        <field name="sequence">25</field>
+     <!-- 1. Orders  -->
+    <record id="sale.sale_order_menu" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [
+            ref('sales_team.group_sale_salesman'),
+            ref('sales_team.group_sale_salesman_all_leads'),
+            ref('sales_team.group_sale_manager'),
+            ref('base.group_system')
+        ])]"/>
     </record>
 
-    <menuitem
-        id="menu_sale_tools"
-        name="Tools"
-        parent="sale.sale_menu_root"
-        sequence="100"
-        groups="sales_team.group_sale_manager" />
-
-    <record id="sale.res_partner_menu" model="ir.ui.menu">
-        <field name="active">False</field>
+    <!-- 2. Quotations  -->
+    <record id="sale.menu_sale_quotations" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [
+            ref('sales_team.group_sale_salesman'),
+            ref('sales_team.group_sale_salesman_all_leads'),
+            ref('sales_team.group_sale_manager'),
+            ref('base.group_system')
+        ])]"/>
     </record>
 
+    <!-- 3. Orders -->
+    <record id="sale.menu_sale_order" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [
+            ref('sales_team.group_sale_salesman'),
+            ref('sales_team.group_sale_salesman_all_leads'),
+            ref('sales_team.group_sale_manager'),
+            ref('base.group_system')
+        ])]"/>
+    </record>
+
+    <!-- 4. Product Catalog -->
+    <record id="sale.product_menu_catalog" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [
+            ref('sales_team.group_sale_salesman'),
+            ref('sales_team.group_sale_salesman_all_leads'),
+            ref('sales_team.group_sale_manager'),
+            ref('base.group_system')
+        ])]"/>
+    </record>
+
+    <!-- 5. Products  -->
+    <record id="sale.menu_products" model="ir.ui.menu">
+        <field name="active" eval="True"/>
+        <field name="groups_id" eval="[(6, 0, [
+            ref('sales_team.group_sale_salesman'),
+            ref('sales_team.group_sale_salesman_all_leads'),
+            ref('sales_team.group_sale_manager'),
+            ref('base.group_system')
+        ])]"/>
+    </record>
+
+    <!-- 6. Menu Clients  -->
     <menuitem
         id="menu_sale_client"
         name="Clients"
         parent="sale.sale_menu_root"
         sequence="35"
         action="action_res_partner_client"
-        groups="sales_team.group_sale_salesman" />
+        groups="sales_team.group_sale_salesman,sales_team.group_sale_salesman_all_leads,sales_team.group_sale_manager,base.group_system"/>
+
+    <!-- 7. Menu Week  -->
+    <menuitem id="menu_selling_week"
+        name="Week"
+        action="action_selling_week"
+        parent="sale.product_menu_catalog"
+        sequence="5"
+        groups="sales_team.group_sale_salesman,sales_team.group_sale_salesman_all_leads,sales_team.group_sale_manager,base.group_system"/>
+
+    <!-- 8. Menu Sea Freight  -->
+    <menuitem
+        id="menu_sale_product_selling_week"
+        name="Sea Freight"
+        parent="sale.sale_menu_root"
+        sequence="36"
+        action="action_product_template_selling_week"
+        groups="sales_team.group_sale_salesman,sales_team.group_sale_salesman_all_leads,sales_team.group_sale_manager,base.group_system"/>
+
+    <!-- 1. To Invoice  -->
+    <record id="sale.menu_sale_invoicing" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [
+            ref('sales_team.group_sale_salesman_all_leads'),
+            ref('sales_team.group_sale_manager'),
+            ref('base.group_system')
+        ])]"/>
+    </record>
+
+    <!-- 2. Reporting  -->
+    <record id="sale.menu_sale_report" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [
+            ref('sales_team.group_sale_salesman_all_leads'),
+            ref('sales_team.group_sale_manager'),
+            ref('base.group_system')
+        ])]"/>
+    </record>
+
+    <!-- 3. Configuration -->
+    <record id="sale.menu_sale_config" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [
+            ref('sales_team.group_sale_salesman_all_leads'),
+            ref('sales_team.group_sale_manager'),
+            ref('base.group_system')
+        ])]"/>
+    </record>
+
+    <!-- 4. Product Categories  -->
+    <record id="sale.menu_product_categories" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [
+            ref('sales_team.group_sale_salesman_all_leads'),
+            ref('sales_team.group_sale_manager'),
+            ref('base.group_system')
+        ])]"/>
+    </record>
+
+    <!-- 5. Pricelists  -->
+    <record id="sale.menu_product_pricelist_main" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [
+            ref('sales_team.group_sale_salesman_all_leads'),
+            ref('sales_team.group_sale_manager'),
+            ref('base.group_system')
+        ])]"/>
+    </record>
+
+    <!-- 6. Sales Teams Dashboard  -->
+    <record id="sale.report_sales_team" model="ir.ui.menu">
+        <field name="groups_id" eval="[(6, 0, [
+            ref('sales_team.group_sale_salesman_all_leads'),
+            ref('sales_team.group_sale_manager'),
+            ref('base.group_system')
+        ])]"/>
+    </record>
+
+    <!-- Hide Sales Teams Config  -->
+    <record id="sale.sales_team_config" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <!-- Hide default Customers menu -->
+    <record id="sale.res_partner_menu" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+
+    <!-- Tools Menu - Only Admin -->
+    <menuitem
+        id="menu_sale_tools"
+        name="Tools"
+        parent="sale.sale_menu_root"
+        sequence="100"
+        groups="base.group_system"/>
 
     <menuitem
         id="menu_sale_import_client"
@@ -30,6 +154,18 @@
         parent="menu_sale_tools"
         sequence="10"
         action="action_import_client_wizard"
-        groups="sales_team.group_sale_manager" />
+        groups="base.group_system"/>
+
+    
+    <record id="sale.menu_sale_quotations" model="ir.ui.menu">
+        <field name="active" eval="True"/>
+    </record>
+
+    <menuitem id="menu_sale_quotations_sale_lead"
+        name="Quotations Sent To Leader"
+        parent="sale.sale_order_menu"
+        action="hp_sale.action_quotations_send_to_leader"
+        groups="sales_team.group_sale_salesman_all_leads"
+        sequence="15"/>
 
 </odoo>

@@ -5,7 +5,6 @@ from odoo.addons.base.models.ir_actions_report import available
 from odoo.exceptions import ValidationError
 from ..validators.quotation_validator import QuotationCreateValidator, QuotationUpdateValidator
 
-
 class FreightPurchaseQuotation(models.Model):
     _name = 'freight.purchase.quotation'
     _description = 'Freight Purchase Quotation'
@@ -18,26 +17,19 @@ class FreightPurchaseQuotation(models.Model):
         compute='_compute_name',
         store=True,
         tracking=True)
-    route_id = fields.Many2one(
-        'freight.purchase.route',
-        required=True,
-        tracking=True
-    )
-    pol_id = fields.Many2one(
-        related='route_id.pol_id',
+    from_location_id = fields.Many2one(
         string='POL',
-        store=True,
-        index=True,
+        comodel_name='location.base',
+        required=True,
+        tracking=True,
+        domain="[('type', '=', 'port'), ('is_local', '=', True)]",
     )
-    pod_id = fields.Many2one(
-        related='route_id.pod_id',
+    to_location_id = fields.Many2one(
         string='POD',
-        store=True,
-        index=True,
-    )
-    direction = fields.Selection(
-        related='route_id.direction',
-        store=True
+        comodel_name='location.base',
+        required=True,
+        tracking=True,
+        domain="[('is_local', '=', False)]",
     )
     shipping_line_id = fields.Many2one(
         'res.partner',
@@ -68,7 +60,7 @@ class FreightPurchaseQuotation(models.Model):
         comodel_name="freight.purchase.quotation.fee",
         inverse_name="quotation_id",
         string="Common Fees",
-        ondelete="cascade"
+        # ondelete="cascade",
     )
     total_quotation_lines = fields.Char(
         string="Total Quotation Lines",
@@ -113,12 +105,11 @@ class FreightPurchaseQuotation(models.Model):
             # Compute vals['name']
             if not vals.get('name'):
                 shipping_line_id = vals.get('shipping_line_id')
-                route_id = vals.get('route_id')
                 available_to = vals.get('available_to')
 
-                if shipping_line_id and route_id and available_to:
+                if shipping_line_id and available_to:
                     shipping_name = self.env['res.partner'].browse(shipping_line_id).name or ''
-                    route_name = self.env['freight.purchase.route'].browse(route_id).name or ''
+                    route_name = f"{self.from_location_id.name} -> {self.to_location_id.name}"
                     formatted_date = ''
                     if available_to:
                         formatted_date = fields.Date.to_date(available_to).strftime('%d-%m-%Y')
@@ -150,12 +141,12 @@ class FreightPurchaseQuotation(models.Model):
         return super().write(vals)
 
     # For making the name updated visibly
-    @api.depends('shipping_line_id.name', 'route_id.name', 'available_to')
+    @api.depends('shipping_line_id.name', 'available_to')
     def _compute_name(self):
         for record in self:
-            if record.shipping_line_id and record.route_id and record.available_to:
+            if record.shipping_line_id and record.available_to:
                 shipping_name = record.shipping_line_id.name or ''
-                route_name = record.route_id.name or ''
+                route_name = f"{record.from_location_id.name} -> {record.to_location_id.name}"
                 formatted_date = ''
                 if isinstance(record.available_to, (date, datetime)):
                     formatted_date = record.available_to.strftime('%d-%m-%Y')
@@ -168,7 +159,8 @@ class FreightPurchaseQuotation(models.Model):
     @api.model
     def create_from_booking_form(self, booking_form):
         return self.create({
-            'route_id': booking_form.get('quotation_route_id'),
+            'from_location_id': booking_form['quotation_from_location_id'],
+            'to_location_id': booking_form['quotation_to_location_id'],
             'shipping_line_id': booking_form.get('quotation_shipping_line_id'),
             'available_from': fields.Date.today(),
             'available_to': booking_form.get('etd'),
@@ -186,9 +178,3 @@ class FreightPurchaseQuotation(models.Model):
             if record.available_from and record.available_to:
                 record.str_available = f"{record.available_from.strftime('%d-%m-%Y')} - {record.available_to.strftime('%d-%m-%Y')}"
     #todo require name + email
-
-    @api.onchange('route_id')
-    def _onchange_route_id(self):
-        ctx_default_route_id = self.env.context.get('default_route_id')
-        if ctx_default_route_id and self.route_id and self.route_id.id != ctx_default_route_id:
-            raise ValidationError('You can only use the predefined route for this quotation')

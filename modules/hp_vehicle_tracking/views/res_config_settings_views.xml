@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Inherit Settings Form to add Vehicle Tracking section -->
+    <record id="res_config_settings_view_form_inherit_vehicle_tracking" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.vehicle.tracking</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="90"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app string="Vehicle Tracking" name="hp_vehicle_tracking">
+                    <block title="Map Configuration">
+                        <setting help="Configure how the vehicle tracking map behaves and displays">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="vehicle_tracking_auto_refresh_interval" class="col-lg-3 o_light_label"/>
+                                    <field name="vehicle_tracking_auto_refresh_interval" class="oe_inline"/>
+                                    <span class="o_form_label"> seconds</span>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="vehicle_tracking_stale_threshold" class="col-lg-3 o_light_label"/>
+                                    <field name="vehicle_tracking_stale_threshold" class="oe_inline"/>
+                                    <span class="o_form_label"> minutes</span>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                    <block title="Map Display Settings">
+                        <setting help="Set default map center and zoom level">
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="vehicle_tracking_default_map_center_lat" class="col-lg-3 o_light_label"/>
+                                    <field name="vehicle_tracking_default_map_center_lat" class="oe_inline"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="vehicle_tracking_default_map_center_lng" class="col-lg-3 o_light_label"/>
+                                    <field name="vehicle_tracking_default_map_center_lng" class="oe_inline"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="vehicle_tracking_default_zoom_level" class="col-lg-3 o_light_label"/>
+                                    <field name="vehicle_tracking_default_zoom_level" class="oe_inline"/>
+                                    <span class="o_form_label"> (1-19)</span>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
+
+

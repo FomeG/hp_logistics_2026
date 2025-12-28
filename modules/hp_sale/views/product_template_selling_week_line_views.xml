@@ -1,0 +1,43 @@
+<odoo>
+    <!-- LIST VIEW -->
+    <record id="view_product_template_selling_week_line_list" model="ir.ui.view">
+        <field name="name">product.template.selling.week.line.list</field>
+        <field name="model">product.template.selling.week.line</field>
+        <field name="arch" type="xml">
+            <list string="Product Template Selling Week Lines">
+                <header>
+                    <button string="Add" 
+                        name="action_add_selected_lines" 
+                        type="object" 
+                        class="btn-primary"/>
+                </header>
+    
+                <field name="name" string="Product"/>
+                <field name="selling_week_id"/>
+                <field name="shipping_line_id"/>
+                <field name="container_type_id" string="Container"/>
+                <field name="price" widget="monetary"/>
+            </list>
+
+        </field>
+    </record>
+
+    <!-- SEARCH VIEW -->
+    <record id="view_product_template_selling_week_line_search" model="ir.ui.view">
+        <field name="name">product.template.selling.week.line.search</field>
+        <field name="model">product.template.selling.week.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Product Selling Week Lines">
+                <field name="name"/>
+                <field name="price"/>
+
+                <field name="region_id"/>
+                <field name="selling_week_id"/>
+                <searchpanel>
+                    <field name="region_id" enable_counters="1"/>
+                    <field name="selling_week_id" enable_counters="1"/>
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+</odoo>

@@ -183,11 +183,11 @@
             <field name="name">Trip: Member can edit own records when status allows</field>
             <field name="model_id" ref="model_trucking_planning_trip" />
             <field name="groups" eval="[(4, ref('group_hp_trucking_planning_member'))]" />
-            <field name="domain_force">[('create_uid', '=', user.id), ('status', 'not in', ['done','close','cancelled'])]</field>
+            <field name="domain_force">[('create_uid', '=', user.id), ('status', 'not in', ['done','cancelled'])]</field>
             <field name="perm_read" eval="0" />
             <field name="perm_write" eval="1" />
             <field name="perm_create" eval="1" />
-            <field name="perm_unlink" eval="0" />
+            <field name="perm_unlink" eval="1" />
         </record>
 
         <!-- Trip: Leaders and Directors can edit all records when status allows -->
@@ -195,7 +195,7 @@
             <field name="name">Trip: Leader and Director can edit all records when status allows</field>
             <field name="model_id" ref="model_trucking_planning_trip" />
             <field name="groups" eval="[(4, ref('group_hp_trucking_planning_lead')), (4, ref('group_hp_trucking_planning_director'))]" />
-            <field name="domain_force">[('status', 'not in', ['done','close','cancelled'])]</field>
+            <field name="domain_force">[('status', 'not in', ['cancelled'])]</field>
             <field name="perm_read" eval="1" />
             <field name="perm_write" eval="1" />
             <field name="perm_create" eval="1" />
@@ -237,5 +237,19 @@
             <field name="perm_create" eval="1" />
             <field name="perm_unlink" eval="1" />
         </record>
+
+
+        <!-- Res Partner: Administrator full access -->
+        <record id="trucking_res_partner_admin_rule" model="ir.rule">
+            <field name="name">Res Partner: Administrator all access</field>
+            <field name="model_id" ref="base.model_res_partner" />
+            <field name="groups" eval="[(4, ref('group_hp_trucking_planning_administrator')), (4, ref('group_hp_trucking_planning_lead')), (4, ref('group_hp_trucking_planning_director')), (4, ref('group_hp_trucking_planning_member'))]" />
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1" />
+            <field name="perm_write" eval="1" />
+            <field name="perm_create" eval="1" />
+            <field name="perm_unlink" eval="1" />
+        </record>
+
     </data>
 </odoo>

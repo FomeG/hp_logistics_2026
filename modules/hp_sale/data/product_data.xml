@@ -3,257 +3,275 @@
     <data noupdate="0">
         <!-- Custom Products -->
         <!-- HÀNG NHẬP KHẨU HP - CONT 20'/40' -->
-        <record id="product_custom_im_1" model="product.template">
+        <record id="product_im_cont_1" model="product.template">
             <field name="name">Luồng Xanh</field>
             <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_1"/>
+            <field name="product_type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_im_cont"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_import')])]"/>
             <field name="complete_time">2</field>
+            <field name="list_price">350</field>
         </record>
 
-        <record id="product_custom_im_2" model="product.template">
+        <record id="product_im_cont_2" model="product.template">
             <field name="name">Luồng Vàng</field>
             <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_1"/>
+            <field name="product_type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_im_cont"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_import')])]"/>
             <field name="complete_time">4</field>
+            <field name="list_price">350</field>
         </record>
 
-        <record id="product_custom_im_3" model="product.template">
+        <record id="product_im_cont_3" model="product.template">
             <field name="name">Kiểm Thủ công</field>
             <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_1"/>
+            <field name="product_type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_im_cont"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_import')])]"/>
             <field name="complete_time">7</field>
+            <field name="list_price">900</field>
         </record>
 
-        <record id="product_custom_im_4" model="product.template">
+        <record id="product_im_cont_4" model="product.template">
             <field name="name">Hải quan NK Hàng gỗ</field>
             <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_1"/>
+            <field name="product_type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_im_cont"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_import')])]"/>
+            <field name="list_price">1100</field>
         </record>
 
         <!-- HÀNG NHẬP KHẨU HP - HÀNG LCL -->
-        <record id="product_custom_im_5" model="product.template">
+        <record id="product_im_lcl_1" model="product.template">
             <field name="name">Luồng Xanh</field>
             <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_2"/>
+            <field name="product_type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_im_lcl"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_import')])]"/>
             <field name="complete_time">2</field>
+            <field name="list_price">450</field>
         </record>
 
-        <record id="product_custom_im_6" model="product.template">
-            <field name="name">Luồng Vàng</field>
-            <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_2"/>
-            <field name="complete_time">4</field>
-        </record>
-
-        <record id="product_custom_im_7" model="product.template">
-            <field name="name">Kiểm hóa</field>
-            <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_2"/>
-            <field name="complete_time">6</field>
-        </record>
-
-        <record id="product_custom_im_8" model="product.template">
-            <field name="name">Chi Kiểm dịch hàng bông</field>
-            <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_2"/>
-        </record>
-
-        <record id="product_custom_im_9" model="product.template">
+        <record id="product_im_1" model="product.template">
             <field name="name">TK Chuyển cửa Khẩu</field>
-            <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_2"/>
+            <field name="type">services</field>
+            <field name="product_type">services</field>
+            <field name="categ_id" ref="hp_sale.product_category_im"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_export')])]"/>
             <field name="complete_time">2</field>
+            <field name="list_price">200</field>
         </record>
 
         <!-- HÀNG XUẤT KHẨU HP - CONT 20'/40' -->
-        <record id="product_custom_ex_1" model="product.template">
+        <record id="product_ex_cont_1" model="product.template">
             <field name="name">Miễn kiểm</field>
             <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_3"/>
+            <field name="product_type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_ex_cont"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_export')])]"/>
             <field name="complete_time">2</field>
+            <field name="list_price">350</field>
         </record>
 
-        <record id="product_custom_ex_2" model="product.template">
+        <record id="product_ex_cont_2" model="product.template">
             <field name="name">Kiểm hóa</field>
             <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_3"/>
+            <field name="product_type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_ex_cont"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_export')])]"/>
             <field name="complete_time">5</field>
+            <field name="list_price">900</field>
         </record>
 
-        <record id="product_custom_ex_3" model="product.template">
+        <record id="product_ex_cont_3" model="product.template">
             <field name="name">Chi thêm hàng Plywood luồng vàng</field>
             <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_3"/>
+            <field name="product_type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_ex_cont"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_export')])]"/>
+            <field name="list_price">300</field>
         </record>
 
-        <!-- HÀNG XUẤT KHẨU HP - HÀNG LCL -->
-        <record id="product_custom_ex_4" model="product.template">
-            <field name="name">Miễn kiểm</field>
-            <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_4"/>
-            <field name="complete_time">2</field>
-        </record>
-
-        <record id="product_custom_ex_5" model="product.template">
-            <field name="name">Kiểm hóa</field>
-            <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_4"/>
-            <field name="complete_time">5</field>
-        </record>
-
-        <record id="product_custom_ex_6" model="product.template">
+        <record id="product_ex_1" model="product.template">
             <field name="name">TK Chuyển cửa Khẩu</field>
-            <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_4"/>
+            <field name="type">services</field>
+            <field name="product_type">services</field>
+            <field name="categ_id" ref="hp_sale.product_category_ex"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_export')])]"/>
             <field name="complete_time">2</field>
+            <field name="list_price">300</field>
         </record>
 
-        <record id="product_custom_ex_7" model="product.template">
+        <record id="product_ex_2" model="product.template">
             <field name="name">Nộp Tờ khai vàng, xanh</field>
             <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_4"/>
+            <field name="product_type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_ex"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_export')])]"/>
             <field name="complete_time">1</field>
-        </record>
-
-        <record id="product_custom_ex_8" model="product.template">
-            <field name="name">Nộp Tờ khai đỏ</field>
-            <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_4"/>
-            <field name="complete_time">1</field>
-        </record>
-
-        <record id="product_custom_ex_9" model="product.template">
-            <field name="name">Nộp Tờ khai đỏ có chì định vị</field>
-            <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_4"/>
-            <field name="complete_time">1</field>
+            <field name="list_price">100</field>
         </record>
 
         <!-- HÀNG XUẤT/NHẬP CCHQĐTGC, CHI CỤC HQ BẮC HÀ NỘI, CC HQ GIA LÂM -->
-        <record id="product_custom_imex_1" model="product.template">
+        <record id="product_imex_1" model="product.template">
             <field name="name">Thông thường</field>
             <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_imex"/>
+            <field name="product_type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_imex"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_import'), ref('hp_sale.product_tag_export')])]"/>
         </record>
 
-        <record id="product_custom_imex_2" model="product.template">
+        <record id="product_imex_2" model="product.template">
             <field name="name">Luồng Đỏ</field>
             <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_imex"/>
-        </record>
-
-        <record id="product_custom_imex_3" model="product.template">
-            <field name="name">Thông thường hàng Gỗ</field>
-            <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_imex"/>
-        </record>
-
-        <record id="product_custom_imex_4" model="product.template">
-            <field name="name">Luồng Đỏ Hàng Gỗ</field>
-            <field name="type">custom</field>
-            <field name="categ_id" ref="hp_sale.product_category_custom_imex"/>
+            <field name="product_type">custom</field>
+            <field name="categ_id" ref="hp_sale.product_category_imex"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_import'), ref('hp_sale.product_tag_export')])]"/>
+            <field name="list_price">500</field>
         </record>
 
         <!-- Common Products -->
         <!-- PHÍ CHỨNG TỪ - Phyto-->
-        <record id="product_common_phyto_1" model="product.template">
+        <record id="product_doc_phyto_1" model="product.template">
             <field name="name">Chi phí làm Phyto</field>
-            <field name="type">common</field>
-            <field name="categ_id" ref="hp_sale.product_category_common_phyto"/>
+            <field name="type">services</field>
+            <field name="product_type">services</field>
+            <field name="categ_id" ref="hp_sale.product_category_doc_phyto"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_domestic')])]"/>
             <field name="complete_time">3</field>
+            <field name="list_price">700</field>
         </record>
 
-        <record id="product_common_phyto_2" model="product.template">
+        <record id="product_doc_phyto_2" model="product.template">
             <field name="name">Chi phí làm Phyto Show Hun trùng</field>
-            <field name="type">common</field>
-            <field name="categ_id" ref="hp_sale.product_category_common_phyto"/>
+            <field name="type">services</field>
+            <field name="product_type">services</field>
+            <field name="categ_id" ref="hp_sale.product_category_doc_phyto"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_domestic')])]"/>
             <field name="complete_time">3</field>
-        </record>
-
-        <record id="product_common_phyto_2" model="product.template">
-            <field name="name">Lệ phí Phyto</field>
-            <field name="type">common</field>
-            <field name="categ_id" ref="hp_sale.product_category_common_phyto"/>
-            <field name="complete_time">3</field>
+            <field name="list_price">750</field>
         </record>
 
         <!-- PHÍ CHỨNG TỪ - C/O-->
-        <record id="product_common_co_1" model="product.template">
+        <record id="product_doc_co_1" model="product.template">
             <field name="name">Chi phí làm CO</field>
-            <field name="type">common</field>
-            <field name="categ_id" ref="hp_sale.product_category_common_co"/>
+            <field name="type">services</field>
+            <field name="product_type">services</field>
+            <field name="categ_id" ref="hp_sale.product_category_doc_co"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_domestic')])]"/>
             <field name="complete_time">1</field>
-        </record>
-
-        <record id="product_common_co_2" model="product.template">
-            <field name="name">Lệ phí CO</field>
-            <field name="type">common</field>
-            <field name="categ_id" ref="hp_sale.product_category_common_co"/>
-            <field name="complete_time">1</field>
+            <field name="list_price">300</field>
         </record>
 
         <!-- PHÍ CHỨNG TỪ - Đóng hàng tại bãi-->
-        <record id="product_common_package_1" model="product.template">
+        <record id="product_doc_package_1" model="product.template">
             <field name="name">Cont 20'</field>
-            <field name="type">common</field>
-            <field name="categ_id" ref="hp_sale.product_category_common_package"/>
+            <field name="type">services</field>
+            <field name="product_type">services</field>
+            <field name="categ_id" ref="hp_sale.product_category_doc_package"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_domestic')])]"/>
+            <field name="list_price">300</field>
         </record>
 
-        <record id="product_common_package_2" model="product.template">
+        <record id="product_doc_package_2" model="product.template">
             <field name="name">Cont 40'</field>
-            <field name="type">common</field>
-            <field name="categ_id" ref="hp_sale.product_category_common_package"/>
+            <field name="type">services</field>
+            <field name="product_type">services</field>
+            <field name="categ_id" ref="hp_sale.product_category_doc_package"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_domestic')])]"/>
+            <field name="list_price">400</field>
         </record>
 
         <!-- PHÍ CHỨNG TỪ - Phí Hun Trùng-->
-        <record id="product_common_fumigation_1" model="product.template">
+        <record id="product_fumigation_1" model="product.template">
             <field name="name">48-50 g/m3</field>
-            <field name="type">common</field>
-            <field name="categ_id" ref="hp_sale.product_category_common_fumigation"/>
+            <field name="type">services</field>
+            <field name="product_type">services</field>
+            <field name="categ_id" ref="hp_sale.product_category_doc_fumigation"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_domestic')])]"/>
+            <field name="list_price">350</field>
         </record>
 
-        <record id="product_common_fumigation_2" model="product.template">
+        <record id="product_fumigation_2" model="product.template">
             <field name="name">80 g/m3</field>
-            <field name="type">common</field>
-            <field name="categ_id" ref="hp_sale.product_category_common_fumigation"/>
+            <field name="type">services</field>
+            <field name="product_type">services</field>
+            <field name="categ_id" ref="hp_sale.product_category_doc_fumigation"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_domestic')])]"/>
+            <field name="list_price">500</field>
         </record>
 
-        <record id="product_common_fumigation_3" model="product.template">
+        <record id="product_fumigation_3" model="product.template">
             <field name="name">Australia /ISPMl 5</field>
-            <field name="type">common</field>
-            <field name="categ_id" ref="hp_sale.product_category_common_fumigation"/>
+            <field name="type">services</field>
+            <field name="product_type">services</field>
+            <field name="categ_id" ref="hp_sale.product_category_doc_fumigation"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_domestic')])]"/>
+            <field name="list_price">2000</field>
         </record>
 
-        <record id="product_common_fumigation_4" model="product.template">
+        <record id="product_fumigation_4" model="product.template">
             <field name="name">Australia I AFAS</field>
-            <field name="type">common</field>
-            <field name="categ_id" ref="hp_sale.product_category_common_fumigation"/>
+            <field name="type">services</field>
+            <field name="product_type">services</field>
+            <field name="categ_id" ref="hp_sale.product_category_doc_fumigation"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_domestic')])]"/>
+            <field name="list_price">2500</field>
         </record>
 
         <!-- PHÍ CHỨNG TỪ - Chi phí nâng hạ tại Cảng-->
-        <record id="product_common_lifton/liftoff_1" model="product.template">
+        <record id="product_doc_lift_on_off_1" model="product.template">
             <field name="name">Cont 20' Rỗng</field>
-            <field name="type">common</field>
-            <field name="categ_id" ref="hp_sale.product_category_common_lifton/liftoff"/>
+            <field name="type">services</field>
+            <field name="product_type">services</field>
+            <field name="categ_id" ref="hp_sale.product_category_doc_lift_on_off"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_domestic')])]"/>
+            <field name="list_price">900</field>
         </record>
 
-        <record id="product_common_lifton/liftoff_2" model="product.template">
+        <record id="product_doc_lift_on_off_2" model="product.template">
             <field name="name">Cont 40' Rỗng</field>
-            <field name="type">common</field>
-            <field name="categ_id" ref="hp_sale.product_category_common_lifton/liftoff"/>
+            <field name="type">services</field>
+            <field name="product_type">services</field>
+            <field name="categ_id" ref="hp_sale.product_category_doc_lift_on_off"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_domestic')])]"/>
+            <field name="list_price">1300</field>
         </record>
 
-        <record id="product_common_lifton/liftoff_3" model="product.template">
+        <record id="product_doc_lift_on_off_3" model="product.template">
             <field name="name">Cont 20' Hàng</field>
-            <field name="type">common</field>
-            <field name="categ_id" ref="hp_sale.product_category_common_lifton/liftoff"/>
+            <field name="type">services</field>
+            <field name="product_type">services</field>
+            <field name="categ_id" ref="hp_sale.product_category_doc_lift_on_off"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_domestic')])]"/>
+            <field name="list_price">920</field>
         </record>
 
-        <record id="product_common_lifton/liftoff_4" model="product.template">
+        <record id="product_doc_lift_on_off_4" model="product.template">
             <field name="name">Cont 40' Hàng</field>
-            <field name="type">common</field>
-            <field name="categ_id" ref="hp_sale.product_category_common_lifton/liftoff"/>
+            <field name="type">services</field>
+            <field name="product_type">services</field>
+            <field name="categ_id" ref="hp_sale.product_category_doc_lift_on_off"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_domestic')])]"/>
+            <field name="list_price">1350</field>
         </record>
 
+        <record id="product_truck_freight" model="product.template">
+            <field name="name">Truck Freight</field>
+            <field name="type">truck_freight</field>
+            <field name="product_type">truck_freight</field>
+            <field name="categ_id" ref="hp_sale.product_category_truck_freight"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_land')])]"/>
+            <field name="list_price">0</field>
+        </record>
+        <record id="product_sea_freight" model="product.template">
+            <field name="name">Sea Freight</field>
+            <field name="type">sea_freight</field>
+            <field name="product_type">sea_freight</field>
+            <field name="categ_id" ref="hp_sale.product_category_sea_freight"/>
+            <field name="product_tag_ids" eval="[(6, 0, [ref('hp_sale.product_tag_oversea')])]"/>
+            <field name="list_price">0</field>
+        </record>
     </data>
 </odoo>

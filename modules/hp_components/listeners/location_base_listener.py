@@ -1,0 +1,12 @@
+from odoo.addons.component.core import Component
+from odoo.addons.hp_components.models.constants import LocationType, LocationSource
+
+class LocationBaseListener(Component):
+    _name = "hp_components.location.base.listener"
+    _description = "Location listener"
+    _inherit = 'base.event.listener'
+    _apply_on = ['location.base']
+
+    def on_record_create(self, record, fields=None):
+         if record.source == LocationSource.MANUAL and record.type not in [LocationType.PORT, LocationType.CITY]:
+            self.env['route.base'].create_domestic_route_to_local_port(record)

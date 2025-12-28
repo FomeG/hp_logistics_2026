@@ -4,25 +4,35 @@
     <record id="department_type_sale" model="department.type">
         <field name="name">Sale</field>
         <field name="code">sale</field>
-    </record>
-
-    <record id="department_type_pricing" model="department.type">
-        <field name="name">Pricing</field>
-        <field name="code">pricing</field>
-    </record>
-
-    <record id="department_type_cs" model="department.type">
-        <field name="name">CS</field>
-        <field name="code">cs</field>
+        <field name="manager_group_xml_id">sales_team.group_sale_salesman_all_leads</field>
+        <field name="member_group_xml_id">sales_team.group_sale_salesman</field>
     </record>
 
     <record id="department_type_trucking" model="department.type">
         <field name="name">Trucking</field>
         <field name="code">trucking</field>
+        <field name="manager_group_xml_id">hp_trucking_planning.group_hp_trucking_planning_lead</field>
+        <field name="member_group_xml_id">hp_trucking_planning.group_hp_trucking_planning_member</field>
+    </record>
+
+    <record id="department_type_cs" model="department.type">
+        <field name="name">Customer Service</field>
+        <field name="code">cs</field>
+        <field name="manager_group_xml_id">hp_customer_service.group_hp_customer_service_leader</field>
+        <field name="member_group_xml_id">hp_customer_service.group_hp_customer_service_member</field>
     </record>
 
     <record id="department_type_account" model="department.type">
         <field name="name">Account</field>
         <field name="code">account</field>
+        <field name="manager_group_xml_id"/>
+        <field name="member_group_xml_id"/>
+    </record>
+
+    <record id="department_type_hr" model="department.type">
+        <field name="name">HR</field>
+        <field name="code">hr</field>
+        <field name="manager_group_xml_id">hp_employee.group_hr_lead</field>
+        <field name="member_group_xml_id">hp_employee.group_hr_user</field>
     </record>
 </odoo>

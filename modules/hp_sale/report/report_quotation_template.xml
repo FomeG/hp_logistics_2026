@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_quotation_document">
+        <t t-call="web.basic_layout">
+            <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+
+            <style>
+                @page {
+                    margin: 5mm 10mm 5mm 10mm;
+                }
+                .page {
+                    font-family: "Times New Roman", Times, serif;
+                    font-size: 10pt;
+                    color: #000;
+                    line-height: 1.2;
+                }
+
+                .hpl-header-wrap {
+                    width: 100%;
+                    display: block;
+                    clear: both;
+                    height: 95px;
+                }
+                .hpl-logo-box {
+                    float: left;
+                    width: 28%;
+                    text-align: center;
+                }
+                .hpl-banner-box {
+                    float: right;
+                    width: 72%;
+                    text-align: center;
+                }
+
+                /* 2. Tiêu đề nằm giữa dưới header */
+                .title-section {
+                    width: 100%;
+                    text-align: center;
+                    margin: 10px 0;
+                    clear: both;
+                }
+                .title-main {
+                    font-size: 14pt;
+                    font-weight: bold;
+                    color: #003366; /* Màu xanh đậm như mẫu */
+                    margin: 0;
+                    text-transform: uppercase;
+                }
+
+                /* 3. Khung thông tin */
+                .combined-box {
+                    width: 100%;
+                    border: 1px solid #000;
+                    margin-bottom: 5px;
+                }
+                .combined-box table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                .combined-box td {
+                    border: none;
+                    vertical-align: top;
+                    padding: 3px 5px;
+                }
+                .v-line {
+                    border-left: 1px solid #000 !important;
+                }
+                .h-line {
+                    border-top: 1px solid #000 !important;
+                }
+
+                /* 4. Data Table */
+                .main-table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    font-size: 9pt;
+                }
+                .main-table td, .main-table th {
+                    border: 1px solid #000;
+                    padding: 4px;
+                }
+                .bg-grey { background-color: #f2f2f2; }
+                .text-center { text-align: center; }
+                .text-right { text-align: right; }
+                .bold { font-weight: bold; }
+
+                /* 5. Terms Bank */
+                .terms-section {
+                    line-height: 1.8; /* Giãn dòng rộng hơn */
+                    margin-top: 10px;
+                }
+                .bank-box {
+                    border: 1px solid #000;
+                    padding: 10px;
+                    width: 100%;
+                }
+
+                .bank-box div {
+                    margin-bottom: 3px;
+                }
+
+                /* 6. Footer địa chỉ */
+                .footer-address {
+                    margin-top: 40px;
+                    text-align: center;
+                    font-size: 8.5pt;
+                    width: 100%;
+                }
+            </style>
+
+            <div class="page">
+                <!-- Header:-->
+                <div class="hpl-header-wrap">
+                    <div class="hpl-logo-box">
+                        <img t-if="doc.company_id.logo"
+                             t-att-src="image_data_uri(doc.company_id.logo)"
+                             style="max-height: 65px; max-width: 180px;"/>
+                        <div style="font-size: 7.5pt; margin-top: 2px;">www.hplogistics.com.vn</div>
+                    </div>
+                    <div class="hpl-banner-box">
+                        <div style="font-size: 9pt; color: #0055aa; font-weight: bold; margin-bottom: 5px;">
+                            HỆ THỐNG ĐẠI LÝ HÀNG HÓA VÀ TÀU BIỂN HÀNG ĐẦU VIỆT NAM
+                        </div>
+                        <img src="/hp_sale/static/img/logoshippingline.jpg"
+                             style="max-width: 550px; height: auto;"/>
+                    </div>
+                </div>
+
+                <!-- Title Section:-->
+                <div class="title-section">
+                    <div class="title-main">BẢNG BÁO GIÁ</div>
+                    <div class="bold">Số báo giá: <span t-field="doc.name"/></div>
+                </div>
+
+                <div class="combined-box">
+                    <table>
+                        <tr>
+                            <!-- Cột 1: Thông tin khách -->
+                            <td style="width: 38%;">
+                                <div>Khách hàng: <span t-field="doc.client_id.name"/></div>
+                                <div>Người liên hệ: <span t-field="doc.partner_id.name"/></div>
+                                <div>Địa chỉ: <span t-field="doc.client_address"/></div>
+                                <div>MST: <span t-field="doc.client_vat"/></div>
+                                <div>Tel: <span t-field="doc.client_phone"/></div>
+                            </td>
+                            <!-- Cột 2: Email & Fax -->
+                            <td style="width: 27%;">
+                                <div>Email: <span t-field="doc.partner_id.email"/></div>
+                                <div>Fax:</div>
+                            </td>
+                            <!-- Cột 3: Sales  -->
+                            <td style="width: 35%;">
+                                <div>Ngày báo giá: <span t-field="doc.date_order" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/></div>
+                                <div>Sales phụ trách: <span t-field="doc.user_id.name"/></div>
+                                <div>Số điện thoại: <span t-field="doc.user_id.phone"/></div>
+                                <div>Email: <span t-field="doc.user_id.email"/></div>
+                            </td>
+                        </tr>
+                        <!-- Lời mở đầu -->
+                        <tr>
+                            <td colspan="2" class="h-line" style="padding: 10px 5px;">
+                                <div>Kính gửi Quý Khách hàng!</div>
+                                <div style="margin-top: 3px;">Trước tiên, chúng tôi Công ty cổ phần tiếp vận HP xin chân thành cảm ơn Quý Khách hàng đã quan tâm tới sản phẩm của chúng tôi.</div>
+                                <div style="margin-top: 2px;">Nay chúng tôi xin báo giá dịch vụ cước biển, khai báo hải quan và dịch vụ trucking với nội dung chi tiết như sau:</div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Tỷ giá phụ -->
+                <div class="text-right bold" style="margin: 5px 0; font-size: 9.5pt;">
+                    Tỷ giá: 1 <span t-field="doc.ref_currency_id.name"/> = <span t-esc="'{0:,.2f}'.format(doc.currency_rate)"/> VND
+                </div>
+
+                <!-- Main Data Table -->
+                <table class="main-table">
+                    <thead>
+                        <tr class="bg-grey text-center bold">
+                            <td style="width: 30px;">No.</td>
+                            <td style="width: 120px">Descriptions (Mô tả)</td>
+                            <td style="width: 30px;">Line (Hãng tàu)</td>
+                            <td style="width: 60px;">Amount (ĐVT)</td>
+                            <td style="width: 50px;">Type (Loại)</td>
+                            <td style="width: 60px;">Qty (Số lượng)</td>
+                            <td style="width: 60px;">U.price (USD)</td>
+                            <td style="width: 60px;">U.price (VNĐ)</td>
+                            <td style="width: 30px;">VAT (%)</td>
+                            <td style="width: 100px;">Total (VNĐ)</td>
+                            <td style="width: 85px;">ETD</td>
+                            <td style="width: 100px;">Note</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="idx" t-value="1"/>
+                        <t t-foreach="doc.order_line" t-as="line">
+                            <t t-set="src_rec" t-value="line.env[line.res_model].sudo().browse(line.res_id) if (line.res_model and line.res_id) else False"/>
+                            <tr>
+                                <td class="text-center"><t t-esc="idx"/></td>
+                                <td><span t-field="line.name"/></td>
+                                <td class="text-center">
+                                    <t t-if="line.res_model == 'product.template.selling.week.line' and src_rec and src_rec.shipping_line_id">
+                                        <span t-field="src_rec.shipping_line_id.name"/>
+                                    </t>
+                                    <t t-elif="line.res_model == 'route.base'">HP</t>
+                                    <t t-else="">-</t>
+                                </td>
+                                <td class="text-center">Cont</td>
+                                <td class="text-center">
+                                    <t t-if="line.res_model == 'product.template.selling.week.line' and src_rec and src_rec.container_type_id">
+                                        <span t-field="src_rec.container_type_id.name"/>
+                                    </t>
+                                    <t t-else=""><span t-field="doc.container_type_id.name"/></t>
+                                </td>
+                                <td class="text-center"><span t-esc="'%.0f' % line.product_uom_qty"/></td>
+                                <td class="text-right">
+                                    <span t-if="line.currency_id_line.name == 'USD'" t-esc="'{0:,.2f}'.format(line.price_unit_original)"/>
+                                </td>
+                                <td class="text-right"><span t-esc="'{0:,.0f}'.format(line.price_unit)"/></td>
+                                <td class="text-center"><span t-esc="', '.join(map(lambda x: (x.description or x.name), line.tax_id)) if line.tax_id else '8%'"/></td>
+                                <td class="text-right bold"><span t-esc="'{0:,.0f}'.format(line.price_total)"/></td>
+                                <td class="text-center"><span t-field="doc.etd" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/></td>
+                                <td></td>
+                            </tr>
+                            <t t-set="idx" t-value="idx + 1"/>
+                        </t>
+                        <tr class="bold">
+                            <td colspan="9" class="text-right">Thành tiền trước thuế VAT</td>
+                            <td class="text-right"><span t-esc="'{0:,.0f}'.format(doc.amount_untaxed)"/></td>
+                            <td colspan="2"></td>
+                        </tr>
+                        <tr class="bold">
+                            <td colspan="9" class="text-right">Tiền thuế VAT (8%)</td>
+                            <td class="text-right"><span t-esc="'{0:,.0f}'.format(doc.amount_tax)"/></td>
+                            <td colspan="2"></td>
+                        </tr>
+                        <tr class="bold bg-grey">
+                            <td colspan="9" class="text-right">Tổng cộng</td>
+                            <td class="text-right"><span t-esc="'{0:,.0f}'.format(doc.amount_total)"/></td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Terms & Bank Box -->
+                <div style="width: 100%; margin-top: 20px; display: table;">
+                    <div style="display: table-cell; width: 55%; vertical-align: top;">
+                        <div class="bold" style="text-decoration: underline;">ĐIỀU KHOẢN THANH TOÁN:</div>
+                        <div class="terms-section">
+                            <div>* Phương thức thanh toán: </div>
+                            <div>* Thời hạn thanh toán: <span t-field="doc.payment_term_id.name"/></div>
+                            <div>* Hiệu lực báo giá: Theo ETD</div>
+                            <div>* Báo giá không bao gồm chi phí đường cấm, chi phí phát sinh khác (nếu có)</div>
+                            <div>* Báo giá đã bao gồm VAT, Tỷ giá cước biển sẽ tính theo giá Vietcombank tại ETD</div>
+                            <div>* Hải quan (luồng đỏ) giá: 1,000,000 VNĐ (chưa VAT), chưa gồm kiểm hóa</div>
+                            <div>* Trường hợp hạ rỗng tại Lạch Huyện: phụ thu 500,000 VNĐ/lần</div>
+                        </div>
+                    </div>
+                    <div style="display: table-cell; width: 45%; vertical-align: top; padding-left: 20px;">
+                        <div class="bank-box">
+                            <div class="bold">Tên TK: CÔNG TY CỔ PHẦN TIẾP VẬN HP</div>
+                            <div>Ngân hàng TMCP Á Châu - Chi nhánh Hà Nội</div>
+                            <div class="bold" style="margin-top: 5px;">STK: 1303200988</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="italic" style="margin-top: 50px;">Rất mong được hợp tác với Quý khách hàng!</div>
+
+                <!-- Signatures -->
+                <div style="width: 100%; margin-top: 40px; display: table; page-break-inside: avoid;">
+                    <div style="display: table-cell; width: 50%; text-align: center;">
+                        <div class="bold">Xác nhận khách hàng</div>
+                        <div class="italic">(Ký, ghi rõ họ tên và đóng dấu)</div>
+                        <div style="height: 100px;"></div>
+                    </div>
+                    <div style="display: table-cell; width: 50%; text-align: center;">
+                        <div class="bold">CÔNG TY CỔ PHẦN TIẾP VẬN HP</div>
+                        <div class="italic">(Ký, ghi rõ họ tên)</div>
+                        <div style="height: 70px;"></div>
+                        <div class="bold"><span t-field="doc.user_id.name"/></div>
+                        <div><span t-field="doc.date_order" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/></div>
+                    </div>
+                </div>
+
+                <!-- Footer: Địa chỉ (Không đường kẻ) -->
+                <div class="footer-address">
+                    <div style="display: inline-block; width: 32%; vertical-align: top;">
+                        <div class="bold">HÀ NỘI</div>
+                        378 Minh Khai, P.Vĩnh Tuy, Q. Hai Bà Trưng
+                    </div>
+                    <div style="display: inline-block; width: 32%; vertical-align: top;">
+                        <div class="bold">HẢI PHÒNG</div>
+                        441 Đà Nẵng, Hải An
+                    </div>
+                    <div style="display: inline-block; width: 32%; vertical-align: top;">
+                        <div class="bold">HỒ CHÍ MINH</div>
+                        104 Ung Văn Khiêm, Phường 25, Q. Bình Thạnh
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_quotation">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="hp_sale.report_quotation_document" t-lang="doc.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+</odoo>

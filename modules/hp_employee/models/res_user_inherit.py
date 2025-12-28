@@ -1,7 +1,13 @@
-from odoo import models, api
+from odoo import fields, models, api
 
 class ResUsers(models.Model):
     _inherit = 'res.users'
+
+    employee_ids = fields.One2many(
+        'hr.employee',
+        'user_id',
+        string='Employees'
+    )
 
     @api.model_create_multi
     def create(self, vals_list):

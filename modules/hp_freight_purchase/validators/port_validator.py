@@ -14,17 +14,17 @@ class PortCreateValidator(FreightValidator):
             'is_local': {
                 'label': f"Is Local Port",
                 'type': bool,
-                'required': True,
+                'required': False,
             },
             'is_active': {
                 'label': f"Is Active",
                 'type': bool,
-                'required': True,
+                'required': False,
             },
             'region_id': {
                 'label': f"Region",
                 'type': int,
-                'exists': 'freight.purchase.region',
+                'exists': 'region',
             },
         }
         errors = []
@@ -53,7 +53,7 @@ class PortUpdateValidator(FreightValidator):
             'region_id': {
                 'label': f"Region",
                 'type': int,
-                'exists': 'freight.purchase.region',
+                'exists': 'region',
             },
         }
         errors = []

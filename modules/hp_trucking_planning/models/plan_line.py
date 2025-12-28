@@ -6,6 +6,7 @@ import io
 from datetime import datetime
 from ..services.zalo_service import ZaloService
 from ..services.res_partner_service import ResPartnerService
+from odoo.addons.hp_components.models import constants
 
 import logging
 _logger = logging.getLogger(__name__)
@@ -13,7 +14,7 @@ _logger = logging.getLogger(__name__)
 class PlanLine(models.Model):
     _name = 'trucking_planning.plan.line'
     _description = 'Job'
-    _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
+    _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin','cs.order.base']
     _rec_name = 'code'
 
     plan_id = fields.Many2one(
@@ -22,6 +23,11 @@ class PlanLine(models.Model):
         required=True,
         readonly=True,
     )
+    # job_id = fields.Many2one(
+    #     comodel_name='cs.job',
+    #     string='Job',
+    #     index=True,
+    # )
     code = fields.Char(
         string='Job Number',
         tracking=True,
@@ -38,39 +44,42 @@ class PlanLine(models.Model):
         store=False,
     )
     status = fields.Selection([
-        ('hpl_reject', 'HPL Reject'),
-        ('client_cancel', 'Client Cancel'),
-        ('checking', 'Checking'),
-        ('transfer', 'Transfer'),
-        ('rented', 'Rented')
+        (constants.PlanLineStatus.HPL_REJECT, 'HPL Reject'),
+        (constants.PlanLineStatus.CLIENT_CANCEL, 'Client Cancel'),
+        (constants.PlanLineStatus.CHECKING, 'Checking'),
+        (constants.PlanLineStatus.TRANSFER, 'Transfer'),
+        (constants.PlanLineStatus.RENTED, 'Rented')
     ],
         string='Status',
         required=True,
         tracking=True,
     )
-    plan_type = fields.Selection([],
-                                 related='plan_id.plan_type',
-                                 store=False,
-                                 )
-    route_id = fields.Many2one(
-        comodel_name='trucking_planning.route', required=True
+    plan_type = fields.Selection(
+        related='plan_id.plan_type',
+        store=False,
     )
-    actual_source_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
-        compute='_compute_actual_locations',
-        string='From Location',
-        store=True,
-        readonly=True,
-        tracking=True,
-    )
-    actual_destination_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
-        compute='_compute_actual_locations',
-        string='To Location',
-        store=True,
-        readonly=True,
-        tracking=True,
-    )
+
+
+    # route_id = fields.Many2one(
+    #     comodel_name='trucking_planning.route',
+    #     required=False,
+    # )
+    # actual_source_location_id = fields.Many2one(
+    #     comodel_name='location.base',
+    #     compute='_compute_actual_locations',
+    #     string='From Location',
+    #     store=True,
+    #     readonly=True,
+    #     tracking=True,
+    # )
+    # actual_destination_location_id = fields.Many2one(
+    #     comodel_name='location.base',
+    #     compute='_compute_actual_locations',
+    #     string='To Location',
+    #     store=True,
+    #     readonly=True,
+    #     tracking=True,
+    # )
     note = fields.Text(string="Note")
 
     # goods info
@@ -92,38 +101,166 @@ class PlanLine(models.Model):
         store=True,
         help="Number of trucks assigned to this customer"
     )
-    estimate_time_departure = fields.Datetime(
-        string="ETD (Estimated Time of Departure)",
-        required=True,
-        tracking=True,
-    )
-    estimate_time_arrival = fields.Datetime(
-        string="ETA (Estimated Time of Arrival)",
-        required=True,
-        tracking=True,
-    )
+    # date = fields.Datetime(
+    #     string='Load / Return Date',
+    #     required=False,
+    #     index=True,
+    #     tracking=True,
+    #     help="Date when goods are loaded (Export) or returned (Import)"
+    # )
+    # estimate_time_departure = fields.Datetime(
+    #     string="ETD (Estimated Time of Departure)",
+    #     required=False,
+    #     tracking=True,
+    # )
+    # estimate_time_arrival = fields.Datetime(
+    #     string="ETA (Estimated Time of Arrival)",
+    #     required=False,
+    #     tracking=True,
+    # )
 
     estimate_time_duration = fields.Float(
         string="Estimated Time Duration (Hours)",
         compute='_compute_estimate_time_duration',
         store=True,
     )
-    goods_pickup_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
-        string="Goods Pickup Location",
-        required=True,
-        tracking=True,
-        domain=[('type', '=', 'goods_pickup_delivery')],
-        help="Location where goods will be picked up (Export) or delivered (Import)"
+    # goods_pickup_location_id = fields.Many2one(
+    #     comodel_name='trucking_planning.location',
+    #     string="Goods Pickup Location",
+    #     required=False,
+    #     tracking=True,
+    #     domain=[('type', '=', 'goods_pickup_delivery')],
+    #     help="Location where goods will be picked up (Export) or delivered (Import)"
+    # )
+    # goods_delivery_location_id = fields.Many2one(
+    #     comodel_name='trucking_planning.location',
+    #     string="Goods Delivery Location",
+    #     required=False,
+    #     tracking=True,
+    #     domain=[('type', '=', 'port')],
+    #     help="Location where goods will be delivered (Export) or picked up (Import)"
+    # )
+
+    combined_vehicles = fields.Integer(
+        string="Combined Vehicles",
+        compute='_compute_vehicle_count',
+        store=False,
+        help="Number of combined vehicles"
     )
-    goods_delivery_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
-        string="Goods Delivery Location",
-        required=True,
-        tracking=True,
-        domain=[('type', '=', 'port')],
-        help="Location where goods will be delivered (Export) or picked up (Import)"
+    external_vehicles = fields.Integer(
+        string="External Vehicles",
+        compute='_compute_vehicle_counts',
+        store=False,
+        help="Number of external vehicles in this job"
     )
+
+    assigned_trucks = fields.Integer(
+        string="Assigned Trucks",
+        compute='_compute_vehicle_counts',
+        store=False,
+        help="Number of trips with assigned trucks"
+    )
+
+    unassigned_trucks = fields.Integer(
+        string="Unassigned Trucks",
+        compute='_compute_vehicle_counts',
+        store=False,
+        help="Number of trips without assigned trucks"
+    )
+
+    container_summary = fields.Char(
+        string="Container Summary",
+        compute='_compute_container_summary',
+        store=False
+    )
+
+    container_number_summary = fields.Char(
+        string="Container Numbers (Số Cont)",
+        compute='_compute_container_number_summary',
+        store=False,
+        help="Comma-separated container numbers from trips"
+    )
+
+    weight_class_summary = fields.Char(
+        string="Weight Class",
+        compute='_compute_weight_class_summary',
+        store=False,
+        help="Comma-separated weight classes from trips"
+    )
+
+    trip_status_summary = fields.Char(
+        string="Trip Status",
+        compute='_compute_trip_status_summary',
+        store=False,
+        help="Summary of trip statuses: Incomplete (Draft, On Route, Stopped) / Done"
+    )
+
+    # container_port_location_id = fields.Many2one(
+    #     comodel_name='trucking_planning.location',
+    #     string="Empty Container Depot",
+    #     domain=[('type', '=', 'depot')],
+    #     tracking=True,
+    #     help="Depot where empty container is picked up (Export) or returned (Import)"
+    # )
+
+    route_direction = fields.Selection(
+        related='route_id.direction',
+        string='Direction',
+        store=False,
+        readonly=True
+    )
+
+    @api.onchange('plan_id')
+    def _onchange_plan_id(self):
+        if self.plan_id and self.plan_id.location_id:
+            self.container_port_location_id = self.plan_id.location_id
+        else:
+            self.container_port_location_id = False
+
+    @api.depends('trip_ids.status', 'trip_ids.active')
+    def _compute_trip_status_summary(self):
+        for record in self:
+            active_trips = record.trip_ids.filtered(lambda t: t.active)
+            # Đếm số chuyến chưa hoàn thành (draft, on_route, stopped)
+            incomplete_trips = active_trips.filtered(
+                lambda t: t.status in [constants.TripStatus.DRAFT, constants.TripStatus.ON_ROUTE, constants.TripStatus.STOPPED]
+            )
+            # Đếm số chuyến đã hoàn thành (done)
+            done_trips = active_trips.filtered(
+                lambda t: t.status == constants.TripStatus.DONE
+            )
+            record.trip_status_summary = f"{len(incomplete_trips)} Incomplete / {len(done_trips)} Done"
+
+    @api.depends('trip_ids.container_number')
+    def _compute_container_number_summary(self):
+        for record in self:
+            trips = record.trip_ids.filtered(lambda t: t.active and t.container_number)
+            numbers = ', '.join(sorted(set(trips.mapped('container_number')))) if trips else 'N/A'
+            record.container_number_summary = numbers
+
+    @api.depends('trip_ids.weight_class')
+    def _compute_weight_class_summary(self):
+        for record in self:
+            trips = record.trip_ids.filtered(lambda t: t.active and t.weight_class)
+            classes = ', '.join(sorted(set(trips.mapped('weight_class')))) if trips else 'N/A'
+            record.weight_class_summary = classes
+
+    @api.depends('trip_ids.container_type', 'trip_ids.container_size')
+    def _compute_container_summary(self):
+        for record in self:
+            trips = record.trip_ids.filtered(lambda t: t.active)
+            types = ', '.join(trips.mapped('container_type')) if trips.mapped('container_type') else 'N/A'
+            sizes = ', '.join(trips.mapped('container_size')) if trips.mapped('container_size') else 'N/A'
+            record.container_summary = f"{types} ({sizes})"
+
+    @api.depends('trip_ids.is_combined_vehicle', 'trip_ids.is_external_vehicle', 'trip_ids.truck_id', 'trip_ids.active')
+    def _compute_vehicle_counts(self):
+        for record in self:
+            trips = record.trip_ids.filtered(lambda t: t.active)
+            record.combined_vehicles = len(trips.filtered(lambda t: t.is_combined_vehicle))
+            record.external_vehicles = len(trips.filtered(lambda t: t.is_external_vehicle))
+            record.assigned_trucks = len(trips.filtered(lambda t: t.truck_id))
+            record.unassigned_trucks = len(trips) - record.assigned_trucks
 
     @api.constrains('code')
     def _check_unique_job_number(self):
@@ -213,14 +350,13 @@ class PlanLine(models.Model):
     # declaration_number = fields.Char(string="Số tờ khai")
     # price_code = fields.Char(string="Mã bảng giá")
 
-
-    @api.depends('trip_ids')
+    @api.depends('trip_ids.active')
     def _compute_truck_count(self):
-        """Compute the number of trucks (trips) for this customer"""
         for record in self:
-            record.truck_count = len(record.trip_ids)
+            record.truck_count = len(record.trip_ids.filtered(lambda t: t.active))
 
-    @api.depends('plan_type', 'route_id')
+    @api.depends('route_id', 'route_id.from_location_id', 'route_id.to_location_id',
+                 'route_id.direction', 'plan_type')
     def _compute_actual_locations(self):
         for rec in self:
             if rec.route_id:
@@ -255,10 +391,10 @@ class PlanLine(models.Model):
         for trip in self:
             trip.driver_info = f"{trip.driver_id.name},{trip.truck_id.name}"
 
-    @api.onchange('route_id')
-    def _on_route_change(self):
-        for trip in self:
-            trip.plan_type = trip.route_id.direction
+    # @api.onchange('route_id')
+    # def _on_route_change(self):
+    #     for trip in self:
+    #         trip.plan_type = trip.route_id.direction
 
     def action_view_trips(self):
         """Action để xem tất cả trips thuộc job"""
@@ -316,7 +452,7 @@ class PlanLine(models.Model):
                 'container_type': self.plan_id.container_type,
                 'container_size': '40',
                 'weight_class': 'mix',
-                'status': 'draft',
+                'status': constants.TripStatus.DRAFT,
             }
             trip = self.env['trucking_planning.trip'].create(truck_vals)
             trucks_created.append(trip.id)
@@ -382,7 +518,7 @@ class PlanLine(models.Model):
 
     def action_export_plan_line_excel(self):
         """Export job data to Excel format"""
-        return self.env['hp.document.service'].generate_plan_line_excel(self)
+        return self.env['hp.document.service.trucking'].generate_excel(self)
 
     def action_export_all_plan_lines_excel(self):
         """Export all jobs to Excel format"""
@@ -392,3 +528,45 @@ class PlanLine(models.Model):
     # def _compute_fuel_total(self):
     #     for record in self:
     #         record.fuel_total = record.fuel_before + record.fuel_received
+    # @api.model
+    # def get_or_create_from_cs_job(self, cs_job, plan):
+    #     if not cs_job.booking_line_id:
+    #         return False
+    #
+    #     # Tìm Plan Line theo Job
+    #     plan_line = self.search([('job_id', '=', cs_job.id)], limit=1)
+    #     if plan_line:
+    #         return plan_line
+    #
+    #     route = self.env['trucking_planning.route'].search([
+    #         ('name', 'ilike', cs_job.pol.name or ''),
+    #         ('name', 'ilike', cs_job.pod.name or '')
+    #     ], limit=1)
+    #
+    #     plan_line_vals = {
+    #         'plan_id': plan.id,
+    #         'job_id': cs_job.id,
+    #         'code': cs_job.job_number or cs_job.id,
+    #         'client_id': cs_job.customer_id.id or cs_job.cs_order_id.client_id.id,
+    #         'status': constants.PlanLineStatus.CHECKING,
+    #         'route_id': route.id if route else False,
+    #         'date': cs_job.etd or fields.Datetime.now(),
+    #         'estimate_time_departure': cs_job.etd or fields.Datetime.now(),
+    #         'estimate_time_arrival': (cs_job.etd or fields.Datetime.now()) + timedelta(hours=8),
+    #         'goods_pickup_location_id': self._get_location(cs_job, 'pickup'),
+    #         'goods_delivery_location_id': self._get_location(cs_job, 'delivery'),
+    #     }
+    #
+    #     plan_line = self.create(plan_line_vals)
+    #     _logger.info(f"Đã tạo Plan Line cho Job: {cs_job.job_number}")
+    #     return plan_line
+    #
+    # def _get_location(self, cs_job, type_):
+    #     """Helper để lấy location theo loại"""
+    #     # Giả lập: tìm location theo tên port hoặc client
+    #     location_model = self.env['trucking_planning.location']
+    #     if type_ == 'pickup':
+    #         search_name = cs_job.cs_order_id.client_id.name or 'HCM'
+    #     else:
+    #         search_name = cs_job.pol.name or cs_job.pod.name or 'Cat Lai'
+    #     return location_model.search([('name', 'ilike', search_name)], limit=1).id

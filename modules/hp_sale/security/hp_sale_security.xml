@@ -21,5 +21,186 @@
             <field name="perm_unlink" eval="0"/>
         </record> -->
 
+        <!-- Rule cho Salesman: READ - xem tất cả sản phẩm -->
+<!--        <record id="rule_product_template_salesman_read_all" model="ir.rule">-->
+<!--            <field name="name">Product Template: Salesman can read all products</field>-->
+<!--            <field name="model_id" ref="product.model_product_template"/>-->
+<!--            <field name="domain_force">[(1, '=', 1)]</field>-->
+<!--            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>-->
+<!--            <field name="perm_read" eval="1"/>-->
+<!--            <field name="perm_write" eval="0"/>-->
+<!--            <field name="perm_create" eval="0"/>-->
+<!--            <field name="perm_unlink" eval="0"/>-->
+<!--        </record>-->
+
+<!--        &lt;!&ndash; Rule cho Salesman: WRITE - chỉ edit Custom và Services &ndash;&gt;-->
+<!--        <record id="rule_product_template_salesman_write_limited" model="ir.rule">-->
+<!--            <field name="name">Product Template: Salesman can edit only Custom and Services</field>-->
+<!--            <field name="model_id" ref="product.model_product_template"/>-->
+<!--            <field name="domain_force">[('type', 'in', ['custom', 'services'])]</field>-->
+<!--            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>-->
+<!--            <field name="perm_read" eval="0"/>-->
+<!--            <field name="perm_write" eval="1"/>-->
+<!--            <field name="perm_create" eval="0"/>-->
+<!--            <field name="perm_unlink" eval="0"/>-->
+<!--        </record>-->
+
+        <!-- Rule cho Salesman: chỉ thấy team mà mình thuộc -->
+        <record id="hr_team_rule_salesman" model="ir.rule">
+            <field name="name">HR Team - See own teams (Salesman)</field>
+            <field name="model_id" ref="hp_employee.model_hr_team"/>
+            <field name="domain_force">[('user_ids', 'in', [user.id])]</field>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Rule cho Sales Manager: thấy tất cả team -->
+        <record id="hr_team_rule_leader" model="ir.rule">
+            <field name="name">HR Team - See all (Manager)</field>
+            <field name="model_id" ref="hp_employee.model_hr_team"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Rule cho Salesman: chỉ thấy product_selling_week có team mà user đó thuộc về -->
+        <record id="rule_product_selling_week_sale_man" model="ir.rule">
+            <field name="name">Product Selling Week: Access own team only</field>
+            <field name="model_id" ref="model_product_template_selling_week"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="domain_force">[('team_id.user_ids', 'in', [user.id]), ('selling_week_id.is_active', '=', True)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Rule cho Sales Manager: thấy tất cả product_selling_week -->
+        <record id="rule_product_selling_week_sale_manager" model="ir.rule">
+            <field name="name">Product Selling Week: Manager access all</field>
+            <field name="model_id" ref="model_product_template_selling_week"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- Rule cho Salesman: chỉ thấy product_selling_week_line có team mà user đó thuộc về -->
+        <record id="rule_product_selling_week_line_sale_man" model="ir.rule">
+            <field name="name">Product Selling Week line: Access own team only</field>
+            <field name="model_id" ref="model_product_template_selling_week_line"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="domain_force">[('product_template_selling_week_id.team_id.user_ids', 'in', [user.id]), ('selling_week_id.is_active', '=', True)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Rule cho Sales Manager: thấy tất cả product_selling_week_line -->
+        <record id="rule_product_selling_week_line_sale_manager" model="ir.rule">
+            <field name="name">Product Selling Week: Manager access all</field>
+            <field name="model_id" ref="model_product_template_selling_week_line"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- Rule Salesman: selling weeek has is_active = true -->
+        <record id="rule_selling_week_sale_man" model="ir.rule">
+            <field name="name">Selling Week: is public</field>
+            <field name="model_id" ref="model_selling_week"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="domain_force">[('is_active', '=', True)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Rule Manager: all selling weeek -->
+         <record id="rule_selling_week_sale_leader" model="ir.rule">
+            <field name="name">Selling Week: All</field>
+            <field name="model_id" ref="model_selling_week"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+
+
+        <!--
+            Salesman có thể đọc những tasks:
+            - Được assign cho họ (user_ids), HOẶC
+            - Thuộc về Sale Order của họ (sale_order_id.user_id), HOẶC
+            - Họ tạo ra (create_uid)
+        -->
+        <record id="rule_project_task_salesman_read" model="ir.rule">
+            <field name="name">Project Task: Salesman can read related tasks</field>
+            <field name="model_id" ref="project.model_project_task"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="domain_force">['|', '|', ('user_ids', 'in', user.id), ('sale_order_id.user_id', '=', user.id), ('create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!--
+            Salesman chỉ được chỉnh sửa tasks được ASSIGN cho họ
+            (Không được manipulate tasks của SO mà họ không được assign)
+        -->
+        <record id="rule_project_task_salesman_write" model="ir.rule">
+            <field name="name">Project Task: Salesman can write assigned tasks only</field>
+            <field name="model_id" ref="project.model_project_task"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="domain_force">[('user_ids', 'in', user.id)]</field>
+            <field name="perm_read" eval="0"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!--
+            Salesman có thể tạo task mới
+            (Họ phải assign cho chính họ hoặc là người tạo (hiện tại để tạo )
+        -->
+        <record id="rule_project_task_salesman_create" model="ir.rule">
+            <field name="name">Project Task: Salesman can create tasks</field>
+            <field name="model_id" ref="project.model_project_task"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="domain_force">['|', ('user_ids', 'in', user.id), ('create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="0"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+
+        <record id="sale_order_sale_manager_rule" model="ir.rule">
+            <field name="name">Sale Order Sale Manager Rule</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
     </data>
 </odoo>

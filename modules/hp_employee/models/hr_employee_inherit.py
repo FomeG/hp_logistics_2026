@@ -1,11 +1,18 @@
 from odoo import models, api, fields, _
+from odoo.exceptions import ValidationError, UserError, AccessError
 from ...hp_components.models import constants
-from odoo.exceptions import ValidationError, UserError
+from odoo import tools
 
 class HrEmployeeInherit(models.Model):
     _inherit = 'hr.employee'
 
     dept_manager_id = fields.Many2one('hr.employee', compute='_compute_manager_id', store=False)
+    current_user_branch_id = fields.Many2one(
+        'hr.branch',
+        compute='_compute_current_user_branch',
+        default=lambda self: self._default_current_user_branch(),
+        store=False
+    )
 
     work_shift_id = fields.Many2one(
         comodel_name="hr.work.shift",
@@ -17,10 +24,43 @@ class HrEmployeeInherit(models.Model):
     def _compute_manager_id(self):
         for employee in self:
             employee.dept_manager_id = employee.department_id.manager_id if employee.department_id else False
+
+    def _default_current_user_branch(self):
+        """Default value for current user's branch"""
+        current_user = self.env.user
+        if current_user.employee_id and current_user.employee_id.department_id:
+            return current_user.employee_id.department_id.branch_id
+        return False
+
+    @api.depends_context('uid')
+    def _compute_current_user_branch(self):
+        """Compute current user's branch for domain filtering"""
+        for employee in self:
+            employee.current_user_branch_id = self._default_current_user_branch()
                 
 
     @api.model_create_multi
     def create(self, vals_list):
+        # Check branch restriction for HR users (skip for sudo/admin)
+        if not self.env.su and not self.env.user.has_group('base.group_system'):
+            user_service = self.env['hp_employee.user.service']
+            if user_service.is_hr_role(self.env.user):
+                # Get current user's branch
+                current_user = self.env.user
+                if current_user.employee_id and current_user.employee_id.department_id:
+                    user_branch = current_user.employee_id.department_id.branch_id
+
+                    # Check each employee being created
+                    for vals in vals_list:
+                        department_id = vals.get('department_id')
+                        if department_id:
+                            department = self.env['hr.department'].browse(department_id)
+                            if department.branch_id and department.branch_id != user_branch:
+                                raise AccessError(_(
+                                    "You can only create employees in departments from your own branch (%s). "
+                                    "The selected department '%s' belongs to branch '%s'."
+                                ) % (user_branch.name, department.name, department.branch_id.name))
+
         emails = {vals.get('work_email') for vals in vals_list if vals.get('work_email')}
         phones = {vals.get('work_phone') for vals in vals_list if vals.get('work_phone')}
 
@@ -44,6 +84,8 @@ class HrEmployeeInherit(models.Model):
                 department = employee.department_id
                 if department:
                     employee._assign_group_to_member(department)
+                    # Assign HR-specific groups if in HR department
+                    employee._assign_hr_groups()
 
         if duplicate_emails or duplicate_phones:
             message_parts = []
@@ -56,6 +98,17 @@ class HrEmployeeInherit(models.Model):
         return created_records
     
     def write(self, vals):
+        # Skip permission check for sudo/system operations
+        if not self.env.su:
+            # Check permissions using user_service
+            user_service = self.env['hp_employee.user.service']
+            for employee in self:
+                # Allow users to edit their own employee record
+                if employee.user_id and employee.user_id.id == self.env.uid:
+                    continue
+                if not user_service.can_edit_employee(employee):
+                    raise AccessError(_("You don't have permission to edit this employee."))
+
         # Check for duplicate emails and phones
         for field in ['work_email', 'work_phone']:
             value = vals.get(field)
@@ -65,8 +118,18 @@ class HrEmployeeInherit(models.Model):
                     (field, '=', value)
                 ], limit=1)
                 if conflict:
+                    # check sdt
                     raise UserError(_("%s '%s' is already used by another employee.") % (field.replace('_', ' ').title(), value))
-        
+
+        # Handle user_id changes (when user is created for employee)
+        if 'user_id' in vals and vals.get('user_id'):
+            for employee in self:
+                if employee.department_id:
+                    # Assign department groups when user is created
+                    employee._assign_group_to_member(employee.department_id)
+                    # Assign HR-specific groups if in HR department
+                    employee._assign_hr_groups()
+
         # Handle department changes
         if 'department_id' in vals:
             for employee in self:
@@ -76,6 +139,8 @@ class HrEmployeeInherit(models.Model):
                     employee._remove_group_of_member(old_department)
                     new_department = self.env['hr.department'].sudo().browse(new_department_id)
                     employee._assign_group_to_member(new_department)
+                    # Assign HR-specific groups if in HR department
+                    employee._assign_hr_groups()
 
         # Sync employee changes to user (if user exists and values are different)
         sync_fields = {}
@@ -87,17 +152,40 @@ class HrEmployeeInherit(models.Model):
                     sync_fields['email'] = vals['work_email']
                 if 'mobile_phone' in vals and vals['mobile_phone'] and vals['mobile_phone'] != employee.user_id.phone:
                     sync_fields['phone'] = vals['mobile_phone']
-        
-        # Perform the employee update first
+
         result = super().write(vals)
-        
-        # Then sync to user if needed
+
         if sync_fields:
             for employee in self:
                 if employee.user_id:
-                    employee.user_id.write(sync_fields)
-        
+                    employee.user_id.sudo().write(sync_fields)
+
         return result
+
+
+
+
+
+
+
+    def unlink(self):
+        """
+        Delete access control using user_service.
+        - HR members: cannot delete anyone.
+        - HR Team Managers/Directors: can delete employees in their branch (with some restrictions).
+        """
+        # Skip permission check for sudo/system operations
+        if not self.env.su:
+            # Check permissions using user_service
+            user_service = self.env['hp_employee.user.service']
+            for employee in self:
+                if not user_service.can_delete_employee(employee):
+                    raise AccessError(_("You don't have permission to delete this employee."))
+
+        return super().unlink()
+
+
+
 
     @api.depends('address_id')
     def _compute_phones(self):
@@ -137,7 +225,7 @@ class HrEmployeeInherit(models.Model):
         if not user.has_group(group_xml_id):
             group = self.env.ref(group_xml_id)
             user.write({'groups_id': [(4, group.id)]})
-    
+
     def _remove_group_of_member(self, department):
         user = self.user_id
         if not user or not department:
@@ -147,3 +235,69 @@ class HrEmployeeInherit(models.Model):
         if user.has_group(group_xml_id):
             group = self.env.ref(group_xml_id)
             user.write({'groups_id': [(3, group.id)]})
+
+    def _assign_hr_groups(self):
+        """
+        Assign HR-specific groups based on employee role in HR department.
+        - HR Team Manager: employee who is manager of HR department
+        - HR Director: employee with is_hr_director flag (or other criteria)
+        - HR User: all other HR employees (already handled by _assign_group_to_member)
+        """
+        self.ensure_one()
+        user = self.user_id
+
+        # Only process if user exists and employee is in HR department
+        if not user or not self.department_id:
+            return
+
+        dept_type_code = self.department_id.department_type_id.code if self.department_id.department_type_id else None
+        if dept_type_code != 'hr':
+            return
+
+        # Check if employee is manager of HR department → Team Manager
+        is_hr_manager = self.env['hr.department'].search_count([
+            ('manager_id', '=', self.id),
+            ('department_type_id.code', '=', 'hr')
+        ]) > 0
+
+        if is_hr_manager:
+            # Assign Team Manager group (which implies hp_employee.group_hr_user)
+            team_manager_group = self.env.ref('hp_employee.group_hr_lead')
+            if team_manager_group.id not in user.groups_id.ids:
+                user.write({'groups_id': [(4, team_manager_group.id)]})
+
+        # TODO: Add logic for Director (e.g., check is_hr_director field or job position)
+
+    def auto_create_user(self):
+        department = self.department_id
+        if not department or not department.department_type_id:
+            return
+        
+        department_type = department.department_type_id
+        is_manager = self.env['hr.department'].search_count([
+            ('manager_id', '=', self.id),
+            ('department_type_id.code', '=', department_type.code),
+        ]) > 0
+
+        group_xml_id = department_type.member_group_xml_id
+        if is_manager:
+            group_xml_id = department_type.manager_group_xml_id
+
+        default_password = tools.config.get('default_user_password', 'hp@2025')
+        user_vals = {
+            'name': self.name,
+            'login': self.work_email or self.name.replace(" ", "").lower(),
+            'email': self.work_email,
+            'password': default_password,
+        }
+        user = self.env['res.users'].create(user_vals)
+        if group_xml_id:
+            group = self.env.ref(group_xml_id)
+            if group:
+                user.write({'groups_id': [(6, 0, [group.id])]})
+
+        self.write({
+            'user_id': user.id,
+        })
+
+        return user

@@ -49,15 +49,15 @@
                         <field name="sale_order_id" widget="many2one_new_tab" />
                         <field name="customer_id" widget="many2one_new_tab" />
                         <field name="salesman_id" widget="many2one_new_tab" />
-                        <field name="sale_order_line_ids" string="Order Lines" readonly="status == 'cancelled'">
-                            <list editable="top" create="false" delete="true">
-                                <field name="order_id" />
-                                <field name="product_id" />
-                                <field name="product_uom_qty" />
-                                <field name="price_unit" />
-                                <field name="price_subtotal" />
-                            </list>
-                        </field>
+<!--                        <field name="sale_order_line_ids" string="Order Lines" readonly="status == 'cancelled'">-->
+<!--                            <list editable="top" create="false" delete="true">-->
+<!--                                <field name="order_id" />-->
+<!--                                <field name="product_id" />-->
+<!--                                <field name="product_uom_qty" />-->
+<!--                                <field name="price_unit" />-->
+<!--                                <field name="price_subtotal" />-->
+<!--                            </list>-->
+<!--                        </field>-->
                         <div invisible="not can_add_sale_line">
                             <button name="action_add_sale_line"
                                 string="Add Sale Lines"

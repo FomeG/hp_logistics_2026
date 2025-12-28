@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_cs_container_list" model="ir.ui.view">
+        <field name="name">cs.container.list</field>
+        <field name="model">cs.container</field>
+        <field name="arch" type="xml">
+            <list string="Containers">
+                <field name="cs_order_id"/>
+                <field name="container_type_id"/>
+                <field name="container_number"/>
+                <field name="seal_number"/>
+                <field name="gross_weight" sum="Total Gross"/>
+                <field name="net_weight" sum="Total Net"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_cs_container_form" model="ir.ui.view">
+        <field name="name">cs.container.form</field>
+        <field name="model">cs.container</field>
+        <field name="arch" type="xml">
+            <form string="Container">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="cs_order_id"/>
+                            <field name="booking_id"/>
+                            <field name="container_type_id"/>
+                            <field name="container_number"/>
+                            <field name="seal_number"/>
+                        </group>
+                        <group>
+                            <field name="gross_weight"/>
+                            <field name="net_weight"/>
+                            <field name="cs_task_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="note" placeholder="Additional notes..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_cs_container" model="ir.actions.act_window">
+        <field name="name">Containers</field>
+        <field name="res_model">cs.container</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="0">
+
+
+        <!-- có thể cho vào hp_componenets -->
+        <record model="ir.module.category" id="hp">
+            <field name="name">HP</field>
+            <field name="description">HP Logistics</field>
+            <field name="sequence">5</field>
+        </record>
+
+
+        <!-- Cấp 1: HR User (Kế thừa Internal User) -->
+        <record id="group_hr_user" model="res.groups">
+            <field name="name">HR User</field>
+            <field name="category_id" ref="hp"/>
+            <field name="implied_ids" eval="[(4, ref('hr.group_hr_user'))]"/> 
+        </record>
+
+        <!-- Cấp 2: HR Team Manager (Kế thừa HR User) -->
+        <record id="group_hr_lead" model="res.groups">
+            <field name="name">HR Team Manager</field>
+            <field name="category_id" ref="hp"/>
+            <field name="implied_ids" eval="[(4, ref('group_hr_user'))]"/>
+        </record>
+
+        <!-- Cấp 3: HR Director (Kế thừa HR Team Manager) -->
+        <record id="group_hr_director" model="res.groups">
+            <field name="name">HR Director</field>
+            <field name="category_id" ref="hp"/>
+            <field name="implied_ids" eval="[(4, ref('group_hr_lead'))]"/>
+        </record>
+
+
+        <record id="hr_employee_all_users_read_rule" model="ir.rule">
+            <field name="name">All Users: Read All Employees</field>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+
+        <!-- B. QUYỀN CHO HR USER -->
+        <!-- 1. Được phép Tạo mới (Create) bất kỳ ai -->
+        <record id="hr_employee_hr_user_create_rule" model="ir.rule">
+            <field name="name">HP HR Users: Create Employees</field>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_hr_user'))]"/>
+            <field name="perm_read" eval="0"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="hr_employee_hr_user_write_own_branch" model="ir.rule">
+            <field name="name">HP HR Users: Write Employees in Own Branch</field>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="domain_force">['|', ('department_id.branch_id', '=', False), ('department_id.branch_id', '=', user.employee_id.department_id.branch_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hr_user'))]"/>
+            <field name="perm_read" eval="0"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <record id="hr_employee_hr_manager_unlink_own_branch" model="ir.rule">
+            <field name="name">HP HR Managers: Unlink Employees in Own Branch</field>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="domain_force">['|', ('department_id.branch_id', '=', False), ('department_id.branch_id', '=', user.employee_id.department_id.branch_id.id)]</field>
+            <field name="groups" eval="[(4, ref('group_hr_lead'))]"/>
+            <field name="perm_read" eval="0"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <record id="hr_employee_admin_all_rule" model="ir.rule">
+            <field name="name">Admins: Full Access to Employees</field>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+
+
+    </data>
+</odoo>

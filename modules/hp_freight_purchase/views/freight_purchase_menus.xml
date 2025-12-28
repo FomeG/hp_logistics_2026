@@ -29,23 +29,38 @@
             parent="menu_base_team"
             sequence="30" />
 
+        <menuitem id="menu_freight_purchase_documents"
+              name="Documents"
+              parent="menu_freight_purchase_root"
+              groups="group_hp_freight_purchase_member"
+              sequence="35"
+              action="action_freight_purchase_documents"/>
+
         <menuitem id="menu_freight_purchase_port"
             name="Ports"
             action="freight_purchase_port_action"
             parent="menu_base_team"
             sequence="40" />
 
-        <menuitem id="menu_freight_purchase_route"
-            name="Routes"
-            action="freight_purchase_route_action"
-            parent="menu_base_team"
-            sequence="50" />
-
         <menuitem id="menu_freight_purchase_container_type"
             name="Container Types"
             action="freight_purchase_container_type_action"
             parent="menu_base_team"
             sequence="60" />
+
+        <menuitem id="menu_freight_purchase_import_tools"
+                  name="Import Tools"
+                  parent="menu_freight_purchase_root"
+                  sequence="65"
+                  groups="base.group_system"/>
+
+        <menuitem id="menu_import_shipping_line"
+                  name="Import Shipping Line"
+                  parent="menu_freight_purchase_import_tools"
+                  action="action_import_shipping_line_wizard"
+                  sequence="10"/>
+
+
 
         <!-- Purchase menus -->
         <menuitem id="menu_purchase_team"
@@ -76,6 +91,13 @@
             action="freight_purchase_booking_line_action"
             parent="menu_purchase_team"
             sequence="40" />
+        
+        <!-- Assign booking -->
+        <menuitem id="menu_purchase_assign_booking"
+              name="Assign Booking"
+              parent="menu_freight_purchase_root"
+              sequence="25"
+              action="freight_purchase_assign_booking_action"/>
 
         <!-- fee -->
         <menuitem id="menu_freight_purchase_fee_menu"
@@ -101,6 +123,13 @@
             name="Setting"
             parent="menu_freight_purchase_root"
             sequence="40" />
+        <menuitem
+            id="menu_freight_purchase_manage_team"
+            name="Pricing Teams"
+            parent="menu_freight_purchase_setting"
+            action="hr_team_action_pricing"
+            sequence="5"
+        />
         <menuitem id="menu_freight_purchase_remind"
             name="Remind"
             action="freight_purchase_remind_action"

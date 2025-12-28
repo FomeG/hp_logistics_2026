@@ -1,18 +1,46 @@
 <odoo>
     <record id="action_report_HBL_bill" model="ir.actions.report">
         <field name="name">HBL Bill</field>
-        <field name="model">cs.job</field>
+        <field name="model">cs.bill.lading</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">hp_customer_service.report_HBL_bill</field>
         <field name="report_file">hp_customer_service.report_HBL_bill</field>
-        <field name="print_report_name">'HBL Bill - %s' % (object.job_number)</field>
+        <field name="print_report_name">'HBL Bill - %s' % (object.bl_number)</field>
+        <field name="binding_model_id" ref="model_cs_bill_lading"/>
+        <field name="binding_type">report</field>
     </record>
+
     <record id="action_report_debit_note" model="ir.actions.report">
         <field name="name">HBL Bill</field>
-        <field name="model">cs.job</field>
+        <field name="model">cs.debit</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">hp_customer_service.report_debit_note</field>
         <field name="report_file">hp_customer_service.report_debit_note</field>
-        <field name="print_report_name">'Debit Note - %s' % (object.job_number)</field>
+        <field name="print_report_name">'Debit Note - %s' % (object.cs_order_id.code)</field>
+        <field name="binding_model_id" ref="model_cs_debit"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="action_report_arrival_notice_pdf" model="ir.actions.report">
+        <field name="name">Arrival Notice (PDF)</field>
+        <field name="model">cs.shipping.document</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hp_customer_service.report_arrival_notice</field>
+        <field name="report_file">hp_customer_service.report_arrival_notice</field>
+        <field name="print_report_name">'AN_%s' % (object.document_number)</field>
+        <field name="binding_model_id" ref="model_cs_shipping_document"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Action cho Delivery Order -->
+    <record id="action_report_delivery_order_pdf" model="ir.actions.report">
+        <field name="name">Delivery Order (PDF)</field>
+        <field name="model">cs.shipping.document</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">hp_customer_service.report_delivery_order</field>
+        <field name="report_file">hp_customer_service.report_delivery_order</field>
+        <field name="print_report_name">'DO_%s' % (object.document_number)</field>
+        <field name="binding_model_id" ref="model_cs_shipping_document"/>
+        <field name="binding_type">report</field>
     </record>
 </odoo>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="sale.sales_team_config" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+
+        <menuitem
+            id="menu_sale_manage_team"
+            name="Sale Teams"
+            parent="sale.menu_sale_config"
+            action="hp_employee.hr_team_action"
+            sequence="1"
+        />
+    </data>
+</odoo>

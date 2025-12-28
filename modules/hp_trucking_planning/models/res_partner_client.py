@@ -5,7 +5,7 @@ class ResPartnerClient(models.Model):
     _inherit = ['res.partner.client']
 
     route_ids = fields.Many2many(
-        comodel_name='trucking_planning.route',
+        comodel_name='route.base',
         string='Routes',
     )
     plan_line_ids = fields.One2many(
@@ -23,7 +23,7 @@ class ResPartnerClient(models.Model):
     trucking_branch_id = fields.Many2one(
         comodel_name='trucking_planning.branch',
         index=True,
-        string='Branch',
+        string='Trucking Branch',
         default=lambda self: self.env.user.branch_ids[:1].id,
     )
 

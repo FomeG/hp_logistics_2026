@@ -31,6 +31,20 @@
                     options="{'no_create_edit': True, 'no_quick_create': True}" />
             </xpath>
 
+            <!-- Restrict department selection to same branch as current user -->
+            <xpath expr="//field[@name='department_id']" position="before">
+                <field name="current_user_branch_id" invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='department_id']" position="attributes">
+                <attribute name="domain">[('branch_id', '=', current_user_branch_id)]</attribute>
+                <attribute name="groups">!base.group_system</attribute> 
+            </xpath>
+            <xpath expr="//field[@name='department_id']" position="after">
+                <field name="department_id" 
+                    string="Department" 
+                    groups="base.group_system"/>
+            </xpath>
+
         </field>
     </record>
 </odoo>

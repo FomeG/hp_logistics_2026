@@ -1,5 +1,5 @@
 from odoo import models, fields, api, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 import pandas as pd
 import io
 import base64
@@ -135,7 +135,9 @@ class ImportClientWizard(models.TransientModel):
         return result
 
     def _create_clients(self, data_array):
-        trucking_branch = self.env['trucking_planning.branch'].search([('code', '=', self.branch_id.code)], limit=1)
+        branch = self.env['hr.branch'].search([('code', '=', self.branch_id.code)], limit=1)
+        if not branch:
+            raise UserError("Branch not found")
         Client = self.env['res.partner.client']
         tax_numbers = [data['vat'] for data in data_array]
         refs = [data['ref'] for data in data_array]
@@ -149,6 +151,9 @@ class ImportClientWizard(models.TransientModel):
         clients_to_create = []
         clients_to_update = []
         skipped_vats = []
+        partner_main_type = self.env['hp_components.partner.service'].get_partner_main_type_client()
+        if not partner_main_type:
+            raise ValidationError("Partner main type not found")
 
         for data in data_array:
             vals = data.copy()
@@ -158,17 +163,11 @@ class ImportClientWizard(models.TransientModel):
             if vat in existing_vats and vat not in existing_clients_map:
                 skipped_vats.append(vat)
                 continue
-
-            partner_service = PartnerService(self.env)
-            partner_main_type = partner_service.get_partner_main_type_client()
             vals.update({
                 'partner_main_type_id': partner_main_type.id,
                 'branch_id': self.branch_id.id,
                 'user_id':  self.assign_user_id.id if self.action_type == DepartmentService.DEPARTMENT_TYPE_SALE else False,
-                'trucking_branch_id': trucking_branch.id if trucking_branch else False,
-                'assign_trucking_manager_id': self.assign_user_id.id if self.action_type == DepartmentService.DEPARTMENT_TYPE_TRUCKING else False,
             })
-
             existing_client = existing_clients_map.get(vat) or Client.search([('ref', '=', ref)], limit=1)
             if existing_client:
                 clients_to_update.append((existing_client, vals))
@@ -186,14 +185,9 @@ class ImportClientWizard(models.TransientModel):
 
         if clients_to_update:
             for existing_client, vals in clients_to_update:
-                if self.action_type == DepartmentService.DEPARTMENT_TYPE_TRUCKING:
-                    vals.pop('user_id')
-                
-                if self.action_type == DepartmentService.DEPARTMENT_TYPE_SALE:
-                    vals.pop('assign_trucking_manager_id')
-                    if existing_client.user_id:
-                        vals.pop('user_id')
-
+                # if self.action_type == DepartmentService.DEPARTMENT_TYPE_SALE:
+                #     if existing_client.user_id:
+                #         vals.pop('user_id')
                 existing_client.write(vals)
             updated_count = len(clients_to_update)
 

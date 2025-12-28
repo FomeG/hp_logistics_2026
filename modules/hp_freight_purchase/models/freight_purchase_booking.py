@@ -1,4 +1,4 @@
-from pkg_resources import require
+# from pkg_resources import require
 from odoo import models, fields, api
 from odoo.api import ValuesType, Self
 from odoo.exceptions import ValidationError, UserError
@@ -10,6 +10,7 @@ from collections import defaultdict
 from ..services.freight_purchase_booking_inventory_service import FreightPurchaseBookingInventoryService
 from ..services.freight_purchase_quotation_service import FreightPurchaseQuotationService
 from ..services.freight_purchase_booking_line_service import FreightPurchaseBookingLineService
+from ...hp_components.models import constants
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -29,7 +30,19 @@ class FreightPurchaseBooking(models.Model):
         tracking=True
     )
     vessel_id = fields.Many2one('freight.purchase.vessel', string="Vessel",required=True,  tracking=True)
-    quotation_id = fields.Many2one('freight.purchase.quotation',required=True, string="Quotation",  tracking=True, ondelete = "cascade")
+    voyage = fields.Char(
+        string="Voyage",
+        required=True,
+        tracking=True,
+    ) # need to recheck, maybe many2one to voyage model, 1 voyage can have many booking
+
+    quotation_id = fields.Many2one(
+        'freight.purchase.quotation',
+        required=False,
+        string="Quotation",
+        tracking=True,
+        ondelete = "cascade"
+    )
     etd = fields.Date(required=True, index=True,  tracking=True)
     status = fields.Selection(
         string="Status",
@@ -48,21 +61,19 @@ class FreightPurchaseBooking(models.Model):
         store=True,
     )
     #duplication for the perf reason
-    route_id = fields.Many2one(
-        related='quotation_id.route_id',
-        store=True
+    from_location_id = fields.Many2one(
+        string="POL",
+        comodel_name='location.base',
+        required=True,
+        tracking=True,
+        related='quotation_id.from_location_id',
     )
-    pol_id = fields.Many2one(
-        related='route_id.pol_id',
-        store=True
-    )
-    pod_id = fields.Many2one(
-        related='route_id.pod_id',
-        store=True
-    )
-    direction = fields.Selection(
-        related='route_id.direction',
-        store=True
+    to_location_id = fields.Many2one(
+        string="POD",
+        comodel_name='location.base',
+        required=True,
+        tracking=True,
+        related='quotation_id.to_location_id',
     )
     shipping_line_id = fields.Many2one(related='quotation_id.shipping_line_id', store=True)
     teu_volume = fields.Float()
@@ -74,7 +85,6 @@ class FreightPurchaseBooking(models.Model):
     ], string='Booking Mode', required=True, default='with_quotation')
 
     # Temporary fields for quotation creation
-    quotation_route_id = fields.Many2one('freight.purchase.route',string='Tempo Route',store=False)
     quotation_shipping_line_id = fields.Many2one('res.partner',string="Shipping line", domain="[('partner_main_type_id.code', '=', 'shipping_line')]", store=False)
 
     total_booking_lines = fields.Char(string="Total Booking Lines", compute='_compute_total_booking_lines', store=False)
@@ -84,7 +94,7 @@ class FreightPurchaseBooking(models.Model):
         'freight.purchase.booking.inventory',
         'booking_id', 
         string='Booking Inventories',
-        ondelete = "cascade",
+        # ondelete = "cascade",
     )
     is_show_inventory = fields.Boolean(compute='_compute_is_show_inventory', store=False)
     has_inventory = fields.Boolean(
@@ -102,8 +112,7 @@ class FreightPurchaseBooking(models.Model):
         comodel_name="freight.purchase.booking.fee",
         inverse_name="booking_id",
         string="Common Fees",
-        ondelete = "cascade",
-
+        # ondelete = "cascade",
     )
     has_fees = fields.Boolean(
         compute='_compute_has_fees',
@@ -115,7 +124,17 @@ class FreightPurchaseBooking(models.Model):
         store=False,
         string="Can Apply Fees"
     )
-    booking_name = fields.Char(string="Booking name" ,require=True)
+    # Documents
+    attachment_ids = fields.One2many(
+        comodel_name='ir.attachment',
+        inverse_name='booking_id',
+        string='Documents'
+    )
+
+    _sql_constraints = [
+        ('vessel_voyage_unique', 'unique(vessel_id,voyage)', 'The voyage and vessel must be unique.'),
+    ]
+
     @api.onchange('booking_mode')
     def _onchange_booking_mode(self):
         for record in self:
@@ -125,62 +144,11 @@ class FreightPurchaseBooking(models.Model):
     @api.model_create_multi
     def create(self, vals_list: list[ValuesType]) -> Self:
         for vals in vals_list:
-            validated, errors = BookingCreateValidator.validate(vals, self.env)
-            if errors:
-                raise ValidationError("\n".join([f"• {e}" for e in errors]))
-        
-            if vals.get('booking_mode') == 'without_quotation':
-                # If booking without quotation → create a quotation
-                quotation = self.env['freight.purchase.quotation'].create_from_booking_form(vals)
-                vals['quotation_id'] = quotation.id
-
-                # Prepare name using temporary fields
-                shipping_name = ''
-                route_name = ''
-                etd_str = ''
-
-                if vals.get('quotation_shipping_line_id'):
-                    shipping_name = self.env['res.partner'].browse(vals.get('quotation_shipping_line_id')).name or ''
-                if vals.get('quotation_route_id'):
-                    route_name = self.env['freight.purchase.route'].browse(vals.get('quotation_route_id')).name or ''
-                if vals.get('etd'):
-                    etd_str = fields.Date.to_date(vals['etd']).strftime('%d-%m-%Y')
-
-                if shipping_name and route_name and etd_str:
-                    vals['name'] = f"Booking - {shipping_name} - {route_name} - {etd_str}"
-                else:
-                    vals['name'] = False  # Leave empty if not enough info
-
-                print(f"name: {vals['name']}")
-
-            else:
-                # Booking with quotation → use related quotation fields
-                shipping_name = ''
-                route_name = ''
-                etd_str = ''
-
-                if vals.get('quotation_id'):
-                    quotation = self.env['freight.purchase.quotation'].browse(vals['quotation_id'])
-                    shipping_name = quotation.shipping_line_id.name or ''
-                    route_name = quotation.route_id.name or ''
-                if vals.get('etd'):
-                    etd_str = fields.Date.to_date(vals['etd']).strftime('%d-%m-%Y')
-
-                if shipping_name and route_name and etd_str:
-                    vals['name'] = f"Booking - {shipping_name} - {route_name} - {etd_str}"
-                else:
-                    vals['name'] = False  # Leave empty if not enough info
-            
-            records = super().create(vals_list)
-            project_task_id = self._context.get('default_project_task_id')
-            if project_task_id:
-                project_task = self.env['project.task'].browse(project_task_id)
-                if project_task.exists():
-                    booking = records[0]
-                    booking_line = FreightPurchaseBookingLineService(self.env).create_booking_line_by_task(project_task, booking.id)
-                    if booking_line:
-                        project_task.booking_id = records[0].id
-
+            today = fields.Date.today().strftime('%Y%m%d')
+            seq_number = self.env['ir.sequence'].next_by_code('freight.purchase.booking')
+            vals['name'] = f"Booking/{today}/{seq_number}"
+        records = super().create(vals_list)
+        records._notify_booking_created(vals_list)
         return records
 
     def write(self, vals):
@@ -222,15 +190,15 @@ class FreightPurchaseBooking(models.Model):
         return super().write(vals)
 
     # For making the name updated visibly
-    @api.onchange('shipping_line_id.name', 'route_id.name', 'etd', 'quotation_route_id.name',
-                 'quotation_shipping_line_id.name', 'booking_mode')
+    @api.onchange('shipping_line_id.name', 'from_location_id.name', 'to_location_id.name' 'etd',
+                 'quotation_shipping_line_id.name', 'booking_mode', 'quotation_id')
     def _compute_name(self):
         for record in self:
             if record.booking_mode == 'with_quotation':
-                # With quotation: use related shipping_line_id and route_id
-                if record.shipping_line_id and record.route_id and record.etd:
+                # With quotation: use related shipping_line_id
+                if record.shipping_line_id and record.etd:
                     shipping_name = record.shipping_line_id.name or ''
-                    route_name = record.route_id.name or ''
+                    route_name = f"{record.quotation_id.from_location_id.name} -> {record.quotation_id.to_location_id.name}"
                     formatted_date = ''
 
                     if isinstance(record.etd, (date, datetime)):
@@ -241,10 +209,10 @@ class FreightPurchaseBooking(models.Model):
                     record.name = False  # Leave empty if missing data
 
             elif record.booking_mode == 'without_quotation':
-                # Without quotation: use temporary fields quotation_shipping_line_id and quotation_route_id
-                if record.quotation_shipping_line_id and record.quotation_route_id and record.etd:
+                # Without quotation: use temporary fields quotation_shipping_line_id
+                if record.quotation_shipping_line_id and record.etd:
                     shipping_name = record.quotation_shipping_line_id.name or ''
-                    route_name = record.quotation_route_id.name or ''
+                    route_name = f"{record.from_location_id.name} -> {record.to_location_id.name}"
                     formatted_date = ''
 
                     if isinstance(record.etd, (date, datetime)):
@@ -359,3 +327,25 @@ class FreightPurchaseBooking(models.Model):
         for record in self:
             # Nếu record đã lưu thì record.id khác False
             record.has_booking_id = bool(record.id)
+
+    def _notify_booking_created(self, booking_form):
+        for i, record in enumerate(self):
+            self._event('on_booking_created').notify(
+                record=record,
+                booking_form=booking_form[i],
+            )
+    def create_quotation(self, booking_form):
+        QuotationModel = self.env['freight.purchase.quotation']
+        for record in self:
+            try:
+                quotation = QuotationModel.create({
+                    'from_location_id': booking_form['quotation_from_location_id'],
+                    'to_location_id': booking_form['quotation_to_location_id'],
+                    'shipping_line_id': booking_form['quotation_shipping_line_id'],
+                    'available_from': fields.Date.today(),
+                    'available_to': booking_form['etd'],
+                    'is_active': True
+                })
+                record.quotation_id = quotation.id
+            except Exception as e:
+                _logger.error("Error in create_quotation: %s", str(e))

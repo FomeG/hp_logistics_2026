@@ -12,19 +12,34 @@
 HP Employee App
 ===================================================
 """,
-    'depends': ['base', 'hr','hr_org_chart','hp_components'],
+    'depends': ['hp_components'],
     'data': [
         # security
+        'security/hp_employee_security.xml',
         'security/ir.model.access.csv',
 
-        # 'data/demo_data.xml',
+        # demo data
+        'data/demo_branch_data.xml',
+        'data/demo_sale_hn_data.xml',
+        'data/demo_sale_hcm_data.xml',
+        'data/demo_team_data.xml',
+        'data/demo_hr_data.xml',
+
+        # wizard
+        'views/wizards/import_employee_wizard.xml',
+
+        # views
         'views/cs_department_type_views.xml',
         'views/hidden_btn_new_views.xml',
         'views/hr_department_form_views.xml',
+        'views/hr_department_kanban_views.xml',
         'views/hr_employee_form_views.xml',
-        'views/cs_department_type_views.xml',
+        # 'views/cs_department_type_views.xml',
         'views/hr_branch_views.xml',
+        'views/hr_team_views.xml',
         'views/hp_work_shift_views.xml',
+
+        # menu
         'views/menu.xml',
 
     ],
@@ -37,5 +52,6 @@ HP Employee App
     #     'data/demo_data.xml',
     # ],
     'installable': True,
-    'application': False,
+    'application': True,
+    'uninstall_hook': 'uninstall_hook',
 }

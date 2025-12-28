@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="dep_sales_hcm" model="hr.department">
+            <field name="name">Sales HCM</field>
+            <field name="color" eval="5"/>
+            <field name="branch_id" ref="branch_hcm" />
+            <field name="department_type_id" ref="hp_components.department_type_sale" />
+            <!-- <field name="manager_id" ref="emp_dos_hcm" /> -->
+        </record>
+
+        <record id="user_dos_hcm" model="res.users">
+            <field name="name">DOS HCM</field>
+            <field name="login">dos_hcm@test.com</field>
+            <field name="password">123456</field>
+            <field name="groups_id" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
+        </record>
+        <record id="emp_dos_hcm" model="hr.employee">
+            <field name="name">DOS HCM</field>
+            <field name="job_title">Sale Director HCM</field>
+            <field name="user_id" ref="user_dos_hcm"/>
+            <field name="work_email">dos_hcm@test.com</field>
+            <field name="department_id" ref="dep_sales_hcm" />
+        </record>
+
+        <record id="user_sm1_hcm" model="res.users">
+            <field name="name">Sale member 1 HCM</field>
+            <field name="login">sm1_hcm@test.com</field>
+            <field name="password">123456</field>
+            <field name="groups_id" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+        </record>
+        <record id="emp_sm1_hcm" model="hr.employee">
+            <field name="name">Sale member 1 HCM</field>
+            <field name="job_title">Sale</field>
+            <field name="user_id" ref="user_sm1_hcm"/>
+            <field name="parent_id" ref="emp_dos_hcm"/>
+            <field name="coach_id" ref="emp_dos_hcm"/>
+            <field name="work_email">sm1_hcm@test.com</field>
+            <field name="department_id" ref="dep_sales_hcm" />
+        </record>
+
+        <record id="user_sm2_hcm" model="res.users">
+            <field name="name">Sale member 2 HCM</field>
+            <field name="login">sm2_hcm@test.com</field>
+            <field name="password">123456</field>
+            <field name="groups_id" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+        </record>
+        <record id="emp_sm2_hcm" model="hr.employee">
+            <field name="name">Sale member 2 HCM</field>
+            <field name="job_title">Sale</field>
+            <field name="user_id" ref="user_sm2_hcm"/>
+            <field name="parent_id" ref="emp_dos_hcm"/>
+            <field name="coach_id" ref="emp_dos_hcm"/>
+            <field name="work_email">sm2_hcm@test.com</field>
+            <field name="department_id" ref="dep_sales_hcm" />
+        </record>
+
+        <record id="dep_sales_hcm" model="hr.department">
+            <field name="manager_id" ref="emp_dos_hcm" />
+        </record>
+
+
+    </data>
+</odoo>

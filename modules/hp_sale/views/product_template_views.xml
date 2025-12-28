@@ -9,9 +9,9 @@
         <field name="arch" type="xml">
 
             <!-- Hide the entire 'group_standard_price' group (for Sales price, Cost) -->
-            <xpath expr="//group[@name='group_standard_price']" position="attributes">
-                <attribute name="invisible">1</attribute>
-            </xpath>
+<!--            <xpath expr="//group[@name='group_standard_price']" position="attributes">-->
+<!--                <attribute name="invisible">1</attribute>-->
+<!--            </xpath>-->
 
             <!-- Hide the entire 'sales' page (for Sales price, Cost) -->
             <xpath expr="//page[@name='sales']" position="attributes">
@@ -24,36 +24,64 @@
             </xpath>
 
             <!-- Modify the product type field -->
+             <!-- Ẩn field type gốc và thay thế bằng product_type_display -->
             <xpath expr="//field[@name='type']" position="replace">
-                <field name="type" widget="radio" options="{'horizontal': true}"/>
+                <field name="type" invisible="1"/>
+                <field name="product_type" invisible="1"/>
+                 <!-- Field cho tạo mới/edit: chỉ Custom và Services -->
+                <field name="product_type_editable"
+                       widget="radio"
+                       options="{'horizontal': true}"
+                       invisible="id and not is_editable"/>
+
+                <!-- Field cho view: hiển thị tất cả 4 loại, readonly -->
+                <field name="product_type_display"
+                       widget="radio"
+                       options="{'horizontal': true}"
+                       readonly="1"
+                       invisible="not id or is_editable"/>
             </xpath>
 
-            <!-- Move the 'categ_id' field outside the hidden group -->
-            <xpath expr="//field[@name='type']" position="after">
-                <field name="categ_id"
-                    domain="[('allowed_type_id', '=', type)]"
-                    invisible="type not in ('custom', 'common')"/>
+            <xpath expr="//field[@name='product_tooltip']" position="attributes">
+                <attribute name="invisible">1</attribute>
             </xpath>
 
+            <!-- Thêm readonly cho các field quan trọng dựa vào is_editable -->
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="readonly">id and not is_editable</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='categ_id']" position="attributes">
+                <attribute name="readonly">id and not is_editable</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='list_price']" position="attributes">
+                <attribute name="readonly">id and not is_editable</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='standard_price']" position="attributes">
+                <attribute name="readonly">id and not is_editable</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='taxes_id']" position="attributes">
+                <attribute name="readonly">id and not is_editable</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='supplier_taxes_id']" position="attributes">
+                <attribute name="readonly">id and not is_editable</attribute>
+            </xpath>
             <xpath expr="//page[@name='general_information']/group" position="after">
                 <!-- Service Fields for Common & Custom -->
                 <group string="Service Information" invisible="type not in ['common', 'custom']">
-                    <field name="complete_time" widget="float_time"/>
+                    <field name="complete_time" widget="float_time"
+                           readonly="id and not is_editable"/>
                 </group>
             </xpath>
-
-            <!-- Add Price Configuration for Common & Custom -->
-            <xpath expr="//page[@name='general_information']/group" position="after">
-                <group string="Price Configuration" name="price_configuration" invisible="type not in ['common', 'custom']">
-                        <group>
-                            <field name="price_type" widget="radio"/>
-                        </group>
-                        <group>
-                            <!-- List Price: Always visible -->
-                            <field name="list_price"/>
-                            <!-- Tiered Price: Only visible if price_type is tiered -->
-                            <field name="tiered_price" invisible="price_type != 'tiered'"/>
-                        </group>
+            <!-- Add reigion product -->
+            <xpath expr="//div[hasclass('oe_title')]" position="after">
+                <group>
+                    <field name="region_id" options="{'no_create': True, 'no_edit': True}"
+                           readonly="id and not is_editable"/>
                 </group>
             </xpath>
         </field>
@@ -66,9 +94,17 @@
             <field name="inherit_id" ref="product.product_template_only_form_view"/>
             <field name="arch" type="xml">
                 <!-- Remove fields after categ_id -->
-                <xpath expr="//field[@name='categ_id']/following-sibling::field[@name='default_code']" position="replace"/>
+                <xpath expr="//field[@name='categ_id']/following-sibling::field[@name='default_code']" position="after" invisible="not is_editable"/>
                 <xpath expr="//field[@name='categ_id']/following-sibling::field[@name='valid_product_template_attribute_line_ids']" position="replace"/>
                 <xpath expr="//field[@name='categ_id']/following-sibling::field[@name='barcode']" position="replace"/>
+                <xpath expr="//page[@name='variants']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!-- Add tags field-->
+                <xpath expr="//field[@name='categ_id']" position="after">
+                    <field name="product_tag_ids" widget="many2many_tags" placeholder="Tags (Import, Export, Domestic...)"
+                           readonly="id and not is_editable"/>
+                </xpath>
             </field>
         </record>
 
@@ -96,9 +132,21 @@
             </field>
 
             <field name="list_price" position="after">
-                <field name="tiered_price" optional="show"/>
                 <field name="complete_time" optional="hide" widget="float_time"/>
             </field>
+        </field>
+    </record>
+
+    <record id="product_template_tree_view_inherit_expand" model="ir.ui.view">
+        <field name="name">product.template.list.inherit</field>
+        <field name="model">product.template</field>
+        <field name="priority" eval="1"/>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <list position="attributes">
+                <attribute name="expand">1</attribute>
+                <attribute name="default_group_by">categ_id</attribute>
+            </list>
         </field>
     </record>
 
@@ -132,12 +180,27 @@
                 <filter string="Trucking" name="type_trucking" domain="[('type', '=', 'trucking')]"/>
                 <filter string="Common" name="type_common" domain="[('type', '=', 'common')]"/>
                 <filter string="Custom" name="type_custom" domain="[('type', '=', 'custom')]"/>
+                <field name="region_id"/>
+                <searchpanel>
+                    <field name="region_id" enable_counters="1"/>
+                </searchpanel>
             </xpath>
 
             <!-- For group by, find the existing group element -->
             <xpath expr="//group" position="inside">
-                <filter string="Product Type" name="groupby_type" context="{'group_by': 'type'}"/>
+<!--                <filter string="Product Category" name="groupby_categ_id" context="{'group_by': 'categ_id'}"/>-->
+<!--                <filter string="Product Type" name="groupby_type" context="{'group_by': 'type'}"/>-->
             </xpath>
         </field>
     </record>
+
+     <record id="sale.product_template_action" model="ir.actions.act_window">
+         <field name="view_mode">list,kanban,form</field>
+         <field name="view_id" ref="product.product_template_tree_view"/>
+         <field name="context">{
+            "sale_multi_pricelist_product_template": 1,
+            "search_default_groupby_categ_id":1,
+         }</field>
+    </record>
+
 </odoo>

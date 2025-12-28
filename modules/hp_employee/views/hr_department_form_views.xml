@@ -14,6 +14,9 @@
             <xpath expr="//group/group/field[@name='department_type_id']" position="after">
                 <field name="branch_id" required="1" options="{'no_create': True, 'no_edit': True}" />
             </xpath>
+            <xpath expr="//group/group" position="after">
+                <field name="team_ids"/>
+            </xpath>
         </field>
     </record>
 
@@ -24,6 +27,7 @@
         <field name="arch" type="xml">
             <xpath expr="//list/field[@name='name']" position="after">
                 <field name="department_type_id"/>
+                <field name="branch_id"/>
             </xpath>
         </field>
     </record>
@@ -33,12 +37,15 @@
         <field name="model">hr.department</field>
         <field name="inherit_id" ref="hr.hr_department_view_kanban" />
         <field name="arch" type="xml">
+            <xpath expr="//kanban" position="inside">
+                <field name="branch_id" />
+            </xpath>
             <xpath expr="//t[@t-name='card']/a/field[@name='name']" position="after">
                 <field name="department_type_id" class="text-muted small ms-2" />
             </xpath>
         </field>
     </record>
-
+    
     <record id="add_department_type_to_view_department_filter" model="ir.ui.view">
         <field name="name">add.department.type.to.view.department.filter</field>
         <field name="model">hr.department</field>
@@ -51,7 +58,17 @@
                     domain="[('department_type_id.code','=','pricing')]" />
                 <filter string="Trucking" name="trucking"
                     domain="[('department_type_id.code','=','trucking')]" />
+                <filter string="Customer Service" name="cs"
+                    domain="[('department_type_id.code','=','cs')]" />
+            </xpath>
+            <xpath expr="//search" position="inside">
+                <group expand="0" string="Group By">
+                    <filter string="Branch" name="group_by_branch" context="{'group_by': 'branch_id'}" />
+                </group>
             </xpath>
         </field>
     </record>
+
+
+
 </odoo>

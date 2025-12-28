@@ -36,6 +36,8 @@
                 <field name="driver_id"/>
                 <field name="trailer_id"/>
                 <field name="weight_class"/>
+                <field name="is_external_vehicle" widget="boolean_toggle"/>
+                <field name="is_combined_vehicle" widget="boolean_toggle"/>
                 <field name="freeway"/>
                 <field name="is_current" widget="boolean_toggle"/>
                 <field name="fuel_liters"/>
@@ -51,6 +53,23 @@
         <field name="arch" type="xml">
             <form>
                 <header>
+                    <button name="action_start_trip"
+                            string="Start Trip"
+                            type="object"
+                            class="oe_highlight"
+                            groups="hp_trucking_planning.group_hp_trucking_planning_lead"
+                            invisible="not id or status == 'on_route' or status in ['done', 'cancelled'] or not vehicle_assignment_log_id"/>
+                    <button name="action_mark_done"
+                            string="Mark Done"
+                            type="object"
+                            class="oe_highlight"
+                            groups="hp_trucking_planning.group_hp_trucking_planning_lead"
+                            invisible="not id or status != 'on_route' and status != 'stopped'"/>
+                    <button name="action_stop" string="Stop" type="object" class="oe_highlight"
+                            groups="hp_trucking_planning.group_hp_trucking_planning_lead"
+                            invisible="not id or status != 'on_route'"/>
+                    <button name="action_cancel" string="Cancel" type="object" class="btn-danger"
+                            invisible="not id or status in ['done','cancelled']"/>
                     <button name="action_export_trip_docx" string="Export" type="object" class="btn-primary" invisible="not id"/>
                     <button name="action_preview_trip_order" string="Preview" type="object" class="btn-secondary" invisible="not id"/>
                     <button name="action_send_message" 
@@ -59,7 +78,9 @@
                             class="btn-success" 
                             icon="fa-paper-plane"
                             invisible="not id"/>
-                    <field name="status" widget="statusbar" statusbar_visible="draft,checking,confirmed,done"/>
+<!--                    <field name="status" widget="statusbar" statusbar_visible="draft,checking,confirmed,done"/> need to check -->
+                        <field name="status" widget="statusbar" statusbar_visible="draft,on_route,done,stopped,cancelled,"/>
+
                 </header>
                 <sheet>
                     <!-- Current Trip Status - Always Visible at Top -->
@@ -148,37 +169,54 @@
                         <field name="client_tax_number" string="Client Tax Number" readonly="1"/>
                         <field name="plan_estimate_time_departure" />
                         <field name="plan_estimate_time_arrival" />
-                        <field name="status"/>
+                        <field name="status" readonly="1"/>
                     </group>
                     <group string="Vehicle Information">
+                        <field name="is_external_vehicle" widget="boolean_toggle" string="External Vehicle (Xe Ngoài)"
+                               readonly="status in ['on_route', 'done'] and not is_admin_user"/>
+                        <field name="is_combined_vehicle" widget="boolean_toggle" string="Combined Vehicle (Xe Kết Hợp)"
+                               readonly="status == 'on_route' or status == 'done' and not is_admin_user"/>
                         <button name="action_open_vehicle_driver_pair_popup"
                             type="object"
                             string="Assign Driver - Vehicle"
-                            class="oe_highlight"/>
+                            class="oe_highlight"
+                            invisible="is_external_vehicle or status == 'on_route' or status == 'done' and not is_admin_user"/>
                         <field name="vehicle_assignment_log_id" options="{'no_create': True, 'no_create_edit': True}" invisible="True"/>
-                        <field name="truck_id"/>
-                        <field name="driver_id"/>
-                        <field name="trailer_id"/>
-                        <field name="weight_class"/>
-                        <field name="freeway"/>
+                        <field name="truck_id"
+                               invisible="is_external_vehicle or status == 'done' and not is_admin_user"/>
+                        <field name="driver_id"
+                               invisible="is_external_vehicle or status == 'done' and not is_admin_user"/>
+                        <field name="trailer_id"
+                               invisible="is_external_vehicle or status == 'done' and not is_admin_user"/>
+                        <field name="weight_class"
+                               readonly="status == 'on_route' or status == 'done' and not is_admin_user"/>
+                        <field name="freeway"
+                               readonly="status == 'on_route' or status == 'done' and not is_admin_user"/>
+                        <field name="special_note"
+                               invisible="not is_external_vehicle and not is_combined_vehicle or status == 'done' and not is_admin_user"
+                               placeholder="Enter special notes for rented or combined vehicles..."/>
                     </group>
                     <group string ="Container Information">
-                        <field name="container_number"/>
-                        <field name="seal_number"/>
+                        <field name="container_number"
+                               readonly="status == 'on_route' or status == 'done' and not is_admin_user"/>
+                        <field name="seal_number"
+                               readonly="status == 'on_route' or status == 'done' and not is_admin_user"/>
                         <field name="container_type"/>
-                        <field name="container_size"/>
+                        <field name="container_size" readonly="status == 'on_route' or status == 'done' and not is_admin_user"/>
                     </group>
 
                     <notebook>
-                        <page string="Costs">
+                        <page string="Costs" invisible="status == 'done' and not is_admin_user">
                             <group>
-                                <field name="extra_charge"/>
-                                <field name="extra_fuel"/>
-                                <field name="fuel_liters" readonly="1"/>
+                                <field name="extra_charge"
+                                       readonly="status == 'done' and not is_admin_user"/>
+                                <field name="extra_fuel"
+                                       readonly="status == 'done' and not is_admin_user "/>
+                                <field name="fuel_liters" readonly="1 or status == 'done' and not is_admin_user"/>
                                 <field name="total_cost" readonly="1"/>
                             </group>
                         </page>
-                        <page string="Goods Info" invisible="not id">
+                        <page string="Goods Info" invisible="not id or status == 'on_route' or status == 'done' and not is_admin_user">
                             <group>
                                 <field name="goods_name"/>
                                 <field name="goods_weight"/>
@@ -194,7 +232,12 @@
                         </page>
 
                         <page string="Notes">
-                            <field name="note"/>
+                            <div class="alert alert-warning" role="alert" style="margin-bottom: 15px; padding: 15px; border-left: 4px solid #ff9800;">
+                                <p style="margin-bottom: 10px;">
+                                    <strong>Các notes được nhập ở đây sẽ hiển thị trong tin nhắn Zalo gửi cho tài xế.</strong>
+                                </p>
+                                <field name="note" readonly="status == 'done'"/>
+                            </div>
                         </page>
                     </notebook>
                 </sheet>
@@ -209,6 +252,7 @@
         <field name="arch" type="xml">
             <search>
                 <field name="plan_line_id"/>
+                <field name="plan_booking_bill_no" string="Booking No"/>
                 <field name="plan_id" string="Plan"/>
                 <field name="client_id" string="Client"/>
                 <field name="container_number"/>
@@ -219,9 +263,13 @@
                 <field name="container_type"/>
                 <field name="weight_class"/>
 
+                <field name="create_date" string="Created Date"/>
+
+                <filter name="date_filter" string="Created Date" date="create_date"/>
+                <filter string="Created Today" name="created_today" domain="[('create_date','&gt;=', context_today())]"/>
                 <filter string="Draft" name="draft" domain="[('status', '=', 'draft')]"/>
-                <filter string="Confirmed" name="confirmed" domain="[('status', '=', 'confirmed')]"/>
-                <filter string="Checking" name="checking" domain="[('status', '=', 'checking')]"/>
+                <filter string="On Route" name="on_route" domain="[('status', '=', 'on_route')]"/>
+                <filter string="Stopped" name="stopped" domain="[('status', '=', 'stopped')]"/>
                 <filter string="Done" name="done" domain="[('status', '=', 'done')]"/>
                 <filter string="Cancelled" name="cancelled" domain="[('status', '=', 'cancelled')]"/>
                 <filter string="Export" name="export" domain="[('plan_type', '=', 'export')]"/>
@@ -230,8 +278,9 @@
                 <filter string="Current GPS Trip" name="current_gps" domain="[('is_current', '=', True)]"/>
                 <filter string="Not Cancelled" name="not_cancelled" domain="[('status', '!=', 'cancelled')]" />
                 <filter string="⚠️ Nearing ETA" name="nearing_eta" domain="[('is_eta_near', '=', True)]" />
-
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
                 <group expand="0" string="Group By">
+                    <filter string="Created Date" name="create_date" domain="['&amp;', ('create_date', '>=', self), ('create_date', '&lt;=', self + relativedelta(days=1))]" context="{'group_by':'create_date:day'}"/>
                     <filter string="Job" name="group_by_plan_line" context="{'group_by':'plan_line_id'}"/>
                     <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
                     <filter string="Plan Type" name="group_by_plan_type" context="{'group_by':'plan_type'}"/>
@@ -253,6 +302,7 @@
             {
                 'default_status': 'draft',
                 'search_default_not_cancelled': 1,
+                'search_default_date_filter': 1,
             }
         </field>
     </record>

@@ -14,13 +14,13 @@ class RouteCreateValidator(FreightValidator):
             'pol_id': {
                 'label': f"POL",
                 'type': int,
-                'exists': 'freight.purchase.port',
+                'exists': 'location.base',
                 'required': True,
             },
             'pod_id': {
                 'label': f"POD",
                 'type': int,
-                'exists': 'freight.purchase.port',
+                'exists': 'location.base',
                 'required': True,
             },
         }

@@ -5,12 +5,12 @@ class ResCountryInherit(models.Model):
     _inherit = 'res.country'
 
     region_id = fields.Many2one(
-        'freight.purchase.region',
+        'region',
         string='Region',
         ondelete='cascade'
     )
     port_ids = fields.One2many(
-        'freight.purchase.port',
+        'location.base',
         'country_id',
         string='Ports'
     )

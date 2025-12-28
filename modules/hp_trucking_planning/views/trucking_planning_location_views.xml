@@ -2,7 +2,7 @@
 <odoo>
     <record id="view_location_tree" model="ir.ui.view">
         <field name="name">location.tree</field>
-        <field name="model">trucking_planning.location</field>
+        <field name="model">location.base</field>
         <field name="arch" type="xml">
             <list>
                 <field name="name"/>
@@ -17,7 +17,7 @@
 
     <record id="view_location_form" model="ir.ui.view">
         <field name="name">location.form</field>
-        <field name="model">trucking_planning.location</field>
+        <field name="model">location.base</field>
         <field name="arch" type="xml">
             <form>
                 <sheet>
@@ -37,6 +37,10 @@
                             widget="many2one_new_tab"
                         />
                     </group>
+                    <group name="location_info">
+                            <field name="latitude"/>
+                            <field name="longitude"/>
+                    </group>
                 </sheet>
                 <chatter />
             </form>
@@ -45,21 +49,28 @@
 
     <record id="hp_trucking_planning_location_form_search" model="ir.ui.view">
         <field name="name">trucking.planning.location.search</field>
-        <field name="model">trucking_planning.location</field>
+        <field name="model">location.base</field>
         <field name="arch" type="xml">
             <search string="List Locations">
                 <field name="name" />
                 <field name="type" />
                 <field name="extra_fuel" />
                 <field name="contact_phone" />
+                <filter string="Vietnam" name="country_vn" domain="[('country_id.code', '=', 'VN')]"/>
             </search>
         </field>
     </record>
 
     <record id="action_location" model="ir.actions.act_window">
         <field name="name">Locations</field>
-        <field name="res_model">trucking_planning.location</field>
+        <field name="res_model">location.base</field>
         <field name="search_view_id" ref="hp_trucking_planning_location_form_search" />
+        <field name="context"
+            eval="{
+                'form_view_ref': 'hp_trucking_planning.view_location_form',
+                'list_view_ref': 'hp_trucking_planning.view_location_tree',
+                'search_default_country_vn': 1
+            }" />
         <field name="view_mode">list,form</field>
     </record>
 </odoo>

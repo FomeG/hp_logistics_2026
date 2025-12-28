@@ -1,5 +1,7 @@
-from odoo import models, api, fields
-from odoo.exceptions import UserError, ValidationError
+import secrets
+
+from odoo import models, api, fields, _
+from odoo.exceptions import UserError, ValidationError, AccessError
 import base64
 import math
 import logging
@@ -7,6 +9,7 @@ from datetime import datetime, timedelta
 from ..services.planning_service import planning_service
 from ..services.res_partner_service import ResPartnerService
 from ...hp_components.services.partner_service import PartnerService
+from odoo.addons.hp_components.models import constants
 
 _logger = logging.getLogger(__name__)
 
@@ -19,7 +22,7 @@ class Trip(models.Model):
 
     plan_line_id = fields.Many2one(
         comodel_name='trucking_planning.plan.line',
-        string='Plan',
+        string='Plan ',
         required=True,
     )
     # Related fields để hiển thị thông tin Plan
@@ -44,7 +47,7 @@ class Trip(models.Model):
         store=True,
     )
     plan_date = fields.Datetime(
-        related='plan_line_id.plan_id.date',
+        related='plan_line_id.date',
         string='Plan Date',
         readonly=True,
         store=True,
@@ -70,7 +73,7 @@ class Trip(models.Model):
     )
 
     plan_goods_pickup_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
+        comodel_name='location.base',
         related='plan_line_id.goods_pickup_location_id',
         string='Goods Pickup Location',
         readonly=True,
@@ -78,28 +81,28 @@ class Trip(models.Model):
     )
 
     plan_goods_delivery_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
+        comodel_name='location.base',
         related='plan_line_id.goods_delivery_location_id',
         string='Goods Delivery Location',
         readonly=True,
         store=True,
     )
     route_id = fields.Many2one(
-        comodel_name='trucking_planning.route',
+        comodel_name='route.base',
         related='plan_line_id.route_id',
         string='Route',
         readonly=True,
         store=True,
     )
     actual_source_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
+        comodel_name='location.base',
         related='plan_line_id.actual_source_location_id',
         string='From Location',
         readonly=True,
         store=True,
     )
     actual_destination_location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
+        comodel_name='location.base',
         related='plan_line_id.actual_destination_location_id',
         string='To Location',
         readonly=True,
@@ -110,16 +113,28 @@ class Trip(models.Model):
         tracking=True,
     )
     status = fields.Selection([
-        ('draft', 'Draft'),
-        ('cancelled', 'Cancelled'),
-        ('confirmed', 'Confirmed'),
-        ('checking', 'Checking'),
-        ('done', 'Done'),
+        (constants.TripStatus.DRAFT, 'Draft'),
+        (constants.TripStatus.ON_ROUTE, 'On Route'),
+        (constants.TripStatus.DONE, 'Done'),
+        (constants.TripStatus.STOPPED, 'Stopped'),
+        (constants.TripStatus.CANCELLED, 'Cancelled'),
     ],
-        default='draft',
+        default=constants.TripStatus.DRAFT,
         string='Status',
         tracking=True,
     )
+    is_admin_user = fields.Boolean(
+        string='Is Admin User',
+        compute='_compute_is_admin_user',
+        store=False,
+    )
+
+    @api.depends_context('uid')
+    def _compute_is_admin_user(self):
+        for trip in self:
+            trip.is_admin_user = self.env.user.has_group(
+                'hp_trucking_planning.group_hp_trucking_planning_administrator')
+
     container_number = fields.Char(
         string="Container Number",
         tracking=True,
@@ -159,7 +174,7 @@ class Trip(models.Model):
     )
 
     driver_id = fields.Many2one(
-        comodel_name='res.partner',
+        comodel_name='res.partner.driver',
         string='Driver',
         compute='_compute_driver_id',
         store=True,
@@ -168,8 +183,7 @@ class Trip(models.Model):
     )
 
     def _get_driver_domain(self):
-        partner_service = PartnerService(self.env)
-        return [('partner_main_type_id', '=',partner_service.get_partner_main_type_driver().id)]
+        return [('partner_main_type_id', '=',self.env['hp_components.partner.service'].get_partner_main_type_driver().id)]
 
     # truck_id = fields.Many2one(
     #     comodel_name='fleet.vehicle',
@@ -293,9 +307,182 @@ class Trip(models.Model):
         comodel_name='trucking_planning.trip_checkpoint',
         inverse_name='trip_id',
         string='GPS Checkpoints',
-        help='GPS location checkpoints for this trip',
-        order='create_date desc'
+        help='GPS location checkpoints for this trip'
     )
+
+    active = fields.Boolean(
+        string='Active',
+        default=True,
+        help='Uncheck this to archive the trip instead of deleting it'
+    )
+    is_external_vehicle = fields.Boolean(
+        string="Rented Vehicle",
+        default=False,
+        tracking=True,
+    )
+
+    is_combined_vehicle = fields.Boolean(
+        string="Combined Vehicle",
+        default=False,
+        tracking=True,
+    )
+
+    special_note = fields.Text(
+        string="Special note for external/combined vehicle",
+        help="Special notes when using rented or combined vehicles",
+    )
+
+    access_token = fields.Char(
+        string='Access Token',
+        copy=False,
+        index=True,
+        default=lambda self: secrets.token_urlsafe(32),
+        help='Token for public access without login'
+    )
+
+    access_token_expires = fields.Datetime(
+        string='Token Expires At',
+        copy=False,
+        help='Token expiration time (30 minutes from creation)'
+    )
+
+    def get_public_url(self):
+        """
+        Get public URL for trip tracking
+        ✅ Auto refresh token if expired or missing
+        """
+        self.ensure_one()
+
+        # ✅ Auto refresh token if:
+        # - No token
+        # - No expiry date
+        # - Already expired
+        if not self.access_token or \
+                not self.access_token_expires or \
+                self.access_token_expires < fields.Datetime.now():
+            # Generate new token (30 minutes validity)
+            self.write({
+                'access_token': secrets.token_urlsafe(32),
+                'access_token_expires': fields.Datetime.now() + timedelta(minutes=30)
+            })
+
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        return f"{base_url}/trip/view/{self.access_token}"
+
+    def is_token_valid(self, token, auto_refresh=False):
+        """
+        Check if token is valid and not expired
+        """
+        self.ensure_one()
+
+        if not self.access_token or self.access_token != token:
+            if auto_refresh:
+                return (False, None)
+            return False
+
+        if not self.access_token_expires:
+            if auto_refresh:
+                return (False, None)
+            return False
+
+        # Check if expired
+        is_expired = self.access_token_expires <= fields.Datetime.now()
+
+        if is_expired and auto_refresh:
+            _logger.info(f"Token expired for trip {self.id}, auto-refreshing...")
+            # Generate new token
+            new_token = secrets.token_urlsafe(32)
+            self.write({
+                'access_token': new_token,
+                'access_token_expires': fields.Datetime.now() + timedelta(minutes=30)
+            })
+
+            _logger.info(f"New token generated for trip {self.id}")
+            return (True, new_token)  # Valid after refresh, return new token
+
+        if auto_refresh:
+            return (not is_expired, None)  # (valid, no new token)
+        else:
+            return not is_expired
+
+    def refresh_access_token(self):
+        """
+        ✅ Manual refresh token (for button or scheduled action)
+        Generates new token with 30 minutes validity
+        """
+        for trip in self:
+            trip.write({
+                'access_token': secrets.token_urlsafe(32),
+                'access_token_expires': fields.Datetime.now() + timedelta(minutes=30)
+            })
+
+        return True
+
+
+    def _set_status_via_wizard(self, new_status, note=''):
+        self.ensure_one()
+        from_wizard = self.env.context.get('from_wizard', False)
+        from_zalo = self.env.context.get('from_zalo_driver', False)
+
+        old_status = self.status
+        vals_to_write = {'status': new_status}
+        # Tự động set is_current = True khi chuyển sang ON_ROUTE
+        if new_status == constants.TripStatus.ON_ROUTE and self.driver_id:
+            vals_to_write['is_current'] = True
+            _logger.info(f"Auto-setting is_current=True for trip {self.id} when status changed to ON_ROUTE")
+
+        # Tự động unset is_current khi chuyển sang DONE hoặc CANCELLED
+        elif new_status in [constants.TripStatus.DONE, constants.TripStatus.CANCELLED]:
+            vals_to_write['is_current'] = False
+            _logger.info(f"Auto-setting is_current=False for trip {self.id} when status changed to {new_status}")
+        self.write(vals_to_write)
+
+        log_body = f"Status changed from {old_status} to {new_status} lúc {fields.Datetime.now()}."
+        if note:
+            log_body += f"\nNote: {note}"
+        if from_zalo:
+            log_body += "\n(Via Zalo driver checkpoint)"
+        elif from_wizard:
+            log_body += "\n(Via wizard confirm)"
+        self.message_post(body=log_body, message_type='notification')
+
+        _logger.info(f"Status updated for trip {self.id}: {old_status} -> {new_status} (from={'zalo' if from_zalo else 'wizard' if from_wizard else 'direct'})")
+
+        return True
+
+    def action_start_trip(self):
+        self.ensure_one()
+        return self._open_operation_wizard(constants.TripStatus.ON_ROUTE)
+
+    def action_mark_done(self):
+        self.ensure_one()
+        return self._open_operation_wizard(constants.TripStatus.DONE)
+
+    def action_stop(self):
+        self.ensure_one()
+        return self._open_operation_wizard(constants.TripStatus.STOPPED)
+
+    def action_cancel(self):
+        self.ensure_one()
+        return self._open_operation_wizard(constants.TripStatus.CANCELLED)
+
+    def _open_operation_wizard(self, operation):
+        return {
+            'name': _(f"{operation.capitalize()} Trip"),
+            'type': 'ir.actions.act_window',
+            'res_model': 'trucking_planning.trip.operation.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_trip_id': self.id,
+                'default_operation': operation,
+            },
+        }
+    def toggle_active(self):
+        for trip in self:
+            if trip.status not in [constants.TripStatus.DRAFT, constants.TripStatus.CANCELLED]:
+                raise UserError("You only deleted trips when status is draft or cancelled'.")
+        return super(Trip, self).toggle_active()
 
     @api.depends('vehicle_assignment_log_id.vehicle_id')
     def _compute_truck_id(self):
@@ -305,7 +492,13 @@ class Trip(models.Model):
     @api.depends('vehicle_assignment_log_id.driver_id')
     def _compute_driver_id(self):
         for rec in self:
-            rec.driver_id = rec.vehicle_assignment_log_id.driver_id if rec.vehicle_assignment_log_id else False
+            if rec.vehicle_assignment_log_id and rec.vehicle_assignment_log_id.driver_id:
+                driver = self.env['res.partner.driver'].search([
+                    ('partner_id', '=', rec.vehicle_assignment_log_id.driver_id.id)
+                ], limit=1)
+                rec.driver_id = driver.id if driver else False
+            else:
+                rec.driver_id = False
 
     @api.depends('truck_id')
     def _compute_trailer_id(self):
@@ -334,25 +527,35 @@ class Trip(models.Model):
                 'extra_fuel': trip.extra_fuel,
                 # reset unique fields
                 'vehicle_assignment_log_id': False,
-                'status': 'draft',
+                'status': constants.TripStatus.DRAFT,
             }
             new_trip = self.create(new_vals)
 
             return new_trip
 
     def get_conflicting_trip(self, vehicle_assignment_log):
-        if not self or not self.plan_estimate_time_departure or not self.plan_estimate_time_arrival:
-            return self.browse()
+        self.ensure_one()
 
-        domain = [
-            ("id", "!=", self.id),
-            ("vehicle_assignment_log_id", "=", vehicle_assignment_log.id),
-            ("plan_estimate_time_departure", "<=", self.plan_estimate_time_arrival),
-            ("plan_estimate_time_arrival", ">=", self.plan_estimate_time_departure),
-            ("vehicle_assignment_log_id.date_end", "=", False),
-        ]
+        if self.plan_estimate_time_departure and self.plan_estimate_time_arrival:
+            time_conflict = self.search([
+                ('id', '!=', self.id),
+                ('vehicle_assignment_log_id', '=', vehicle_assignment_log.id),
+                ('plan_estimate_time_departure', '<=', self.plan_estimate_time_arrival),
+                ('plan_estimate_time_arrival', '>=', self.plan_estimate_time_departure),
+                ('vehicle_assignment_log_id.date_end', '=', False),
+            ], limit=1)
+            if time_conflict:
+                return time_conflict
 
-        return self.search(domain)
+        current_running_trip = self.search([
+            ('vehicle_assignment_log_id', '=', vehicle_assignment_log.id),
+            ('is_current', '=', True),
+            ('status', '=', constants.TripStatus.ON_ROUTE),
+        ], limit=1)
+
+        if current_running_trip:
+            return current_running_trip
+        return False
 
     def process_vehicle_driver_reassignment(self):
         for trip in self:
@@ -376,7 +579,7 @@ class Trip(models.Model):
                         ('plan_line_id', '=', trip.plan_line_id.id),
                         ('truck_id', '=', vals['truck_id']),
                         ('id', '!=', trip.id),
-                        ('status', 'not in', ['cancelled']),
+                        ('status', 'not in', [constants.TripStatus.CANCELLED]),
                     ])
                     if used_truck_ids:
                         raise ValidationError(
@@ -390,7 +593,7 @@ class Trip(models.Model):
                             ('plan_date', '<', fields.Datetime.to_string(datetime.combine(plan_date + timedelta(days=1), datetime.min.time()))),
                             ('truck_id', '=', vals['truck_id']),
                             ('id', '!=', trip.id),
-                            ('status', 'not in', ['cancelled']),
+                            ('status', 'not in', [constants.TripStatus.CANCELLED]),
                         ])
                         if used_truck_ids_in_date:
                             raise ValidationError(
@@ -539,7 +742,19 @@ class Trip(models.Model):
         }
 
     def get_route_info(self):
-        """Common method to get route and location information for a trip"""
+        """Common method to get route and location information for a trip
+        Get route and location information
+        IMPORT:
+            - Nơi lấy cont: Port Drop (plan.location_id - port)
+            - Nơi hạ công: Place of Delivery (goods_delivery_location_id)
+            - Địa điểm đóng hàng: To Location (actual_destination_location_id)
+            - Nơi trả vỏ: Empty Depot Pickup (container_port_location_id - depot)
+        EXPORT:
+            - Nơi lấy cont: Port Pickup (plan.location_id - port)
+            - Nơi hạ công: Empty Depot Return (container_port_location_id - depot)
+            - Địa điểm đóng hàng: Place of Pickup (goods_pickup_location_id)
+            - Nơi lấy vỏ: Empty Depot Return (container_port_location_id - depot)"""
+
         plan_line = self.plan_line_id
         plan = plan_line.plan_id if plan_line else None
 
@@ -547,8 +762,9 @@ class Trip(models.Model):
             'booking_bill': 'N/A',
             'container_info': 'N/A',
             'shipping_line': 'N/A',
-            'pickup_port': 'N/A',
-            'delivery_port': 'N/A',
+            'pickup_port': 'N/A',          # Nơi lấy cont
+            'delivery_port': 'N/A',        # Nơi hạ công
+            'empty_depot': 'N/A',          # Nơi trả vỏ/lấy vỏ
             'goods_weight': '',
             'loading_time': 'N/A',
             'loading_location': 'N/A',
@@ -573,28 +789,43 @@ class Trip(models.Model):
 
         # Fix location mapping according to user requirements
         # Nơi lấy công (Pickup Port): Always port
-        if plan and plan.location_id:
-            result['pickup_port'] = plan.location_id.name or 'N/A'
+        # if plan and plan.location_id:
+        #     result['pickup_port'] = plan.location_id.name or 'N/A'
 
         # Nơi hạ công (Delivery Port): Different logic for import vs export
         if plan and plan.plan_type == 'import':
+            # Nơi lấy cont: Port Drop
+            if plan.location_id:
+                result['pickup_port'] = plan.location_id.name or 'N/A'
             # Import: Nơi hạ công = place of delivery
             location = plan_line.goods_delivery_location_id if plan_line else None
             if location:
                 address = location.address or ''
                 delivery_port = f"{location.name} ({address})" if address else location.name
             result['delivery_port'] = delivery_port
+            # Nơi trả vỏ: Empty Depot Pickup
+            if plan_line and plan_line.container_port_location_id:
+                result['empty_depot'] = plan_line.container_port_location_id.name or 'N/A'
         else:
-            # Export: Nơi hạ công = same port
-            result['delivery_port'] = plan.location_id.name if plan and plan.location_id else 'N/A'
+            # Nơi lấy cont: Port Pickup
+            if plan.location_id:
+                result['pickup_port'] = plan.location_id.name or 'N/A'
+            # Nơi hạ công: Empty Depot Return
+            if plan_line and plan_line.container_port_location_id:
+                result['delivery_port'] = plan_line.container_port_location_id.name or 'N/A'
+            # Nơi lấy vỏ: Empty Depot Return (same as delivery_port)
+            if plan_line and plan_line.container_port_location_id:
+                result['empty_depot'] = plan_line.container_port_location_id.name or 'N/A'
+            # # Export: Nơi hạ công = same port
+            # result['delivery_port'] = plan.location_id.name if plan and plan.location_id else 'N/A'
 
         if plan_line and plan_line.goods_weight:
             result['goods_weight'] = f"{plan_line.goods_weight} Tấn"
 
         # 2. Đóng hàng/ Hạ Hàng
-        if plan and plan.date:
+        if plan_line and plan_line.date:
             user_tz = self.env.user.tz or 'Asia/Ho_Chi_Minh'
-            localized_date = fields.Datetime.context_timestamp(self, plan.date)
+            localized_date = fields.Datetime.context_timestamp(self, plan_line.date)
             result['loading_time'] = localized_date.strftime("%d/%m/%Y %H:%M")
         loading_location = None
         contact_number = ''
@@ -625,13 +856,17 @@ class Trip(models.Model):
         route_info = self.get_route_info()
         plan = self.plan_line_id.plan_id if self.plan_line_id else None
         section_title = "Đóng hàng" if plan and plan.plan_type == 'import' else "Hạ hàng"
-
+        if plan and plan.plan_type == 'import':
+            depot_label = "Nơi trả vỏ"  # Empty Depot Pickup
+        else:
+            depot_label = "Nơi lấy vỏ"  # Empty Depot Return
         message = f"""1. Thông tin đóng trả hàng:
 
         Số booking/số bill: {route_info['booking_bill']}
         Loại container: {route_info['container_info']} - hãng tầu ({route_info['shipping_line']})
         Nơi lấy Cont: {route_info['pickup_port']}
         Nơi hạ cont: {route_info['delivery_port']}
+        {depot_label}: {route_info['empty_depot']}
         Trọng lượng hàng: {route_info['goods_weight']}
 
 2. {section_title}:
@@ -679,7 +914,7 @@ class Trip(models.Model):
 
     def action_export_trip_docx(self):
         """Export trip data to DOCX format matching the transport document"""
-        return self.env['hp.document.service'].generate_trip_docx(self)
+        return self.env['hp.document.service.trucking'].generate_docx(self)
 
     def action_export_trip_docx_bulk(self):
         """Export selected trips to DOCX and return a ZIP download"""
@@ -688,41 +923,50 @@ class Trip(models.Model):
 
         import io
         import zipfile
+        import base64
         import re
 
         zip_io = io.BytesIO()
         with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as zipf:
             for trip in self:
-                # Reuse document service to build the Document
-                doc = self.env['hp.document.service']._generate_trip_docx(trip)
+                try:
+                    # Generate DOCX
+                    from docx import Document
+                    doc = self.env['hp.document.service.trucking']._get_docx_document()
+                    self.env['hp.document.service.trucking']._add_docx_header(doc, trip)
+                    self.env['hp.document.service.trucking']._add_docx_body(doc, trip)
+                    self.env['hp.document.service.trucking']._add_docx_footer(doc, trip)
 
-                # Save document to bytes
-                doc_io = io.BytesIO()
-                doc.save(doc_io)
-                doc_io.seek(0)
+                    # Save document to bytes
+                    doc_io = io.BytesIO()
+                    doc.save(doc_io)
+                    doc_io.seek(0)
 
-                # Build safe filename, mirroring single export
-                driver_name = trip.driver_id.name if trip.driver_id else 'N_A'
-                safe_driver_name = re.sub(r'[^\w\s-]', '', driver_name).strip()
-                safe_driver_name = re.sub(r'[-\s]+', '_', safe_driver_name)
-                trip_date = trip.plan_line_id.plan_id.date if trip.plan_line_id and trip.plan_line_id.plan_id else fields.Datetime.now()
-                if isinstance(trip_date, datetime):
-                    filename = f"GiayVanTai_{safe_driver_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
-                else:
-                    filename = f"GiayVanTai_{safe_driver_name}_{trip_date.date().strftime('%d_%m_%Y')}.docx"
+                    # Build safe filename, mirroring single export
+                    driver_name = trip.driver_id.name if trip.driver_id else 'N/A'
+                    safe_driver_name = re.sub(r'[^\w\s-]', '', driver_name).strip() if driver_name != 'N/A' else 'TaiXe'
+                    safe_driver_name = re.sub(r'[-\s]+', '_', safe_driver_name)
+                    trip_date = trip.plan_line_id.date if trip.plan_line_id else fields.Datetime.now()
+                    if isinstance(trip_date, datetime):
+                        filename = f"GiayVanTai_{safe_driver_name}_{trip_date.strftime('%d_%m_%Y')}.docx"
+                    else:
+                        filename = f"GiayVanTai_{safe_driver_name}_{trip_date.date().strftime('%d_%m_%Y')}.docx"
 
-                # Write into ZIP
-                zipf.writestr(filename, doc_io.getvalue())
+                    # Write into ZIP
+                    zipf.writestr(filename, doc_io.getvalue())
+
+                except Exception as e:
+                    _logger.error(f"Error exporting trip {trip.id}: {str(e)}")
+                    continue
 
         zip_io.seek(0)
 
+        zip_filename = f"Trips_Export_{fields.Datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
         attachment = self.env['ir.attachment'].create({
-            'name': 'GiayVanTai_All_Selected.zip',
+            'name': zip_filename,
             'type': 'binary',
             'datas': base64.b64encode(zip_io.getvalue()),
-            'mimetype': 'application/zip',
-            'res_model': self._name,
-            'res_id': self[0].id,
+            'mimetype': 'application/zip'
         })
 
         return {
@@ -757,7 +1001,7 @@ class Trip(models.Model):
         
         for trip in self:
             # Only consider active trips (not cancelled or done)
-            if trip.status in ['cancelled', 'done']:
+            if trip.status in [constants.TripStatus.CANCELLED, constants.TripStatus.DONE]:
                 trip.is_eta_near = False
                 continue
                 
@@ -784,10 +1028,10 @@ class Trip(models.Model):
         }
     
     def _cancel_inactive_trip(self):
-        planning_service(self.env).update_trip_statuses('cancelled')
+        planning_service(self.env).update_trip_statuses(constants.TripStatus.CANCELLED)
     
-    def _close_done_trip(self):
-        planning_service(self.env).update_trip_statuses('done')
+    # def _close_done_trip(self):
+    #     planning_service(self.env).update_trip_statuses('done')
     
     @api.model
     def recompute_eta_near_status(self):
@@ -810,7 +1054,7 @@ class Trip(models.Model):
                         ('id', '!=', trip.id),
                         ('driver_id', '=', trip.driver_id.id),
                         ('is_current', '=', True),
-                        ('status', 'not in', ['cancelled', 'done'])
+                        ('status', 'not in', [constants.TripStatus.DONE, constants.TripStatus.CANCELLED])
                     ])
                     if other_current_trips:
                         other_current_trips.write({'is_current': False})
@@ -835,4 +1079,35 @@ class Trip(models.Model):
             'target': 'inline',
         }
 
-    
+    # @api.model
+    # def get_or_create_draft_from_container(self, container, plan_line):
+    #     trip = self.search([
+    #         ('plan_line_id', '=', plan_line.id),
+    #         ('container_number', '=', container.container_number)
+    #     ], limit=1)
+    #
+    #     if trip:
+    #         return trip
+    #
+    #     trip_vals = {
+    #         'plan_line_id': plan_line.id,
+    #         'container_number': container.container_number,
+    #         'seal_number': container.seal_number,
+    #         'container_size': '40' if '40' in (container.container_type_id.name or '') else '20',
+    #         'status': constants.TripStatus.DRAFT,
+    #     }
+    #     trip = self.create(trip_vals)
+    #     return trip
+    #
+    # @api.model
+    # def get_or_create_draft_from_job(self, cs_job, plan_line):
+    #     """Tạo 1 draft trip nếu chưa có container cụ thể"""
+    #     if self.search([('plan_line_id', '=', plan_line.id)], limit=1):
+    #         return
+    #
+    #     trip_vals = {
+    #         'plan_line_id': plan_line.id,
+    #         'container_size': '40',
+    #         'status': constants.TripStatus.DRAFT,
+    #     }
+    #     self.create(trip_vals)

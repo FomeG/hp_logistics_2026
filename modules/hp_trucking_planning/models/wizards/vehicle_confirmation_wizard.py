@@ -64,30 +64,30 @@ class BusyVehicleConfirmationWizard(models.TransientModel):
     # New trip details
     new_trip_plan_name = fields.Char(
         related='new_trip_id.plan_id.name',
-        string='Plan',
+        string='Plan ',
         readonly=True
     )
 
     new_trip_client = fields.Char(
         related='new_trip_id.client_id.name',
-        string='Client',
+        string='Client ',
         readonly=True
     )
 
     new_trip_etd = fields.Datetime(
         related='new_trip_id.plan_estimate_time_departure',
-        string='Estimate Time Departure',
+        string='Estimate Time Departure ',
         readonly=True
     )
 
     new_trip_eta = fields.Datetime(
         related='new_trip_id.plan_estimate_time_arrival',
-        string='Estimate Time Arrival',
+        string='Estimate Time Arrival ',
         readonly=True
     )
     new_trip_route = fields.Char(
         related='new_trip_id.route_id.name',
-        string='Route',
+        string='Route ',
         readonly=True
     )
 
@@ -115,7 +115,10 @@ class BusyVehicleConfirmationWizard(models.TransientModel):
 
         self.new_trip_id.vehicle_assignment_log_id = self.vehicle_assignment_log_id
         self.new_trip_id.message_post(
-            body=f"Vehicle-driver pair '{self.vehicle_assignment_log_id.name}' has been assigned to this trip (reassigned from another trip).",
+            body="Vehicle-driver pair '%s - %s' has been reassigned to this trip from another trip." % (
+                self.vehicle_assignment_log_id.vehicle_id.name,
+                self.vehicle_assignment_log_id.driver_id.name
+            ),
             message_type='notification'
         )
 

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Start Product Selling Week -->
+        <record id="pts_week_hp_tokyo" model="product.template.selling.week">
+            <field name="goods_info">Electronics Container</field>
+            <field name="selling_week_id" ref="hp_sale.selling_week_51"/>
+            <field name="from_location_id" ref="hp_components.location_port_vn_hcm"/>
+            <field name="to_location_id" ref="hp_components.location_port_jp_tokyo"/>
+            <field name="team_id" ref="hp_employee.team_east_asia_hcm"/>
+        </record>
+        <record id="pts_week_hcm_busan" model="product.template.selling.week">
+            <field name="goods_info">Frozen Seafood</field>
+            <field name="selling_week_id" ref="hp_sale.selling_week_51"/>
+            <field name="from_location_id" ref="hp_components.location_port_vn_hcm"/>
+            <field name="to_location_id" ref="hp_components.location_port_kr_busan"/>
+            <field name="team_id" ref="hp_employee.team_east_asia_hcm"/>
+        </record>
+        <record id="pts_week_hp_la" model="product.template.selling.week">
+            <field name="goods_info">Furniture Export</field>
+            <field name="selling_week_id" ref="hp_sale.selling_week_48"/>
+            <field name="from_location_id" ref="hp_components.location_port_vn_hpp"/>
+            <field name="to_location_id" ref="hp_components.location_port_us_uswc"/>
+            <field name="team_id" ref="hp_employee.team_us_han"/>
+        </record>
+        <record id="pts_week_tokyo_hp" model="product.template.selling.week">
+            <field name="goods_info">Automotive Parts</field>
+            <field name="selling_week_id" ref="hp_sale.selling_week_48"/>
+            <field name="from_location_id" ref="hp_components.location_port_vn_hcm"/>
+            <field name="to_location_id" ref="hp_components.location_port_jp_tokyo"/>
+            <field name="team_id" ref="hp_employee.team_east_asia_hcm"/>
+        </record>
+        <record id="pts_week_oak_hcm" model="product.template.selling.week">
+            <field name="goods_info">Textiles</field>
+            <field name="selling_week_id" ref="hp_sale.selling_week_49"/>
+            <field name="from_location_id" ref="hp_components.location_port_vn_hpp"/>
+            <field name="to_location_id" ref="hp_components.location_port_us_la"/>
+            <field name="team_id" ref="hp_employee.team_us_han"/>
+        </record>
+        <!-- End Product Selling Week -->
+
+        <!-- Lines cho pts_week_hp_tokyo -->
+        <record id="pts_week_hp_tokyo_line1" model="product.template.selling.week.line">
+            <field name="product_template_selling_week_id" ref="pts_week_hp_tokyo"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_cosco"/>
+            <field name="container_type_id" ref="hp_components.container_type_20dc"/>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="price">950.00</field>
+        </record>
+        <record id="pts_week_hp_tokyo_line2" model="product.template.selling.week.line">
+            <field name="product_template_selling_week_id" ref="pts_week_hp_tokyo"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_kmtc"/>
+            <field name="container_type_id" ref="hp_components.container_type_20rf"/>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="price">1800.00</field>
+        </record>
+
+        <!-- Lines cho pts_week_hcm_busan -->
+        <record id="pts_week_hcm_busan_line1" model="product.template.selling.week.line">
+            <field name="product_template_selling_week_id" ref="pts_week_hcm_busan"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_maersk"/>
+            <field name="container_type_id" ref="hp_components.container_type_20ot"/>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="price">1100.00</field>
+        </record>
+        <record id="pts_week_hcm_busan_line2" model="product.template.selling.week.line">
+            <field name="product_template_selling_week_id" ref="pts_week_hcm_busan"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_hmm"/>
+            <field name="container_type_id" ref="hp_components.container_type_20hc"/>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="price">2000.00</field>
+        </record>
+
+        <!-- Lines cho pts_week_hp_la -->
+        <record id="pts_week_hp_la_line1" model="product.template.selling.week.line">
+            <field name="product_template_selling_week_id" ref="pts_week_hp_la"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_cosco"/>
+            <field name="container_type_id" ref="hp_components.container_type_40dc"/>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="price">1400.00</field>
+        </record>
+        <record id="pts_week_hp_la_line2" model="product.template.selling.week.line">
+            <field name="product_template_selling_week_id" ref="pts_week_hp_la"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_maersk"/>
+            <field name="container_type_id" ref="hp_components.container_type_40hc"/>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="price">2600.00</field>
+        </record>
+
+        <!-- Lines cho pts_week_tokyo_hp -->
+        <record id="pts_week_tokyo_hp_line1" model="product.template.selling.week.line">
+            <field name="product_template_selling_week_id" ref="pts_week_tokyo_hp"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_kmtc"/>
+            <field name="container_type_id" ref="hp_components.container_type_40hq"/>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="price">1200.00</field>
+        </record>
+        <record id="pts_week_tokyo_hp_line2" model="product.template.selling.week.line">
+            <field name="product_template_selling_week_id" ref="pts_week_tokyo_hp"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_hmm"/>
+            <field name="container_type_id" ref="hp_components.container_type_40rf"/>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="price">2100.00</field>
+        </record>
+
+        <!-- Lines cho pts_week_oak_hcm -->
+        <record id="pts_week_oak_hcm_line1" model="product.template.selling.week.line">
+            <field name="product_template_selling_week_id" ref="pts_week_oak_hcm"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_maersk"/>
+            <field name="container_type_id" ref="hp_components.container_type_40hcrf"/>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="price">1600.00</field>
+        </record>
+        <record id="pts_week_oak_hcm_line2" model="product.template.selling.week.line">
+            <field name="product_template_selling_week_id" ref="pts_week_oak_hcm"/>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_kmtc"/>
+            <field name="container_type_id" ref="hp_components.container_type_40ot"/>
+            <field name="currency_id" ref="base.USD"/>
+            <field name="price">2800.00</field>
+        </record>
+    </data>
+</odoo>

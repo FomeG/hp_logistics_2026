@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="partner_main_type_shipping_line" model="partner.main.type">
-        <field name="code">shipping_line</field>
-        <field name="name">Shipping Line</field>
-    </record>
     <record id="partner_main_type_shipping_line_contact" model="partner.main.type">
         <field name="code">shipping_line_contact</field>
         <field name="name">Shipping Line Contact</field>

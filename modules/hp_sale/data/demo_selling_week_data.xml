@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="selling_week_48" model="selling.week">
+            <field name="name">Tuần 48</field>
+            <field name="start_date" eval="(datetime.now() - timedelta(days=8)).strftime('%Y-%m-%d')" />
+            <field name="end_date" eval="(datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')" />
+            <field name="is_active">True</field>
+        </record>
+
+        <record id="selling_week_49" model="selling.week">
+            <field name="name">Tuần 49</field>
+            <field name="start_date" eval="datetime.now().strftime('%Y-%m-%d')" />
+            <field name="end_date" eval="(datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')" />
+            <field name="is_active">True</field>
+        </record>
+
+        <record id="selling_week_50" model="selling.week">
+            <field name="name">Tuần 50</field>
+            <field name="start_date" eval="(datetime.now() + timedelta(days=8)).strftime('%Y-%m-%d')" />
+            <field name="end_date" eval="(datetime.now() + timedelta(days=15)).strftime('%Y-%m-%d')"  />
+            <field name="is_active">True</field>
+        </record>
+
+        <!-- Current Selling Week -->
+        <record id="selling_week_51" model="selling.week">
+            <field name="name">Tuần 51</field>
+            <field name="start_date" eval="(datetime.now() + timedelta(days=16)).strftime('%Y-%m-%d')" />
+            <field name="end_date" eval="(datetime.now() + timedelta(days=23)).strftime('%Y-%m-%d')"  />
+            <field name="is_active">True</field>
+        </record>
+
+    </data>
+</odoo>

@@ -11,15 +11,36 @@
 
 </header>
 
-                <field name="job_number"/>
-                <field name="job_date"/>
-                <field name="service_type"/>
-                <field name="shipping_line_id"/>
-                <field name="vessel"/>
-                <field name="voyage"/>
-                <field name="port_loading"/>
-                <field name="port_discharge"/>
+<!--                <field name="job_number"/>-->
+<!--                <field name="job_date"/>-->
+<!--                <field name="service_type"/>-->
+<!--                <field name="shipping_line_id"/>-->
+<!--                <field name="vessel"/>-->
+<!--                <field name="vessel_transit"/>-->
+<!--                <field name="voyage"/>-->
+<!--                <field name="port_loading"/>-->
+<!--                <field name="port_discharge"/>-->
+                <field name="cs_order_id"/>
+                <field name="booking_id"/>
+                <field name="booking_line_id"/>
+                <field name="container_type_id"/>
+                <field name="quantity"/>
+                <field name="container_summary"/>
+                <field name="master_bl_date"/>
+                <field name="mbl_number"/>
+                <field name="hbl_number"/>
+                <field name="commodity"/>
+                <field name="booking_number"/>
+                <field name="booking_party"/>
+                <field name="bill_type"/>
+                <field name="port_transit"/>
+                <field name="pre_carriage_by"/>
+                <field name="vessel_transit"/>
+                <field name="etd"/>
                 <field name="eta"/>
+                <field name="mother_etd"/>
+                <field name="salesman_id"/>
+                <field name="customer_id"/>
             </list>
         </field>
     </record>
@@ -40,66 +61,131 @@
                 <sheet>
     <!-- Nhóm 2 cột -->
                     <group>
-    <group string="Job information" >
-        <field name="job_number"/>
-        <field name="job_date"/>
-        <field name="shipping_line_id"/>
-    </group>
+                        <group string="Job Information">
+                            <field name="booking_id"/>
+                            <field name="cs_order_id"/>
+                            <field name="booking_line_id"/>
+                            <field name="container_type_id"/>
+                            <field name="quantity"/>
+                            <field name="container_summary"/>
+                        </group>
+                <!--    <group string="Job information" >-->
+                <!--        <field name="job_number"/>-->
+                <!--        <field name="job_date"/>-->
+                <!--        <field name="shipping_line_id"/>-->
+                <!--    </group>-->
 
-    <!-- Nhóm nhiều cột -->
-    <group>
-        <field name="vessel"/>
-        <field name="voyage"/>
-        <field name="service_type"/>
-        <field name="department_code"/>
-        <field name="mbl_number"/>
-        <field name="hbl_number"/>
-        <field name="master_bl_date"/>
-        <field name="date_of_master_bl_date"/>
-    </group>
+                        <!-- Nhóm nhiều cột -->
+                        <!-- Shipment info -->
+                        <group string="Shipment Info">
+                            <field name="vessel_transit"/>
+                            <field name="master_bl_date"/>
+                            <field name="mbl_number"/>
+                            <field name="hbl_number"/>
+                            <field name="date_of_master_bl_date"/>
+                        </group>
+                        <group string="Shipment Info">
+                            <field name="vessel_transit"/>
+                            <field name="master_bl_date"/>
+                            <field name="mbl_number"/>
+                            <field name="hbl_number"/>
+                            <field name="date_of_master_bl_date"/>
+                        </group>
+                        <!-- Ports -->
+                        <group string="Ports">
+                            <field name="port_transit"/>
+                            <field name="port_delivery"/>
+                            <field name="port_receipt"/>
+                            <field name="pre_carriage_by"/>
+                            <field name="commodity"/>
+                        </group>
+                        <!-- Dates -->
+                        <group string="Dates">
+                            <field name="etd"/>
+                            <field name="mother_etd"/>
+                            <field name="eta"/>
+                        </group>
 
-    <group>
-        <field name="booking_id" options="{'no_create': True, 'no_create_edit': True}"/>
-        <field name="booking_line_id"/>
-        <field name="port_loading"/>
-        <field name="port_discharge"/>
-        <field name="port_transit"/>
-        <field name="pre_carriage_by"/>
-        <field name="commodity"/>
-    </group>
+                        <!-- People -->
+                        <group string="People">
+                            <field name="salesman_id"/>
+                            <field name="customer_id"/>
+                        </group>
+<!--                        <group>-->
+<!--                            <field name="vessel"/>-->
+<!--                            <field name="vessel_transit"/>-->
+<!--                            <field name="voyage"/>-->
+<!--                            <field name="service_type"/>-->
+<!--                            <field name="department_code"/>-->
+<!--                            <field name="mbl_number"/>-->
+<!--                            <field name="hbl_number"/>-->
+<!--                            <field name="master_bl_date"/>-->
+<!--                            <field name="date_of_master_bl_date"/>-->
+<!--                        </group>-->
 
-    <group>
-        <field name="etd"/>
-        <field name="eta"/>
-        <field name="salesman_id"/>
-        <field name="customer_id"/>
-        <field name="quantity"/>
-<!--        <field name="company_account"/>-->
-<!--        <field name="personal_account"/>-->
+<!--                        <group>-->
+<!--                            <field name="booking_id" options="{'no_create': True, 'no_create_edit': True}"/>-->
+<!--                            <field name="booking_line_id"/>-->
+<!--                            <field name="port_loading"/>-->
+<!--                            <field name="port_discharge"/>-->
+<!--                            <field name="port_transit"/>-->
+<!--                            <field name="pre_carriage_by"/>-->
+<!--                            <field name="commodity"/>-->
+<!--                        </group>-->
 
-    </group></group>
+<!--                        <group>-->
+<!--                            <field name="etd"/>-->
+<!--                            <field name="mother_etd"/>-->
+<!--                            <field name="eta"/>-->
+<!--                            <field name="salesman_id"/>-->
+<!--                            <field name="customer_id"/>-->
+<!--                            <field name="container_summary"/>-->
+<!--                            <field name="container_progress"/>-->
+<!--                    &lt;!&ndash;        <field name="company_account"/>&ndash;&gt;-->
+<!--                    &lt;!&ndash;        <field name="personal_account"/>&ndash;&gt;-->
+<!--                        </group>-->
+                    </group>
                     <notebook>
-    <page string="Job Details">
-        <field name="detail_ids">
-            <list editable="bottom">
-                <field name="shipper_id"/>
-                <field name="consignee_id"/>
-                <field name="notify_party_id"/>
-                <field name="transport_type"/>
-                <field name="freight_charge"/>
-                <field name="currency_id"/>
-                <field name="status"/>
-                <field name="place_of_receipt"/>
-                <field name="place_of_issue"/>
-                <field name="prepaid_at"/>
-            </list>
-        </field>
-    </page>
-</notebook>
-
-</sheet>
-
-
+                        <page string="Job Details">
+                            <field name="detail_ids">
+                                <list editable="bottom">
+                                    <field name="shipper_id"/>
+                                    <field name="consignee_id"/>
+                                    <field name="notify_party_id"/>
+                                    <field name="transport_type"/>
+                                    <field name="freight_charge"/>
+                                    <field name="currency_id"/>
+                                    <field name="status"/>
+                                    <field name="place_of_receipt"/>
+                                    <field name="place_of_issue"/>
+                                    <field name="prepaid_at"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Container Details">
+                            <field name="container_ids">
+                                <list editable="bottom">
+                                    <field name="container_number"/>
+                                    <field name="container_type_id"/>
+                                    <field name="seal_number"/>
+                                    <field name="gross_weight"/>
+                                    <field name="net_weight"/>
+                                    <field name="description"/>
+                                    <field name="package_type"/>
+                                    <field name="uom_id"/>
+                                    <field name="quantity"/>
+                                    <field name="unit_price"/>
+                                    <field name="volume_cbm"/>
+                                    <field name="pickup_instruction"/>
+                                    <field name="pickup_address" string="Pickup address"/>
+                                    <field name="pickup_date" string="Pickup date"/>
+                                    <field name="status" string="status"/>
+                                    <field name="booking_line_id" string="booking_line_id"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
             </form>
         </field>
     </record>

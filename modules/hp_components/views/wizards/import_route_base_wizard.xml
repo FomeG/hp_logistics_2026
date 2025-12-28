@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_import_route_base_wizard_form" model="ir.ui.view">
+        <field name="name">hp_components.import.route.base.wizard.form</field>
+        <field name="model">hp_components.import.route.base.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Vehicle and Driver">
+                <sheet>
+                    <div class="oe_title mb-3">
+                        <h1>
+                            <i class="fa fa-upload text-primary" /> Import Route From Excel </h1>
+                    </div>
+                    <group>
+                        <group string="Configuration" class="col-md-6">
+                            <field name="country_id"
+                               options="{'no_create': True, 'no_edit': True}"
+                            />
+                            <field name="to_state_id"
+                                options="{'no_create': True, 'no_quick_create': True}"
+                            />
+                            <field name="to_location_type" />
+                        </group>
+                        <group string="File Upload" class="col-md-6">
+                            <field name="file" filename="file_name" />
+                            <field name="file_name" invisible="1" />
+                            <field name="sheet_name" placeholder="Enter sheet name to import" />
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        <h4 class="alert alert-heading" role="alert">Excel import instructions</h4>
+                        <div class="row mt-3">
+                            <div class=" col-md-6">
+                                <p>
+                                    <strong>📊 Step:</strong>
+                                </p>
+                                <ol>
+                                    <li>
+                                        Download sample file: 
+                                        <a
+                                            href="/hp_components/static/xlsx/import_route_file_template.xlsx"
+                                            target="_blank"
+                                            class="btn btn-sm btn-outline-primary" role="button">
+                                            <i class="fa fa-download" /> File excel </a>
+                                    </li>
+                                    <li>Open the Excel file and enter your actual data</li>
+                                    <li>Keep the column header format unchanged</li>
+                                    <li>Save the file and upload it to this form</li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <p>
+                                    <strong>📊 Columns require:</strong>
+                                </p>
+                                <ul>
+                                    <li><strong>STT</strong></li>
+                                    <li><strong>Vị trí</strong>: Phải theo định dạng: "Từ/đến - tên_vị_trí"</li>
+                                    <li><strong>Tiền đường</strong></li>
+                                    <li><strong>Lương chuyến</strong></li>
+                                    <li><strong>Tiền Vé</strong></li>
+                                    <li><strong>Số Km</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="alert alert-warning" role="alert">
+                                    <h5 class="alert alert-heading" role="alert">⚠️ Important Note:</h5>
+                                    <ul class="mb-0">
+                                        <li>The third row must be the header containing the column names</li>
+                                        <li>Data from row 6 onwards will be skipped if it does not contain an address</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_import"
+                        type="object"
+                        string="Import"
+                        class="btn btn-primary"/>
+                    <button string="Cancel" class="btn btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_import_route_base_wizard" model="ir.actions.act_window">
+        <field name="name">Import Route</field>
+        <field name="res_model">hp_components.import.route.base.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_import_route_base_wizard_form" />
+    </record>
+
+</odoo> 

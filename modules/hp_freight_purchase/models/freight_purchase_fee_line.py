@@ -41,7 +41,7 @@ class FreightChargeFeeLine(models.Model):
         store=True,
         readonly=True
     )
-    port_id = fields.Many2one("freight.purchase.port", string="Port")
+    port_id = fields.Many2one("location.base", string="Port")
 
     date_from = fields.Date(
         related='fee_id.date_from',
@@ -75,13 +75,13 @@ class FreightChargeFeeLine(models.Model):
                 vals['amount'] = fee.fee_type_id.amount
             # Validate port_id against country_id
             if vals.get('port_id') and vals.get('country_id'):
-                port = self.env['freight.purchase.port'].browse(vals['port_id'])
+                port = self.env['location.base'].browse(vals['port_id'])
                 if port.country_id.id != vals['country_id']:
                     raise ValidationError(
                         f"Port {port.name} does not belong to country {self.env['res.country'].browse(vals['country_id']).name}.")
             # If user selects country and no port
             if fee.country_id and not vals.get('port_id'):
-                ports = self.env['freight.purchase.port'].search([('country_id', '=', fee.country_id.id)])
+                ports = self.env['location.base'].search([('country_id', '=', fee.country_id.id)])
                 for port in ports:
                     line_vals = vals.copy()
                     line_vals['port_id'] = port.id

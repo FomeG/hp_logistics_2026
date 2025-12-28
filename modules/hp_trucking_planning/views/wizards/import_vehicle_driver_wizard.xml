@@ -25,14 +25,15 @@
                             <field name="available_sheets" readonly="1"/>
                         </group>
                     </group>
-                                                                                                 <div class="alert alert-info" role="alert">
-                                 <h4 class="alert-heading">Hướng dẫn Import</h4>
-                                                                   <div class="row">
+                        <div class="alert alert-info" role="alert">
+                            <h4 class="alert-heading" role="alert">Hướng dẫn Import</h4>
+                                <div class="row">
                                       <div class="col-md-6">
                                           <p><strong>📥 Tải file mẫu:</strong></p>
                                           <p>
                                               <a href="/hp_trucking_planning/static/xlsx/Sample_import_vehicle_driver.xls" 
-                                                 target="_blank" 
+                                                 target="_blank"
+                                                 role="button"
                                                  class="btn btn-sm btn-outline-primary">
                                                   <i class="fa fa-download"/> Tải File Mẫu Excel
                                               </a>
@@ -60,7 +61,7 @@
                                   <div class="row mt-3">
                                       <div class="col-12">
                                           <div class="alert alert-warning" role="alert">
-                                              <h5 class="alert-heading">⚠️ Lưu ý quan trọng:</h5>
+                                              <h5 class="alert-heading" role="alert">⚠️ Lưu ý quan trọng:</h5>
                                               <ul class="mb-0">
                                                   <li>Dòng đầu tiên phải là header chứa tên các cột</li>
                                                   <li>Lái xe được import với CCCD và License Number tạm thời. Vui lòng cập nhật thủ công sau khi import</li>

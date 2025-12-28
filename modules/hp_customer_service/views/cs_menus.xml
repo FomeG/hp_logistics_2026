@@ -2,20 +2,75 @@
     <menuitem id="menu_cs_root"
               name="Customer Service"
               web_icon="hp_pricing,static/description/icon.png"
+              groups="hp_customer_service.group_hp_customer_service_member"
               sequence="36"/>
-    <menuitem id="menu_cs_job"
-              name="Jobs"
+    <menuitem id="menu_cs_operations"
+              name="Operations"
               parent="menu_cs_root"
-              action="action_cs_job"
               sequence="10"/>
-    <menuitem id="menu_cs_settings"
-              name="Settings"
+
+    <menuitem id="menu_cs_order"
+              name="CS Orders"
+              parent="menu_cs_operations"
+              action="action_cs_order"
+              sequence="10"/>
+
+    <menuitem id="menu_cs_task"
+              name="Tasks"
+              parent="menu_cs_operations"
+              action="action_cs_task"
+              sequence="15"/>
+
+    <menuitem id="menu_cs_batch_order"
+              name="Batch Orders"
+              parent="menu_cs_operations"
+              action="action_cs_batch_order"
+              sequence="20"/>
+
+    <menuitem id="menu_cs_documents"
+              name="Documents"
               parent="menu_cs_root"
               sequence="20"/>
 
-    <menuitem id="menu_hp_bank_wizard"
-              name="Add Bank"
-              parent="menu_cs_settings"
-              action="action_hp_bank_wizard"
+    <menuitem id="menu_cs_bill_lading"
+              name="Bills of Lading"
+              parent="menu_cs_documents"
+              action="action_cs_bill_lading"
+              sequence="10"/>
+
+    <menuitem id="menu_cs_booking"
+              name="Bookings"
+              parent="menu_cs_documents"
+              action="action_cs_booking"
+              sequence="20"/>
+
+    <menuitem id="menu_cs_shipping_instruction"
+              name="Shipping Instructions"
+              parent="menu_cs_documents"
+              action="action_cs_shipping_instruction"
               sequence="30"/>
+
+    <menuitem id="menu_cs_container"
+              name="Containers"
+              parent="menu_cs_documents"
+              action="action_cs_container"
+              sequence="40"/>
+
+    <menuitem id="menu_cs_pre_alert"
+              name="Pre Alerts"
+              parent="menu_cs_documents"
+              action="action_cs_pre_alert"
+              sequence="50"/>
+
+    <menuitem id="menu_cs_pre_alert"
+              name="DO/AN Documents"
+              parent="menu_cs_documents"
+              action="action_cs_shipping_document"
+              sequence="55"/>
+
+    <menuitem id="menu_cs_settings"
+              name="Settings"
+              parent="menu_cs_root"
+              sequence="60"/>
+
 </odoo>

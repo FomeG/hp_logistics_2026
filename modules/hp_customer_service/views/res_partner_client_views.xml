@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Inherit res.partner.client form view để thêm is_monthly_billing -->
+    <record id="view_res_partner_client_form_inherit_cs" model="ir.ui.view">
+        <field name="name">res.partner.client.form.inherit.cs</field>
+        <field name="model">res.partner.client</field>
+        <field name="inherit_id" ref="hp_sale.view_res_partner_client_form"/>
+        <field name="arch" type="xml">
+             <xpath expr="//field[@name='branch_id']" position="after">
+                <field name="is_monthly_billing"
+                       help="If checked, CS orders from this client will be grouped into monthly batch orders for billing"/>
+             </xpath>
+        </field>
+    </record>
+</odoo>

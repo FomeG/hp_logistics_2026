@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add Tasks stat button to Sale Order form -->
+    <record id="view_order_form_inherit_task_button" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.task.button</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button"
+                        type="object"
+                        name="action_view_tasks"
+                        icon="fa-tasks"
+                        invisible="state not in ('sale', 'done') or task_count == 0">
+                    <field name="task_count" widget="statinfo" string="Tasks"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit form view to modify header buttons and statusbar -->
+    <record id="view_order_form_inherit_extended_states" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.extended.states</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Hide the control section when not in draft or activated state -->
+            <xpath expr="//field[@name='order_line']/list/control" position="attributes">
+                <attribute name="invisible">state not in ['draft', 'activated']</attribute>
+            </xpath>
+
+<!--            &lt;!&ndash; Also make the entire field readonly when not in draft or activated state &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='order_line']" position="attributes">-->
+<!--                <attribute name="readonly">state not in ['draft', 'pricing_leader_confirm']</attribute>-->
+<!--            </xpath>-->
+
+<!--            &lt;!&ndash; Update the original readonlycondition to include your custom states &ndash;&gt;-->
+<!--            <xpath expr="//field[@name='order_line']" position="attributes">-->
+<!--                <attribute name="readonly">state not in ['draft', 'pricing_leader_confirm'] or locked</attribute>-->
+<!--            </xpath>-->
+
+            <!-- Modify the statusbar -->
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="statusbar_visible">draft,sent_to_client,review,sent_to_leader,request_booking,sale</attribute>
+            </xpath>
+
+            <!-- Add state-specific alert messages after the state statusbar -->
+            <!-- <xpath expr="//header" position="after"> -->
+                <!-- Message for draft state -->
+                <!-- <div class="alert alert-danger text-center" role="alert" invisible="state != 'draft'">
+                    <span><i class="fa fa-exclamation-circle"/> The Quotation is in draft state, please click on 'Activate' button to activate and start Sale Flow.</span>
+                </div> -->
+
+                <!-- Message for activated state -->
+                <!-- <div class="alert alert-danger text-center" role="alert" invisible="state != 'activated'">
+                    <span><i class="fa fa-exclamation-circle"/> Make sure all products have unit price, then send Quotation to customer and once they confirmed, click on 'Customer Confirmed'.</span>
+                </div> -->
+
+                <!-- Message for customer_confirm state -->
+                <!-- <div class="alert alert-danger text-center" role="alert" invisible="state != 'customer_confirm'">
+                    <span><i class="fa fa-exclamation-circle"/> The Quotation is waiting for Sale leader to confirm.</span>
+                </div> -->
+
+                <!-- Message for sale_leader_confirm state -->
+                <!-- <div class="alert alert-danger text-center" role="alert" invisible="state != 'sale_leader_confirm'">
+                    <span><i class="fa fa-exclamation-circle"/> The Quotation is waiting for Pricing leader to confirm.</span>
+                </div> -->
+
+                <!-- Message for pricing_leader_confirm state -->
+                <!-- <div class="alert alert-danger text-center" role="alert" invisible="state != 'pricing_leader_confirm'">
+                    <span><i class="fa fa-exclamation-circle"/> Review the Quotation and click on 'Confirmed' to convert Quotation to an Order.</span>
+                </div> -->
+            <!-- </xpath> -->
+
+            <!-- Replace the "Send by Email" primary button with first stage transition button -->
+            <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email']" position="after">
+                <!-- <button name="action_activate_quotation" id="action_activate_quotation"
+                        string="Activate" type="object" data-hotkey="g"
+                        invisible="state != 'draft' or not id" class="btn-primary"
+                        context="{'validate_analytic': True}"/>
+                   <button name="action_bypass_to_sale" string="confirm to invoice"  type="object"   class="btn-primary"/>
+                <button name="action_convert_to_cs_job"
+        type="object"
+        string="Convert to CS Job"
+        class="btn-primary"/> -->
+                <button name="action_update_state" 
+                    type="object" 
+                    string="Request Approval"
+                    class="btn-success"
+                    context="{'new_state': 'sent_to_leader'}"
+                    invisible="not id or state not in ('draft','review','sent_to_client')"/>
+                <button name="action_update_state" 
+                    type="object" 
+                    string="Sent To Client"
+                    class="btn-primary"
+                    context="{'new_state': 'sent_to_client'}"
+                    invisible="not id or state != 'draft'"/>
+                <button name="action_update_state" 
+                    type="object" 
+                    string="Review"
+                    class="btn-primary"
+                    context="{'new_state': 'review'}"
+                    invisible="state != 'sent_to_client'"/>
+                <button name="action_update_state" 
+                    type="object" 
+                    string="Sent To Leader"
+                    class="btn-primary"
+                    context="{'new_state': 'sent_to_leader'}"
+                    invisible="state != 'review'"/>
+                <button name="action_update_state"
+                    type="object" 
+                    string="Approve"
+                    class="btn-primary"
+                    context="{'new_state': 'request_booking'}"
+                    invisible="state != 'sent_to_leader'"
+                    groups="sales_team.group_sale_salesman_all_leads"/>
+                <button name="action_update_state" 
+                    type="object" 
+                    string="Deny"
+                    class="btn-danger"
+                    context="{'new_state': 'denied'}"
+                    invisible="state != 'sent_to_leader'"
+                    groups="sales_team.group_sale_salesman_all_leads"/>
+                <button name="action_update_state" 
+                    type="object" 
+                    string="Confirm"
+                    class="btn-primary"
+                    context="{'new_state': 'sale'}"
+                    invisible="state != 'request_booking'"
+                    groups="sales_team.group_sale_salesman_all_leads"/>
+            </xpath>
+
+            <!-- Add buttons for each state transition -->
+            <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email']" position="after">
+                <button name="action_print_quotation"
+                        type="object"
+                        string="In Báo Giá"
+                        class="btn-secondary"
+                        invisible="not id"
+                        icon="fa-print"/>
+<!--                <button name="action_customer_confirm" id="action_customer_confirm"-->
+<!--                        string="Customer Confirmed" type="object" class="btn-primary"-->
+<!--                        data-hotkey="c" invisible="state != 'activated'"/>-->
+
+<!--               <button name="action_customer_approved" id="action_customer_approved"-->
+<!--                       string="Submit to Sales Leader" type="object" class="btn-primary"-->
+<!--                       data-hotkey="c" invisible="state != 'customer_confirm'"/>-->
+
+<!--               <button name="action_sale_leader_approved" id="action_sale_leader_approved"-->
+<!--                       string="Submit to Pricing Leader" type="object" class="btn-primary"-->
+<!--                       data-hotkey="s" invisible="state != 'sale_leader_confirm'"-->
+<!--                       groups="sales_team.group_sale_manager"/>-->
+
+<!--                <button name="action_final_confirm" id="action_final_confirm"-->
+<!--                        string="Confirmed" type="object" class="btn-primary"-->
+<!--                        data-hotkey="p"-->
+<!--                        groups="sales_team.group_sale_manager,sales_team.group_sale_salesman"-->
+<!--                        invisible="state != 'pricing_leader_confirm' or (uid != create_uid and uid != user_id)"/>-->
+            </xpath>
+
+            <xpath expr="//button[@name='action_preview_sale_order']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <!-- Hide the Confirm button for sent state completely -->
+            <xpath expr="//button[@name='action_confirm'][@id='action_confirm']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Hide the Confirm button for draft state completely -->
+            <xpath expr="//button[@name='action_confirm'][not(@id)]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Update visibility of Cancel button -->
+            <xpath expr="//button[@name='action_cancel']" position="attributes">
+                <attribute name="invisible">state in ['cancel', 'sale'] or not id or locked</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email_primary']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <!-- Hide the original "Send by Email" button -->
+            <xpath expr="//button[@name='action_quotation_send'][@id='send_by_email']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Hide the proforma email buttons if needed (optional) -->
+            <xpath expr="//button[@name='action_quotation_send'][@id='send_proforma_primary']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='action_quotation_send'][@id='send_proforma']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <!-- Hide the Create Invoice buttons-->
+            <xpath expr="//button[@id='create_invoice']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//button[@id='create_invoice_percentage']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="options">{'no_quick_create' : True}</attribute>
+                    <attribute name="context">
+                        {
+                            'res_partner_search_mode': 'customer',
+                            'show_address': 1,
+                            'show_vat': True,
+                            'default_customer_rank': 1,
+                            'default_company_type': 'company',
+                            'form_view_ref': 'base.view_partner_form'
+                        }
+                    </attribute>
+            </xpath>
+
+            <!-- Modify product_id and product_template_id in form view -->
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="attributes">
+                <attribute name="options">{'no_quick_create': True, 'no_create_edit' : True}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="attributes">
+                <attribute name="options">{'no_quick_create': True, 'no_create_edit' : True}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_id']" position="attributes">
+                <attribute name="options">{'no_quick_create': True, 'no_create_edit' : True}</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//group[@name='sale_header']" position="before">
+                <sheet>
+                    <group string="Client Information">
+                        <field name="client_id"
+                            widget="many2one"
+                            placeholder="Select Client ..."
+                            options="{'no_create': True, 'no_create_edit': True}"
+                            context="{'show_ref': True, 'form_view_ref': 'hp_sale.view_res_partner_client_form'}" />
+                        <field name="client_vat" />
+                        <field name="client_address" />
+                        <field name="client_phone" />
+                        <field name="client_email" />
+                    </group>
+                </sheet>
+                <sheet>
+                    <group string="Order Information">
+                        <field name="service_type" required="1" readonly="id > 0"/>
+                        <field name="main_transport_mode" required="1" readonly="id > 0"/>
+                        <field name="commodity" />
+                        <field name="commodity_hs_code" />
+                        <field name="etd" required="1"/>
+                        <field name="shipping_line_id"/>
+                        <field name="container_type_id" />
+                        <field name="goods_location_id" invisible="not is_sea_exp_location" required="is_sea_exp_location"/>
+                    </group>
+                    <group invisible="not is_sea_exp_location or id">
+                        <field name="exp_from_location_id" required="is_sea_exp_location and not id"/>
+                        <field name="exp_to_location_id" required="is_sea_exp_location and not id"/>
+                    </group>
+                    <group invisible="is_sea_exp_location or id">
+                        <field name="imp_from_location_id" required="not is_sea_exp_location and not id"/>
+                        <field name="imp_to_location_id" required="not is_sea_exp_location and not id"/>
+                    </group>
+                    <group invisible="not id">
+                        <field name="from_location_id" domain="[('id', 'in', allow_from_location_ids)]"/>
+                        <field name="to_location_id" domain="[('id', 'in', allow_to_location_ids)]"/>
+                    </group>
+                    <group string="Currency">
+                        <field name="currency_id" invisible="1"/>
+                        <field name="currency_display_info"
+                               readonly="1"
+                               invisible="not currency_id"/>
+                    </group>
+                </sheet>
+                <sheet>
+                    <group string="Actions">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <button name="select_normal_product"
+                                    type="object"
+                                    string="Add Product"
+                                    class="btn btn-primary btn-block"/>
+                                <button name="action_open_freight_price_wizard"
+                                    type="object"
+                                    string="Get Freight Price"
+                                    class="btn btn-second btn-block"/>
+                            </div>
+                        </div>
+                    </group>
+                </sheet>
+            </xpath>
+            <xpath expr="//group/field[@name='payment_term_id']" position="after">
+                <field name="incoterm_id" />
+            </xpath>
+            <xpath expr="//page[@name='customer_signature']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list/control/create[@name='add_product_control']" position="replace">
+                
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list/control/create[@name='add_section_control']" position="replace">
+
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list/control/create[@name='add_note_control']" position="replace">
+
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list/control/button[@name='action_add_from_catalog']" position="replace">
+
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list" position="attributes">
+                <attribute name="create">false</attribute>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Exchange Rate Settings" name="currency_settings">
+                    <group>
+                        <group string="Currency">
+                            <field name="ref_currency_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                        </group>
+                        <group string="Exchange Rate Configuration" invisible="not currency_id">
+                            <label for="currency_rate_ref_id" string="Select Rate"/>
+                            <div class="o_row">
+                                <field name="currency_rate_ref_id"
+                                       invisible="use_manual_rate"
+                                       domain="[('currency_id', '=', ref_currency_id)]"
+                                       options="{'no_create': True}"/>
+                            </div>
+                            <field name="use_manual_rate" widget="boolean_toggle" string="Or Use Manual Rate"/>
+                            <field name="manual_currency_rate"
+                                   invisible="not use_manual_rate"
+                                   required="use_manual_rate"
+                                   placeholder="Enter manual rate..."/>
+                        </group>
+                    </group>
+                    <div class="alert alert-info text-center" role="alert">
+                         <field name="currency_display_info" readonly="1"/>
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sale_order_form_quote_inherit" model="ir.ui.view">
+        <field name="name">sale.order.form.quote.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_management.sale_order_form_quote"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='sale_order_template_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='optional_products']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='other_information']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sale_order_form_hide_pdf_quote" model="ir.ui.view">
+        <field name="name">sale.order.form.hide.pdf.quote</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_pdf_quote_builder.sale_order_form_inherit_sale_pdf_quote_builder"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='pdf_quote_builder']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_order_form_inherit_multi_currency" model="ir.ui.view">
+        <field name="name">sale.order.form.inherit.multi.currency</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="before">
+                <field name="price_list_price"
+                       string="Original Price"
+                       optional="show"
+                       readonly="1"
+                       force_save="1"
+                       invisible="price_list_price == 0"
+                       />
+                <field name="price_unit_original"
+                       string="Price"
+                       optional="show"/>
+                <field name="currency_id_line"
+                       string="Currency"
+                       options="{'no_create': True, 'no_open': True}"
+                       optional="show"
+                       readonly="1"
+                       force_save="1"
+                       width="0.5"/>
+
+            </xpath>
+
+            <!-- Changed: String to Price in VND -->
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="attributes">
+                <attribute name="string">Price in VND</attribute>
+                <attribute name="readonly">1</attribute>
+                <attribute name="force_save">1</attribute>
+                <attribute name="optional">show</attribute>
+            </xpath>
+
+        </field>
+    </record>
+    <record id="view_sales_order_filter_inherit_custom_states" model="ir.ui.view">
+        <field name="name">sale.order.list.select.inherit.states</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter string="Sent To Client" name="sent_to_client"
+                        domain="[('state', '=', 'sent_to_client')]"/>
+                <filter string="Review" name="review"
+                        domain="[('state', '=', 'review')]"/>
+                <filter string="Sent To Leader" name="sent_to_leader"
+                        domain="[('state', '=', 'sent_to_leader')]"/>
+                <filter string="Request Booking" name="request_booking"
+                        domain="[('state', '=', 'request_booking')]"/>
+                <filter string="Denied" name="denied"
+                        domain="[('state', '=', 'denied')]"/>
+                <filter string="Sales Order" name="sale_custom"
+                        domain="[('state', '=', 'sale')]"/>
+                <filter string="Done" name="done"
+                        domain="[('state', '=', 'done')]"/>
+                <filter string="Cancelled" name="cancelled"
+                        domain="[('state', '=', 'cancel')]"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

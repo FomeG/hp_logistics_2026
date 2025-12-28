@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Import employee Wizard Form View -->
+    <record id="view_import_employee_wizard_form" model="ir.ui.view">
+        <field name="name">import.employee.wizard.form</field>
+        <field name="model">hp.import_employee_wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import employee">
+                <sheet>
+                    <div class="oe_title mb-3">
+                        <h1>
+                            <i class="fa fa-upload text-primary"/> Import employee From Excel
+                        </h1>
+                    </div>
+                     <group class="col-md-6">
+                            <field name="file" filename="file_name"/>
+                            <field name="file_name" invisible="1"/>
+                            <field name="sheet_name" placeholder="Enter sheet name to import"/>
+                            <field name="available_sheets" readonly="1"/>
+                        </group>
+                    <div class="alert alert-info" role="alert">
+                        <h4 class="alert-heading" role="alert">Excel import instructions</h4>
+                        <div class="row mt-3">
+                            <div class=" col-md-6">
+                                <p>
+                                    <strong>📊 Step:</strong>
+                                </p>
+                                <ol>
+                                    <li> Download sample file: <a
+                                            href="/hp_employee/static/xlsx/import_employee_excel_template.xlsx"
+                                            target="_blank"
+                                            role="button"
+                                            class="btn btn-sm btn-outline-primary">
+                                            <i class="fa fa-download" /> File excel </a>
+                                    </li>
+                                    <li>Open the Excel file and enter your actual data</li>
+                                    <li>Keep the column header format unchanged</li>
+                                    <li>Save the file and upload it to this form</li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <p>
+                                    <strong>📊 Columns require:</strong>
+                                </p>
+                                <ul>
+                                    <li>
+                                        <strong>STT</strong>
+                                    </li>
+                                    <li>
+                                        <strong>Fullname</strong>
+                                    </li>
+                                    <li>
+                                        <strong>Email</strong>
+                                    </li>
+                                    <li>
+                                        <strong>Phone</strong>
+                                    </li>
+                                    <li>
+                                        <strong>Department</strong>
+                                    </li>
+                                    <li>
+                                        <strong>Branch</strong>
+                                    </li>
+                                    <li>
+                                        <strong>Position</strong>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row mt-1">
+                            <div class="col-12">
+                                <div class="alert alert-warning" role="alert">
+                                    <h5 class="alert alert-heading" role="alert">⚠️ Important Note:</h5>
+                                    <ul class="mb-0">
+                                        <li>The pair of values (Department, Branch) must exist in the declared department list.</li>
+                                        <li>Email and Phone must be in the correct format.</li>
+                                        <li>No value is allowed to be left blank.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_import"
+                            type="object"
+                            string="Import"
+                            class="btn-primary"/>
+                    <button string="Đóng" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_import_employee_wizard" model="ir.actions.act_window">
+        <field name="name">Import employee</field>
+        <field name="res_model">hp.import_employee_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_import_employee_wizard_form"/>
+    </record>
+
+</odoo>

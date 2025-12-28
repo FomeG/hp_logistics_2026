@@ -1,3 +1,13 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
-access_department_type,access.department.type,model_department_type,base.group_user,1,1,1,1
+access_department_type,access.department.type,model_department_type,,1,1,1,1
+access_region,access.region for all,model_region,,1,1,1,0
+access_partner_main_type,access.partner.main.type,model_partner_main_type,,1,1,1,0
+
+access_cs_order_base,access.cs.order.base,model_cs_order_base,base.group_user,1,1,1,0
+access_location_base,access.location.base,model_location_base,,1,1,1,0
+access_route_base,access.route.base,model_route_base,,1,1,1,0
+access_container_type,access.container.type,model_container_type,,1,1,1,0
+access_import_route_base_wizard,access.import.route.base.wizard,model_hp_components_import_route_base_wizard,base.group_user,1,1,1,0
+access_import_shipping_line_wizard_system,access.import.shipping.line.wizard.system,model_hp_components_import_shipping_line_wizard,base.group_system,1,1,1,1
+

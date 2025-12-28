@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="location_vn_city_hp" model="location.base">
+            <field name="name">Hải Phòng</field>
+            <field name="code">CT_HP</field>
+            <field name="type">city</field>
+            <field name="state_id" ref="base.state_vn_VN-HP"/>
+            <field name="country_id" ref="base.vn"/>
+        </record>
+        <record id="location_port_vn_hpp" model="location.base">
+            <field name="name">Cảng Hải Phòng</field>
+            <field name="code">HPP</field>
+            <field name="type">port</field>
+            <field name="state_id" ref="base.state_vn_VN-HP"/>
+            <field name="country_id" ref="base.vn"/>
+            <field name="parent_id" ref="location_vn_city_hp"/>
+        </record>
+        <record id="location_port_vn_htit" model="location.base">
+            <field name="name">HTIT</field>
+            <field name="code">HTIT</field>
+            <field name="type">port</field>
+            <field name="address">Số 8A Trần Phú, Phường Ngô Quyền</field>
+            <field name="contact_phone">02253859456</field>
+            <field name="extra_fuel" eval="False"/>
+            <field name="state_id" ref="base.state_vn_VN-HP"/>
+            <field name="country_id" ref="base.vn"/>
+            <field name="parent_id" ref="location_vn_city_hp"/>
+        </record>
+        <record id="location_vn_city_hn" model="location.base">
+            <field name="name">Hà Nội</field>
+            <field name="code">HN</field>
+            <field name="type">city</field>
+            <field name="state_id" ref="base.state_vn_VN-HN"/>
+            <field name="country_id" ref="base.vn"/>
+        </record>
+        <record id="location_vn_hn_kcn_quangminh" model="location.base">
+            <field name="name">KCN Quang Minh</field>
+            <field name="code">KCN_QM_HN</field>
+            <field name="type">warehouse</field>
+            <field name="address">Đ. Võ Văn Kiệt, Quang Minh, Mê Linh</field>
+            <field name="state_id" ref="base.state_vn_VN-70"/>
+            <field name="country_id" ref="base.vn"/>
+            <field name="parent_id" ref="location_vn_city_hn"/>
+        </record>
+        <record id="location_vn_hn_kcn_thanglong" model="location.base">
+            <field name="name">KCN Thang Long</field>
+            <field name="code">KCN_TL_HN</field>
+            <field name="type">warehouse</field>
+            <field name="address">Kim Chung, Đông Anh</field>
+            <field name="state_id" ref="base.state_vn_VN-HN"/>
+            <field name="country_id" ref="base.vn"/>
+            <field name="parent_id" ref="location_vn_city_hn"/>
+        </record>
+        <record id="location_vn_hn_kcn_ninhhiep" model="location.base">
+            <field name="name">KCN Ninh Hiệp</field>
+            <field name="code">KCN_NH_HN</field>
+            <field name="type">warehouse</field>
+            <field name="address">Gia Lâm</field>
+            <field name="state_id" ref="base.state_vn_VN-HN"/>
+            <field name="country_id" ref="base.vn"/>
+            <field name="parent_id" ref="location_vn_city_hn"/>
+        </record>
+        <record id="location_vn_city_hd" model="location.base">
+            <field name="name">Hải Dương</field>
+            <field name="code">HD</field>
+            <field name="type">city</field>
+            <field name="state_id" ref="base.state_vn_VN-61"/>
+            <field name="country_id" ref="base.vn"/>
+        </record>
+        <record id="location_vn_hd_namsach" model="location.base">
+            <field name="name">Nam Sách</field>
+            <field name="code">HD_NS</field>
+            <field name="type">other</field>
+            <field name="state_id" ref="base.state_vn_VN-61"/>
+            <field name="country_id" ref="base.vn"/>
+            <field name="parent_id" ref="location_vn_city_hd"/>
+        </record>
+        <record id="location_vn_hd_kcn_daian" model="location.base">
+            <field name="name">KCN Đại An</field>
+            <field name="code">KCN_DA_HD</field>
+            <field name="type">warehouse</field>
+            <field name="state_id" ref="base.state_vn_VN-61"/>
+            <field name="country_id" ref="base.vn"/>
+            <field name="parent_id" ref="location_vn_city_hd"/>
+        </record>
+        <record id="location_vn_hd_kcn_phucdien" model="location.base">
+            <field name="name">KCN Phúc Điền</field>
+            <field name="code">KCN_PD_HD</field>
+            <field name="type">warehouse</field>
+            <field name="state_id" ref="base.state_vn_VN-61"/>
+            <field name="country_id" ref="base.vn"/>
+            <field name="parent_id" ref="location_vn_city_hd"/>
+        </record>
+        <record id="location_vn_hd_kcn_tantruong" model="location.base">
+            <field name="name">KCN Tân Trường</field>
+            <field name="code">KCN_TT_HD</field>
+            <field name="type">warehouse</field>
+            <field name="state_id" ref="base.state_vn_VN-61"/>
+            <field name="country_id" ref="base.vn"/>
+            <field name="parent_id" ref="location_vn_city_hd"/>
+        </record>
+
+        <record id="location_vn_city_hcm" model="location.base">
+            <field name="name">Hồ Chí Minh</field>
+            <field name="code">CT_HCM</field>
+            <field name="type">city</field>
+            <field name="state_id" ref="base.state_vn_VN-SG"/>
+            <field name="country_id" ref="base.vn"/>
+        </record>
+        <record id="location_port_vn_hcm" model="location.base">
+            <field name="name">Cảng HCM</field>
+            <field name="code">SGP</field>
+            <field name="type">port</field>
+            <field name="address">3 Nguyễn Tất Thành, phường 13, quận 4</field>
+            <field name="contact_phone">028 3940 0161</field>
+            <field name="extra_fuel" eval="False"/>
+            <field name="state_id" ref="base.state_vn_VN-SG"/>
+            <field name="country_id" ref="base.vn"/>
+            <field name="parent_id" ref="location_vn_city_hcm"/>
+        </record>
+        <!-- international ports -->
+        <record id="location_port_jp_tokyo" model="location.base">
+            <field name="name">Cảng Tokyo</field>
+            <field name="code">JPTYO</field>
+            <field name="type">port</field>
+            <field name="address">8-1 Nishishinjuku 2-chome Shinjuku-ku Tokyo 163-8001</field>
+            <field name="contact_phone">81-3-5320-5524</field>
+            <field name="extra_fuel" eval="False"/>
+            <field name="state_id" ref="base.state_jp_jp-13"/>
+            <field name="country_id" ref="base.jp"/>
+        </record>
+
+        <record id="location_port_kr_incheon" model="location.base">
+            <field name="name">Incheon</field>
+            <field name="code">kr.incheon</field>
+            <field name="type">port</field>
+            <field name="country_id" ref="base.kr"/>
+        </record>
+        <record id="location_port_kr_busan" model="location.base">
+            <field name="name">Busan</field>
+            <field name="code">kr.busan</field>
+            <field name="type">port</field>
+            <field name="country_id" ref="base.kr"/>
+        </record>
+        <record id="location_port_us_uswc" model="location.base">
+            <field name="name">USWC</field>
+            <field name="code">USWC</field>
+            <field name="type">port</field>
+            <field name="state_id" ref="base.state_us_5"/>
+            <field name="country_id" ref="base.us"/>
+        </record>
+        <record id="location_port_us_la" model="location.base">
+            <field name="name">Cảng Los Angeles</field>
+            <field name="code">LAP</field>
+            <field name="type">port</field>
+            <field name="address">425 South Palos Verdes Street, San Pedro, CA 90731</field>
+            <field name="extra_fuel" eval="False"/>
+            <field name="state_id" ref="base.state_us_5"/>
+            <field name="country_id" ref="base.us"/>
+            <field name="parent_id" ref="location_port_us_uswc"/>
+        </record>
+        <record id="location_port_us_oak" model="location.base">
+            <field name="name">Cảng Oakland</field>
+            <field name="code">OAKP</field>
+            <field name="type">port</field>
+            <field name="address">50 Broadway, Oakland, CA 94607</field>
+            <field name="extra_fuel" eval="False"/>
+            <field name="state_id" ref="base.state_us_5"/>
+            <field name="country_id" ref="base.us"/>
+            <field name="parent_id" ref="location_port_us_uswc"/>
+        </record>
+        <record id="location_port_us_longbeach" model="location.base">
+            <field name="name">Cảng Longbeach</field>
+            <field name="code">LONGBEACHP</field>
+            <field name="type">port</field>
+            <field name="address">415 W Ocean Blvd, Long Beach, CA 90802</field>
+            <field name="extra_fuel" eval="False"/>
+            <field name="state_id" ref="base.state_us_5"/>
+            <field name="country_id" ref="base.us"/>
+            <field name="parent_id" ref="location_port_us_uswc"/>
+        </record>
+        <record id="location_laos_city_vientiane" model="location.base">
+            <field name="name">Vientiane</field>
+            <field name="code">VIENTIANE</field>
+            <field name="type">city</field>
+            <field name="country_id" ref="base.la"/>
+        </record>
+        <record id="location_vn_city_nb" model="location.base">
+            <field name="name">Ninh Bình</field>
+            <field name="code">CT_NB</field>
+            <field name="type">city</field>
+            <field name="state_id" ref="base.state_vn_VN-18"/>
+            <field name="country_id" ref="base.vn"/>
+        </record>
+        <record id="location_vn_nb_giankhau" model="location.base">
+            <field name="name">Gián Khẩu</field>
+            <field name="code">CT_NB_GK</field>
+            <field name="type">other</field>
+            <field name="state_id" ref="base.state_vn_VN-18"/>
+            <field name="country_id" ref="base.vn"/>
+            <field name="parent_id" ref="location_vn_city_nb"/>
+        </record>
+    </data>
+</odoo>

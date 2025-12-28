@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- LIST VIEW -->
+    <record id="product_template_normal_list_view" model="ir.ui.view">
+        <field name="name">product.template.normal.list.view</field>
+        <field name="model">product.template</field>
+        <field name="arch" type="xml">
+            <list string="Products">
+                <header>
+                    <button string="Add" 
+                        name="action_sale_order_add_selected_lines" 
+                        type="object" 
+                        class="btn-primary"/>
+                </header>
+    
+                <field name="name" string="Product Name"/>
+                <field name="type"/>
+                <field name="list_price" widget="monetary"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- SEARCH VIEW -->
+    <record id="product_template_normal_search_view" model="ir.ui.view">
+        <field name="name">product.template.normal.search.view</field>
+        <field name="model">product.template</field>
+        <field name="arch" type="xml">
+            <search string="Search Product">
+                <field name="name"/>
+                <field name="list_price"/>
+                <searchpanel>
+                    <field name="region_id" enable_counters="1"/>
+                    <field name="type" enable_counters="1"/>
+                </searchpanel>
+                 <group expand="0" string="Group By">
+                    <filter name="group_by_category" string="Category" context="{'group_by':'categ_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

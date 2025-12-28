@@ -109,9 +109,9 @@
     </record>
 
     <!-- Menu Item for Price Categories -->
-    <menuitem id="menu_product_price_category"
+    <!-- <menuitem id="menu_product_price_category"
         name="Bảng giá HP"
         action="action_product_price_category"
         parent="sale.product_menu_catalog"
-        sequence="30"/>
+        sequence="30"/> -->
 </odoo>

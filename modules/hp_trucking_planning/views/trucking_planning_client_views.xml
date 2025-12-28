@@ -12,6 +12,10 @@
                 <field name="street" string="Address" />
                 <field name="assign_trucking_manager_id" />
                 <field name="trucking_branch_id" />
+                <header>
+                <button name="%(action_mass_assign_trucking_user_wizard)d" string="Assign User" type="action"
+                        class="oe_highlight"/>
+                </header>
                 <field name="create_date" groups="base.group_system" />
             </list>
         </field>
@@ -20,6 +24,7 @@
     <record id="view_client_form" model="ir.ui.view">
         <field name="name">partner.client.form</field>
         <field name="model">res.partner.client</field>
+        <field name="priority" eval="1" />
         <field name="arch" type="xml">
             <form>
                 <sheet>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Region Form View -->
+    <record id="region_form_view" model="ir.ui.view">
+        <field name="name">region.form</field>
+        <field name="model">region</field>
+        <field name="arch" type="xml">
+            <form string="Region">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" required="1" />
+                            <field name="code" />
+                        </group>
+                        <group>
+                            <field name="parent_id" />
+                            <field name="is_active" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Countries">
+                            <field name="country_ids">
+                                <list>
+                                    <field name="name" />
+                                    <field name="port_ids" widget="many2many_tags" />
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Sub Regions">
+                            <field name="child_ids">
+                                <list string="Sub Regions">
+                                    <field name="code" />
+                                    <field name="name" />
+                                    <field name="is_active" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Region Tree/List View -->
+    <record id="region_list_view" model="ir.ui.view">
+        <field name="name">region.list</field>
+        <field name="model">region</field>
+        <field name="arch" type="xml">
+            <list string="Regions">
+                <field name="code" />
+                <field name="name" />
+                <field name="parent_id" string="Continent" />
+                <field name="port_count" />
+                <field name="is_active" groups="base.group_system" />
+                <field name="create_date" optional="hide" groups="base.group_system"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Region Search View -->
+    <record id="region_search_view" model="ir.ui.view">
+        <field name="name">region.search</field>
+        <field name="model">region</field>
+        <field name="arch" type="xml">
+            <search string="Search Regions">
+                <field name="code" />
+                <field name="name" />
+                <field name="parent_id" />
+
+                <!-- Filters -->
+                <separator />
+                <filter string="Active" name="filter_active" domain="[('is_active', '=', True)]" />
+                <filter string="Inactive" name="filter_inactive" domain="[('is_active', '=', False)]" />
+
+                <separator />
+                <filter string="Top Level Regions" name="filter_top_level" domain="[('parent_id', '=', False)]" />
+                <filter string="Sub Regions" name="filter_sub_regions" domain="[('parent_id', '!=', False)]" />
+
+                <separator />
+                <filter string="Has Countries" name="filter_with_countries" domain="[('country_ids', '!=', False)]" />
+                <filter string="No Countries" name="filter_without_countries" domain="[('country_ids', '=', False)]" />
+
+                <!-- Group By -->
+                <group expand="0" string="Group By">
+                    <filter string="Parent Region" name="group_by_parent" context="{'group_by': 'parent_id'}" />
+                    <filter string="Active Status" name="group_by_active" context="{'group_by': 'is_active'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Region Action -->
+    <record id="region_action" model="ir.actions.act_window">
+        <field name="name">Regions</field>
+        <field name="res_model">region</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="region_search_view" />
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Region
+            </p>
+            <p>
+                Regions are used to group countries and locations for organizational purposes.
+            </p>
+        </field>
+    </record>
+
+</odoo>

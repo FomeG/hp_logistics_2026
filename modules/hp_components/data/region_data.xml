@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="region_asia" model="region">
+            <field name="name">Asia</field>
+            <field name="code">AS</field>
+        </record>
+        <record id="subregion_se_asia" model="region">
+            <field name="name">Southeast Asia</field>
+            <field name="code">SEA</field>
+            <field name="parent_id" ref="region_asia"/>
+        </record>
+        <record id="subregion_e_asia" model="region">
+            <field name="name">East Asia</field>
+            <field name="code">EA</field>
+            <field name="parent_id" ref="region_asia"/>
+        </record>
+        <record id="subregion_s_asia" model="region">
+            <field name="name">South Asia</field>
+            <field name="code">SA</field>
+            <field name="parent_id" ref="region_asia"/>
+        </record>
+
+        <record id="subregion_nor_asia" model="region">
+            <field name="name">Northeast Asia</field>
+            <field name="code">NORA</field>
+            <field name="parent_id" ref="region_asia"/>
+        </record>
+
+        <record id="region_europe" model="region">
+            <field name="name">Europe</field>
+            <field name="code">EU</field>
+        </record>
+        <record id="subregion_n_europe" model="region">
+            <field name="name">Northern Europe</field>
+            <field name="code">NEU</field>
+            <field name="parent_id" ref="region_europe"/>
+        </record>
+        <record id="subregion_w_europe" model="region">
+            <field name="name">Western Europe</field>
+            <field name="code">WEU</field>
+            <field name="parent_id" ref="region_europe"/>
+        </record>
+        <record id="subregion_s_europe" model="region">
+            <field name="name">Southern Europe</field>
+            <field name="code">SEU</field>
+            <field name="parent_id" ref="region_europe"/>
+        </record>
+
+
+        <record id="region_americas" model="region">
+            <field name="name">Americas</field>
+            <field name="code">AM</field>
+        </record>
+        <record id="subregion_north_america" model="region">
+            <field name="name">North America</field>
+            <field name="code">NA</field>
+            <field name="parent_id" ref="region_americas"/>
+        </record>
+        <record id="subregion_south_america" model="region">
+            <field name="name">South America</field>
+            <field name="code">SAMERICA</field>
+            <field name="parent_id" ref="region_americas"/>
+        </record>
+
+    </data>
+</odoo>

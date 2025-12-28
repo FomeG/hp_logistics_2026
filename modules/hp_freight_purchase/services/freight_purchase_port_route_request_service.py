@@ -24,7 +24,7 @@ class PortRouteRequestService:
             pod_name = ' '.join(wizard.pod_name_request.split())
             pol_name = ' '.join(wizard.pol_name_request.split())
             route_name = f"{pod_name} → {pol_name}"
-            route = self.env['freight.purchase.route'].sudo().search([('name', '=', route_name)], limit=1)
+            route = self.env['route.base'].sudo().search([('name', '=', route_name)], limit=1)
             if route:
                 raise UserError(_("Route '%s' already exists.") % route_name)
 

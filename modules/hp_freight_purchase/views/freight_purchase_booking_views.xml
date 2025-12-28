@@ -20,22 +20,19 @@
                             <field name="quotation_id"
                                 invisible="not id and booking_mode == 'without_quotation'"
                                 readonly="id > 0" widget="many2one_new_tab" />
-                            <field name="code" required="1" invisible="1" string="Code" help="Book Code"/>
-<!--                            <field name="name" readonly="1"/>-->
-                            <field name="booking_name" required="1"/>
+                            <field name="code" required="1" string="Ref Code" help="Booking Code"/>
                             <field name="vessel_id" required="1" widget="many2one_new_tab" />
+                            <field name="voyage"/>
                             <field name="etd" />
                             <field name="status" />
                         </group>
                         <group invisible="not id and booking_mode == 'without_quotation'" >
-                            <field name="route_id" widget="many2one_new_tab" />
+                            <field name="from_location_id" widget="many2one_new_tab" />
+                            <field name="to_location_id" widget="many2one_new_tab" />
                             <field name="shipping_line_id" widget="many2one_new_tab"  />
                         </group>
 
                         <group invisible="id > 0 or booking_mode == 'with_quotation'">
-                            <field name="quotation_route_id"
-                                required="not id and booking_mode == 'without_quotation'"
-                                widget="many2one_new_tab" />
                             <field name="quotation_shipping_line_id"
                                 required="not id and booking_mode == 'without_quotation'"
                                 domain="[('partner_main_type_id.code', '=', 'shipping_line')]" widget="many2one_new_tab" />
@@ -68,14 +65,14 @@
                                 <form>
                                     <group>
                                         <field name="booking_id" invisible="context.get('from_booking_form')" />
-                                        <field name="quotation_line_id" groups="base.group_system"/>
-                                        <field name="container_type_id" />
-                                        <field name="quantity" />
-                                        <field name="unit_price" />
-                                        <field name="price" />
-                                        <field name="status" />
+                                        <field name="quotation_line_id" options="{'no_create':True,'no_create_edit':True}" required="1"/>
+                                        <field name="container_type_id" invisible="not quotation_line_id"/>
+                                        <field name="quantity" invisible="not quotation_line_id"/>
+                                        <field name="unit_price" invisible="not quotation_line_id"/>
+                                        <field name="price" invisible="not quotation_line_id"/>
+                                        <field name="status" invisible="not quotation_line_id"/>
                                     </group>
-                                    <group string="Fees">
+                                    <group string="Fees" invisible="not quotation_line_id">
                                         <field name="fee_line_ids" invisible="not id">
                                             <list editable="bottom">
                                                 <field name="fee_line_id"/>
@@ -86,9 +83,33 @@
                                 </form>
                             </field>
                         </page>
+                        <page string="Documents">
+                            <field name="attachment_ids" domain="[('booking_id', '=', id)]">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="document_type"/>
+                                    <field name="create_uid"/>
+                                    <field name="create_date"/>
+                                </list>
+                                <form string="Document">
+                                    <sheet>
+                                        <group>
+                                            <field name="name"/>
+                                            <field name="document_type" required="True"/>
+                                            <field name="booking_id"/>
+                                            <field name="create_uid" readonly="1" invisible="not id"/>
+                                            <field name="create_date" readonly="1" invisible="not id"/>
+                                        </group>
+                                        <group>
+                                            <field name="datas" filename="name"/>
+                                        </group>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
                         <page string="Inventory" invisible="not is_show_inventory">
                             <field name="booking_inventory_ids" context="{'from_booking_form': True}">
-                                <list edit="0" delete="0" create="1" readonly="1" no_open="1">
+                                <list edit="0" delete="0" readonly="1" no_open="1">
                                     <field name="container_type_id"/>
                                     <field name="action" />
                                     <field name="quantity" />
@@ -102,7 +123,10 @@
                                                 invisible="context.get('from_booking_form')" />
                                             <field name="container_type_id" required="1"
                                                    domain="[('id', 'in', allow_container_type_ids)]"
+                                                   options="{'no_create': True,'no_create_edit': True}"
+
                                             />
+                                            <field name="tempo_container_price" invisible="not can_create_quotation_line"/>
                                             <field name="quantity" required="1" />
                                             <field name="action" readonly="1"/>
                                         </group>
@@ -132,12 +156,11 @@
         <field name="priority">1</field>
         <field name="arch" type="xml">
             <list string="Booking List">
-<!--                <field name="name" groups="base.group_system"/>-->
-                <field name="booking_name"/>
                 <field name="quotation_id" groups="base.group_system"/>
-<!--                <field name="code" string="Code" />-->
+                <field name="code" string="Code" />
                 <field name="shipping_line_id" />
-                <field name="route_id" />
+                <field name="from_location_id" />
+                <field name="to_location_id" />
                 <field name="vessel_id" />
                 <field name="etd" />
                 <field name="teu_volume" />
@@ -153,10 +176,11 @@
         <field name="model">freight.purchase.booking</field>
         <field name="arch" type="xml">
             <search string="Booking List">
-                <field name="name" />
+                <field name="code" />
                 <field name="status" />
                 <field name="vessel_id"/>
-                <field name="route_id"/>
+                <field name="from_location_id" />
+                <field name="to_location_id" />
                 <field name="shipping_line_id"/>
 
                 <!-- Status Filters -->
@@ -179,7 +203,8 @@
                     <filter string="Status" name="group_by_status" context="{'group_by': 'status'}"/>
                     <filter string="Vessel" name="group_by_vessel" context="{'group_by': 'vessel_id'}"/>
                     <filter string="Shipping Line" name="group_by_shipping" context="{'group_by': 'shipping_line_id'}"/>
-                    <filter string="Route" name="group_by_route" context="{'group_by': 'route_id'}"/>
+                    <filter string="POL" name="group_by_pol" context="{'group_by': 'from_location_id'}"/>
+                    <filter string="POD" name="group_by_pod" context="{'group_by': 'to_location_id'}"/>
                 </group>
             </search>
         </field>

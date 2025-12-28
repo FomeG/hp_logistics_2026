@@ -1,0 +1,17 @@
+<odoo>
+    <data>
+        <menuitem id="menu_ms_graph_root" name="Microsoft 365"/>
+        <menuitem id="menu_ms_graph_user" name="My Profile"
+                  parent="menu_ms_graph_root"
+                  action="action_open_ms_graph_user"/>
+        <menuitem id="menu_fetched_emails" name="Fetched Emails"
+                  parent="menu_ms_graph_root"
+                  action="action_view_all_fetched_messages"
+                  />
+        <menuitem id="menu_my_attachments"
+                  name="My Attachments"
+                  parent="menu_ms_graph_root"
+                  action="action_all_attachments"
+                  groups="base.group_system"/>
+    </data>
+</odoo>

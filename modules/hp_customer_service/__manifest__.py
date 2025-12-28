@@ -5,26 +5,44 @@
     'description': 'This module is used by CS team',
     'author': 'HPL',
     'category': 'HP',
-    'version': '0.1',
-
+    'version': '18.0.0.0.1',
+    "license": "LGPL-3",
     # any module necessary for this one to work correctly
-    'depends': ['base','hp_components','hp_freight_purchase'],
-
+    'depends': ['hp_freight_purchase'],
     # always loaded
     'data': [
+        'security/hp_customer_service_security.xml',
         'security/ir.model.access.csv',
-        'data/ir_sequence_data.xml',
-        # 'views/cs_department_type_views.xml',
-        'views/cs_job_views.xml',
+        'data/ir_sequence_cs_batch_order_data.xml',
+        'data/ir_sequence_cs_order_data.xml',
+        'data/project_task_type_data.xml',
+
         'wizard/hp_bank_wizard_view.xml',
-        'views/cs_menus.xml',
         'report/HBL_template.xml',
         'report/debit_template.xml',
+        'report/arrival_notice_template.xml',
+        'report/delivery_order_template.xml',
         'report/ir_actions_report.xml',
+
+        'views/cs_batch_order_views.xml',
+        'views/cs_bill_lading_views.xml',
+        'views/cs_booking_views.xml',
+        'views/cs_container_views.xml',
+        'views/cs_shipping_document_views.xml',
+        'views/cs_order_views.xml',
+        'views/cs_pre_alert_views.xml',
+        'views/cs_shipping_instruction_views.xml',
+        'views/cs_task_views.xml',
+        'views/sale_order_inherit_views.xml',
+        'views/res_partner_client_views.xml',
+        'views/cs_menus.xml',
+
     ],
     # only loaded in demonstration mode
     'demo': [
         'data/bank_demo_data.xml',
     ],
+    'installable': True,
+    'application': True,
 }
 

@@ -19,14 +19,14 @@
 
             <!-- Show these fields only if product_type_filter is 'pricing' -->
             <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="after">
-                 <field name="etd_sale" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
+                 <!-- <field name="etd_sale" readonly="product_type_filter in ['trucking', 'common', 'custom']"/> -->
                 <field name="container_type_id"
                     readonly="product_type_filter in ['trucking', 'common', 'custom'] or state == 'pricing_leader_confirm'"
                     required="product_type_filter == 'pricing'" />
             </xpath>
 
             <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="after">
-                <field name="etd_sale" readonly="product_type_filter in ['trucking', 'common', 'custom']"/>
+                <!-- <field name="etd_sale" readonly="product_type_filter in ['trucking', 'common', 'custom']"/> -->
                 <field name="container_type_id" readonly="product_type_filter in ['trucking', 'common', 'custom']"
                        required="product_type_filter == 'pricing'"/>
             </xpath>
@@ -40,9 +40,6 @@
                 <attribute name="style">padding-left: 10px !important;</attribute>
             </xpath>
 
-            <xpath expr="//group/field[@name='partner_shipping_id']" position="after">
-                <field name="direction" />
-            </xpath>
 
             <!-- Modify domain on product_template_id in list view -->
             <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="attributes">
@@ -51,8 +48,7 @@
                         ('sale_ok', '=', True),
                         ('type', '=', product_type_filter),
                         '|',
-                        ('type', '!=', 'pricing'),
-                        ('route_id.direction', '=', parent.direction)
+                        ('type', '!=', 'pricing')
                     ]
                 </attribute>
             </xpath>
@@ -124,6 +120,9 @@
 
             </xpath>
             <xpath expr="//field[@name='order_line']/list/control/button[@name='action_add_from_catalog']" position="replace">
+
+            </xpath>
+            <xpath expr="//field[@name='order_line']/list/control/create[@name='add_product_control']" position="replace">
 
             </xpath>
         </field>

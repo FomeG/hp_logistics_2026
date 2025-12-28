@@ -142,10 +142,10 @@ class HPDocumentController(http.Controller):
                 return None, None
 
             # Get S3 credentials from config
-            aws_access_key_id = config.get('s3.access.key.id')
-            aws_secret_access_key = config.get('s3.secret.access.key')
-            s3_bucket = config.get('s3.bucket')
-            region_name = config.get('s3.region.name')
+            aws_access_key_id = config.get('s3_access_key_id')
+            aws_secret_access_key = config.get('s3_secret_access_key')
+            s3_bucket = config.get('s3_bucket')
+            region_name = config.get('s3_region_name')
 
             if not all([aws_access_key_id, aws_secret_access_key, s3_bucket, region_name]):
                 _logger.warning("S3 credentials not configured, falling back to database")

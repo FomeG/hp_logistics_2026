@@ -1,9 +1,11 @@
 from odoo import models, fields, api
-from odoo.tools import config
+from odoo.tools import config, mimetypes
 import boto3
 import os
 import ast
 import logging
+import re
+from datetime import datetime
 
 _logger = logging.getLogger(__name__)
 
@@ -11,11 +13,11 @@ _logger = logging.getLogger(__name__)
 class IrAttachmentInherit(models.Model):
     _inherit = 'ir.attachment'
 
-    booking_id = fields.Many2one(
-        comodel_name='freight.purchase.booking',
-        string='Booking',
-        help='Booking this document belongs to'
-    )
+    # booking_id = fields.Many2one(
+    #     comodel_name='freight.purchase.booking',
+    #     string='Booking',
+    #     help='Booking this document belongs to'
+    # )
     document_type = fields.Selection([
         ('booking_file', 'Booking File'),
         ('bl_draft', 'B/L Draft'),
@@ -24,24 +26,30 @@ class IrAttachmentInherit(models.Model):
         ('co', 'Certificate of Origin'),
         ('other', 'Other')
     ], string='Document Type')
-    department = fields.Char(string="Department",compute='_compute_department')
+    department = fields.Char(string="Department",compute='_compute_department',store=True)
     s3_path = fields.Char(string="S3 Path", readonly=False, store=True)
 
     @api.depends('res_model')
     def _compute_department(self):
-        mapping = {
-            'freight.purchase.booking': 'Pricing',
-        }
+        mapping = self._get_department_mapping()
         for rec in self:
             rec.department = mapping.get(rec.res_model, '')
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        for vals in vals_list:
-            if vals.get('booking_id'):
-                vals.setdefault('res_model', 'freight.purchase.booking')
-                vals.setdefault('res_id', vals['booking_id'])
-        return super().create(vals_list)
+    def _get_department_mapping(self):
+        """
+        Get department mapping for models. Can be extended by other modules.
+        """
+        return {
+            'mail.mail': 'Email',
+        }
+
+    # @api.model_create_multi
+    # def create(self, vals_list):
+    #     for vals in vals_list:
+    #         if vals.get('booking_id'):
+    #             vals.setdefault('res_model', 'freight.purchase.booking')
+    #             vals.setdefault('res_id', vals['booking_id'])
+    #     return super().create(vals_list)
 
     def get_secure_file_url(self):
         """
@@ -61,6 +69,43 @@ class IrAttachmentInherit(models.Model):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         return f"{base_url}/hp_document/download/{self.id}"
 
+    def _sanitize_filename(self, filename):
+        """
+        Làm sạch tên file để an toàn khi upload lên S3
+        - Bỏ ký tự đặc biệt
+        - Thay khoảng trắng bằng underscore
+        - Giữ nguyên tên file gốc
+        """
+        # Bỏ các ký tự không hợp lệ
+        filename = re.sub(r'[<>:"/\\|?*]', '', filename)
+        # Thay khoảng trắng bằng underscore
+        filename = filename.replace(' ', '_')
+        # Bỏ ký tự xuống dòng
+        filename = filename.replace('\n', '').replace('\r', '')
+        return filename.strip()
+
+    def _generate_s3_key(self, filename, department=''):
+        """
+        Tạo S3 key với tên file gốc
+        Format: hp_document/[department/]original_filename.ext
+        """
+        # Làm sạch tên file
+        clean_filename = self._sanitize_filename(filename)
+
+        # Lấy thời gian hiện tại
+        now = datetime.now()
+        year = now.strftime("%Y")
+        month = now.strftime("%m")
+        week = now.strftime("W%U")
+
+        # Tạo S3 key
+        if department:
+            s3_key = f"hp_document/{year}/{month}/{week}/{department}/{clean_filename}"
+        else:
+            s3_key = f"hp_document/{year}/{month}/{week}/{clean_filename}"
+
+        return s3_key
+
     @api.model
     def sync_document_to_s3(self):
         config_param = self.env['ir.config_parameter']
@@ -69,10 +114,10 @@ class IrAttachmentInherit(models.Model):
         if not model_list:
             _logger.warning("No models found in config parameter 'model.list'.")
             return
-        aws_access_key_id = config.get('s3.access.key.id')
-        aws_secret_access_key = config.get('s3.secret.access.key')
-        s3_bucket = config.get('s3.bucket')
-        region_name = config.get('s3.region.name')
+        aws_access_key_id = config.get('s3_access_key_id')
+        aws_secret_access_key = config.get('s3_secret_access_key')
+        s3_bucket = config.get('s3_bucket')
+        region_name = config.get('s3_region_name')
         try:
             s3 = boto3.client(
                 's3',
@@ -91,18 +136,35 @@ class IrAttachmentInherit(models.Model):
         ])
         files_path_odoo = []
         filestore_path = config.filestore(self.env.cr.dbname)
+        synced_count = 0
+        error_count = 0
+
         for attachment in attachments:
             try:
-                filename = attachment.name
-                ext = os.path.splitext(filename)[1]
-                s3_key = f"hp_document/{attachment.store_fname}{ext}"
+                filename = attachment.name or 'unnamed_file'
+                s3_key = attachment._generate_s3_key(filename, attachment.department)
                 s3_path_aws = f"https://d85r39ril3sob.cloudfront.net/{s3_key}"
                 file_path = os.path.join(filestore_path, attachment.store_fname)
-                s3.upload_file(file_path, s3_bucket, s3_key)
+                if not os.path.exists(file_path):
+                    _logger.warning(f"File not found: {file_path}")
+                    error_count +=1
+                    continue
+                content_type = attachment.mimetype
+                if not content_type:
+                    content_type, _ = mimetypes.guess_type(filename)
+                if not content_type:
+                    content_type = 'application/octet-stream'
+
+                extra_args = {
+                    'ContentType': content_type,
+                    'ContentDisposition': f'inline; filename="{filename}"',
+                }
+                s3.upload_file(file_path,s3_bucket,s3_key,ExtraArgs=extra_args)
                 attachment.write({'s3_path': s3_path_aws})
                 files_path_odoo.append(file_path)
+                synced_count += 1
             except Exception as e:
-                _logger.exception(f"Error uploading file for attachment ID {attachment.id}: {e}")
+                error_count += 1
                 continue
         self._remove_filestore_path(files_path_odoo)
 
@@ -118,18 +180,9 @@ class IrAttachmentInherit(models.Model):
         self.ensure_one()
         file_url = self.get_secure_file_url()  # Custom controller URL if there is S3 access
         return {'type': 'ir.actions.act_url', 'url': file_url, 'target': 'new'}
-        return {
-            'type': 'ir.actions.act_url',
-            'url': file_url,
-            'target': 'new',
-        }
+
 
     def action_download_attachment(self):
         self.ensure_one()
         url = self.get_secure_download_url()  # Custom controller URL if there is S3 access
         return {'type': 'ir.actions.act_url', 'url': url, 'target': 'self'}
-        return {
-            'type': 'ir.actions.act_url',
-            'url': url,
-            'target': 'self',
-        }

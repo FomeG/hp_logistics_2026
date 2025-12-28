@@ -21,33 +21,101 @@ class ResPartnerClient(models.Model):
     )
 
     is_sale_man_user = fields.Boolean(string="Is Sale Man", compute="_compute_is_sale_man_user", store=False)
+    is_system_user = fields.Boolean(
+        string="Is System User",
+        compute="_compute_is_system_user",
+    )
+    is_owner_or_admin = fields.Boolean(
+        string="Is Owner or Admin",
+        compute="_compute_is_owner_or_admin",
+    )
     sale_user_ids = fields.Many2many('res.users', compute='_compute_sale_user_ids', store=False)
-
     _unique_fields = ["vat", "ref", "phone"]
 
-    @api.depends()
+    @api.depends_context('uid')
     def _compute_is_sale_man_user(self):
+        user_service = self.env['hp_components.user.service']
+        is_only_salesman = user_service.is_only_salesman()
         for client in self:
-            client.is_sale_man_user = client.is_only_group_sale_salesman()
-    
-    @api.depends()
+            client.is_sale_man_user = is_only_salesman
+
+
+    @api.depends_context('uid')
+    def _compute_is_system_user(self):
+        user_service = self.env['hp_components.user.service']
+        is_admin = user_service.is_admin_user()
+        for client in self:
+            client.is_system_user = is_admin
+
+    @api.depends_context('uid')
+    @api.depends('user_id', 'create_uid')
+    def _compute_is_owner_or_admin(self):
+        user_service = self.env['hp_components.user.service']
+        current_user = self.env.user
+        is_admin = user_service.is_admin_user()
+        for client in self:
+            is_salesperson = client.user_id and client.user_id.id == current_user.id
+            is_creator = client.create_uid and client.create_uid.id == current_user.id
+            client.is_owner_or_admin = is_admin or is_salesperson or is_creator
+
+    @api.depends('branch_id')
     def _compute_sale_user_ids(self):
-        group = self.env.ref('sales_team.group_sale_salesman')
-        users = self.env['res.users'].search([
-            ('groups_id', 'in', [group.id]),
-            ('share', '=', False),
-            ('id', '!=', self.env.ref('base.user_admin').id)
-        ])
+        sale_dept_type = self.env['department.type'].search([('code', '=', 'sale')], limit=1)
+        
+        user_service = self.env['hp_components.user.service']
+        current_user = self.env.user
+        current_employee = current_user.employee_id
+        is_admin = user_service.is_admin_user()
+
         for client in self:
-            client.sale_user_ids = users
+            if user_service.is_only_salesman():
+                client.sale_user_ids = current_user
+                continue
+            
+            if is_admin:
+                domain_emp = [('user_id', '!=', False)]
+                if sale_dept_type:
+                    domain_emp.append(('department_id.department_type_id', '=', sale_dept_type.id))
+                
+                employees = self.env['hr.employee'].search(domain_emp)
+                users = employees.mapped('user_id').filtered(lambda u: u.active and not u.share)
+                client.sale_user_ids = users
+                continue
+            
+            if current_employee:
+                subordinates = self.env['hr.employee'].search([
+                    ('parent_id', '=', current_employee.id),
+                    ('user_id', '!=', False)
+                ])
+                
+                if subordinates:
+                    all_employees = subordinates | current_employee
+                    users = all_employees.mapped('user_id').filtered(lambda u: u.active and not u.share)
+                    users = users.filtered(lambda u: not u.has_group('base.group_system'))
+                    client.sale_user_ids = users
+                    continue
+            
+            if current_user:
+                client.sale_user_ids = current_user
+            else:
+                client.sale_user_ids = self.env['res.users']
+
+
+
 
     @api.onchange('user_id')
     def _onchange_user_id(self):
-        if not self._origin.id:
-            return
-        if self.is_only_group_sale_salesman():
+        user_service = self.env['hp_components.user.service']
+        # Kiểm tra nếu là salesman thường thì không cho đổi
+        if self._origin.id and user_service.is_only_salesman():
             self.user_id = self._origin.user_id
             raise UserError(_("Can not change saleperson"))
+        
+        # Tự động cập nhật branch_id theo branch của employee được chọn
+        if self.user_id and self.user_id.employee_id:
+            employee = self.user_id.employee_id
+            if employee.department_id and employee.department_id.branch_id:
+                self.branch_id = employee.department_id.branch_id
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -74,16 +142,8 @@ class ResPartnerClient(models.Model):
                     raise UserError(_("%s already exists in Client: %s") % (field.capitalize(), value))
 
     def is_only_group_sale_salesman(self):
-        group_sale_salesman_id = self.env.ref('sales_team.group_sale_salesman').id
-        group_sale_salesman_all_leads_id = self.env.ref('sales_team.group_sale_salesman_all_leads').id
-        group_sale_manager_id = self.env.ref('sales_team.group_sale_manager').id
-        user_group_ids = self.env.user.groups_id.ids
-
-        return (
-            group_sale_salesman_id in user_group_ids and 
-            group_sale_salesman_all_leads_id not in user_group_ids and 
-            group_sale_manager_id not in user_group_ids
-        )
+        """Delegate to UserService for checking if user is only a salesman."""
+        return self.env['hp_components.user.service'].is_only_salesman()
 
     def action_create_new_quotation(self):
         self.ensure_one()
@@ -97,6 +157,62 @@ class ResPartnerClient(models.Model):
                 'default_partner_id': self.partner_id.id,
                 'default_pricelist_id': self.partner_id.property_product_pricelist.id,
             },
-            'target': 'new',
+            'target': 'current',
         }
-    
+
+
+    def _default_branch_id(self):
+        import logging
+        _logger = logging.getLogger(__name__)
+        
+        user_service = self.env['hp_components.user.service']
+        
+        # Skip auto-fill for system admin
+        if user_service.is_admin_user():
+            _logger.error(f"User {self.env.user.login} is admin - skip auto-fill branch")
+            return False
+        
+        current_user = self.env.user
+        _logger.error(f"Auto-filling branch for user {current_user.login}, has employee: {bool(current_user.employee_id)}")
+        
+        if current_user.employee_id and current_user.employee_id.department_id:
+            branch = current_user.employee_id.department_id.branch_id
+            _logger.error(f"Found branch: {branch.name if branch else 'None'}")
+            return branch
+        
+        _logger.warning(f"User {current_user.login} has no employee or department configured")
+        return False
+
+
+
+
+    def _default_user_id(self):
+        user_service = self.env['hp_components.user.service']
+        if not user_service.is_only_salesman():
+            return False
+        
+        return self.env.user
+
+
+
+
+
+
+
+    @api.model
+    def default_get(self, fields_list):
+        defaults = super().default_get(fields_list)
+        
+        user_service = self.env['hp_components.user.service']
+        
+        if not user_service.is_admin_user():
+            if 'branch_id' in fields_list and not defaults.get('branch_id'):
+                emp = self.env.user.employee_id
+                if emp and emp.department_id.branch_id:
+                    defaults['branch_id'] = emp.department_id.branch_id.id
+        
+        if user_service.is_only_salesman():
+            if 'user_id' in fields_list:
+                defaults['user_id'] = self.env.user.id
+                
+        return defaults

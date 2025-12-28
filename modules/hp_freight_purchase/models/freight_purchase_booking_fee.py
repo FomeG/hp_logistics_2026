@@ -17,7 +17,7 @@ class FreightPurchaseBookingFee(models.Model):
         comodel_name="freight.purchase.fee.type",
         # domain="[('is_common', '=', True)]",
         required=True,
-        ondelete='cascade',
+        # ondelete='cascade',
     )
     amount = fields.Float()
     note = fields.Char()

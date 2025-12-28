@@ -10,7 +10,7 @@
                 <field name="location_id" string="Port"/>
                 <field name="plan_type" string="Plan Type"/>
                 <field name="shipping_line_id" string="Shipping Line"/>
-                <field name="date"/>
+<!--                <field name="date"/>-->
                 <field name="container_type" string="Container Type"/>
                 <field name="goods_cut_off" string="Goods Cut Off Date"/>
                 <field name="status"/>
@@ -27,7 +27,7 @@
             <form string="Plan">
                 <sheet>
                     <header>
-                        <field name="status" widget="statusbar" statusbar_visible="draft,confirmed,completed"/>
+                        <field name="status" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
 <!--                        <button name="action_export_plan_docx" string="Export Plan" type="object" class="btn-primary" invisible="not id"/>-->
                         <button name="action_send_message_to_all_trips" 
                                 string="Send Message to All Trips" 
@@ -40,25 +40,45 @@
                             <field name="name" string="Reference" readonly="True"/>
                         </group>
                         <group>
-                            <field name="plan_type" string="Plan Type"/>
                             <field name="booking_bill_no"
                                    string="Booking No"
                                    invisible="plan_type == 'import'"/>
                             <field name="booking_bill_no"
                                    string="Bill No"
                                    invisible="plan_type == 'export'"/>
+                            <field name="plan_type" string="Plan Type"/>
                             <field name="shipping_line_id"
                                 string="Shipping Line"
                                 context="{
-                                    'default_partner_main_type_id': %(hp_freight_purchase.partner_main_type_shipping_line)d
+                                    'default_partner_main_type_id': %(hp_components.partner_main_type_shipping_line)d
                                 }"
                                 options="{'no_quick_create': True}"
                             />
 
 
                             <field name="container_type" string="Container Type"/>
-                            <field name="location_id" string="Port" context="{'default_type':'port', 'hide_type':True}"/>
-                            <field name="date"/>
+<!--                            <field name="location_id" string="Port" context="{'default_type':'port', 'hide_type':True}"/>-->
+                            <field name="location_id"
+                                   string="Port Pickup"
+                                   invisible="plan_type == 'import'"
+                                   context="{
+                                       'default_type':'port',
+                                       'hide_type':True,
+                                       'form_view_ref': 'hp_trucking_planning.view_location_form',
+                                       'list_view_ref': 'hp_trucking_planning.view_location_tree'
+                                   }"
+                                   domain="[('type', '=', 'port')]"/>
+                            <field name="location_id"
+                                   string="Port Drop"
+                                   invisible="plan_type == 'export'"
+                                   context="{
+                                       'default_type':'port',
+                                       'hide_type':True,
+                                       'form_view_ref': 'hp_trucking_planning.view_location_form',
+                                       'list_view_ref': 'hp_trucking_planning.view_location_tree'
+                                   }"
+                                   domain="[('type', '=', 'port')]"/>
+<!--                            <field name="date"/>-->
                             <field name="goods_cut_off" string="Goods Cut Off Date"/>
                             <field name="status"/>
                         </group>
@@ -141,7 +161,7 @@
 
                 <field name="create_date" string="Created Date"/>
 
-                <filter name="create_date" string="Created Date" date="create_date" start_year="-4" start_month="-8" end_month="3"/>
+                <filter name="date_filter" string="Created Date" date="create_date"/>
                 <filter string="Created Today" name="created_today" domain="[('create_date','&gt;=', context_today())]"/>
                 <filter string="Export" name="export" domain="[('plan_type', '=', 'export')]"/>
                 <filter string="Import" name="import" domain="[('plan_type', '=', 'import')]"/>
@@ -157,7 +177,7 @@
                     <filter string="Status" name="group_by_status" context="{'group_by':'status'}"/>
                     <filter string="Plan Type" name="group_by_plan_type" context="{'group_by':'plan_type'}"/>
                     <filter string="Container Type" name="group_by_container_type" context="{'group_by':'container_type'}"/>
-                    <filter string="Load/Return Date" name="group_by_date" context="{'group_by':'date'}"/>
+<!--                    <filter string="Load/Return Date" name="group_by_date" context="{'group_by':'date'}"/>-->
                 </group>
             </search>
         </field>
@@ -170,7 +190,8 @@
         <field name="context">
             {
                 'default_status': 'in_progress',
-                'search_default_not_cancelled': 1,
+                'search_default_group_by_status': 1,
+                'search_default_date_filter': 1,
             }
         </field>
     </record>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="route_sea_vn_hp_to_vn_hcm" model="route.base">
+            <field name="from_location_id" ref="location_port_vn_hpp"/>
+            <field name="to_location_id" ref="location_port_vn_hcm"/>
+            <field name="distance_km">1150</field>
+            <field name="road_fee">600.00</field>
+            <field name="trip_salary">300.00</field>
+            <field name="ticket_fee">80.00</field>
+        </record>
+        <record id="route_truck_vn_hn_hpp" model="route.base">
+            <field name="from_location_id" ref="location_vn_city_hn"/>
+            <field name="to_location_id" ref="location_port_vn_hpp"/>
+            <field name="distance_km">120</field>
+            <field name="road_fee">480.00</field>
+            <field name="trip_salary">250.00</field>
+            <field name="ticket_fee">784.00</field>
+        </record>
+        <record id="route_truck_vn_quangminh_hpp" model="route.base">
+            <field name="from_location_id" ref="location_vn_hn_kcn_quangminh"/>
+            <field name="to_location_id" ref="location_port_vn_hpp"/>
+            <field name="distance_km">120</field>
+            <field name="road_fee">480.00</field>
+            <field name="trip_salary">250.00</field>
+            <field name="ticket_fee">784.00</field>
+            <field name="parent_id" ref="route_truck_vn_hn_hpp" />
+        </record>
+        <record id="route_truck_vn_thanglong_hpp" model="route.base">
+            <field name="from_location_id" ref="location_vn_hn_kcn_thanglong"/>
+            <field name="to_location_id" ref="location_port_vn_hpp"/>
+            <field name="distance_km">120</field>
+            <field name="road_fee">480.00</field>
+            <field name="trip_salary">250.00</field>
+            <field name="ticket_fee">784.00</field>
+            <field name="parent_id" ref="route_truck_vn_hn_hpp" />
+        </record>
+        <record id="route_truck_vn_ninhhiep_hpp" model="route.base">
+            <field name="from_location_id" ref="location_vn_hn_kcn_ninhhiep"/>
+            <field name="to_location_id" ref="location_port_vn_hpp"/>
+            <field name="distance_km">120</field>
+            <field name="road_fee">480.00</field>
+            <field name="trip_salary">250.00</field>
+            <field name="ticket_fee">961.00</field>
+            <field name="parent_id" ref="route_truck_vn_hn_hpp" />
+        </record>
+        <record id="route_truck_vn_hd_hpp" model="route.base">
+            <field name="from_location_id" ref="location_vn_city_hd"/>
+            <field name="to_location_id" ref="location_port_vn_hpp"/>
+            <field name="distance_km">80</field>
+            <field name="road_fee">300.00</field>
+            <field name="trip_salary">200.00</field>
+            <field name="ticket_fee">392.00</field>
+        </record>
+        <record id="route_truck_vn_namsach_hpp" model="route.base">
+            <field name="from_location_id" ref="location_vn_hd_namsach"/>
+            <field name="to_location_id" ref="location_port_vn_hpp"/>
+            <field name="distance_km">80</field>
+            <field name="road_fee">300.00</field>
+            <field name="trip_salary">200.00</field>
+            <field name="ticket_fee">392.00</field>
+            <field name="parent_id" ref="route_truck_vn_hd_hpp" />
+        </record>
+        <record id="route_truck_vn_daian_hpp" model="route.base">
+            <field name="from_location_id" ref="location_vn_hd_kcn_daian"/>
+            <field name="to_location_id" ref="location_port_vn_hpp"/>
+            <field name="distance_km">80</field>
+            <field name="road_fee">300.00</field>
+            <field name="trip_salary">200.00</field>
+            <field name="ticket_fee">392.00</field>
+            <field name="parent_id" ref="route_truck_vn_hd_hpp" />
+        </record>
+        <record id="route_truck_vn_phucdien_hpp" model="route.base">
+            <field name="from_location_id" ref="location_vn_hd_kcn_phucdien"/>
+            <field name="to_location_id" ref="location_port_vn_hpp"/>
+            <field name="distance_km">80</field>
+            <field name="road_fee">300.00</field>
+            <field name="trip_salary">200.00</field>
+            <field name="ticket_fee">392.00</field>
+            <field name="parent_id" ref="route_truck_vn_hd_hpp" />
+        </record>
+        <record id="route_truck_vn_tantruong_hpp" model="route.base">
+            <field name="from_location_id" ref="location_vn_hd_kcn_tantruong"/>
+            <field name="to_location_id" ref="location_port_vn_hpp"/>
+            <field name="distance_km">80</field>
+            <field name="road_fee">300.00</field>
+            <field name="trip_salary">200.00</field>
+            <field name="ticket_fee">392.00</field>
+            <field name="parent_id" ref="route_truck_vn_hd_hpp" />
+        </record>
+        <record id="route_truck_vn_hn_to_la_vientiane" model="route.base">
+            <field name="from_location_id" ref="location_vn_city_hn"/>
+            <field name="to_location_id" ref="location_laos_city_vientiane"/>
+        </record>
+        <record id="route_truck_vn_hn_to_nb" model="route.base">
+            <field name="from_location_id" ref="location_vn_city_hn"/>
+            <field name="to_location_id" ref="location_vn_city_nb"/>
+            <field name="distance_km">90</field>
+        </record>
+        <record id="route_truck_vn_giankhau_to_hn" model="route.base">
+            <field name="from_location_id" ref="location_vn_nb_giankhau"/>
+            <field name="to_location_id" ref="location_vn_city_hn"/>
+            <field name="distance_km">70</field>
+            <field name="parent_id" ref="route_truck_vn_hn_to_nb" />
+        </record>
+    </data>
+</odoo>

@@ -21,7 +21,8 @@ class FreightPurchaseQuotationService:
         
         # Create quotation with same route and shipping line as booking
         quotation_vals = {
-            'route_id': booking.route_id.id,
+            'from_location_id': booking['quotation_from_location_id'],
+            'to_location_id': booking['quotation_to_location_id'],
             'shipping_line_id': booking.shipping_line_id.id,
             'available_from': fields.Date.today(),
             'available_to': booking.etd,

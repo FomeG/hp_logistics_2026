@@ -1,6 +1,7 @@
 from odoo import models, fields, api
 from odoo.exceptions import ValidationError
 import logging
+from odoo.addons.hp_components.models import constants
 
 _logger = logging.getLogger(__name__)
 
@@ -98,12 +99,24 @@ class TripCheckpoint(models.Model):
             
             # Post message to trip chatter
             if record.trip_id:
-                record.trip_id.message_post(
-                    body=f"GPS location received: {record.latitude}, {record.longitude}",
-                    message_type='notification',
-                    subtype_xmlid='mail.mt_note'
-                )
-        
+                if record.trip_id.status in [constants.TripStatus.DRAFT]:
+                    record.trip_id.with_context(from_zalo_driver=True)._set_status_via_wizard(constants.TripStatus.ON_ROUTE, note='Driver start via first Zalo checkpoint.')
+                    record.trip_id.message_post(
+                        body=f"GPS location received: {record.latitude}, {record.longitude}",
+                        message_type='notification',
+                        subtype_xmlid='mail.mt_note'
+                    )
+                else:
+                    # Nếu trip đã ON_ROUTE, đảm bảo is_current = True
+                    if record.trip_id.status == constants.TripStatus.ON_ROUTE and not record.trip_id.is_current:
+                        record.trip_id.write({'is_current': True})
+                        _logger.info(f"Auto-enabled is_current for trip {record.trip_id.id} via checkpoint")
+
+                    record.trip_id.message_post(
+                        body=f"GPS location received: {record.latitude}, {record.longitude}",
+                        message_type='notification',
+                        subtype_xmlid='mail.mt_note'
+                    )
         return records
 
     def get_google_maps_url(self):

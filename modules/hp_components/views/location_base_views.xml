@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="location_base_list_view" model="ir.ui.view">
+        <field name="name">location.base.list</field>
+        <field name="model">location.base</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="type"/>
+                <field name="contact_name" />
+                <field name="contact_phone" />
+                <field name="state_id"/>
+                <field name="country_str"/>
+                <field name="parent_id" groups="base.group_system" widget="many2one"/>
+                <field name="is_local" groups="base.group_system" />
+                <field name="source" groups="base.group_system" />
+                <field name="create_date" groups="base.group_system" />
+            </list>
+        </field>
+    </record>
+
+    <record id="location_base_form_view" model="ir.ui.view">
+        <field name="name">location.base.form</field>
+        <field name="model">location.base</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="type"/>
+                    </group>
+                    <group>
+                        <field name="address"/>
+                        <field name="contact_phone"/>
+                        <field name="parent_id" />
+                    </group>
+                    <group>
+                        <field name="country_id"
+                               options="{'no_create': True, 'no_edit': True}"
+                        />
+                        <field name="state_id"
+                            options="{'no_create': True, 'no_edit': True}"
+                            widget="many2one_new_tab"
+                        />
+                    </group>
+                    <group name="location_info">
+                            <field name="latitude"/>
+                            <field name="longitude"/>
+                    </group>
+                    <notebook>
+                        <page string="Children" invisible="parent_id or not id">
+                            <field name="children_ids">
+                                <list>
+                                    <field name="name" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="location_base_form_search" model="ir.ui.view">
+        <field name="name">location.base.search</field>
+        <field name="model">location.base</field>
+        <field name="arch" type="xml">
+            <search string="List Locations">
+                <field name="name" />
+                <field name="type" />
+                <field name="contact_phone" />
+                <!-- Group By -->
+                <separator string="Group By"/>
+                <group expand="1" string="Group By">
+                    <filter string="state" name="group_by_state" context="{'group_by': 'state_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_location_base" model="ir.actions.act_window">
+        <field name="name">Locations</field>
+        <field name="res_model">location.base</field>
+        <field name="search_view_id" ref="location_base_form_search" />
+        <field name="context"
+            eval="{
+                'form_view_ref': 'hp_components.location_base_form_view',
+                'list_view_ref': 'hp_components.location_base_list_view'
+            }" />
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

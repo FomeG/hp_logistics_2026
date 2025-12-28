@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+     <record id="view_cs_shipping_instruction_list" model="ir.ui.view">
+        <field name="name">cs.shipping.instruction.list</field>
+        <field name="model">cs.shipping.instruction</field>
+        <field name="arch" type="xml">
+            <list string="Shipping Instructions">
+                <field name="cs_order_id"/>
+                <field name="booking_code"/>
+                <field name="shipper"/>
+                <field name="consignee"/>
+                <field name="incoterm_id"/>
+                <field name="freight_charge"/>
+                <field name="place_of_receipt"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_cs_shipping_instruction_form" model="ir.ui.view">
+        <field name="name">cs.shipping.instruction.form</field>
+        <field name="model">cs.shipping.instruction</field>
+        <field name="arch" type="xml">
+            <form string="Shipping Instruction">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="cs_order_id"/>
+                            <field name="booking_code"/>
+                            <field name="shipper"/>
+                            <field name="consignee"/>
+                            <field name="place_of_receipt"/>
+                        </group>
+                        <group>
+                            <field name="notify_party"/>
+                            <field name="incoterm_id"/>
+                            <field name="freight_charge"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_cs_shipping_instruction" model="ir.actions.act_window">
+        <field name="name">Shipping Instructions</field>
+        <field name="res_model">cs.shipping.instruction</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

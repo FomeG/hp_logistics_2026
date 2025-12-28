@@ -9,6 +9,7 @@
 HP Project App
 ===================================================
 """,
+    'license': 'LGPL-3',
     'depends': ['base', 'web', 'mail', 'bus', 'project', 'sale', 'sale_project', 'sales_team', 'hp_freight_purchase', 'hp_sale', 'hp_components', 'product'],
     'data': [
         #data

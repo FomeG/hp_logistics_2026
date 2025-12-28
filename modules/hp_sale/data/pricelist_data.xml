@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- 1. BẢNG GIÁ HÀNG NHẬP KHẨU HP (GỒM PHÍ CT)  -->
+        <record id="pricelist_import_hp" model="product.pricelist">
+            <field name="name">Bảng Giá Hàng Nhập Khẩu HP</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- Phí Hải Quan Nhập Khẩu -->
+        <record id="item_im_cont_1" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_import_hp"/>
+            <field name="product_tmpl_id" ref="product_im_cont_1"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">250</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <record id="item_im_cont_2" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_import_hp"/>
+            <field name="product_tmpl_id" ref="product_im_cont_2"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">250</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <record id="item_im_cont_3" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_import_hp"/>
+            <field name="product_tmpl_id" ref="product_im_cont_3"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">550</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <record id="item_im_cont_4" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_import_hp"/>
+            <field name="product_tmpl_id" ref="product_im_cont_4"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">1100</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <record id="item_im_tk_1" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_import_hp"/>
+            <field name="product_tmpl_id" ref="product_im_1"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">200</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <!-- Phí Hun Trùng (Gộp vào Import) -->
+        <record id="item_im_fum_1" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_import_hp"/>
+            <field name="product_tmpl_id" ref="product_fumigation_1"/>
+            <field name="fixed_price">500</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <record id="item_im_fum_2" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_import_hp"/>
+            <field name="product_tmpl_id" ref="product_fumigation_2"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">800</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <record id="item_im_fum_3" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_import_hp"/>
+            <field name="product_tmpl_id" ref="product_fumigation_3"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">2500</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <record id="item_im_fum_4" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_import_hp"/>
+            <field name="product_tmpl_id" ref="product_fumigation_4"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">3000</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <!-- Phí Chứng Từ Khác (Gộp vào Import) -->
+        <record id="item_im_co" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_import_hp"/>
+            <field name="product_tmpl_id" ref="product_doc_co_1"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">300</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <record id="item_im_phyto_1" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_import_hp"/>
+            <field name="product_tmpl_id" ref="product_doc_phyto_1"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">700</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <record id="item_im_lift_1" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_import_hp"/>
+            <field name="product_tmpl_id" ref="product_doc_lift_on_off_1"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">900</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <!-- 2. BẢNG GIÁ HÀNG XUẤT KHẨU HP (GỒM PHÍ CT)  -->
+        <record id="pricelist_export_hp" model="product.pricelist">
+            <field name="name">Bảng Giá Hàng Xuất Khẩu HP</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- Phí Hải Quan Xuất Khẩu -->
+        <record id="item_ex_cont_1" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_export_hp"/>
+            <field name="product_tmpl_id" ref="product_ex_cont_1"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">250</field>
+        </record>
+
+        <record id="item_ex_cont_2" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_export_hp"/>
+            <field name="product_tmpl_id" ref="product_ex_cont_2"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">750</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <record id="item_ex_cont_3" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_export_hp"/>
+            <field name="product_tmpl_id" ref="product_ex_cont_3"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">300</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <record id="item_ex_tk_1" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_export_hp"/>
+            <field name="product_tmpl_id" ref="product_ex_1"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">200</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <!-- Phí Hun Trùng (Gộp vào Export) -->
+        <record id="item_ex_fum_1" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_export_hp"/>
+            <field name="product_tmpl_id" ref="product_fumigation_1"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">500</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <record id="item_ex_fum_2" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_export_hp"/>
+            <field name="product_tmpl_id" ref="product_fumigation_2"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">800</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <record id="item_ex_fum_3" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_export_hp"/>
+            <field name="product_tmpl_id" ref="product_fumigation_3"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">2500</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <record id="item_ex_fum_4" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_export_hp"/>
+            <field name="product_tmpl_id" ref="product_fumigation_4"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">3000</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <!-- Phí Chứng Từ Khác (Gộp vào Export) -->
+        <record id="item_ex_co" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_export_hp"/>
+            <field name="product_tmpl_id" ref="product_doc_co_1"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">300</field>
+            <field name="compute_price">fixed</field>
+        </record>
+
+        <record id="item_ex_phyto_1" model="product.pricelist.item">
+            <field name="pricelist_id" ref="pricelist_export_hp"/>
+            <field name="product_tmpl_id" ref="product_doc_phyto_1"/>
+            <field name="min_quantity">2</field>
+            <field name="fixed_price">700</field>
+            <field name="compute_price">fixed</field>
+        </record>
+    </data>
+</odoo>

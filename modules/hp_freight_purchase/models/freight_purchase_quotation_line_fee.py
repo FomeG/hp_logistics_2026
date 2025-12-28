@@ -23,11 +23,6 @@ class FreightPurchaseQuotationLineFee(models.Model):
         store=True,
         readonly=True
     )
-    direction = fields.Selection(
-        related="quotation_line_id.quotation_id.direction",
-        store=True,
-        readonly=True
-    )
     container_type_id = fields.Many2one(
         related="quotation_line_id.container_type_id",
         store=True,
@@ -39,7 +34,6 @@ class FreightPurchaseQuotationLineFee(models.Model):
         domain="["
                "('shipping_line_id', '=', shipping_line_id),"
                "('container_type_id', '=', container_type_id),"
-               "('fee_type_id.direction', '=', direction)"
                "]"
     )
     _sql_constraints = [

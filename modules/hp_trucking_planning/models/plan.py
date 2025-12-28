@@ -1,15 +1,16 @@
 from email.policy import default
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from ..services.res_partner_service import ResPartnerService
 from odoo.exceptions import UserError
+from odoo.addons.hp_components.models import constants
 
 class Plan(models.Model):
     _name = 'trucking_planning.plan'
     _description = 'Plan'
-    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin']
-    _order = 'date asc'
+    _inherit = ['unique.code.mixin', 'mail.thread', 'mail.activity.mixin', 'cs.order.base']
+    _order = 'create_date asc'
 
     name = fields.Char(
         string="Name",
@@ -29,24 +30,24 @@ class Plan(models.Model):
         required=True,
         tracking=True,
     )
-    location_id = fields.Many2one(
-        comodel_name='trucking_planning.location',
-        required=True,
-        string="Port Pickup / Drop",
-        tracking=True,
-        domain=[('type', '=', 'port')],
-
-    )
+    # location_id = fields.Many2one(
+    #     comodel_name='trucking_planning.location',
+    #     required=True,
+    #     string="Port Pickup / Drop",
+    #     tracking=True,
+    #     domain=[('type', '=', 'port')],
+    #     help="Port pickup for export plan / Port drop for import plan"
+    # )
     shipping_line_id = fields.Many2one(
         comodel_name='res.partner',
         required=True,
         domain=[('partner_main_type_id.code', '=', ResPartnerService.SHIPPING_LINE)]
     )
-    date = fields.Datetime(
-        string='Load / Return Date',
-        index=True,
-        tracking=True,
-    )
+    # date = fields.Datetime(
+    #     string='Load / Return Date',
+    #     index=True,
+    #     tracking=True,
+    # )
     container_type = fields.Selection([
             ('dry','Dry'),
             ('cool','Cool'),
@@ -76,11 +77,11 @@ class Plan(models.Model):
         inverse_name='plan_id',
     )
     status = fields.Selection([
-        ('draft', 'Draft'),
-        ('confirmed', 'Confirmed'),
-        ('in_progress', 'In Progress'),
-        ('done', 'Done'),
-        ('cancel', 'Cancelled')
+        (constants.PlanStatus.DRAFT, 'Draft'),
+        (constants.PlanStatus.CONFIRMED, 'Confirmed'),
+        (constants.PlanStatus.IN_PROGRESS, 'In Progress'),
+        (constants.PlanStatus.DONE, 'Done'),
+        (constants.PlanStatus.CANCEL, 'Cancelled')
     ], default='in_progress')
 
     total_trips = fields.Char(
@@ -93,12 +94,69 @@ class Plan(models.Model):
         compute='_compute_has_trips',
         store=False
     )
+    booking_id = fields.Many2one(
+        comodel_name='freight.purchase.booking',
+        string='Booking id',
+        readonly=True,
+    )
+    cs_order_id = fields.Many2one(
+        comodel_name='cs.order',
+        string='CS Order',
+        readonly=True,
+        index=True,
+        help="CS Order that created this plan"
+    )
 
     @api.depends('plan_line_ids.trip_ids')
     def _compute_has_trips(self):
         for record in self:
             record.has_trips = any(line.trip_ids for line in record.plan_line_ids)
 
+    @api.onchange('booking_bill_no')
+    def _check_booking_bill_no_unique(self):
+        """Check if booking/bill number already exists with detailed info"""
+        for record in self:
+            if record.booking_bill_no:
+                # Tìm plan khác có cùng booking number
+                existing = self.search([
+                    ('booking_bill_no', '=', record.booking_bill_no),
+                    ('id', '!=', record.id)
+                ], limit=1)
+
+                if existing:
+                    # ✅ Build view URL
+                    base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+                    view_url = f"{base_url}/web#id={existing.id}&model=trucking_planning.plan&view_type=form"
+
+                    # ✅ Format detailed error message
+                    error_message = _(
+                        "❌ Booking/Bill Number Already Exists!\n\n"
+                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        "📋 EXISTING PLAN DETAILS:\n"
+                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+                        "🔖 Booking/Bill No: %(booking)s\n"
+                        "📝 Plan Name: %(name)s\n"
+                        "📦 Plan Type: %(plan_type)s\n"
+                        "🚢 Shipping Line: %(shipping_line)s\n"
+                        "📦 Container Type: %(container_type)s\n"
+                        "🏢 Port: %(port)s\n"
+                        "📅 Cut Off Date: %(cut_off)s\n"
+                        "🔄 Status: %(status)s\n\n"
+                        "🔗 View URL:\n%(url)s\n\n"
+                        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+                        "Please use a different booking number."
+                    ) % {
+                            'booking': existing.booking_bill_no,
+                            'name': existing.name or 'N/A',
+                            'plan_type': dict(existing._fields['plan_type'].selection).get(existing.plan_type, 'N/A'),
+                            'shipping_line': existing.shipping_line_id.name if existing.shipping_line_id else 'N/A',
+                            'container_type': dict(existing._fields['container_type'].selection).get(existing.container_type, 'N/A'),
+                            'port': existing.location_id.name if existing.location_id else 'N/A',
+                            'cut_off': existing.goods_cut_off.strftime('%Y-%m-%d %H:%M') if existing.goods_cut_off else 'N/A',
+                            'status': dict(existing._fields['status'].selection).get(existing.status,'N/A'),
+                            'url': view_url,
+                                }
+                    raise ValidationError(error_message)
     # @api.depends('date')
     # def _compute_month_year(self):
     #     for record in self:
@@ -179,7 +237,7 @@ class Plan(models.Model):
             'view_id': self.env.ref('hp_trucking_planning.view_plan_line_form').id,
             'context': {
                 'default_plan_id': self.id,
-                'default_status': 'checking',
+                'default_status': constants.PlanLineStatus.CHECKING,
                 'form_view_initial_mode': 'edit',
             },
             'type': 'ir.actions.act_window',
@@ -236,6 +294,38 @@ class Plan(models.Model):
     def action_export_plan_docx(self):
         pass # Placeholder for the new method
 
-    _sql_constraints = [
-        ('unique_booking','Unique(booking_bill_no)','Booking number is unique!'),
-    ]
+    # _sql_constraints = [
+    #     ('unique_booking','Unique(booking_bill_no)','Booking number is unique!'),
+    # ]
+
+    def create_booking_async(self, booking_vals):
+        booking = self.env['freight.purchase.booking'].with_context(skip_validator=True).create(booking_vals)
+        self.write({'booking_id': booking.id})
+        return booking.id
+
+    # #todo
+    # @api.model
+    # def get_or_create_from_cs_order(self, cs_order):
+    #     if not cs_order.booking_id:
+    #         raise ValidationError("CS Order phải có Booking để tạo Plan.")
+    #
+    #     booking = cs_order.booking_id
+    #
+    #     # Tìm hoặc tạo Plan theo Booking Code
+    #     plan = self.search([('booking_bill_no', '=', booking.code)], limit=1)
+    #     if plan:
+    #         return plan
+    #
+    #     # Giả lập dữ liệu (sẽ thay bằng logic thật sau)
+    #     plan_vals = {
+    #         'booking_bill_no': booking.code,
+    #         'plan_type': 'export' if cs_order.service_type == 'export' else 'import',
+    #         'location_id': booking.pol_id.id or booking.pod_id.id,  # Port
+    #         'shipping_line_id': booking.shipping_line_id.id,
+    #         'container_type': 'dry',  # giả lập
+    #         'goods_cut_off': booking.etd or fields.Datetime.now(),
+    #         'booking_id': booking.id,
+    #     }
+    #
+    #     plan = self.create(plan_vals)
+    #     return plan

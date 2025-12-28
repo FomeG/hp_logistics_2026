@@ -31,10 +31,9 @@ class ResPartnerInherit(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
-        _logger.info("day la write")
-
         for record in self:
-            if self._is_shipping_line_partner(vals, record):
+            # Chỉ validate khi record là shipping line, không validate khi là contact của shipping line
+            if record.partner_main_type_id.code == 'shipping_line':
                 validated, errors = ShippingLineUpdateValidator.validate(vals, self.env)
                 if errors:
                     raise ValidationError("\n".join([f"• {e}" for e in errors]))

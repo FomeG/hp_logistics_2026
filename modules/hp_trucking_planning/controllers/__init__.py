@@ -2,4 +2,5 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from . import portal
-from . import zalo_gps_webhook
+from . import trucking_dashboard_controller
+from . import trip_access_controller
