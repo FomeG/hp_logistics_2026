@@ -150,18 +150,11 @@ class ProductTemplate(models.Model):
 
         values = []
         for line in lines:
-            source_currency = line.currency_id or self.env.company.currency_id
-
-            price_in_so_currency = so.pricelist_id._get_product_price(line.product_variant_id, 1.0)
-
             values.append({
-                'name': line.name,
                 'order_id': sale_order_id,
                 'product_id': line.product_variant_id.id,
                 'product_uom_qty': 1.0,
-                'currency_id_line': source_currency.id,
-                'price_unit_original': line.list_price,
-                'price_unit': price_in_so_currency,
+                'name': line.name,
             })
 
         self.env['sale.order.line'].sudo().create(values)
