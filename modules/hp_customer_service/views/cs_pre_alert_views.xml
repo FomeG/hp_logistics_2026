@@ -34,7 +34,7 @@
                         <group>
                             <field name="is_auto_send"/>
                             <field name="sent_date"/>
-                            <field name="cs_task_id"/>
+                            <!-- <field name="cs_task_id"/> -->
                         </group>
                     </group>
                 </sheet>

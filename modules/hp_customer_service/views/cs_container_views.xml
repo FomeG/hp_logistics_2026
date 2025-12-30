@@ -32,7 +32,7 @@
                         <group>
                             <field name="gross_weight"/>
                             <field name="net_weight"/>
-                            <field name="cs_task_id"/>
+                            <!-- <field name="cs_task_id"/> -->
                         </group>
                     </group>
                     <group>

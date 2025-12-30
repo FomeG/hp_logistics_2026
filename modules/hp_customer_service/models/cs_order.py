@@ -159,11 +159,11 @@ class CsOrder(models.Model):
         inverse_name="cs_order_id",
         string = "Debits",
     )
-    cs_task_ids = fields.One2many(
-        comodel_name="cs.task",
-        inverse_name="cs_order_id",
-        string = "Tasks ",
-    )
+    # cs_task_ids = fields.One2many(
+    #     comodel_name="cs.task",
+    #     inverse_name="cs_order_id",
+    #     string = "Tasks ",
+    # )
 
     cs_shipping_document_ids = fields.One2many(
         comodel_name="cs.shipping.document",

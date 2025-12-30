@@ -32,7 +32,7 @@
         'views/cs_order_views.xml',
         'views/cs_pre_alert_views.xml',
         'views/cs_shipping_instruction_views.xml',
-        'views/cs_task_views.xml',
+        # 'views/cs_task_views.xml',
         'views/sale_order_inherit_views.xml',
         'views/res_partner_client_views.xml',
         'views/cs_menus.xml',
