@@ -758,3 +758,14 @@ class SaleOrderInherit(models.Model):
             if record.is_sea_exp_location:
                 return f"Select Freight Price For Trip {record.goods_location_id.name} - {record.from_location_id.name} - {record.to_location_id.name}"
             return f"Select Freight Price For {record.from_location_id.name} - {record.to_location_id.name}"
+
+
+    @api.model
+    def default_get(self, fields_list):
+        res = super(SaleOrderInherit, self).default_get(fields_list)
+
+        # Logic này chỉ chạy khi tạo form mới
+        if 'service_type' in fields_list:
+            res['service_type'] = constants.ServiceType.EXPORT
+
+        return res
