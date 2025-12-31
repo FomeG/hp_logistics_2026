@@ -522,7 +522,13 @@
     <record id="rule_res_partner_shipping_line_member" model="ir.rule">
         <field name="name">Res Partner (Shipping Lines) - Member Access</field>
         <field name="model_id" ref="base.model_res_partner"/>
-        <field name="domain_force">['|', ('create_uid', '=', user.id), ('id', '=', user.partner_id.id)]</field>
+        <field name="domain_force">
+        ['|', '|',
+            ('partner_main_type_id.code', '=', 'shipping_line'),
+            ('create_uid', '=', user.id),
+            ('id', '=', user.partner_id.id)
+        ]
+        </field>
         <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
         <field name="perm_read" eval="1"/>
         <field name="perm_write" eval="1"/>
