@@ -5,5 +5,24 @@
             <field name="active">True</field>
             <field name="is_base_currency">True</field>
         </record>
+
+        <record id="base.USD" model="res.currency">
+            <field name="active">True</field>
+        </record>
+
+        <record id="rate_vnd_base" model="res.currency.rate">
+            <field name="currency_id" ref="base.VND"/>
+            <field name="name" eval="time.strftime('%Y-01-01')"/>
+            <field name="rate">1.0</field>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- Thiết lập tỷ giá cho USD: 1 / 26330 = 0.000037979491-->
+        <record id="rate_usd_custom" model="res.currency.rate">
+            <field name="currency_id" ref="base.USD"/>
+            <field name="name" eval="time.strftime('%Y-01-01')"/>
+            <field name="rate">0.000037979491</field>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
     </data>
 </odoo>
