@@ -31,6 +31,8 @@ class SaleOrderLineInherit(models.Model):
         'res.currency',
         string='Line Currency',
         compute='_compute_currency_id_line',
+        store=True,
+        precompute=True,
         default=lambda self: self.env.company.currency_id
     )
 
@@ -73,20 +75,23 @@ class SaleOrderLineInherit(models.Model):
         help="Giá niêm yết gốc của sản phẩm trước khi áp dụng Pricelist"
     )
 
-    @api.depends('product_id', 'product_uom_qty', 'order_id.pricelist_id', 'currency_id_line')
+    @api.depends('product_id', 'product_uom_qty', 'order_id.pricelist_id')
     def _compute_price_unit_original(self):
         """Tự động tính giá gốc dựa trên Pricelist ngay khi dòng được tạo"""
         for line in self:
-            if not line.product_id or not line.order_id.pricelist_id:
-                line.price_unit_original = line.price_unit_original or 0.0
+            # Nếu đang load demo data hoặc đã có giá trị từ onchange, không tính lại nếu không cần
+            if not line.product_id:
+                line.price_unit_original = 0.0
                 continue
 
-            # Lấy giá từ Pricelist
-            qty = line.product_uom_qty or 1.0
             pricelist = line.order_id.pricelist_id
+            if not pricelist:
+                line.price_unit_original = line.product_id.list_price
+                continue
+
+            qty = line.product_uom_qty or 1.0
             price = pricelist._get_product_price(line.product_id, qty, uom=line.product_uom)
 
-            # Nếu không khớp rule (price <= 0), lấy giá list_price từ sản phẩm quy đổi
             if price <= 0:
                 product_currency = line.product_id.currency_id
                 target_currency = pricelist.currency_id
@@ -145,6 +150,9 @@ class SaleOrderLineInherit(models.Model):
                 line.price_unit = line.price_unit_original
                 continue
 
+            order_curr = line.order_id.currency_id
+            line_curr = line.currency_id_line
+            ref_curr = line.order_id.ref_currency_id
             current_rate = line.order_id.currency_rate or 1.0
 
             # Case 1: Nếu Line Currency trùng với Order Currency -> Giữ nguyên
@@ -153,14 +161,14 @@ class SaleOrderLineInherit(models.Model):
 
             # Case 2: Dòng dùng tiền tham chiếu (ref_currency_id)
             # → nhân với tỷ giá đã cấu hình trên SO (1 Ref = X Base)
-            elif line.currency_id_line == line.order_id.ref_currency_id:
+            elif ref_curr and line_curr.id == ref_curr.id:
                 line.price_unit = line.price_unit_original * current_rate
 
             # Case 3: Dòng dùng tiền tệ khác → dùng hàm convert chuẩn của Odoo
             else:
-                line.price_unit = line.currency_id_line._convert(
+                line.price_unit = line_curr._convert(
                     line.price_unit_original,
-                    line.order_id.currency_id,  # chuyển về tiền của SO
+                    order_curr,  # chuyển về tiền của SO
                     line.company_id or self.env.company,
                     line.order_id.date_order or fields.Date.today()
                 )
