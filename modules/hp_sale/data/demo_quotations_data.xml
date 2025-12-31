@@ -2,7 +2,7 @@
 <odoo>
     <data noupdate="1">
 
-        <!-- Quotation 1: Draft - Hàng Nhập Khẩu HP -->
+        <!-- Quotation 1: Draft - Hàng Nhập Khẩu HP (Sử dụng tiền VND) -->
         <record id="quotation_sales_1" model="sale.order">
             <field name="name">SALE/2025/001</field>
             <field name="partner_id" ref="hp_sale.res_partner_client_1"/>
@@ -24,22 +24,22 @@
             <field name="validity_date" eval="(datetime.now() + timedelta(days=25)).strftime('%Y-%m-%d')"/>
             <field name="order_line" eval="[
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_im_cont_1'),
-                    'name': 'Luồng Xanh',
+                    'product_id': ref('hp_sale.product_im_cont_1'),
                     'product_uom_qty': 5,
-                    'price_unit': 350,
+                    'price_unit_original': 350,
+                    'currency_id_line': ref('base.VND'),
                 }),
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_doc_phyto_1'),
-                    'name': 'Chi phí làm Phyto',
+                    'product_id': ref('hp_sale.product_doc_phyto_1'),
                     'product_uom_qty': 1,
-                    'price_unit': 700,
+                    'price_unit_original': 700,
+                    'currency_id_line': ref('base.VND'),
                 }),
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_fumigation_1'),
-                    'name': 'Phí Hun Trùng 48-50 g/m3',
+                    'product_id': ref('hp_sale.product_fumigation_1'),
                     'product_uom_qty': 2,
-                    'price_unit': 350,
+                    'price_unit_original': 350,
+                    'currency_id_line': ref('base.VND'),
                 }),
             ]"/>
         </record>
@@ -64,22 +64,22 @@
             <field name="validity_date" eval="(datetime.now() + timedelta(days=27)).strftime('%Y-%m-%d')"/>
             <field name="order_line" eval="[
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_ex_cont_1'),
-                    'name': 'Miễn kiểm',
+                    'product_id': ref('hp_sale.product_ex_cont_1'),
                     'product_uom_qty': 3,
-                    'price_unit': 350,
+                    'price_unit_original': 350,
+                    'currency_id_line': ref('base.VND'),
                 }),
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_ex_1'),
-                    'name': 'TK Chuyển cửa Khẩu',
+                    'product_id': ref('hp_sale.product_ex_1'),
                     'product_uom_qty': 1,
-                    'price_unit': 300,
+                    'price_unit_original': 300,
+                    'currency_id_line': ref('base.VND'),
                 }),
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_doc_co_1'),
-                    'name': 'Chi phí làm C/O',
+                    'product_id': ref('hp_sale.product_doc_co_1'),
                     'product_uom_qty': 1,
-                    'price_unit': 300,
+                    'price_unit_original': 300,
+                    'currency_id_line': ref('base.VND'),
                 }),
             ]"/>
         </record>
@@ -104,34 +104,16 @@
             <field name="validity_date" eval="(datetime.now() + timedelta(days=20)).strftime('%Y-%m-%d')"/>
             <field name="order_line" eval="[
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_im_cont_2'),
-                    'name': 'Luồng Vàng',
+                    'product_id': ref('hp_sale.product_im_cont_2'),
                     'product_uom_qty': 8,
-                    'price_unit': 350,
+                    'price_unit_original': 350,
+                    'currency_id_line': ref('base.VND'),
                 }),
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_im_1'),
-                    'name': 'TK Chuyển cửa Khẩu',
+                    'product_id': ref('hp_sale.product_doc_lift_on_off_4'),
                     'product_uom_qty': 2,
-                    'price_unit': 200,
-                }),
-                (0, 0, {
-                    'product_template_id': ref('hp_sale.product_doc_phyto_2'),
-                    'name': 'Chi phí làm Phyto Show Hun trùng',
-                    'product_uom_qty': 1,
-                    'price_unit': 750,
-                }),
-                (0, 0, {
-                    'product_template_id': ref('hp_sale.product_doc_package_2'),
-                    'name': 'Đóng hàng tại bãi - Cont 40\'',
-                    'product_uom_qty': 2,
-                    'price_unit': 400,
-                }),
-                (0, 0, {
-                    'product_template_id': ref('hp_sale.product_doc_lift_on_off_4'),
-                    'name': 'Chi phí nâng hạ tại Cảng - Cont 40\' Hàng',
-                    'product_uom_qty': 2,
-                    'price_unit': 1350,
+                    'price_unit_original': 1350,
+                    'currency_id_line': ref('base.VND'),
                 }),
             ]"/>
         </record>
@@ -156,22 +138,16 @@
             <field name="validity_date" eval="(datetime.now() + timedelta(days=28)).strftime('%Y-%m-%d')"/>
             <field name="order_line" eval="[
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_ex_cont_2'),
-                    'name': 'Kiểm hóa',
+                    'product_id': ref('hp_sale.product_ex_cont_2'),
                     'product_uom_qty': 4,
-                    'price_unit': 900,
+                    'price_unit_original': 900,
+                    'currency_id_line': ref('base.VND'),
                 }),
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_ex_cont_3'),
-                    'name': 'Chi thêm hàng Plywood luồng vàng',
-                    'product_uom_qty': 4,
-                    'price_unit': 300,
-                }),
-                (0, 0, {
-                    'product_template_id': ref('hp_sale.product_fumigation_3'),
-                    'name': 'Phí Hun Trùng - Australia /ISPM15',
+                    'product_id': ref('hp_sale.product_fumigation_3'),
                     'product_uom_qty': 2,
-                    'price_unit': 2000,
+                    'price_unit_original': 2000,
+                    'currency_id_line': ref('base.VND'),
                 }),
             ]"/>
         </record>
@@ -196,17 +172,11 @@
             <field name="validity_date" eval="(datetime.now() + timedelta(days=23)).strftime('%Y-%m-%d')"/>
             <field name="order_line" eval="[
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_im_lcl_1'),
-                    'name': 'Hàng LCL - Luồng Xanh',
+                    'product_id': ref('hp_sale.product_im_lcl_1'),
                     'product_uom_qty': 10,
-                    'price_unit': 450,
-                }),
-                (0, 0, {
-                    'product_template_id': ref('hp_sale.product_doc_lift_on_off_1'),
-                    'name': 'Chi phí nâng hạ tại Cảng - Cont 20\' Rỗng',
-                    'product_uom_qty': 3,
-                    'price_unit': 900,
-                }),
+                    'price_unit_original': 450,
+                    'currency_id_line': ref('base.VND'),
+                })
             ]"/>
         </record>
 
@@ -230,23 +200,11 @@
             <field name="validity_date" eval="(datetime.now() + timedelta(days=15)).strftime('%Y-%m-%d')"/>
             <field name="order_line" eval="[
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_im_cont_3'),
-                    'name': 'Kiểm Thủ công',
+                    'product_id': ref('hp_sale.product_im_cont_3'),
                     'product_uom_qty': 2,
-                    'price_unit': 900,
-                }),
-                (0, 0, {
-                    'product_template_id': ref('hp_sale.product_doc_package_1'),
-                    'name': 'Đóng hàng tại bãi - Cont 20\'',
-                    'product_uom_qty': 2,
-                    'price_unit': 300,
-                }),
-                (0, 0, {
-                    'product_template_id': ref('hp_sale.product_fumigation_2'),
-                    'name': 'Phí Hun Trùng 80 g/m3',
-                    'product_uom_qty': 1,
-                    'price_unit': 500,
-                }),
+                    'price_unit_original': 900,
+                    'currency_id_line': ref('base.VND'),
+                })
             ]"/>
         </record>
 
@@ -270,33 +228,37 @@
             <field name="validity_date" eval="(datetime.now() + timedelta(days=29)).strftime('%Y-%m-%d')"/>
             <field name="order_line" eval="[
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_im_cont_4'),
-                    'name': 'Hải quan NK Hàng gỗ',
-                    'product_uom_qty': 6,
-                    'price_unit': 1100,
+                    'product_id': ref('hp_sale.product_fumigation_1'),
+                    'name': '48-50 g/m3',
+                    'product_uom_qty': 1,
+                    'price_unit_original': 350,
+                    'currency_id_line': ref('base.VND'),
                 }),
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_doc_phyto_2'),
-                    'name': 'Chi phí làm Phyto Show Hun trùng',
-                    'product_uom_qty': 2,
-                    'price_unit': 750,
+                    'product_id': ref('hp_sale.product_fumigation_2'),
+                    'name': '80 g/m3',
+                    'product_uom_qty': 1,
+                    'price_unit_original': 500,
+                    'currency_id_line': ref('base.VND'),
                 }),
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_fumigation_4'),
-                    'name': 'Phí Hun Trùng - Australia / AFAS',
-                    'product_uom_qty': 3,
-                    'price_unit': 2500,
+                    'product_id': ref('hp_sale.product_fumigation_3'),
+                    'name': 'Australia /ISPMl 5',
+                    'product_uom_qty': 1,
+                    'price_unit_original': 2000,
+                    'currency_id_line': ref('base.VND'),
                 }),
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_doc_lift_on_off_3'),
-                    'name': 'Chi phí nâng hạ tại Cảng - Cont 20\' Hàng',
-                    'product_uom_qty': 6,
-                    'price_unit': 920,
+                    'product_id': ref('hp_sale.product_fumigation_4'),
+                    'name': 'Australia I AFAS',
+                    'product_uom_qty': 1,
+                    'price_unit_original': 2500,
+                    'currency_id_line': ref('base.VND'),
                 }),
             ]"/>
         </record>
 
-        <!-- Quotation 8: Draft - Báo giá đơn giản -->
+        <!-- Quotation 8: Draft - Chứng từ -->
         <record id="quotation_sales_8" model="sale.order">
             <field name="name">SALE/2025/008</field>
             <field name="partner_id" ref="hp_sale.res_partner_client_2"/>
@@ -316,16 +278,16 @@
             <field name="validity_date" eval="(datetime.now() + timedelta(days=26)).strftime('%Y-%m-%d')"/>
             <field name="order_line" eval="[
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_ex_2'),
-                    'name': 'Nộp Tờ khai vàng, xanh',
+                    'product_id': ref('hp_sale.product_ex_2'),
                     'product_uom_qty': 5,
-                    'price_unit': 100,
+                    'price_unit_original': 100,
+                    'currency_id_line': ref('base.VND'),
                 }),
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_doc_co_1'),
-                    'name': 'Chi phí làm C/O',
+                    'product_id': ref('hp_sale.product_doc_co_1'),
                     'product_uom_qty': 2,
-                    'price_unit': 300,
+                    'price_unit_original': 300,
+                    'currency_id_line': ref('base.VND'),
                 }),
             ]"/>
         </record>
@@ -350,34 +312,16 @@
             <field name="validity_date" eval="(datetime.now() + timedelta(days=18)).strftime('%Y-%m-%d')"/>
             <field name="order_line" eval="[
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_ex_cont_1'),
-                    'name': 'Miễn kiểm',
+                    'product_id': ref('hp_sale.product_ex_cont_1'),
                     'product_uom_qty': 15,
-                    'price_unit': 350,
+                    'price_unit_original': 350,
+                    'currency_id_line': ref('base.VND'),
                 }),
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_ex_1'),
-                    'name': 'TK Chuyển cửa Khẩu',
-                    'product_uom_qty': 5,
-                    'price_unit': 300,
-                }),
-                (0, 0, {
-                    'product_template_id': ref('hp_sale.product_doc_phyto_1'),
-                    'name': 'Chi phí làm Phyto',
-                    'product_uom_qty': 3,
-                    'price_unit': 700,
-                }),
-                (0, 0, {
-                    'product_template_id': ref('hp_sale.product_doc_lift_on_off_2'),
-                    'name': 'Chi phí nâng hạ tại Cảng - Cont 40\' Rỗng',
+                    'product_id': ref('hp_sale.product_doc_lift_on_off_2'),
                     'product_uom_qty': 10,
-                    'price_unit': 1300,
-                }),
-                (0, 0, {
-                    'product_template_id': ref('hp_sale.product_fumigation_1'),
-                    'name': 'Phí Hun Trùng 48-50 g/m3',
-                    'product_uom_qty': 5,
-                    'price_unit': 350,
+                    'price_unit_original': 1300,
+                    'currency_id_line': ref('base.VND'),
                 }),
             ]"/>
         </record>
@@ -402,22 +346,16 @@
             <field name="validity_date" eval="(datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')"/>
             <field name="order_line" eval="[
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_imex_1'),
-                    'name': 'Hàng XK/NK CCHQĐTGC - Thông thường',
-                    'product_uom_qty': 3,
-                    'price_unit': 0,
-                }),
-                (0, 0, {
-                    'product_template_id': ref('hp_sale.product_imex_2'),
-                    'name': 'Hàng XK/NK CCHQĐTGC - Luồng Đỏ',
+                    'product_id': ref('hp_sale.product_imex_2'),
                     'product_uom_qty': 2,
-                    'price_unit': 500,
+                    'price_unit_original': 500,
+                    'currency_id_line': ref('base.VND'),
                 }),
                 (0, 0, {
-                    'product_template_id': ref('hp_sale.product_doc_package_1'),
-                    'name': 'Đóng hàng tại bãi - Cont 20\'',
+                    'product_id': ref('hp_sale.product_doc_package_1'),
                     'product_uom_qty': 3,
-                    'price_unit': 300,
+                    'price_unit_original': 300,
+                    'currency_id_line': ref('base.VND'),
                 }),
             ]"/>
         </record>
