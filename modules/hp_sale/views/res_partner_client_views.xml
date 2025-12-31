@@ -85,6 +85,7 @@
                             <field name="branch_id"
                                 required="1"
                                 readonly="is_system_user == False"
+                                force_save="1"
                                 options="{'no_create': True}"
                                 groups="sales_team.group_sale_manager,sales_team.group_sale_salesman_all_leads,base.group_system"
                             />
