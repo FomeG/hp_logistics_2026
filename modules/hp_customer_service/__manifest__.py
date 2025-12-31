@@ -16,6 +16,7 @@
         'data/ir_sequence_cs_batch_order_data.xml',
         'data/ir_sequence_cs_order_data.xml',
         'data/project_task_type_data.xml',
+        'data/demo_cs_data.xml',
 
         'wizard/hp_bank_wizard_view.xml',
         'report/HBL_template.xml',
