@@ -237,18 +237,25 @@ class CsOrder(models.Model):
             self.code = code
             self.name = code
 
-    @api.depends('sale_order_id', 'sale_order_id.client_id')
+    @api.depends('sale_order_id', 'sale_order_id.client_id', 'sale_order_id.client_id.cs_member_id')
     def _compute_cs_manager(self):
-        """Tự động lấy leader của department Customer Service"""
+        """
+        Tự động gán CS Manager theo rules:
+        1. Nếu client có cs_member_id -> gán cho member đó
+        2. Nếu không -> gán cho CS leader (department manager)
+        """
+        cs_dept_type = self.env['department.type'].search([('code', '=', 'cs')], limit=1)
+        cs_department = self.env['hr.department'].search([
+            ('department_type_id', '=', cs_dept_type.id)
+        ], limit=1) if cs_dept_type else False
+        cs_leader = cs_department.manager_id.user_id if cs_department and cs_department.manager_id else False
+
         for record in self:
-            # Tìm department type CS
-            cs_dept_type = self.env['department.type'].search([('code', '=', 'cs')], limit=1)
-            cs_department = self.env['hr.department'].search([
-                ('department_type_id', '=', cs_dept_type.id)
-            ], limit=1) if cs_dept_type else False
-            manager_user = cs_department.manager_id.user_id if cs_department and cs_department.manager_id and cs_department.manager_id.user_id else False
-            for record in self:
-                record.cs_manager_id = manager_user
+            client = record.sale_order_id.client_id if record.sale_order_id else False
+            if client and client.cs_member_id:
+                record.cs_manager_id = client.cs_member_id
+            else:
+                record.cs_manager_id = cs_leader
 
     # @api.model
     # def create_from_sale_order(self, sale_order):

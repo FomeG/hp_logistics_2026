@@ -24,16 +24,16 @@
             <field name="department_id" ref="dep_cs_hn" />
         </record>
 
-        <!-- 3 CS Team Managers -->
+        <!-- 3 CS Leads -->
         <record id="user_csm1_hn" model="res.users">
-            <field name="name">CS Team Manager 1 HN</field>
+            <field name="name">CS Lead 1 HN</field>
             <field name="login">csm1_hn@test.com</field>
             <field name="password">1</field>
             <field name="groups_id" eval="[(4, ref('group_hp_customer_service_lead'))]"/>
         </record>
         <record id="emp_csm1_hn" model="hr.employee">
-            <field name="name">CS Team Manager 1 HN</field>
-            <field name="job_title">CS Team Manager</field>
+            <field name="name">CS Lead 1 HN</field>
+            <field name="job_title">CS Lead</field>
             <field name="user_id" ref="user_csm1_hn"/>
             <field name="parent_id" ref="emp_docs_hn"/>
             <field name="coach_id" ref="emp_docs_hn"/>
@@ -42,14 +42,14 @@
         </record>
 
         <record id="user_csm2_hn" model="res.users">
-            <field name="name">CS Team Manager 2 HN</field>
+            <field name="name">CS Lead 2 HN</field>
             <field name="login">csm2_hn@test.com</field>
             <field name="password">1</field>
             <field name="groups_id" eval="[(4, ref('group_hp_customer_service_lead'))]"/>
         </record>
         <record id="emp_csm2_hn" model="hr.employee">
-            <field name="name">CS Team Manager 2 HN</field>
-            <field name="job_title">CS Team Manager</field>
+            <field name="name">CS Lead 2 HN</field>
+            <field name="job_title">CS Lead</field>
             <field name="user_id" ref="user_csm2_hn"/>
             <field name="parent_id" ref="emp_docs_hn"/>
             <field name="coach_id" ref="emp_docs_hn"/>
@@ -58,14 +58,14 @@
         </record>
 
         <record id="user_csm3_hn" model="res.users">
-            <field name="name">CS Team Manager 3 HN</field>
+            <field name="name">CS Lead 3 HN</field>
             <field name="login">csm3_hn@test.com</field>
             <field name="password">1</field>
             <field name="groups_id" eval="[(4, ref('group_hp_customer_service_lead'))]"/>
         </record>
         <record id="emp_csm3_hn" model="hr.employee">
-            <field name="name">CS Team Manager 3 HN</field>
-            <field name="job_title">CS Team Manager</field>
+            <field name="name">CS Lead 3 HN</field>
+            <field name="job_title">CS Lead</field>
             <field name="user_id" ref="user_csm3_hn"/>
             <field name="parent_id" ref="emp_docs_hn"/>
             <field name="coach_id" ref="emp_docs_hn"/>
@@ -154,16 +154,16 @@
             <field name="department_id" ref="dep_cs_hcm" />
         </record>
 
-        <!-- 3 CS Team Managers -->
+        <!-- 3 CS Leads -->
         <record id="user_csm1_hcm" model="res.users">
-            <field name="name">CS Team Manager 1 HCM</field>
+            <field name="name">CS Lead 1 HCM</field>
             <field name="login">csm1_hcm@test.com</field>
             <field name="password">1</field>
             <field name="groups_id" eval="[(4, ref('group_hp_customer_service_lead'))]"/>
         </record>
         <record id="emp_csm1_hcm" model="hr.employee">
-            <field name="name">CS Team Manager 1 HCM</field>
-            <field name="job_title">CS Team Manager</field>
+            <field name="name">CS Lead 1 HCM</field>
+            <field name="job_title">CS Lead</field>
             <field name="user_id" ref="user_csm1_hcm"/>
             <field name="parent_id" ref="emp_docs_hcm"/>
             <field name="coach_id" ref="emp_docs_hcm"/>
@@ -172,14 +172,14 @@
         </record>
 
         <record id="user_csm2_hcm" model="res.users">
-            <field name="name">CS Team Manager 2 HCM</field>
+            <field name="name">CS Lead 2 HCM</field>
             <field name="login">csm2_hcm@test.com</field>
             <field name="password">1</field>
             <field name="groups_id" eval="[(4, ref('group_hp_customer_service_lead'))]"/>
         </record>
         <record id="emp_csm2_hcm" model="hr.employee">
-            <field name="name">CS Team Manager 2 HCM</field>
-            <field name="job_title">CS Team Manager</field>
+            <field name="name">CS Lead 2 HCM</field>
+            <field name="job_title">CS Lead</field>
             <field name="user_id" ref="user_csm2_hcm"/>
             <field name="parent_id" ref="emp_docs_hcm"/>
             <field name="coach_id" ref="emp_docs_hcm"/>
@@ -188,14 +188,14 @@
         </record>
 
         <record id="user_csm3_hcm" model="res.users">
-            <field name="name">CS Team Manager 3 HCM</field>
+            <field name="name">CS Lead 3 HCM</field>
             <field name="login">csm3_hcm@test.com</field>
             <field name="password">1</field>
             <field name="groups_id" eval="[(4, ref('group_hp_customer_service_lead'))]"/>
         </record>
         <record id="emp_csm3_hcm" model="hr.employee">
-            <field name="name">CS Team Manager 3 HCM</field>
-            <field name="job_title">CS Team Manager</field>
+            <field name="name">CS Lead 3 HCM</field>
+            <field name="job_title">CS Lead</field>
             <field name="user_id" ref="user_csm3_hcm"/>
             <field name="parent_id" ref="emp_docs_hcm"/>
             <field name="coach_id" ref="emp_docs_hcm"/>
@@ -284,16 +284,16 @@
             <field name="department_id" ref="dep_cs_hph" />
         </record>
 
-        <!-- 3 CS Team Managers -->
+        <!-- 3 CS Leads -->
         <record id="user_csm1_hph" model="res.users">
-            <field name="name">CS Team Manager 1 HPH</field>
+            <field name="name">CS Lead 1 HPH</field>
             <field name="login">csm1_hph@test.com</field>
             <field name="password">1</field>
             <field name="groups_id" eval="[(4, ref('group_hp_customer_service_lead'))]"/>
         </record>
         <record id="emp_csm1_hph" model="hr.employee">
-            <field name="name">CS Team Manager 1 HPH</field>
-            <field name="job_title">CS Team Manager</field>
+            <field name="name">CS Lead 1 HPH</field>
+            <field name="job_title">CS Lead</field>
             <field name="user_id" ref="user_csm1_hph"/>
             <field name="parent_id" ref="emp_docs_hph"/>
             <field name="coach_id" ref="emp_docs_hph"/>
@@ -302,14 +302,14 @@
         </record>
 
         <record id="user_csm2_hph" model="res.users">
-            <field name="name">CS Team Manager 2 HPH</field>
+            <field name="name">CS Lead 2 HPH</field>
             <field name="login">csm2_hph@test.com</field>
             <field name="password">1</field>
             <field name="groups_id" eval="[(4, ref('group_hp_customer_service_lead'))]"/>
         </record>
         <record id="emp_csm2_hph" model="hr.employee">
-            <field name="name">CS Team Manager 2 HPH</field>
-            <field name="job_title">CS Team Manager</field>
+            <field name="name">CS Lead 2 HPH</field>
+            <field name="job_title">CS Lead</field>
             <field name="user_id" ref="user_csm2_hph"/>
             <field name="parent_id" ref="emp_docs_hph"/>
             <field name="coach_id" ref="emp_docs_hph"/>
@@ -318,14 +318,14 @@
         </record>
 
         <record id="user_csm3_hph" model="res.users">
-            <field name="name">CS Team Manager 3 HPH</field>
+            <field name="name">CS Lead 3 HPH</field>
             <field name="login">csm3_hph@test.com</field>
             <field name="password">1</field>
             <field name="groups_id" eval="[(4, ref('group_hp_customer_service_lead'))]"/>
         </record>
         <record id="emp_csm3_hph" model="hr.employee">
-            <field name="name">CS Team Manager 3 HPH</field>
-            <field name="job_title">CS Team Manager</field>
+            <field name="name">CS Lead 3 HPH</field>
+            <field name="job_title">CS Lead</field>
             <field name="user_id" ref="user_csm3_hph"/>
             <field name="parent_id" ref="emp_docs_hph"/>
             <field name="coach_id" ref="emp_docs_hph"/>
