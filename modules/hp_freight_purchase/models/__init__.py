@@ -20,7 +20,6 @@ from . import freight_purchase_booking_fee
 from . import freight_purchase_booking_line_fee
 #from . import sale_order_line_inherit
 from . import freight_purchase_booking_inventory
-from . import product_template_inherit
 from . import wizards
 from . import freight_purchase_remind
 from . import sale_order_inherit
