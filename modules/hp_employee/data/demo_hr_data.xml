@@ -14,6 +14,7 @@
             <field name="job_title">HR Manager HN</field>
             <field name="user_id" ref="user_dohr_hn"/>
             <field name="work_email">dohr_hn@test.com</field>
+            <field name="work_shift_id" ref="hr_work_shift_flexible" />
         </record>
 
         <record id="dep_hr_hn" model="hr.department">
@@ -44,6 +45,7 @@
             <field name="coach_id" ref="emp_dohr_hn"/>
             <field name="work_email">hrm1_hn@test.com</field>
             <field name="department_id" ref="dep_hr_hn" />
+            <field name="work_shift_id" ref="hr_work_shift_flexible" />
         </record>
 
         <record id="user_hrm2_hn" model="res.users">
@@ -60,6 +62,7 @@
             <field name="coach_id" ref="emp_dohr_hn"/>
             <field name="work_email">hrm2_hn@test.com</field>
             <field name="department_id" ref="dep_hr_hn" />
+            <field name="work_shift_id" ref="hr_work_shift_flexible" />
         </record>
 
         <record id="user_hrm3_hn" model="res.users">
@@ -76,6 +79,7 @@
             <field name="coach_id" ref="emp_dohr_hn"/>
             <field name="work_email">hrm3_hn@test.com</field>
             <field name="department_id" ref="dep_hr_hn" />
+            <field name="work_shift_id" ref="hr_work_shift_flexible" />
         </record>
 
         <!-- 3 Employees -->
@@ -93,6 +97,7 @@
             <field name="coach_id" ref="emp_hrm1_hn"/>
             <field name="work_email">hr1_hn@test.com</field>
             <field name="department_id" ref="dep_hr_hn" />
+            <field name="work_shift_id" ref="hr_work_shift_fixed" />
         </record>
 
         <record id="user_hr2_hn" model="res.users">
@@ -109,6 +114,7 @@
             <field name="coach_id" ref="emp_hrm2_hn"/>
             <field name="work_email">hr2_hn@test.com</field>
             <field name="department_id" ref="dep_hr_hn" />
+            <field name="work_shift_id" ref="hr_work_shift_fixed" />
         </record>
 
         <record id="user_hr3_hn" model="res.users">
@@ -125,6 +131,7 @@
             <field name="coach_id" ref="emp_hrm3_hn"/>
             <field name="work_email">hr3_hn@test.com</field>
             <field name="department_id" ref="dep_hr_hn" />
+            <field name="work_shift_id" ref="hr_work_shift_fixed" />
         </record>
 
 
@@ -158,6 +165,7 @@
             <field name="job_title">HR Manager HCM</field>
             <field name="user_id" ref="user_dohr_hcm"/>
             <field name="work_email">dohr_hcm@test.com</field>
+            <field name="work_shift_id" ref="hr_work_shift_flexible" />
         </record>
 
         <record id="dep_hr_hcm" model="hr.department">
@@ -188,6 +196,7 @@
             <field name="coach_id" ref="emp_dohr_hcm"/>
             <field name="work_email">hrm1_hcm@test.com</field>
             <field name="department_id" ref="dep_hr_hcm" />
+            <field name="work_shift_id" ref="hr_work_shift_flexible" />
         </record>
 
         <record id="user_hrm2_hcm" model="res.users">
@@ -204,6 +213,7 @@
             <field name="coach_id" ref="emp_dohr_hcm"/>
             <field name="work_email">hrm2_hcm@test.com</field>
             <field name="department_id" ref="dep_hr_hcm" />
+            <field name="work_shift_id" ref="hr_work_shift_flexible" />
         </record>
 
         <record id="user_hrm3_hcm" model="res.users">
@@ -220,6 +230,7 @@
             <field name="coach_id" ref="emp_dohr_hcm"/>
             <field name="work_email">hrm3_hcm@test.com</field>
             <field name="department_id" ref="dep_hr_hcm" />
+            <field name="work_shift_id" ref="hr_work_shift_flexible" />
         </record>
 
         <!-- 3 Employees -->
@@ -237,6 +248,7 @@
             <field name="coach_id" ref="emp_hrm1_hcm"/>
             <field name="work_email">hr1_hcm@test.com</field>
             <field name="department_id" ref="dep_hr_hcm" />
+            <field name="work_shift_id" ref="hr_work_shift_fixed" />
         </record>
 
         <record id="user_hr2_hcm" model="res.users">
@@ -253,6 +265,7 @@
             <field name="coach_id" ref="emp_hrm2_hcm"/>
             <field name="work_email">hr2_hcm@test.com</field>
             <field name="department_id" ref="dep_hr_hcm" />
+            <field name="work_shift_id" ref="hr_work_shift_fixed" />
         </record>
 
         <record id="user_hr3_hcm" model="res.users">
@@ -269,6 +282,7 @@
             <field name="coach_id" ref="emp_hrm3_hcm"/>
             <field name="work_email">hr3_hcm@test.com</field>
             <field name="department_id" ref="dep_hr_hcm" />
+            <field name="work_shift_id" ref="hr_work_shift_fixed" />
         </record>
 
 
@@ -308,6 +322,7 @@
             <field name="job_title">HR Manager HPH</field>
             <field name="user_id" ref="user_dohr_hph"/>
             <field name="work_email">dohr_hph@test.com</field>
+            <field name="work_shift_id" ref="hr_work_shift_flexible" />
         </record>
 
         <record id="dep_hr_hph" model="hr.department">
@@ -338,6 +353,7 @@
             <field name="coach_id" ref="emp_dohr_hph"/>
             <field name="work_email">hrm1_hph@test.com</field>
             <field name="department_id" ref="dep_hr_hph" />
+            <field name="work_shift_id" ref="hr_work_shift_flexible" />
         </record>
 
         <record id="user_hrm2_hph" model="res.users">
@@ -354,6 +370,7 @@
             <field name="coach_id" ref="emp_dohr_hph"/>
             <field name="work_email">hrm2_hph@test.com</field>
             <field name="department_id" ref="dep_hr_hph" />
+            <field name="work_shift_id" ref="hr_work_shift_flexible" />
         </record>
 
         <record id="user_hrm3_hph" model="res.users">
@@ -370,6 +387,7 @@
             <field name="coach_id" ref="emp_dohr_hph"/>
             <field name="work_email">hrm3_hph@test.com</field>
             <field name="department_id" ref="dep_hr_hph" />
+            <field name="work_shift_id" ref="hr_work_shift_flexible" />
         </record>
 
         <!-- 3 Employees -->
@@ -387,6 +405,7 @@
             <field name="coach_id" ref="emp_hrm1_hph"/>
             <field name="work_email">hr1_hph@test.com</field>
             <field name="department_id" ref="dep_hr_hph" />
+            <field name="work_shift_id" ref="hr_work_shift_fixed" />
         </record>
 
         <record id="user_hr2_hph" model="res.users">
@@ -403,6 +422,7 @@
             <field name="coach_id" ref="emp_hrm2_hph"/>
             <field name="work_email">hr2_hph@test.com</field>
             <field name="department_id" ref="dep_hr_hph" />
+            <field name="work_shift_id" ref="hr_work_shift_fixed" />
         </record>
 
         <record id="user_hr3_hph" model="res.users">
@@ -419,6 +439,7 @@
             <field name="coach_id" ref="emp_hrm3_hph"/>
             <field name="work_email">hr3_hph@test.com</field>
             <field name="department_id" ref="dep_hr_hph" />
+            <field name="work_shift_id" ref="hr_work_shift_fixed" />
         </record>
     </data>
 </odoo>

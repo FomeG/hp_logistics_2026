@@ -8,6 +8,9 @@ class HrLeaveListener(Component):
     _inherit = 'base.event.listener'
     _apply_on = ['hr.leave']
 
+    def on_record_create(self, record, fields=None):
+        record._handle_record_create()
+        return
 
     def on_record_write(self, record, fields=None):
         if 'state' in fields:

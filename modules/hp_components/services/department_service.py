@@ -37,7 +37,7 @@ class DepartmentService:
 
         return self.env['hr.employee'].sudo().search(domain).mapped('user_id')
     
-    def get_department_leader_by_employee(self, employee):
+    def get_department_manager_by_employee(self, employee):
         if not employee.department_id:
             return False
         

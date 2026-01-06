@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Fixed shift -->
+        <record id="hr_work_shift_fixed" model="hr.work.shift">
+            <field name="name">Fixed Shift</field>
+            <field name="shift_type">fixed</field>
+            <field name="break_time">1.0</field>
+            <field name="fixed_start_time">8.0</field>
+            <field name="fixed_end_time">17.0</field>
+        </record>
+
+        <!-- Flexible shift -->
+        <record id="hr_work_shift_flexible" model="hr.work.shift">
+            <field name="name">Flexible Shift</field>
+            <field name="shift_type">flexible</field>
+            <field name="break_time">1.0</field>
+            <field name="flexible_start_from">7.0</field>
+            <field name="flexible_start_to">9.0</field>
+            <field name="flexible_end_time">18.0</field> 
+        </record>
+
+    </data>
+</odoo>

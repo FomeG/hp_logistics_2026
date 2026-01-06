@@ -9,11 +9,15 @@
     'category': 'HP',
     "license": "LGPL-3",
     'description': """
-HP Employee App
+HP Time Off App
 ===================================================
 """,
-    'depends': ['hr_holidays'],
+    'depends': ['hp_employee', 'hr_holidays'],
     'data': [
+        # data demo
+        'data/demo_data.xml',
+
+        # views
         'views/hr_leave_type_views.xml',
         'views/hr_leave_views.xml',
     ],

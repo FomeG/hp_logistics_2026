@@ -16,6 +16,7 @@
             <field name="coach_id" ref="emp_dopr_hn"/>
             <field name="work_email">pricing1_hn@test.com</field>
             <field name="department_id" ref="dep_pricing_hn" />
+            <field name="work_shift_id" ref="hp_employee.hr_work_shift_fixed" />
         </record>
 
         <record id="user_pricing2_hn" model="res.users">
@@ -32,6 +33,7 @@
             <field name="coach_id" ref="emp_dopr_hn"/>
             <field name="work_email">pricing2_hn@test.com</field>
             <field name="department_id" ref="dep_pricing_hn" />
+            <field name="work_shift_id" ref="hp_employee.hr_work_shift_fixed" />
         </record>
     </data>
 </odoo>

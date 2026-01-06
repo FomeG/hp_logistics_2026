@@ -31,3 +31,25 @@ class HrLeaveInherit(models.Model):
         )
     
         return True
+    
+    def _handle_record_create(self):
+        employee = self.employee_id
+        if not employee:
+            return False
+
+        department_manager = DepartmentService(self.env).get_department_manager_by_employee(employee)
+        if not department_manager:
+            return False
+
+        service = ActivityService(
+            env=self.env,
+            model_name='hr.leave',
+            record_id=self.id,
+            user_ids=department_manager.id
+        )
+        service._create_activity_by_type(
+            summary= f"New {self.holiday_status_id.name} Request created by {employee.name}",
+            note=''
+        )
+    
+        return True

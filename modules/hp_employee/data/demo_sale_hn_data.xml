@@ -21,6 +21,7 @@
             <field name="user_id" ref="user_dos_hn"/>
             <field name="work_email">dos_hn@test.com</field>
             <field name="department_id" ref="dep_sales_hn" />
+            <field name="work_shift_id" ref="hr_work_shift_flexible" />
         </record>
 
         <record forcecreate="True" id="user_sm1_hn" model="res.users">
@@ -37,6 +38,7 @@
             <field name="coach_id" ref="emp_dos_hn"/>
             <field name="work_email">sm1_hn@test.com</field>
             <field name="department_id" ref="dep_sales_hn" />
+            <field name="work_shift_id" ref="hr_work_shift_fixed" />
         </record>
 
         <record forcecreate="True" id="user_sm2_hn" model="res.users">
@@ -53,6 +55,7 @@
             <field name="coach_id" ref="emp_dos_hn"/>
             <field name="work_email">sm2@test.com</field>
             <field name="department_id" ref="dep_sales_hn" />
+            <field name="work_shift_id" ref="hr_work_shift_fixed" />
         </record>
 
 
