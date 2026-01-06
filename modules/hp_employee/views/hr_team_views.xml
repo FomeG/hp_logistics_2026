@@ -28,7 +28,7 @@
                     </group>
 
                     <notebook>
-                        <page string="Users">
+                        <page string="Users" invisible="not id">
                             <field name="user_ids"/>
                         </page>
                         <page string="Ports" invisible="department_type_code != 'sale' or not region_id">
