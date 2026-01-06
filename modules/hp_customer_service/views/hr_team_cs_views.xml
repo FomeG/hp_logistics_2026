@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View for CS Teams -->
+    <record id="view_hr_team_cs_list" model="ir.ui.view">
+        <field name="name">hr.team.cs.list</field>
+        <field name="model">hr.team</field>
+        <field name="arch" type="xml">
+            <list string="CS Teams">
+                <field name="name"/>
+                <field name="department_id"/>
+                <field name="region_id"/>
+                <field name="user_ids" widget="many2many_tags"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View for CS Teams -->
+    <record id="view_hr_team_cs_form" model="ir.ui.view">
+        <field name="name">hr.team.cs.form</field>
+        <field name="model">hr.team</field>
+        <field name="arch" type="xml">
+            <form string="CS Team">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="department_id"/>
+                        <field name="region_id"/>
+                    </group>
+
+                    <notebook>
+                        <page string="Users">
+                            <field name="user_ids" domain="[('id', 'in', available_user_ids)]"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View for CS Teams -->
+    <record id="view_hr_team_cs_search" model="ir.ui.view">
+        <field name="name">hr.team.cs.search</field>
+        <field name="model">hr.team</field>
+        <field name="arch" type="xml">
+            <search string="Search CS Teams">
+                <field name="name" string="Team Name"/>
+                <field name="department_id" string="Department"/>
+                <field name="region_id" string="Region"/>
+
+                <filter name="department_type_cs"
+                    string="Customer Service"
+                    domain="[('department_id.department_type_id.code', '=', 'cs')]"/>
+
+                <group expand="0" string="Group By">
+                    <filter name="group_department" string="Department" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_region" string="Region" context="{'group_by': 'region_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action for CS Teams -->
+    <record id="hr_team_action_cs" model="ir.actions.act_window">
+        <field name="name">CS Teams</field>
+        <field name="res_model">hr.team</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('department_id.department_type_id.code', '=', 'cs')]</field>
+        <field name="context">{'default_department_type_code': 'cs', 'search_default_department_type_cs': 1}</field>
+        <field name="search_view_id" ref="view_hr_team_cs_search"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_hr_team_cs_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_hr_team_cs_form')})]"/>
+    </record>
+</odoo>

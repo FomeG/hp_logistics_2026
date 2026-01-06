@@ -36,6 +36,7 @@
         # 'views/cs_task_views.xml',
         'views/sale_order_inherit_views.xml',
         'views/res_partner_client_views.xml',
+        'views/hr_team_cs_views.xml',
         'views/cs_menus.xml',
 
     ],

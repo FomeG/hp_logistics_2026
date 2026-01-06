@@ -46,4 +46,6 @@ access_cs_shipping_document_user,cs.shipping.document.user,model_cs_shipping_doc
 access_cs_shipping_document_member,cs.shipping.document.member,model_cs_shipping_document,group_hp_customer_service_member,1,1,1,0
 access_cs_shipping_document_leader,cs.shipping.document.leader,model_cs_shipping_document,group_hp_customer_service_leader,1,1,1,1
 
-
+access_hr_team_cs_member,hr.team.cs.member,hp_employee.model_hr_team,group_hp_customer_service_member,1,0,0,0
+access_hr_team_cs_lead,hr.team.cs.lead,hp_employee.model_hr_team,group_hp_customer_service_lead,1,0,0,0
+access_hr_team_cs_leader,hr.team.cs.leader,hp_employee.model_hr_team,group_hp_customer_service_leader,1,1,1,1

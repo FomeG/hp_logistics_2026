@@ -73,4 +73,11 @@
               parent="menu_cs_root"
               sequence="60"/>
 
+    <menuitem id="menu_cs_manage_team"
+              name="Teams"
+              parent="menu_cs_settings"
+              action="hr_team_action_cs"
+              groups="group_hp_customer_service_member"
+              sequence="10"/>
+
 </odoo>
