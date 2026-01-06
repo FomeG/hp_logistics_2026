@@ -81,6 +81,18 @@
             <field name="perm_unlink" eval="0"/>
         </record>
 
+        <!-- Rule cho Sales Lead (DOS): thấy tất cả product_selling_week -->
+        <record id="rule_product_selling_week_sale_lead" model="ir.rule">
+            <field name="name">Product Selling Week: Lead access all</field>
+            <field name="model_id" ref="model_product_template_selling_week"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
         <!-- Rule cho Sales Manager: thấy tất cả product_selling_week -->
         <record id="rule_product_selling_week_sale_manager" model="ir.rule">
             <field name="name">Product Selling Week: Manager access all</field>
@@ -102,6 +114,18 @@
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="0"/>
             <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Rule cho Sales Lead (DOS): thấy tất cả product_selling_week_line -->
+        <record id="rule_product_selling_week_line_sale_lead" model="ir.rule">
+            <field name="name">Product Selling Week line: Lead access all</field>
+            <field name="model_id" ref="model_product_template_selling_week_line"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
             <field name="perm_unlink" eval="0"/>
         </record>
 
