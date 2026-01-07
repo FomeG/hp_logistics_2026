@@ -23,7 +23,7 @@
                 <sheet>
                     <group>
                         <field name="name"/>
-                        <field name="department_id" domain="[('department_type_id.code', '=', 'sale')]"/>
+                        <field name="department_id" domain="[('department_type_id.code', '=', 'sale')]" options="{'no_create': True}"/>
                         <field name="region_id"/>
                     </group>
 
