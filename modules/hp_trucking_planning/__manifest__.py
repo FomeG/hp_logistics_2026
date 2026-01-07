@@ -50,7 +50,7 @@
        'data/cron_job.xml',
     ],
     'demo': [
-        'demo/demo_location.xml',
+        # 'demo/demo_location.xml',
         'demo/demo_route.xml',
         'demo/demo_branch.xml',
         'demo/demo_driver.xml',

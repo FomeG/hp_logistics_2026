@@ -2,8 +2,8 @@
 <odoo>
     <data noupdate="1">
         <record id="route_hanoi_haiphong" model="route.base">
-            <field name="from_location_id" ref="location_route_hanoi"/>
-            <field name="to_location_id" ref="location_route_haiphong"/>
+            <field name="from_location_id" ref="hp_components.location_vn_city_hn"/>
+            <field name="to_location_id" ref="hp_components.location_vn_city_hp"/>
             <field name="distance_km">120</field>
             <field name="road_fee">200000</field>
             <field name="trip_salary">800000</field>
@@ -12,8 +12,8 @@
         </record>
 
         <record id="route_hanoi_danang" model="route.base">
-            <field name="from_location_id" ref="location_route_haiphong"/>
-            <field name="to_location_id" ref="location_route_hochiminh"/>
+            <field name="from_location_id" ref="hp_components.location_vn_city_hp"/>
+            <field name="to_location_id" ref="hp_components.location_vn_city_hcm"/>
             <field name="distance_km">764</field>
             <field name="road_fee">1500000</field>
             <field name="trip_salary">3500000</field>
@@ -22,8 +22,8 @@
         </record>
 
         <record id="route_hanoi_hochiminh" model="route.base">
-            <field name="from_location_id" ref="location_route_hanoi"/>
-            <field name="to_location_id" ref="location_route_hochiminh"/>
+            <field name="from_location_id" ref="hp_components.location_vn_city_hn"/>
+            <field name="to_location_id" ref="hp_components.location_vn_city_hcm"/>
             <field name="distance_km">1710</field>
             <field name="road_fee">3000000</field>
             <field name="trip_salary">7000000</field>
