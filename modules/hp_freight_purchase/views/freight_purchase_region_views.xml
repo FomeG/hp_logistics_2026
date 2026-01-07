@@ -13,7 +13,7 @@
             </field>
 
             <!-- Replace Countries page with enhanced version -->
-            <xpath expr="//notebook/page[1]" position="after">
+            <xpath expr="//notebook/page[1]" position="replace">
                 <page string="Countries">
                     <field name="country_ids"
                            context="{'form_view_ref': 'hp_freight_purchase.view_country_with_ports_form'}"
@@ -28,9 +28,9 @@
             </xpath>
 
             <!-- Hide original Countries page -->
-            <xpath expr="//notebook/page[2]" position="attributes">
+            <!-- <xpath expr="//notebook/page[2]" position="attributes">
                 <attribute name="invisible">1</attribute>
-            </xpath>
+            </xpath> -->
 
             <!-- Add Employees page -->
             <xpath expr="//notebook/page[1]" position="after">
