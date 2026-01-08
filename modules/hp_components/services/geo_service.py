@@ -8,11 +8,11 @@ class GeoService(models.AbstractModel):
     _name = 'hp_components.geo.service'
     _description = 'geographical service'
 
-    @tools.ormcache('country_code')
     def _get_country_by_code(self, country_code):
         return self.env['res.country'].search([
             ('code', '=', country_code),
         ],limit=1)
+
     @api.model
     def get_vietnam(self):
         return self._get_country_by_code('VN')
