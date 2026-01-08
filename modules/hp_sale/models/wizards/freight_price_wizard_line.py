@@ -43,6 +43,7 @@ class GetFreightPriceWizard(models.TransientModel):
     container_type_id = fields.Many2one(
         comodel_name='container.type',
         string="Container",
+        domain=[('is_active', '=', True)],
     )
     price = fields.Monetary(
         string="Price",

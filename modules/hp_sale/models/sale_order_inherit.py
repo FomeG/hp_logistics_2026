@@ -134,6 +134,7 @@ class SaleOrderInherit(models.Model):
     container_type_id = fields.Many2one(
         comodel_name='container.type',
         string="Container Type preferred",
+        domain=[('is_active', '=', True)],
     )
     allow_from_location_ids = fields.Many2many('location.base', compute='_compute_allow_from_location_ids', store=False)
     allow_to_location_ids = fields.Many2many('location.base', compute='_compute_allow_to_location_ids', store=False)

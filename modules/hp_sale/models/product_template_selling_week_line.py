@@ -19,6 +19,7 @@ class ProductTemplateSellingWeekLine(models.Model):
         'container.type',
         string="Container Type",
         required=True,
+        domain=[('is_active', '=', True)],
     )
     currency_id = fields.Many2one(
         'res.currency',

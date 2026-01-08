@@ -17,7 +17,8 @@ class PortRouteRequestWizard(models.TransientModel):
         'container.type',
         string="Container Type (For this quotation)",
         required=True,
-        default=lambda self: self.env['container.type'].search([('name', '=', '20DC')], limit=1)
+        default=lambda self: self.env['container.type'].search([('name', '=', '20DC')], limit=1),
+        domain=[('is_active', '=', True)],
     )
     notes = fields.Text('Additional Notes')
 
