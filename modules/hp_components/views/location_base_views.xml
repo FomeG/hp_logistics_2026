@@ -52,7 +52,25 @@
                             <field name="children_ids">
                                 <list>
                                     <field name="name" />
+                                    <field name="type" />
+                                    <field name="contact_name" />
+                                    <field name="contact_phone" />
                                 </list>
+                                <form>
+                                <sheet>
+                                    <group>
+                                        <group>
+                                            <field name="name" required="1"/>
+                                            <field name="type" required="1"/>
+                                            <field name="contact_name" />
+                                            <field name="contact_phone" />
+                                            <field name="address" />
+                                            <field name="country_id"/>
+                                            <field name="state_id" domain="[('country_id', '=', country_id)]" options="{'no_create': True}"/>
+                                        </group>
+                                    </group>
+                                </sheet>
+                            </form>
                             </field>
                         </page>
                     </notebook>
