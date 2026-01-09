@@ -62,7 +62,7 @@
               action="action_cs_pre_alert"
               sequence="50"/>
 
-    <menuitem id="menu_cs_pre_alert"
+    <menuitem id="menu_do_an_document"
               name="DO/AN Documents"
               parent="menu_cs_documents"
               action="action_cs_shipping_document"
