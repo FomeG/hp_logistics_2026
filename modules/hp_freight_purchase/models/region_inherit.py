@@ -8,7 +8,7 @@ class FreightPurchaseRegion(models.Model):
     _order = 'create_date desc'
 
     ports = fields.One2many('location.base','region_id',string='Ports', tracking=True)
-    port_string = fields.Char(string="Ports in Region", compute='_compute_port_string', store=False)
+    port_string = fields.Char(string="Ports in Region", compute='_compute_port_string', store=True)
 
     @api.depends('employee_ids')
     def _compute_employee_string(self):

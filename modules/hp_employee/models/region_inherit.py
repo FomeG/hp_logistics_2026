@@ -16,7 +16,7 @@ class RegionInherit(models.Model):
     employee_string = fields.Char(
         string="Employees in Region",
         compute='_compute_employee_string',
-        store=False
+        store=True
     )
     @api.depends('employee_ids')
     def _compute_employee_string(self):
