@@ -12,7 +12,7 @@ class LocationBase(models.Model):
         constants.LocationType.SELECT_OPTIONS,
         required=True,
         tracking=True,
-        default=constants.LocationType.WAREHOUSE
+        default=constants.LocationType.PORT
     )
 
     name = fields.Char(
