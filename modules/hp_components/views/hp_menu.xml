@@ -1,7 +1,7 @@
 <odoo>
     <data>
         <!-- Main Menu -->
-        <menuitem id="hp_menu_root" name="HPL" sequence="10"/>
+        <menuitem id="hp_menu_root" name="HPL" sequence="10" groups="base.group_system"/>
         <!-- Submenu -->
         <menuitem id="hp_base" name="Base" parent="hp_menu_root" sequence="20"/>
         <menuitem id="hp_import" name="Import" parent="hp_menu_root" sequence="30"/>
