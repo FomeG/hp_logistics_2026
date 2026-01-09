@@ -1,4 +1,6 @@
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
+
 
 class HrTeam(models.Model):
     _name = 'hr.team'
@@ -13,7 +15,8 @@ class HrTeam(models.Model):
     department_id = fields.Many2one(
         'hr.department',
         string="Department",
-        tracking=True
+        tracking=True,
+        default=lambda self: self.env.user.employee_id.department_id,
     )
     user_ids = fields.Many2many(
         'res.users',
@@ -21,14 +24,30 @@ class HrTeam(models.Model):
         'team_id', 'user_id',
         string="Members",
         tracking=True,
-        domain="[('id', 'in', available_user_ids)]"
+        # domain="[('id', 'in', available_user_ids)]"
     )
 
-    available_user_ids = fields.Many2many(
-        'res.users',
-        compute='_compute_available_user_ids',
-        store=False
+    allowed_department_ids = fields.Many2many(
+        "hr.department", compute="_compute_allowed_department_ids", store=False
     )
+
+    @api.depends_context("uid")
+    def _compute_allowed_department_ids(self):
+        user = self.env.user
+
+        is_admin = user.has_group("base.group_system")
+
+        managed_departments = self.env["hr.department"]
+        if not (is_admin):
+            managed_departments = self.env["hr.department"].search(
+                [("manager_id.user_id", "=", user.id)]
+            )
+
+        for record in self:
+            if is_admin:
+                record.allowed_department_ids = self.env["hr.department"].search([])
+            else:
+                record.allowed_department_ids = managed_departments
 
     region_id = fields.Many2one(
         comodel_name='region',
@@ -47,34 +66,24 @@ class HrTeam(models.Model):
 
     department_type_code = fields.Char(
         string="Department Type Code",
-        related='department_id.department_type_id.code',
+        related="department_id.department_type_id.code",
         store=False
     )
 
-    @api.depends('department_id')
-    def _compute_available_user_ids(self):
+    is_department_required = fields.Boolean(compute="_compute_is_department_required")
+
+    @api.depends_context("uid")
+    def _compute_is_department_required(self):
+        user = self.env.user
+        user_service = self.env["hp_employee.user.service"]
+
+        is_admin = user_service.is_admin_user(user.id)
+
         for record in self:
-            if record.department_id:
-                employees = self.env['hr.employee'].search([
-                    ('department_id', '=', record.department_id.id),
-                    ('user_id', '!=', False)
-                ])
-                record.available_user_ids = employees.mapped('user_id')
-            else:
-                record.available_user_ids = self.env['res.users'].search([])
-        
-    @api.constrains('user_ids', 'department_id')
-    def _check_users_department(self):
+            record.is_department_required = not (is_admin)
+
+    @api.constrains("department_id")
+    def _check_department_required_constraint(self):
         for record in self:
-            if record.department_id and record.user_ids:
-                employees = self.env['hr.employee'].search([
-                    ('department_id', '=', record.department_id.id)
-                ])
-                valid_user_ids = employees.mapped('user_id').ids
-                
-                invalid_users = record.user_ids.filtered(lambda u: u.id not in valid_user_ids)
-                if invalid_users:
-                    raise models.ValidationError(
-                        f"The following users are not in the selected department: "
-                        f"{', '.join(invalid_users.mapped('name'))}"
-                    )
+            if record.is_department_required and not record.department_id:
+                raise ValidationError("Department is required for this user.")

@@ -24,7 +24,12 @@
                 <sheet>
                     <group>
                         <field name="name"/>
-                        <field name="department_id" domain="[('department_type_id.code', '=', 'pricing')]"/>
+                        <field name="is_department_required" invisible="True"/>
+                        <field name="allowed_department_ids" invisible="True"/>
+                        <field name="department_id"
+                               domain="[('id', 'in', allowed_department_ids), ('department_type_id.code', '=', 'pricing')]"
+                               options="{'no_create': True}"
+                               required="is_department_required"/>
                         <field name="region_id"/>
                     </group>
 

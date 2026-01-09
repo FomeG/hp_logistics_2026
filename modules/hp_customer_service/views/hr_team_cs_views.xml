@@ -23,13 +23,18 @@
                 <sheet>
                     <group>
                         <field name="name"/>
-                        <field name="department_id"/>
+                        <field name="is_department_required" invisible="True"/>
+                        <field name="allowed_department_ids" invisible="True"/>
+                        <field name="department_id"
+                               domain="[('id', 'in', allowed_department_ids)]"
+                               options="{'no_create': True}"
+                               required="is_department_required"/>
                         <field name="region_id"/>
                     </group>
 
                     <notebook>
-                        <page string="Users">
-                            <field name="user_ids" domain="[('id', 'in', available_user_ids)]"/>
+                        <page string="Users" invisible="not id">
+                            <field name="user_ids"/>
                         </page>
                     </notebook>
                 </sheet>
