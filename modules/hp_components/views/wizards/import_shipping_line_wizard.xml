@@ -31,7 +31,7 @@
                                     <li>
                                         Tải file mẫu:
                                         <a
-                                            href="/hp_components/static/xlsx/import_shipping_line_template.xlsx"
+                                            href="/hp_components/static/xlsx/import_shipping_line_wizard.xlsx"
                                             target="_blank"
                                             class="btn btn-sm btn-outline-primary" role="button">
                                             <i class="fa fa-download"/> File Excel Mẫu
