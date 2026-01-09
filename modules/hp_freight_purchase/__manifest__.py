@@ -14,6 +14,9 @@
 
         #data - must be loaded first
         'data/department_data.xml',
+        'demo/vessels_demo.xml',
+        'data/demo_quotation_data.xml',
+        'data/demo_booking_data.xml',
         'data/demo_pricing_hn_data.xml',
         'data/demo_pricing_hcm_data.xml',
         'data/partner_main_type_data.xml',
@@ -25,7 +28,6 @@
         #'demo/region_demo.xml',
         # 'demo/port_demo.xml',
         # 'demo/shipping_line_demo.xml',
-        'demo/vessels_demo.xml',
         'demo/freight_purchase_fee_type_demo.xml',
 
         #views

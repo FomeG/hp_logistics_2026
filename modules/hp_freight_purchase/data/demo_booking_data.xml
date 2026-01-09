@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Booking -->
+        <record id="demo_booking_1" model="freight.purchase.booking">
+            <field name="booking_mode">with_quotation</field>
+            <field name="quotation_id" ref="demo_quotation_1"/>
+            <field name="vessel_id" ref="hp_freight_purchase.vessel_warnow_chief"/>
+            <field name="voyage">V.12345</field>
+            <field name="etd" eval="(datetime.now()+timedelta(days=10)).strftime('%Y-%m-%d')"/>
+            <field name="status">confirmed</field>
+        </record>
+
+        <!-- Inventory: Add available containers BEFORE creating booking lines -->
+        <record id="demo_booking_inventory_20dc" model="freight.purchase.booking.inventory">
+            <field name="booking_id" ref="demo_booking_1"/>
+            <field name="container_type_id" ref="hp_components.container_type_20dc"/>
+            <field name="quantity">20</field>
+            <field name="action">in</field>
+        </record>
+
+        <record id="demo_booking_inventory_40dc" model="freight.purchase.booking.inventory">
+            <field name="booking_id" ref="demo_booking_1"/>
+            <field name="container_type_id" ref="hp_components.container_type_40dc"/>
+            <field name="quantity">10</field>
+            <field name="action">in</field>
+        </record>
+
+        <!-- Booking Lines (after inventory is created) -->
+        <record id="demo_booking_line_1" model="freight.purchase.booking.line">
+            <field name="booking_id" ref="demo_booking_1"/>
+            <field name="quotation_line_id" ref="demo_quotation_line_1"/>
+            <field name="quantity">10</field>
+            <field name="unit_price">1200.0</field>
+        </record>
+
+        <record id="demo_booking_line_2" model="freight.purchase.booking.line">
+            <field name="booking_id" ref="demo_booking_1"/>
+            <field name="quotation_line_id" ref="demo_quotation_line_2"/>
+            <field name="quantity">5</field>
+            <field name="unit_price">2000.0</field>
+        </record>
+    </data>
+</odoo>
