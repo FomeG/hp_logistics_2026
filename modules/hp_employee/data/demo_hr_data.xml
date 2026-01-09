@@ -7,7 +7,7 @@
             <field name="name">HR Manager HN</field>
             <field name="login">dohr_hn@test.com</field>
             <field name="password">1</field>
-            <field name="groups_id" eval="[(4, ref('group_hr_director'))]"/>
+            <field name="groups_id" eval="[(4, ref('base.group_erp_manager')), (4, ref('base.group_partner_manager')), (4, ref('group_hr_director'))]"/>
         </record>
         <record id="emp_dohr_hn" model="hr.employee">
             <field name="name">HR Manager HN</field>
@@ -157,7 +157,7 @@
         <record id="user_dohr_hcm" model="res.users">
             <field name="name">HR Manager HCM</field>
             <field name="login">dohr_hcm@test.com</field>
-            <field name="groups_id" eval="[(4, ref('group_hr_director'))]"/>
+            <field name="groups_id" eval="[(4, ref('base.group_erp_manager')), (4, ref('base.group_partner_manager')), (4, ref('group_hr_director'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_dohr_hcm" model="hr.employee">
@@ -314,7 +314,7 @@
         <record id="user_dohr_hph" model="res.users">
             <field name="name">HR Manager HPH</field>
             <field name="login">dohr_hph@test.com</field>
-            <field name="groups_id" eval="[(4, ref('group_hr_director'))]"/>
+            <field name="groups_id" eval="[(4, ref('base.group_erp_manager')), (4, ref('base.group_partner_manager')), (4, ref('group_hr_director'))]"/>
             <field name="password">1</field>
         </record>
         <record id="emp_dohr_hph" model="hr.employee">
