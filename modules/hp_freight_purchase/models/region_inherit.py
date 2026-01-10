@@ -9,6 +9,15 @@ class FreightPurchaseRegion(models.Model):
 
     ports = fields.One2many('location.base','region_id',string='Ports', tracking=True)
     port_string = fields.Char(string="Ports in Region", compute='_compute_port_string', store=True)
+    can_edit_employees = fields.Boolean(compute='_compute_can_edit_employees',store=False)
+
+    @api.depends_context('uid')
+    def _compute_can_edit_employees(self):
+        for record in self:
+            user = self.env.user
+            record.can_edit_employees = user.has_group('hp_freight_purchase.group_hp_freight_purchase_lead') or \
+                                        user.has_group('hp_freight_purchase.group_hp_freight_purchase_director') or \
+                                        user.has_group('hp_freight_purchase.group_hp_freight_purchase_administrator')
 
     @api.depends('employee_ids')
     def _compute_employee_string(self):

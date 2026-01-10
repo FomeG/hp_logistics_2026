@@ -36,7 +36,9 @@
             <xpath expr="//notebook/page[1]" position="after">
                 <page string="Employees" name="employees"
                       groups="hp_freight_purchase.group_hp_freight_purchase_member,hp_freight_purchase.group_hp_freight_purchase_lead,hp_freight_purchase.group_hp_freight_purchase_director,hp_freight_purchase.group_hp_freight_purchase_administrator">
+                    <field name="can_edit_employees" invisible="1"/>
                     <field name="employee_ids"
+                           readonly="not can_edit_employees"
                            domain="[('department_id.department_type_id.code', '=', 'pricing')]">
                         <list create="0" delete="0" edit="0" multi_edit="0">
                             <field name="name" />
