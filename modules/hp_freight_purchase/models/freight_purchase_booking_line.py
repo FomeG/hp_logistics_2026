@@ -313,15 +313,15 @@ class FreightPurchaseBookingLine(models.Model):
         service.reservation_expiration_reminder()
 
     def action_link_to_order(self):    
-        return {
-            'name': 'Select Sale Order',
-            'type': 'ir.actions.act_window',
-            'res_model': 'sale.order',
-            'view_mode': 'list,form',
-            'views': [(self.env.ref('hp_freight_purchase.sale_order_assign_booking_list_view').id, 'list')],
-            'domain': [('state', '=', 'request_booking'), ('booking_line_id', '!=', False)], 
-            'target': 'new',
-            'context': {
-                'booking_line_id': self.id,
-            },
-        }
+        sale_order_id = self.env.context.get('sale_order_id')
+        if not sale_order_id:
+            raise ValidationError(_("sale_order_id not found in context."))
+
+        sale_order = self.env['sale.order'].browse(sale_order_id)
+        if not sale_order.exists():
+            raise ValidationError(_("Sale Order with ID: %s is not exist.") % sale_order)
+
+        self.sudo().sale_order_id = sale_order.id
+        sale_order.sudo().booking_line_id = self.id
+
+        return True
