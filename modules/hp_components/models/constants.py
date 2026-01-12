@@ -116,6 +116,7 @@ SERVICE_TYPE_PRICELIST_MAP = {
 
 class SaleOrderState:
     DRAFT = 'draft' #quotation
+    ACTIVE = 'active'
     SENT_TO_CLIENT = 'sent_to_client'
     REVIEW = 'review'
     SENT_TO_LEADER = 'sent_to_leader'
@@ -126,6 +127,7 @@ class SaleOrderState:
     CANCELLED = 'cancelled'
     SELECT_OPTIONS = [
         (DRAFT, 'Draft'),
+        (ACTIVE, 'Active'),
         (SENT_TO_CLIENT, 'Sent to Client'),
         (REVIEW, 'Review'),
         (SENT_TO_LEADER, 'Sent to Leader'),

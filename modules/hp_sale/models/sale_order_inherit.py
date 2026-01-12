@@ -13,6 +13,7 @@ class SaleOrderInherit(models.Model):
 
     state = fields.Selection(selection_add=[
         (constants.SaleOrderState.DRAFT, 'Draft'),
+        (constants.SaleOrderState.ACTIVE, 'Active'),
         (constants.SaleOrderState.SENT_TO_CLIENT, 'Sent To Client'),
         (constants.SaleOrderState.REVIEW, 'Review'),
         (constants.SaleOrderState.SENT_TO_LEADER, 'Sent To Leader'),
@@ -726,6 +727,7 @@ class SaleOrderInherit(models.Model):
             ):
                 allowed_states = [
                     constants.SaleOrderState.DRAFT,
+                    constants.SaleOrderState.ACTIVE,
                     constants.SaleOrderState.SENT_TO_CLIENT,
                     constants.SaleOrderState.REVIEW,
                 ]
