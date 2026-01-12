@@ -731,6 +731,7 @@ class SaleOrderInherit(models.Model):
                     constants.SaleOrderState.ACTIVE,
                     constants.SaleOrderState.SENT_TO_CLIENT,
                     constants.SaleOrderState.REVIEW,
+                    constants.SaleOrderState.SENT_TO_LEADER,
                 ]
                 if record.state not in allowed_states:
                     raise AccessError(
