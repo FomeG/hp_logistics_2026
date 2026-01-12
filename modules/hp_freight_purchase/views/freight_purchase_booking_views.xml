@@ -33,6 +33,12 @@
                         </group>
 
                         <group invisible="id > 0 or booking_mode == 'with_quotation'">
+                            <field name="quotation_from_location_id" widget="many2one_new_tab"
+                                   required="not id and booking_mode == 'without_quotation'"
+                            />
+                            <field name="quotation_to_location_id" widget="many2one_new_tab"
+                                   required="not id and booking_mode == 'without_quotation'"
+                            />
                             <field name="quotation_shipping_line_id"
                                 required="not id and booking_mode == 'without_quotation'"
                                 domain="[('partner_main_type_id.code', '=', 'shipping_line')]" widget="many2one_new_tab" />

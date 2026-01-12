@@ -86,6 +86,18 @@ class FreightPurchaseBooking(models.Model):
 
     # Temporary fields for quotation creation
     quotation_shipping_line_id = fields.Many2one('res.partner',string="Shipping line", domain="[('partner_main_type_id.code', '=', 'shipping_line')]", store=False)
+    quotation_from_location_id = fields.Many2one(
+        comodel_name='location.base',
+        string='From',
+        domain="[('is_local', '=', True),('type','in', ['port'])]",
+        store=False
+    )
+    quotation_to_location_id = fields.Many2one(
+        comodel_name='location.base',
+        string='To',
+        domain="[('is_local', '=', False),('type','in', ['port'])]",
+        store=False
+    )
 
     total_booking_lines = fields.Char(string="Total Booking Lines", compute='_compute_total_booking_lines', store=False)
 
