@@ -156,6 +156,10 @@ class FreightPurchaseBooking(models.Model):
     @api.model_create_multi
     def create(self, vals_list: list[ValuesType]) -> Self:
         for vals in vals_list:
+            validated, errors = BookingCreateValidator.validate(vals, self.env)
+            if errors:
+                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+            
             today = fields.Date.today().strftime('%Y%m%d')
             seq_number = self.env['ir.sequence'].next_by_code('freight.purchase.booking')
             vals['name'] = f"Booking/{today}/{seq_number}"

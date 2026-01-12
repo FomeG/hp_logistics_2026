@@ -19,7 +19,9 @@
                             <field name="booking_mode" required="1" readonly="id > 0"/>
                             <field name="quotation_id"
                                 invisible="not id and booking_mode == 'without_quotation'"
-                                readonly="id > 0" widget="many2one_new_tab" />
+                                readonly="id > 0" widget="many2one_new_tab"
+                                required="not id and booking_mode == 'with_quotation'"
+                            />
                             <field name="code" required="1" string="Ref Code" help="Booking Code"/>
                             <field name="vessel_id" required="1" widget="many2one_new_tab" />
                             <field name="voyage"/>
