@@ -14,7 +14,7 @@
                 <field name="user_id" groups="base.group_system" />
                 <header>
                 <button name="%(action_mass_assign_sale_branch_wizard)d" string="Assign Branch" type="action"
-                        class="oe_highlight"/>
+                        class="oe_highlight" groups="sales_team.group_sale_manager"/>
                 </header>
                 <field name="create_date" groups="base.group_system" />
             </list>
@@ -244,6 +244,7 @@
                 <field name="name" />
                 <field name="vat" />
                 <field name="phone" />
+                <filter string="My Clients" name="my_clients" domain="[('user_id', '=', uid)]"/>
             </search>
         </field>
     </record>
@@ -257,7 +258,8 @@
         <field name="context"
             eval="{
                 'form_view_ref': 'hp_sale.view_res_partner_client_form',
-                'default_partner_main_type_id': ref('hp_components.partner_main_type_client')
+                'default_partner_main_type_id': ref('hp_components.partner_main_type_client'),
+                'search_default_my_clients': 1
             }" />
     </record>
 </odoo>

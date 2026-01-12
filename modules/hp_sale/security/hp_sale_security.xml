@@ -226,5 +226,53 @@
             <field name="perm_unlink" eval="1"/>
         </record>
 
+        <!-- Rule Salesman: READ - See All Clients -->
+        <record id="rule_res_partner_client_salesman_read_all" model="ir.rule">
+            <field name="name">Partner Client: Salesman Read All</field>
+            <field name="model_id" ref="model_res_partner_client"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Rule Salesman: WRITE - Edit Own Clients Only -->
+        <record id="rule_res_partner_client_salesman_write_own" model="ir.rule">
+            <field name="name">Partner Client: Salesman Write Own</field>
+            <field name="model_id" ref="model_res_partner_client"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="0"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Rule Leader (DOS): WRITE - All Clients -->
+        <record id="rule_res_partner_client_leader_write_all" model="ir.rule">
+            <field name="name">Partner Client: Leader Write All</field>
+            <field name="model_id" ref="model_res_partner_client"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
+        <!-- Rule Manager: WRITE - All Clients -->
+        <record id="rule_res_partner_client_manager_write_all" model="ir.rule">
+            <field name="name">Partner Client: Manager Write All</field>
+            <field name="model_id" ref="model_res_partner_client"/>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
+
     </data>
 </odoo>
