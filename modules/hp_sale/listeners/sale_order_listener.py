@@ -10,3 +10,10 @@ class SaleOrderListener(Component):
         if record.order_line and record.state == constants.SaleOrderState.DRAFT:
             record.write({'state': constants.SaleOrderState.ACTIVE})
         return
+
+    def on_record_write(self, record, fields=None):
+        if 'state' in (fields or []) and record.state in [constants.SaleOrderState.REQUEST_BOOKING, constants.SaleOrderState.DENIED]:
+            record.with_delay()._handle_notify()
+        
+        return
+            

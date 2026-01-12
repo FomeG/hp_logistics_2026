@@ -4,6 +4,7 @@ from odoo import models, fields, _, api
 from odoo.api import ValuesType, Self
 from odoo.exceptions import ValidationError, AccessError
 from ...hp_components.models import constants
+from ...hp_components.services.activity_service import ActivityService
 import logging
 
 _logger: Logger = logging.getLogger(__name__)
@@ -772,3 +773,28 @@ class SaleOrderInherit(models.Model):
             res['service_type'] = constants.ServiceType.EXPORT
 
         return res
+    
+    def _handle_notify(self):
+        if not self.partner_id or not self.partner_id.user_id:
+            return False
+
+        service = ActivityService(
+            env=self.env,
+            model_name='sale.order',
+            record_id=self.id,
+            user_ids=self.partner_id.user_id.id
+        )
+
+        if self.state == constants.SaleOrderState.REQUEST_BOOKING:
+            summary = f"Quotation {self.name} is approved and is waiting for booking."
+        elif self.state == constants.SaleOrderState.DENIED:
+            summary = f"Quotation {self.name} has been denied."
+        else:
+            return False
+
+        service._create_activity_by_type(
+            summary=summary,
+            note=''
+        )
+
+        return True
