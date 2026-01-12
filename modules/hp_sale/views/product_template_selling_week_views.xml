@@ -19,7 +19,7 @@
         <field name="name">product.template.selling.week.form</field>
         <field name="model">product.template.selling.week</field>
         <field name="arch" type="xml">
-            <form string="Sea Freight" create="true" edit="true">
+            <form string="Sea Freight">
                 <sheet>
                     <group>
                         <field name="name" readonly="1"/>
