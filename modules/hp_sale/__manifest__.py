@@ -58,6 +58,7 @@
         'web.assets_backend': [
             'hp_sale/static/src/js/hide_add_properties.js',
             'hp_sale/static/src/js/hide_action_delete.js',
+            'hp_sale/static/src/js/hide_product_actions.js',
             'hp_sale/static/src/xml/hide_chatter_actions.xml',
         ],
     },
