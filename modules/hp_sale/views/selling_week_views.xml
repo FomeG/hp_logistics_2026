@@ -9,6 +9,7 @@
                 <field name="name"/>
                 <field name="start_date"/>
                 <field name="end_date"/>
+                <field name="product_selling_week_count" readonly="1"/>
                 <field name="state"/>
                 <field name="is_active" groups="sales_team.group_sale_manager" />
                 <field name="create_date"/>
@@ -37,6 +38,38 @@
                                     <field name="from_location_id" />
                                     <field name="to_location_id" />
                                     <field name="note" />
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Form View for Salesman (readonly, no create) - used in Search More popup -->
+    <record id="view_selling_week_form_readonly" model="ir.ui.view">
+        <field name="name">selling.week.form.readonly</field>
+        <field name="model">selling.week</field>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <form string="Week" create="false" edit="false">
+                <sheet>
+                    <group>
+                        <field name="name" readonly="1"/>
+                        <field name="start_date" readonly="1"/>
+                        <field name="end_date" readonly="1"/>
+                        <field name="is_active" invisible="not id" readonly="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Sea Freight" invisible="not id">
+                            <field name="product_selling_week_ids" readonly="1">
+                                <list create="false" delete="false">
+                                    <field name="name"/>
+                                    <field name="from_location_id"/>
+                                    <field name="to_location_id"/>
+                                    <field name="note"/>
                                 </list>
                             </field>
                         </page>

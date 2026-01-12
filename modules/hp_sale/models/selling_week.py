@@ -40,12 +40,21 @@ class SellingWeek(models.Model):
         copy=True
     )
 
+    product_selling_week_count = fields.Integer(
+        string="Number of Sea Freight",
+        compute="_compute_product_selling_week_count",
+        store=True,
+    )
+
     state_order = fields.Integer(string="State Order", compute="_compute_state_order", store=True)
 
     _sql_constraints = [
         ('check_dates', 'CHECK(start_date <= end_date)', 'End date must be after start date!')
     ]
-    
+    @api.depends("product_selling_week_ids")
+    def _compute_product_selling_week_count(self):
+        for rec in self:
+            rec.product_selling_week_count = len(rec.product_selling_week_ids)
     @api.depends('create_date')
     def _compute_year(self):
         for rec in self:
