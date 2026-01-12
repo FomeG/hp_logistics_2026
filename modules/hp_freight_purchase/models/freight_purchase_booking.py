@@ -64,14 +64,12 @@ class FreightPurchaseBooking(models.Model):
     from_location_id = fields.Many2one(
         string="POL",
         comodel_name='location.base',
-        required=True,
         tracking=True,
         related='quotation_id.from_location_id',
     )
     to_location_id = fields.Many2one(
         string="POD",
         comodel_name='location.base',
-        required=True,
         tracking=True,
         related='quotation_id.to_location_id',
     )
@@ -159,7 +157,7 @@ class FreightPurchaseBooking(models.Model):
             validated, errors = BookingCreateValidator.validate(vals, self.env)
             if errors:
                 raise ValidationError("\n".join([f"• {e}" for e in errors]))
-            
+
             today = fields.Date.today().strftime('%Y%m%d')
             seq_number = self.env['ir.sequence'].next_by_code('freight.purchase.booking')
             vals['name'] = f"Booking/{today}/{seq_number}"
