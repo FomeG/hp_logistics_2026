@@ -75,6 +75,15 @@
         action="action_product_template_selling_week"
         groups="sales_team.group_sale_salesman,sales_team.group_sale_salesman_all_leads,sales_team.group_sale_manager,base.group_system"/>
 
+    <!-- 8. Menu sale team  -->
+    <menuitem
+        id="menu_sale_team_2"
+        name="Teams"
+        parent="sale.sale_menu_root"
+        action="hp_employee.hr_team_action"
+        sequence="37"
+        groups="sales_team.group_sale_salesman,sales_team.group_sale_salesman_all_leads,sales_team.group_sale_manager,base.group_system"
+    />
     <!-- 1. To Invoice  -->
     <record id="sale.menu_sale_invoicing" model="ir.ui.menu">
         <field name="groups_id" eval="[(6, 0, [
