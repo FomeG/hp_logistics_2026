@@ -3,6 +3,7 @@
     <data noupdate="1">
         <!-- Booking -->
         <record id="demo_booking_1" model="freight.purchase.booking">
+            <field name="code">/</field>
             <field name="booking_mode">with_quotation</field>
             <field name="quotation_id" ref="demo_quotation_1"/>
             <field name="vessel_id" ref="hp_freight_purchase.vessel_warnow_chief"/>
