@@ -1,5 +1,6 @@
 from odoo import models, fields, _
 from odoo.exceptions import ValidationError
+from ...hp_components.services.activity_service import ActivityService
 
 class SaleOrderInherit(models.Model):
     _inherit = 'sale.order'
@@ -49,3 +50,21 @@ class SaleOrderInherit(models.Model):
                 'sale_order_id': self.id,
             },
         }
+    
+    def _notify_assign_booking(self):
+        if not self.partner_id or not self.partner_id.user_id:
+            return False
+
+        service = ActivityService(
+            env=self.env,
+            model_name='sale.order',
+            record_id=self.id,
+            user_ids=self.partner_id.user_id.id
+        )
+
+        service._create_activity_by_type(
+            summary=f"Your quotation has booking ref {self.booking_line_id.booking_id.name}.",
+            note=''
+        )
+
+        return True

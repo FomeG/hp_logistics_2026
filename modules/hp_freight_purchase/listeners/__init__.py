@@ -5,3 +5,4 @@ from . import freight_purchase_booking_line_fee_listener
 from . import res_partner_inherit_listener
 from . import freight_purchase_booking_inventory_listener
 from . import freight_purchase_quotation_line_listener
+from . import sale_order_listener

@@ -4,6 +4,7 @@ from ..services.freight_purchase_booking_inventory_service import FreightPurchas
 from ..services.freight_purchase_booking_line_service import FreightPurchaseBookingLineService
 from odoo.exceptions import UserError
 from odoo.exceptions import ValidationError
+from ...hp_components.models import constants
 
 class FreightPurchaseBookingLine(models.Model):
     _name = 'freight.purchase.booking.line'
@@ -322,6 +323,9 @@ class FreightPurchaseBookingLine(models.Model):
             raise ValidationError(_("Sale Order with ID: %s is not exist.") % sale_order)
 
         self.sudo().sale_order_id = sale_order.id
-        sale_order.sudo().booking_line_id = self.id
+        sale_order.sudo().write({
+            'booking_line_id': self.id,
+            'state': constants.SaleOrderState.SALE,
+        })
 
         return True
