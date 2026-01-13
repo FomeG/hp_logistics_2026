@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Override upload button template - only render for users with permission -->
+    <t t-name="hp_sale.DocumentViewUploadButton" t-inherit="account.DocumentViewUploadButton" t-inherit-mode="extension">
+        <xpath expr="//t[@t-set-slot='toggler']" position="attributes">
+            <attribute name="t-if">canUpload</attribute>
+        </xpath>
+    </t>
+
+    <t t-name="hp_sale.AccountViewUploadButton" t-inherit="account.AccountViewUploadButton" t-inherit-mode="extension">
+        <xpath expr="//t[@t-set-slot='toggler']" position="attributes">
+            <attribute name="t-if">canUpload</attribute>
+        </xpath>
+    </t>
+
+</templates>
