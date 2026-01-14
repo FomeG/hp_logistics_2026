@@ -119,6 +119,30 @@
             <field name="perm_unlink" eval="0"/>
         </record>
 
+        <!-- Rule to restrict hr.team visibility for standard users -->
+        <record id="hr_team_visibility_rule" model="ir.rule">
+            <field name="name">HR Team: Visibility for Members and Managers</field>
+            <field name="model_id" ref="model_hr_team"/>
+            <field name="domain_force">['|', ('department_id.manager_id.user_id', '=', user.id), ('user_ids', 'in', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="0"/>
+            <field name="perm_create" eval="0"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
+        <!-- Rule to restrict hr.team write access for standard users (Only own department) -->
+        <record id="hr_team_write_rule" model="ir.rule">
+            <field name="name">HR Team: Write Access (Own Department Only)</field>
+            <field name="model_id" ref="model_hr_team"/>
+            <field name="domain_force">[('department_id', '=', user.employee_id.department_id.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="perm_read" eval="0"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="0"/>
+        </record>
+
 
     </data>
 </odoo>
