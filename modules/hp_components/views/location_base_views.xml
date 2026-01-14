@@ -92,6 +92,8 @@
                 <separator string="Group By"/>
                 <group expand="1" string="Group By">
                     <filter string="state" name="group_by_state" context="{'group_by': 'state_id'}"/>
+                    <filter string="region" name="group_by_region" context="{'group_by': 'region_id'}"/>
+                    <filter string="country" name="group_by_country" context="{'group_by': 'country_id'}"/>
                 </group>
             </search>
         </field>
