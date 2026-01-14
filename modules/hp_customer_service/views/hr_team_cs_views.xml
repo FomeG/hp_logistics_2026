@@ -8,7 +8,7 @@
             <list string="CS Teams">
                 <field name="name"/>
                 <field name="department_id"/>
-                <field name="region_id"/>
+                <!-- <field name="region_id"/> -->
                 <field name="user_ids" widget="many2many_tags"/>
             </list>
         </field>
@@ -28,13 +28,21 @@
                         <field name="department_id"
                                domain="[('id', 'in', allowed_department_ids)]"
                                options="{'no_create': True}"
-                               required="is_department_required"/>
-                        <field name="region_id"/>
+                               required="is_department_required"
+                               readonly="id"/>
+                        <!-- <field name="region_id"/> -->
                     </group>
 
                     <notebook>
                         <page string="Users" invisible="not id">
-                            <field name="user_ids"/>
+                            <field name="user_ids"
+                                   context="{'team_department_id': department_id, 'search_default_team_department': 1, 'tree_view_ref': 'hp_employee.view_res_users_list_for_team'}">
+                                <list string="Members">
+                                    <field name="name"/>
+                                    <field name="email"/>
+                                    <field name="user_department_id"/>
+                                </list>
+                            </field>
                         </page>
                     </notebook>
                 </sheet>
@@ -51,7 +59,7 @@
             <search string="Search CS Teams">
                 <field name="name" string="Team Name"/>
                 <field name="department_id" string="Department"/>
-                <field name="region_id" string="Region"/>
+                <!-- <field name="region_id" string="Region"/> -->
 
                 <filter name="department_type_cs"
                     string="Customer Service"

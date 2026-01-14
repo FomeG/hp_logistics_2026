@@ -1,4 +1,18 @@
 <odoo>
+    <!-- Inherit Search View for Users - Add Department Filter -->
+    <record id="view_res_users_search_inherit_team" model="ir.ui.view">
+        <field name="name">res.users.search.inherit.team</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_search"/>
+        <field name="arch" type="xml">
+            <search position="inside">
+                <filter name="team_department"
+                        string="Team Department"
+                        domain="[('employee_ids.department_id', '=', context.get('team_department_id'))]"/>
+            </search>
+        </field>
+    </record>
+
     <!-- List View -->
     <record id="view_hr_team_list" model="ir.ui.view">
         <field name="name">hr.team.list</field>
@@ -7,7 +21,7 @@
             <list string="Teams">
                 <field name="name"/>
                 <field name="department_id"/>
-                 <field name="region_id"/>
+                 <!-- <field name="region_id"/> -->
                 <field name="user_ids" widget="many2many_tags"/>
                 <field name="location_ids" widget="many2many_tags"/>
             </list>
@@ -28,13 +42,21 @@
                         <field name="department_id"
                                domain="[('id', 'in', allowed_department_ids)]"
                                options="{'no_create': True}"
-                               required="is_department_required"/>
-                        <field name="region_id"/>
+                               required="is_department_required"
+                               readonly="id"/>
+                        <!-- <field name="region_id"/> -->
                     </group>
 
                     <notebook>
                         <page string="Users" invisible="not id">
-                            <field name="user_ids"/>
+                            <field name="user_ids"
+                                   context="{'team_department_id': department_id, 'search_default_team_department': 1}">
+                                <list string="Members">
+                                    <field name="name"/>
+                                    <field name="email"/>
+                                    <field name="user_department_id"/>
+                                </list>
+                            </field>
                         </page>
                         <page string="Ports" invisible="department_type_code != 'sale' or not region_id">
                             <field name="location_ids"
@@ -42,7 +64,7 @@
                                 <list string="Ports">
                                     <field name="name"/>
                                     <field name="country_id"/>
-                                    <field name="region_id"/>
+                                    <!-- <field name="region_id"/> -->
                                 </list>
                             </field>
                         </page>
@@ -80,5 +102,8 @@
         <field name="view_mode">list,form</field>
         <field name="domain">[('department_id.department_type_id.code', '=', 'sale')]</field>
         <field name="search_view_id" ref="view_hr_team_search"/>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('view_hr_team_list')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('view_hr_team_form')})]"/>
     </record>
 </odoo>

@@ -9,6 +9,13 @@ class ResUsers(models.Model):
         string='Employees'
     )
 
+    user_department_id = fields.Many2one(
+        'hr.department',
+        related='employee_id.department_id',
+        string='Department',
+        store=False,
+    )
+
     @api.model_create_multi
     def create(self, vals_list):
         users = super().create(vals_list)

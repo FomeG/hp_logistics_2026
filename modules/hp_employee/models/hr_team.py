@@ -24,6 +24,7 @@ class HrTeam(models.Model):
         'team_id', 'user_id',
         string="Members",
         tracking=True,
+        default=lambda self: [(6, 0, [self.env.uid])],
         # domain="[('id', 'in', available_user_ids)]"
     )
 
@@ -31,23 +32,41 @@ class HrTeam(models.Model):
         "hr.department", compute="_compute_allowed_department_ids", store=False
     )
 
-    @api.depends_context("uid")
+    @api.depends()
     def _compute_allowed_department_ids(self):
-        user = self.env.user
+        allowed_departments = self._get_allowed_department_ids()
+        for record in self:
+            record.allowed_department_ids = allowed_departments
 
+
+    @api.model
+    def default_get(self, fields_list):
+        defaults = super().default_get(fields_list)
+        if 'allowed_department_ids' in fields_list:
+            defaults['allowed_department_ids'] = [(6, 0, self._get_allowed_department_ids().ids)]
+        return defaults
+
+    @api.model
+    def _get_allowed_department_ids(self):
+        """Get allowed departments for current user, optionally filtered by department type from context."""
+        user = self.env.user
         is_admin = user.has_group("base.group_system")
 
-        managed_departments = self.env["hr.department"]
-        if not (is_admin):
-            managed_departments = self.env["hr.department"].search(
+        if is_admin:
+            departments = self.env["hr.department"].search([])
+        else:
+            departments = self.env["hr.department"].search(
                 [("manager_id.user_id", "=", user.id)]
             )
 
-        for record in self:
-            if is_admin:
-                record.allowed_department_ids = self.env["hr.department"].search([])
-            else:
-                record.allowed_department_ids = managed_departments
+        # Filter by department type if specified in context
+        dept_type_code = self.env.context.get('default_department_type_code')
+        if dept_type_code:
+            departments = departments.filtered(
+                lambda d: d.department_type_id.code == dept_type_code
+            )
+
+        return departments
 
     region_id = fields.Many2one(
         comodel_name='region',

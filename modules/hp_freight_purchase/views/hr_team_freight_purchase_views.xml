@@ -8,7 +8,7 @@
             <list string="Pricing Teams">
                 <field name="name"/>
                 <field name="department_id"/>
-                <field name="region_id"/>
+                <!-- <field name="region_id"/> -->
                 <field name="user_ids" widget="many2many_tags"/>
                 <field name="location_ids" widget="many2many_tags"/>
             </list>
@@ -29,13 +29,21 @@
                         <field name="department_id"
                                domain="[('id', 'in', allowed_department_ids), ('department_type_id.code', '=', 'pricing')]"
                                options="{'no_create': True}"
-                               required="is_department_required"/>
-                        <field name="region_id"/>
+                               required="is_department_required"
+                               readonly="id"/>
+                        <!-- <field name="region_id"/> -->
                     </group>
 
                     <notebook>
                         <page string="Users">
-                            <field name="user_ids"/>
+                            <field name="user_ids"
+                                   context="{'team_department_id': department_id, 'search_default_team_department': 1, 'tree_view_ref': 'hp_employee.view_res_users_list_for_team'}">
+                                <list string="Members">
+                                    <field name="name"/>
+                                    <field name="email"/>
+                                    <field name="user_department_id"/>
+                                </list>
+                            </field>
                         </page>
                        <page string="Ports" invisible="department_type_code != 'pricing' or not region_id">
                             <field name="location_ids"
@@ -43,7 +51,7 @@
                                 <list string="Ports">
                                     <field name="name"/>
                                     <field name="country_id"/>
-                                    <field name="region_id"/>
+                                    <!-- <field name="region_id"/> -->
                                 </list>
                             </field>
                         </page>
@@ -62,7 +70,7 @@
             <search string="Search Pricing Teams">
                 <field name="name" string="Team Name"/>
                 <field name="department_id" string="Department"/>
-                <field name="region_id" string="Region"/>
+                <!-- <field name="region_id" string="Region"/> -->
 
                 <filter name="department_type_pricing"
                     string="Pricing"
