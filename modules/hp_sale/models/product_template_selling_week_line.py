@@ -95,3 +95,14 @@ class ProductTemplateSellingWeekLine(models.Model):
 
         self.env['sale.order.line'].sudo().create(values)
         return True
+    
+    @api.constrains('price')
+    def _check_price_positive(self):
+        for record in self:
+            if record.price < 0:
+                raise ValidationError("Price cannot be negative!")
+    
+    @api.onchange('price')
+    def _onchange_price(self):
+        if self.price and self.price < 0:
+            raise ValidationError("Price cannot be negative!")
