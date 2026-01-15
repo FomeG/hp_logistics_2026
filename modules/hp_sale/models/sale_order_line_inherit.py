@@ -184,29 +184,30 @@ class SaleOrderLineInherit(models.Model):
     @api.onchange('product_id', 'product_uom', 'product_uom_qty')
     def _onchange_product_id_set_price_from_pricelist(self):
         """Khi chọn sản phẩm hoặc thay đổi số lượng, tính lại giá"""
-        if not self.product_id or not self.order_id.pricelist_id:
-            return
+        for line in self:
+            if not line.product_id or not line.order_id.pricelist_id:
+                continue
 
-        qty = self.product_uom_qty or 1.0
-        uom = self.product_uom
-        pricelist = self.order_id.pricelist_id
+            qty = line.product_uom_qty or 1.0
+            uom = line.product_uom
+            pricelist = line.order_id.pricelist_id
 
-        # tìm quy tắc trong bảng
-        price = pricelist._get_product_price(self.product_id, qty, uom=uom)
+            # tìm quy tắc trong bảng
+            price = pricelist._get_product_price(line.product_id, qty, uom=uom)
 
-        # Nếu không khớp bất kỳ quy tắc nào trong bảng giá, lấy giá list_price của sản phẩm
-        if price <= 0:
-            # Quy đổi list_price từ tiền tệ sản phẩm sang tiền tệ của Pricelist
-            product_currency = self.product_id.currency_id
-            target_currency = pricelist.currency_id
-            price = product_currency._convert(
-                self.product_id.list_price, target_currency,
-                self.company_id, fields.Date.today()
-            )
+            # Nếu không khớp bất kỳ quy tắc nào trong bảng giá, lấy giá list_price của sản phẩm
+            if price <= 0:
+                # Quy đổi list_price từ tiền tệ sản phẩm sang tiền tệ của Pricelist
+                product_currency = line.product_id.currency_id
+                target_currency = pricelist.currency_id
+                price = product_currency._convert(
+                    line.product_id.list_price, target_currency,
+                    line.company_id, fields.Date.today()
+                )
 
-        self.price_unit_original = price
-        self.currency_id_line = pricelist.currency_id
-        self._compute_price_unit()
+            line.price_unit_original = price
+            line.currency_id_line = pricelist.currency_id
+            line._compute_price_unit()
 
     @api.onchange('price_unit_original', 'currency_id_line')
     def _onchange_price_unit_original(self):
