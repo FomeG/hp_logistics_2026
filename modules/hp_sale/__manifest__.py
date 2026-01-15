@@ -23,7 +23,7 @@
         'data/demo_quotations_data.xml',
         #'data/price_category_cron.xml',
         'data/selling_week_state_cron.xml',
-
+        "data/res_lang_date_format.xml",
         # wizards
         'views/wizards/import_client_wizard.xml',
         'views/wizards/mass_assign_sale_client_wizard.xml',

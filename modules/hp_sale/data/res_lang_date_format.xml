@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="0">
+    <!-- Set date format to DD/MM/YYYY for all active languages -->
+    <function model="res.lang" name="_set_date_format_ddmmyyyy"/>
+</odoo>
