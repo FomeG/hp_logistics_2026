@@ -9,7 +9,8 @@
              <xpath expr="//field[@name='branch_id']" position="after">
                 <field name="cs_member_id"
                        domain="[('employee_ids.department_id.department_type_id.code', '=', 'cs')]"
-                       options="{'no_create': True, 'no_open': True}"/>
+                       options="{'no_create': True, 'no_open': True}"
+                       readonly="True"/>
                 <field name="is_monthly_billing"
                        help="If checked, CS orders from this client will be grouped into monthly batch orders for billing"/>
              </xpath>
