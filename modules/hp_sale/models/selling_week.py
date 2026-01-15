@@ -55,7 +55,8 @@ class SellingWeek(models.Model):
     def _compute_product_selling_week_count(self):
         for rec in self:
             rec.product_selling_week_count = len(rec.product_selling_week_ids)
-    @api.depends('create_date')
+
+    @api.depends("start_date")
     def _compute_year(self):
         for rec in self:
             rec.year = rec.start_date.strftime('%Y') if rec.start_date else ''

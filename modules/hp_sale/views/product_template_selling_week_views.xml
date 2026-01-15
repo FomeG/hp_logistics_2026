@@ -22,14 +22,16 @@
             <form string="Sea Freight">
                 <sheet>
                     <group>
-                        <field name="name" readonly="1"/>
+                        <field name="name" invisible="1"/>
+                        <field name="selling_week_id" string="week" domain="[('year', '=', context_today().strftime('%Y'))]" required="1"/>
                         <field name="goods_info"/>
-                        <field name="selling_week_id" string="week"/>
-                        <field name="team_id" options="{'no_quick_create': True}" required="1"/>
-                        <field name="from_location_id"/>
-                        <field name="to_location_id"/>
+                        <field name="from_location_id" required="1"/>
+                        <field name="to_region_id"/>
+                        <field name="to_location_id" required="1" domain="[('region_id', '=?', to_region_id), ('type', '=', 'port')]" options="{'no_quick_create': True}"/>
                         <field name="note"/>
+                        <field name="team_id" invisible="1"/>
                     </group>
+   
                     <notebook>
                         <page string="Lines">
                             <field name="line_ids">

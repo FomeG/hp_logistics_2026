@@ -20,14 +20,21 @@ class ProductTemplateSellingWeek(models.Model):
         comodel_name='location.base',
         string="POL",
         tracking=True,
+        required=True,
         index=True,
         domain="[('is_local', '=', True),('type', '=','port')]"
     )
+
+
+    to_region_id = fields.Many2one("region", string="To Region", store=True)
+
+
     to_location_id = fields.Many2one(
         comodel_name='location.base',
         string="POD",
         tracking=True,
         index=True,
+        required=True,
         domain="[('id', 'in', available_location_ids)]"
     )
     team_id = fields.Many2one(
