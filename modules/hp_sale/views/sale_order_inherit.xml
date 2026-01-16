@@ -43,7 +43,7 @@
 
             <!-- Modify the statusbar -->
             <xpath expr="//field[@name='state']" position="attributes">
-                <attribute name="statusbar_visible">draft,active,sent_to_client,review,sent_to_leader,request_booking,sale</attribute>
+                <attribute name="statusbar_visible">draft,active,sent_to_client,review,request_to_approval,request_booking,sale</attribute>
             </xpath>
 
             <!-- Add state-specific alert messages after the state statusbar -->
@@ -89,7 +89,7 @@
                     type="object" 
                     string="Request Approval"
                     class="btn-success"
-                    context="{'new_state': 'sent_to_leader'}"
+                    context="{'new_state': 'request_to_approval'}"
                     invisible="not id or state not in ('active','review','sent_to_client')"/>
                 <button name="action_update_state" 
                     type="object" 
@@ -105,23 +105,23 @@
                     invisible="state != 'sent_to_client'"/>
                 <button name="action_update_state" 
                     type="object" 
-                    string="Sent To Leader"
+                    string="Request to Approval"
                     class="btn-primary"
-                    context="{'new_state': 'sent_to_leader'}"
+                    context="{'new_state': 'request_to_approval'}"
                     invisible="state != 'review'"/>
                 <button name="action_update_state"
                     type="object" 
                     string="Approve"
                     class="btn-primary"
                     context="{'new_state': 'request_booking'}"
-                    invisible="state != 'sent_to_leader'"
+                    invisible="state != 'request_to_approval'"
                     groups="sales_team.group_sale_salesman_all_leads"/>
                 <button name="action_update_state" 
                     type="object" 
                     string="Deny"
                     class="btn-danger"
                     context="{'new_state': 'denied'}"
-                    invisible="state != 'sent_to_leader'"
+                    invisible="state != 'request_to_approval'"
                     groups="sales_team.group_sale_salesman_all_leads"/>
                 <button name="action_update_state" 
                     type="object" 
@@ -425,8 +425,8 @@
                         domain="[('state', '=', 'sent_to_client')]"/>
                 <filter string="Review" name="review"
                         domain="[('state', '=', 'review')]"/>
-                <filter string="Sent To Leader" name="sent_to_leader"
-                        domain="[('state', '=', 'sent_to_leader')]"/>
+                <filter string="Request to Approval" name="request_to_approval"
+                        domain="[('state', '=', 'request_to_approval')]"/>
                 <filter string="Request Booking" name="request_booking"
                         domain="[('state', '=', 'request_booking')]"/>
                 <filter string="Denied" name="denied"

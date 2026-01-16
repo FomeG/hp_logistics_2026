@@ -119,7 +119,7 @@ class SaleOrderState:
     ACTIVE = 'active'
     SENT_TO_CLIENT = 'sent_to_client'
     REVIEW = 'review'
-    SENT_TO_LEADER = 'sent_to_leader'
+    REQUEST_TO_APPROVAL = 'request_to_approval'
     REQUEST_BOOKING = 'request_booking'
     DENIED = 'denied'
     SALE = 'sale' #convert from quotation to sale order
@@ -130,7 +130,7 @@ class SaleOrderState:
         (ACTIVE, 'Active'),
         (SENT_TO_CLIENT, 'Sent to Client'),
         (REVIEW, 'Review'),
-        (SENT_TO_LEADER, 'Sent to Leader'),
+        (REQUEST_TO_APPROVAL, 'Request to Approval'),
         (REQUEST_BOOKING, 'Request Booking'),
         (DENIED, 'DENIED'),
         (SALE, 'Sale'),

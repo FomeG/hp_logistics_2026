@@ -34,7 +34,7 @@ class SaleOrderListener(Component):
                     # todo
                     return
                     
-                case constants.SaleOrderState.SENT_TO_LEADER:
+                case constants.SaleOrderState.REQUEST_TO_APPROVAL:
                     # todo
                     return
                     

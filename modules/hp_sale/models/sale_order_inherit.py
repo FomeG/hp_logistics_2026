@@ -6,6 +6,7 @@ from odoo.exceptions import ValidationError, AccessError
 from ...hp_components.models import constants
 from ...hp_components.services.activity_service import ActivityService
 import logging
+from odoo.tools import ormcache
 
 _logger: Logger = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ class SaleOrderInherit(models.Model):
         (constants.SaleOrderState.ACTIVE, 'Active'),
         (constants.SaleOrderState.SENT_TO_CLIENT, 'Sent To Client'),
         (constants.SaleOrderState.REVIEW, 'Review'),
-        (constants.SaleOrderState.SENT_TO_LEADER, 'Sent To Leader'),
+        (constants.SaleOrderState.REQUEST_TO_APPROVAL, 'Request to Approval'),
         (constants.SaleOrderState.REQUEST_BOOKING, 'Request Booking'),
         (constants.SaleOrderState.DENIED, 'Denied'),
         (constants.SaleOrderState.SALE, 'Sales Order'),
@@ -208,6 +209,13 @@ class SaleOrderInherit(models.Model):
 
     def _search_is_from_managed_department(self, operator, value):
         """Search method for is_from_managed_department field"""
+        # Admin users: match all records
+        if self.env.user.has_group('base.group_system'):
+            if (operator == '=' and value) or (operator == '!=' and not value):
+                return [(1, '=', 1)]  # Always true - match all
+            else:
+                return [(1, '=', 0)]  # Always false - match none
+
         current_user = self.env.user
         managed_user_ids = self._get_managed_department_user_ids(current_user)
 
@@ -216,41 +224,70 @@ class SaleOrderInherit(models.Model):
         else:
             return [('user_id', 'not in', managed_user_ids)]
 
-    @api.model
-    def _get_managed_department_user_ids(self, user):
-        """
-        Get user IDs from all departments managed by the given user.
-        A user can manage multiple departments.
-        Returns list of user IDs (including the manager themselves).
-        """
-        # Find employee record for the given user
-        employee = self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
-        if not employee:
-            return [user.id]
+    # @api.model
+    # def _get_managed_department_user_ids(self, user):
+    #     """
+    #     Get user IDs from all departments managed by the given user.
+    #     A user can manage multiple departments.
+    #     Returns list of user IDs (including the manager themselves).
+    #     """
+    #     # Find employee record for the given user
+    #     employee = self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
+    #     if not employee:
+    #         return [user.id]
 
-        # Find all departments where this employee is the manager
+    #     # Find all departments where this employee is the manager
+    #     managed_departments = self.env['hr.department'].sudo().search([
+    #         ('manager_id', '=', employee.id)
+    #     ])
+
+    #     if not managed_departments:
+    #         return [user.id]
+
+    #     # Get all employees from these departments
+    #     employees_in_managed_depts = self.env['hr.employee'].sudo().search([
+    #         ('department_id', 'in', managed_departments.ids),
+    #         ('user_id', '!=', False)
+    #     ])
+
+    #     # Get user IDs from these employees
+    #     user_ids = employees_in_managed_depts.mapped('user_id').ids
+
+    #     # Always include the current user
+    #     if user.id not in user_ids:
+    #         user_ids.append(user.id)
+
+    #     return user_ids
+    
+
+    @api.model
+    @ormcache('user.id')
+    def _get_managed_department_user_ids(self, user):
+        employee = self.env['hr.employee'].sudo().search(
+            [('user_id', '=', user.id)], limit=1
+        )
+        if not employee:
+            return (user.id,)
+
         managed_departments = self.env['hr.department'].sudo().search([
             ('manager_id', '=', employee.id)
         ])
 
         if not managed_departments:
-            return [user.id]
+            return (user.id,)
 
-        # Get all employees from these departments
-        employees_in_managed_depts = self.env['hr.employee'].sudo().search([
+        employees = self.env['hr.employee'].sudo().search([
             ('department_id', 'in', managed_departments.ids),
             ('user_id', '!=', False)
         ])
 
-        # Get user IDs from these employees
-        user_ids = employees_in_managed_depts.mapped('user_id').ids
-
-        # Always include the current user
+        user_ids = employees.mapped('user_id').ids
         if user.id not in user_ids:
             user_ids.append(user.id)
 
-        return user_ids
-    
+        return tuple(user_ids)
+
+        
     
     @api.model
     def action_quotations_with_dynamic_filter(self):
@@ -825,7 +862,7 @@ class SaleOrderInherit(models.Model):
                     constants.SaleOrderState.ACTIVE,
                     constants.SaleOrderState.SENT_TO_CLIENT,
                     constants.SaleOrderState.REVIEW,
-                    constants.SaleOrderState.SENT_TO_LEADER,
+                    constants.SaleOrderState.REQUEST_TO_APPROVAL,
                 ]
                 if record.state not in allowed_states:
                     raise AccessError(
