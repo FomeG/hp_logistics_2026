@@ -142,6 +142,14 @@ class SaleOrderInherit(models.Model):
     allow_to_location_ids = fields.Many2many('location.base', compute='_compute_allow_to_location_ids', store=False)
     department_id = fields.Many2one('hr.department', compute='_compute_department_id', store=True)
 
+    # Computed field for filtering quotations from departments managed by current user
+    is_from_managed_department = fields.Boolean(
+        string='From Managed Department',
+        compute='_compute_is_from_managed_department',
+        search='_search_is_from_managed_department',
+        store=False,
+    )
+
     task_count = fields.Integer(
         string='Task Count',
         compute='_compute_task_count',
@@ -188,6 +196,92 @@ class SaleOrderInherit(models.Model):
         for rec in self:
             employee = self.env['hr.employee'].search([('user_id', '=', rec.user_id.id)], limit=1)
             rec.department_id = employee.department_id.id if employee else False
+
+
+    #region quotation filter
+    def _compute_is_from_managed_department(self):
+        """Compute if quotation's salesperson belongs to departments managed by current user"""
+        current_user = self.env.user
+        managed_user_ids = self._get_managed_department_user_ids(current_user)
+        for rec in self:
+            rec.is_from_managed_department = rec.user_id.id in managed_user_ids
+
+    def _search_is_from_managed_department(self, operator, value):
+        """Search method for is_from_managed_department field"""
+        current_user = self.env.user
+        managed_user_ids = self._get_managed_department_user_ids(current_user)
+
+        if (operator == '=' and value) or (operator == '!=' and not value):
+            return [('user_id', 'in', managed_user_ids)]
+        else:
+            return [('user_id', 'not in', managed_user_ids)]
+
+    @api.model
+    def _get_managed_department_user_ids(self, user):
+        """
+        Get user IDs from all departments managed by the given user.
+        A user can manage multiple departments.
+        Returns list of user IDs (including the manager themselves).
+        """
+        # Find employee record for the given user
+        employee = self.env['hr.employee'].sudo().search([('user_id', '=', user.id)], limit=1)
+        if not employee:
+            return [user.id]
+
+        # Find all departments where this employee is the manager
+        managed_departments = self.env['hr.department'].sudo().search([
+            ('manager_id', '=', employee.id)
+        ])
+
+        if not managed_departments:
+            return [user.id]
+
+        # Get all employees from these departments
+        employees_in_managed_depts = self.env['hr.employee'].sudo().search([
+            ('department_id', 'in', managed_departments.ids),
+            ('user_id', '!=', False)
+        ])
+
+        # Get user IDs from these employees
+        user_ids = employees_in_managed_depts.mapped('user_id').ids
+
+        # Always include the current user
+        if user.id not in user_ids:
+            user_ids.append(user.id)
+
+        return user_ids
+    
+    
+    @api.model
+    def action_quotations_with_dynamic_filter(self):
+        """
+        Return quotations action with dynamic context based on user group.
+        - Admin (base.group_system): No default filter - show all
+        - DOS (sale leader): Show 'My Department's Quotations' filter by default
+        - Others: Show 'My Quotations' filter by default
+        """
+        action = self.env['ir.actions.act_window']._for_xml_id('sale.action_quotations_with_onboarding')
+
+        # Admin users: no default filter
+        if self.env.user.has_group('base.group_system'):
+            action['context'] = {}
+            return action
+
+        user_service = self.env['hp_components.user.service']
+
+        # Check if user is a sale leader (DOS)
+        if user_service.is_salesman_leader():
+            action['context'] = {'search_default_my_department_quotations': 1}
+        else:
+            action['context'] = {'search_default_my_quotation': 1}
+
+        return action
+
+    #endregion
+
+
+
+
 
     @api.depends('service_type', 'main_transport_mode')
     def _compute_allow_from_location_ids(self):
@@ -774,7 +868,6 @@ class SaleOrderInherit(models.Model):
             res['service_type'] = constants.ServiceType.EXPORT
 
         return res
-    
     def _handle_notify(self):
         if not self.partner_id or not self.partner_id.user_id:
             return False

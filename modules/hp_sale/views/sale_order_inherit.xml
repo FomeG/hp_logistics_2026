@@ -417,6 +417,10 @@
         <field name="arch" type="xml">
             <xpath expr="//search" position="inside">
                 <separator/>
+                <filter string="My Department's Quotations" name="my_department_quotations"
+                        domain="[('is_from_managed_department', '=', True)]"
+                        groups="sales_team.group_sale_salesman_all_leads"/>
+                <separator/>
                 <filter string="Sent To Client" name="sent_to_client"
                         domain="[('state', '=', 'sent_to_client')]"/>
                 <filter string="Review" name="review"
@@ -437,8 +441,21 @@
         </field>
     </record>
 
+    <!-- Server action for dynamic quotations filter based on user role -->
+    <record id="action_quotations_dynamic" model="ir.actions.server">
+        <field name="name">Quotations (Dynamic Filter)</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="state">code</field>
+        <field name="code">action = model.action_quotations_with_dynamic_filter()</field>
+    </record>
+
+    <!-- Override the quotations menu to use dynamic action -->
+    <record id="sale.menu_sale_quotations" model="ir.ui.menu">
+        <field name="action" ref="hp_sale.action_quotations_dynamic"/>
+    </record>
+
     <!-- Hide unnecessary action menu items, keep only Duplicate -->
-    
+
     <!-- Hide "Mark Quotation as Sent" action -->
     <record id="sale.model_sale_order_action_quotation_sent" model="ir.actions.server">
         <field name="binding_model_id" eval="False"/>
