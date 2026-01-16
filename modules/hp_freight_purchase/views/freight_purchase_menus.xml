@@ -3,6 +3,7 @@
         <menuitem id="menu_freight_purchase_root"
             name="Freight Purchase"
             groups="hp_freight_purchase.group_hp_freight_purchase_member"
+            action="freight_purchase_assign_booking_action"
             sequence="40" />
 
         <!-- Purchase menus -->
