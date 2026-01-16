@@ -865,9 +865,15 @@ class SaleOrderInherit(models.Model):
                     constants.SaleOrderState.REQUEST_TO_APPROVAL,
                 ]
                 if record.state not in allowed_states:
-                    raise AccessError(
-                        "You are not allowed to modify the order when its state is '%s'." % record.state
+                    # Allow setting cancelled orders back to quotation (draft or review)
+                    is_resetting_cancelled_order = (
+                        vals.get('state') in [constants.SaleOrderState.DRAFT, constants.SaleOrderState.REVIEW]
+                        and record.state in ['cancel', constants.SaleOrderState.CANCELLED]
                     )
+                    if not is_resetting_cancelled_order:
+                        raise AccessError(
+                            "You are not allowed to modify the order when its state is '%s'." % record.state
+                        )
 
             record._validate_form(vals)
 
@@ -877,6 +883,12 @@ class SaleOrderInherit(models.Model):
             return super(SaleOrderInherit, self.with_context(ctx)).write(vals)
 
         return super().write(vals)
+
+    def action_draft(self):
+        """Override: set state to 'review' if has SO lines, else 'draft'."""
+        for order in self.filtered(lambda s: s.state in ['cancel', 'cancelled', 'sent']):
+            order.write({'state': 'review' if order.order_line else 'draft'})
+        return True
 
     def action_open_freight_price_wizard(self):
         self.ensure_one()
