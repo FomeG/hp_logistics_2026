@@ -558,5 +558,27 @@
         <field name="perm_unlink" eval="1"/>
     </record>
 
+    <!-- Member: can only see quotaion from salespeople in the same branch -->
+    <record id="pricing_member_rule_sale_order" model="ir.rule">
+        <field name="name">Sale Order: pricing member rule  </field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+        <field name="domain_force">[("department_id.branch_id",'=',user.employee_id.department_id.branch_id.id)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
 
+    <!-- Director: all quotaion -->
+    <record id="pricing_director_rule_sale_order" model="ir.rule">
+        <field name="name">Sale Order: pricing director rule  </field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="groups" eval="[(4, ref('group_hp_freight_purchase_director'))]"/>
+        <field name="domain_force">[(1,'=',1)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
 </odoo>
