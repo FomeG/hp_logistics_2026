@@ -49,6 +49,7 @@
         'views/hr_team_freight_purchase_views.xml',
 #        'views/sale_order_line_selection_views.xml',
 #        'views/sale_order_inherit_views.xml',
+        'views/sale_order_inherit_views_2.xml',
         'views/res_country_views.xml',
         'views/freight_purchase_assign_booking_views.xml',
         # wizard views
