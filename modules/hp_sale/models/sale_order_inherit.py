@@ -26,6 +26,13 @@ class SaleOrderInherit(models.Model):
         (constants.SaleOrderState.CANCELLED, 'Cancelled'),
     ], string="Status", readonly=True, copy=False, index=True, tracking=3, default='draft')
 
+    parent_id = fields.Many2one(
+        comodel_name='sale.order',
+        string='Parent Quotation',
+        index=True,
+        copy=False,
+    )
+
     client_id = fields.Many2one(
         comodel_name='res.partner.client',
         string='Client',
@@ -941,3 +948,19 @@ class SaleOrderInherit(models.Model):
         )
 
         return True
+
+
+
+
+
+
+    def copy(self, default=None):
+        default = dict(default or {})
+        default.update({
+            'parent_id': self.id,
+            'etd': fields.Date.today(),
+            'booking_line_id': False,
+        })
+        new_order = super().copy(default)
+        new_order.state = 'review' if new_order.order_line else 'draft'
+        return new_order
