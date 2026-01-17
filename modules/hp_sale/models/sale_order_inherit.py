@@ -893,8 +893,10 @@ class SaleOrderInherit(models.Model):
 
     def action_draft(self):
         """Override: set state to 'review' if has SO lines, else 'draft'."""
-        for order in self.filtered(lambda s: s.state in ['cancel', 'cancelled', 'sent']):
-            order.write({'state': 'review' if order.order_line else 'draft'})
+        allowed_states = ['cancel', 'sent', constants.SaleOrderState.CANCELLED]
+        for order in self.filtered(lambda s: s.state in allowed_states):
+            new_state = constants.SaleOrderState.REVIEW if order.order_line else constants.SaleOrderState.DRAFT
+            order.write({'state': new_state})
         return True
 
     def action_open_freight_price_wizard(self):
@@ -962,5 +964,5 @@ class SaleOrderInherit(models.Model):
             'booking_line_id': False,
         })
         new_order = super().copy(default)
-        new_order.state = 'review' if new_order.order_line else 'draft'
+        new_order.state = constants.SaleOrderState.REVIEW if new_order.order_line else constants.SaleOrderState.DRAFT
         return new_order
