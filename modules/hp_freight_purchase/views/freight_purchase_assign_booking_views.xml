@@ -6,14 +6,12 @@
         <field name="arch" type="xml">
             <list string="Select Sale Order" create="false" edit="false">
                 <field name="name" />
-                <field name="date_order" />
-                <field name="partner_id" />
-                <field name="user_id" />
+                <field name="partner_id" string="Client" />
                 <field name="from_location_id" />
                 <field name="to_location_id" />
-                <field name="container_type_id" />
+                <field name="user_id" />
+                <field name="container_type_id" string="Container Type"/>
                 <field name="etd" />
-                <field name="amount_total" />
                 <button name="action_assign_booking"
                     string="Provide Booking"
                     type="object"
@@ -44,12 +42,11 @@
         <field name="arch" type="xml">
             <list create="0" delete="0" edit="0" multi_edit="0">
                 <field name="booking_id" />
-                <field name="quotation_line_id" />
-                <field name="container_type_id" />
+                <field name="from_location_id" string="From"/>
+                <field name="to_location_id" string="To" />
+                <field name="container_type_id" string="Container"/>
                 <field name="quantity" />
                 <field name="status" />
-                <field name="teu_volume" />
-                <field name="price" />
                 <button name="action_link_to_order"
                     string="Select"
                     type="object"

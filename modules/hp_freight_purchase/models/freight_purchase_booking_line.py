@@ -81,6 +81,8 @@ class FreightPurchaseBookingLine(models.Model):
     quotation_line_cost = fields.Float(string="Booking price",store=False)
     quotation_line_price = fields.Float(string="Internal price set by sale director", store=False, readonly=False)
     quotation_id = fields.Many2one('freight.purchase.quotation',related='booking_id.quotation_id',store=False,readonly=True)
+    from_location_id = fields.Many2one('location.base',related='booking_id.from_location_id',store=False,readonly=True)
+    to_location_id = fields.Many2one('location.base',related='booking_id.to_location_id',store=False,readonly=True)
     # Computed field to check if quotation lines exist
     has_quotation_lines = fields.Boolean(store=False, string='Has Quotation Lines', default=True)
 
