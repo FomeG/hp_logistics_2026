@@ -16,14 +16,14 @@ class QuotationLineValidator(FreightValidator):
                 'label': f"Booking price",
                 'field_name': 'cost',
                 'type': (int, float),
-                'min_value': 1,
+                'min_value': 0,
                 'required': True
             },
             'quotation_line_price': {
                 'label': f"Internal Price",
                 'field_name': 'price',
                 'type': (int, float),
-                'min_value': 1,
+                'min_value': 0,
                 'required': True
             },
         }

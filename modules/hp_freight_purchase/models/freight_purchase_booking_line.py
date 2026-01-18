@@ -314,20 +314,3 @@ class FreightPurchaseBookingLine(models.Model):
     def _reservation_expiration_reminder(self):
         service = FreightPurchaseBookingLineService(self.env)
         service.reservation_expiration_reminder()
-
-    def action_link_to_order(self):    
-        sale_order_id = self.env.context.get('sale_order_id')
-        if not sale_order_id:
-            raise ValidationError(_("sale_order_id not found in context."))
-
-        sale_order = self.env['sale.order'].browse(sale_order_id)
-        if not sale_order.exists():
-            raise ValidationError(_("Sale Order with ID: %s is not exist.") % sale_order)
-
-        self.sudo().sale_order_id = sale_order.id
-        sale_order.sudo().write({
-            'booking_line_id': self.id,
-            'state': constants.SaleOrderState.SALE,
-        })
-
-        return True

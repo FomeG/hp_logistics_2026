@@ -36,26 +36,6 @@
         </field>
     </record>
 
-    <record id="assign_booking_line_list_view" model="ir.ui.view">
-        <field name="name">freight.purchase.booking.line.list</field>
-        <field name="model">freight.purchase.booking.line</field>
-        <field name="arch" type="xml">
-            <list create="0" delete="0" edit="0" multi_edit="0">
-                <field name="booking_id" />
-                <field name="from_location_id" string="From"/>
-                <field name="to_location_id" string="To" />
-                <field name="container_type_id" string="Container"/>
-                <field name="quantity" />
-                <field name="status" />
-                <button name="action_link_to_order"
-                    string="Select"
-                    type="object"
-                    class="btn-success"
-                    icon="fa-check" />
-            </list>
-        </field>
-    </record>
-
     <record id="freight_purchase_assign_booking_action" model="ir.actions.act_window">
         <field name="name">Provide Booking Sale Order</field>
         <field name="res_model">sale.order</field>

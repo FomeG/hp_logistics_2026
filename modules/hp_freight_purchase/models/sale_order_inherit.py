@@ -23,32 +23,23 @@ class SaleOrderInherit(models.Model):
         readonly=True,
         store=False,
     )
+    booking_provider_id = fields.Many2one(
+        comodel_name='res.users',
+        string='Booking Provider',
+        store=True,
+    )
 
     def action_assign_booking(self):
         self.ensure_one()
-
-        sale_order_from_location_id = self.from_location_id.id
-        sale_order_to_location_id = self.to_location_id.id
-        domain = [
-            ('sale_order_id', '=', False),
-            ('booking_id.quotation_id.from_location_id', '=', sale_order_from_location_id),
-            ('booking_id.quotation_id.to_location_id', '=', sale_order_to_location_id),
-        ]
-
-        if self.container_type_id:
-            domain.append(('container_type_id', '=',self.container_type_id.id))
-
         return {
-            'name': 'Select Sale Order',
+            'name': 'Assign Booking',
             'type': 'ir.actions.act_window',
-            'res_model': 'freight.purchase.booking.line',
-            'view_mode': 'list',
-            'views': [(self.env.ref('hp_freight_purchase.assign_booking_line_list_view').id, 'list')],
-            'domain': domain, 
+            'res_model': 'assign.booking.wizard',
+            'view_mode': 'form',
             'target': 'new',
             'context': {
-                'sale_order_id': self.id,
-            },
+                'default_sale_order_id': self.id,
+            }
         }
     
     def _notify_assign_booking(self):

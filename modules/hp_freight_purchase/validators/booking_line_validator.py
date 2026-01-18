@@ -14,7 +14,7 @@ class BookingLineValidator(FreightValidator):
             'unit_price': {
                 'label': f"Unit Price",
                 'type': (int, float),
-                'min_value': 1,
+                'min_value': 0,
                 'required': True
             },
         }

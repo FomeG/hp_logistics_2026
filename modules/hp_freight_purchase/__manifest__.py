@@ -55,6 +55,7 @@
         # wizard views
         'views/wizards/freight_purchase_port_route_request.xml',
         'views/wizards/import_shipping_line_wizard.xml',
+        'views/wizards/assign_booking_wizard_views.xml',
 
         #menu
         'views/freight_purchase_menus.xml',
