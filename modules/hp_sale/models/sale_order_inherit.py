@@ -21,6 +21,7 @@ class SaleOrderInherit(models.Model):
         (constants.SaleOrderState.REQUEST_TO_APPROVAL, 'Request to Approval'),
         (constants.SaleOrderState.REQUEST_BOOKING, 'Request Booking'),
         (constants.SaleOrderState.DENIED, 'Denied'),
+        (constants.SaleOrderState.READY, 'Ready'),
         (constants.SaleOrderState.SALE, 'Sales Order'),
         (constants.SaleOrderState.DONE, 'Done'),
         (constants.SaleOrderState.CANCELLED, 'Cancelled'),
@@ -750,6 +751,17 @@ class SaleOrderInherit(models.Model):
         self.write({'state': new_state})
 
         return True
+
+    def action_confirm_ready(self):
+        """DOS confirms ready quotation to convert to sale order."""
+        self.ensure_one()
+        if self.state != constants.SaleOrderState.READY:
+            raise ValidationError(
+                _("Only quotations in 'Ready' state can be confirmed to Sale.")
+            )
+        self.write({'state': constants.SaleOrderState.SALE})
+        return True
+
 
     @api.model
     def _get_client_domain(self):

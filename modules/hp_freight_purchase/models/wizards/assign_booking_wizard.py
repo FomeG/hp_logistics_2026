@@ -39,6 +39,9 @@ class AssignBookingWizard(models.TransientModel):
     def _compute_allow_booking_ids(self):
         for rec in self:
             order = rec.sale_order_id
+            if not order:
+                rec.allow_booking_ids = self.env['freight.purchase.booking']
+                continue
             domain = [
                 ('from_location_id', '=', order.from_location_id.id),
                 ('to_location_id', '=', order.to_location_id.id),
@@ -77,6 +80,8 @@ class AssignBookingWizard(models.TransientModel):
 
     def action_confirm(self):
         self.ensure_one()
+        sale_order = self.sale_order_id
+
         container_inventory_avaliable = FreightPurchaseBookingInventoryService(self.env).count_quantity_container_available_in_booking(
             self.booking_id.id,
             self.container_type_id.id
@@ -85,11 +90,11 @@ class AssignBookingWizard(models.TransientModel):
         if self.quantity > container_inventory_avaliable:
             raise ValidationError(f"No available inventory for container {self.container_type_id.name}. Please check the booking inventory.")
 
-        booking_line = self.env['freight.purchase.booking.line'].sudo().create({
-            'sale_order_id': self.sale_order_id.id,
+        booking_line = self.env['freight.purchase.booking.line'].create({
+            'sale_order_id': sale_order.id,
             'booking_id': self.booking_id.id,
             'container_type_id': self.container_type_id.id,
-            'quantity':self.quantity,
+            'quantity': self.quantity,
             'reservation_expiration_date': self.deadline,
             'unit_price': 0,
             'status': 'available',
@@ -98,11 +103,10 @@ class AssignBookingWizard(models.TransientModel):
             'quotation_line_price': 0,
         })
 
-        self.sale_order_id.sudo().write({
+        sale_order.write({
             'booking_line_id': booking_line.id,
-            'state': constants.SaleOrderState.SALE,
+            'state': constants.SaleOrderState.READY,
             'booking_provider_id': self.env.uid,
-
         })
 
         return {

@@ -122,6 +122,7 @@ class SaleOrderState:
     REQUEST_TO_APPROVAL = 'request_to_approval'
     REQUEST_BOOKING = 'request_booking'
     DENIED = 'denied'
+    READY = 'ready' 
     SALE = 'sale' #convert from quotation to sale order
     DONE = 'done'
     CANCELLED = 'cancelled'
@@ -133,6 +134,7 @@ class SaleOrderState:
         (REQUEST_TO_APPROVAL, 'Request to Approval'),
         (REQUEST_BOOKING, 'Request Booking'),
         (DENIED, 'DENIED'),
+        (READY, 'Ready'),
         (SALE, 'Sale'),
         (DONE, 'Done'),
         (CANCELLED, 'Cancelled'),

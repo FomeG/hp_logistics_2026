@@ -12,11 +12,8 @@
                 <field name="booking_line_id" invisible="1"/>
             </xpath>
 
-            <!-- Override Confirm button to require booking_line_id -->
-            <!-- <xpath expr="//button[@id='btn_confirm_sale']" position="attributes"> -->
-            <xpath expr="//button[@name='action_update_state'][contains(@context, &quot;'new_state': 'sale'&quot;)]" position="attributes">
-                <attribute name="invisible">state != 'request_booking' or not booking_line_id</attribute>
-            </xpath>
+            <!-- Note: Direct transition from request_booking to sale has been removed.
+                 Flow is now: request_booking -> (assign booking wizard) -> ready -> (action_confirm_ready) -> sale -->
         </field>
     </record>
 </odoo>
