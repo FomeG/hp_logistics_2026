@@ -143,6 +143,16 @@
             <field name="perm_unlink" eval="0"/>
         </record>
 
-
+        <!-- Rule hr manager  -->
+        <record id="hr_manager_rule_hr_team" model="ir.rule">
+            <field name="name">HR Team: Manager all access</field>
+            <field name="model_id" ref="model_hr_team"/>
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="groups" eval="[(4, ref('hp_employee.group_hr_director'))]"/>
+            <field name="perm_read" eval="1"/>
+            <field name="perm_write" eval="1"/>
+            <field name="perm_create" eval="1"/>
+            <field name="perm_unlink" eval="1"/>
+        </record>
     </data>
 </odoo>
