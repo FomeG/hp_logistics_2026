@@ -1,6 +1,7 @@
-from odoo import models, fields, _
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from ...hp_components.services.activity_service import ActivityService
+from ...hp_components.models import constants
 
 class SaleOrderInherit(models.Model):
     _inherit = 'sale.order'
@@ -59,3 +60,16 @@ class SaleOrderInherit(models.Model):
         )
 
         return True
+
+
+
+
+    def write(self, vals):
+        # Reject booking assignment to cancelled quotation
+        if 'booking_line_id' in vals and vals.get('booking_line_id'):
+            for record in self:
+                if record.state in ['cancel', constants.SaleOrderState.CANCELLED]:
+                    raise ValidationError(
+                        _("Cannot assign booking to cancelled quotation '%s'.") % record.name
+                    )
+        return super().write(vals)

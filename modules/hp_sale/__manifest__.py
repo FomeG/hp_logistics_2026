@@ -28,6 +28,7 @@
         'views/wizards/import_client_wizard.xml',
         'views/wizards/mass_assign_sale_client_wizard.xml',
         'views/wizards/freight_price_wizard.xml',
+        'views/wizards/cancel_quotation_wizard.xml',
         # security
         'security/hp_sale_security.xml',
         'security/ir.model.access.csv',

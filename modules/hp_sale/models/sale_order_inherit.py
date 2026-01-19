@@ -32,6 +32,15 @@ class SaleOrderInherit(models.Model):
         index=True,
         copy=False,
     )
+    cancel_reason = fields.Text(
+        string='Cancel Reason',
+        copy=False,
+    )
+    cancelled_by_id = fields.Many2one(
+        comodel_name='res.users',
+        string='Cancelled By',
+        copy=False,
+    )
 
     client_id = fields.Many2one(
         comodel_name='res.partner.client',
@@ -730,6 +739,14 @@ class SaleOrderInherit(models.Model):
         
     def action_update_state(self):
         new_state = self.env.context.get('new_state')
+
+        # Reject state change on cancelled quotation
+        for record in self:
+            if record.state in ['cancel', constants.SaleOrderState.CANCELLED]:
+                raise ValidationError(
+                    _("Cannot change state of cancelled quotation '%s'.") % record.name
+                )
+
         self.write({'state': new_state})
 
         return True
@@ -877,7 +894,12 @@ class SaleOrderInherit(models.Model):
                         vals.get('state') in [constants.SaleOrderState.DRAFT, constants.SaleOrderState.REVIEW]
                         and record.state in ['cancel', constants.SaleOrderState.CANCELLED]
                     )
-                    if not is_resetting_cancelled_order:
+                    # Allow cancelling orders from any state (including setting cancel_reason, cancelled_by_id)
+                    is_cancelling_order = vals.get('state') == 'cancel'
+                    # Allow operations on cancelled orders (release booking, etc.)
+                    is_operation_on_cancelled = record.state in ['cancel', constants.SaleOrderState.CANCELLED]
+
+                    if not is_resetting_cancelled_order and not is_cancelling_order and not is_operation_on_cancelled:
                         raise AccessError(
                             "You are not allowed to modify the order when its state is '%s'." % record.state
                         )
@@ -898,6 +920,20 @@ class SaleOrderInherit(models.Model):
             new_state = constants.SaleOrderState.REVIEW if order.order_line else constants.SaleOrderState.DRAFT
             order.write({'state': new_state})
         return True
+
+    def action_cancel(self):
+        """Override to show cancel wizard with reason input."""
+        self.ensure_one()
+        return {
+            'name': _('Cancel Quotation'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'hp_sale.cancel.quotation.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_order_id': self.id,
+            },
+        }
 
     def action_open_freight_price_wizard(self):
         self.ensure_one()
