@@ -131,13 +131,28 @@ class SaleOrderLineInherit(models.Model):
                 # Nếu bằng nhau -> Ẩn
                 line.price_list_price = 0.0
 
-    @api.depends('product_id', 'order_id.pricelist_id')
+    @api.depends('product_id', 'order_id.pricelist_id', 'res_model_id', 'res_id')
     def _compute_currency_id_line(self):
+        vnd = self.env.ref('base.VND')
         for line in self:
-            if line.order_id.pricelist_id:
-                line.currency_id_line = line.order_id.pricelist_id.currency_id
-            else:
-                line.currency_id_line = line.company_id.currency_id
+            currency = line._get_source_currency(vnd)
+            line.currency_id_line = currency or line.order_id.pricelist_id.currency_id or line.company_id.currency_id
+
+    def _get_source_currency(self, vnd):
+        """Get currency from source record (freight items)."""
+        self.ensure_one()
+        if not (self.res_model_id and self.res_id):
+            return False
+        
+        source = self.env[self.res_model].browse(self.res_id).exists()
+        if not source:
+            return False
+        
+        # route.base không có currency_id -> dùng VND
+        if self.res_model == 'route.base':
+            return vnd
+        
+        return source.currency_id if 'currency_id' in source._fields else False
 
     @api.depends('price_unit_original','currency_id_line','order_currency_rate','order_currency_id','order_ref_currency_id')
     def _compute_price_unit(self):
