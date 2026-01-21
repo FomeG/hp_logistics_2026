@@ -278,7 +278,7 @@
                                invisible="not currency_id"/>
                     </group>
                 </sheet>
-                <sheet>
+                <sheet invisible="state not in ('draft','active','sent_to_client','review')">
                     <group string="Actions">
                         <div class="row">
                             <div class="col-md-4">

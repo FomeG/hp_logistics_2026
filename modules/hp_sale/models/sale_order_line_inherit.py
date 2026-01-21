@@ -1,6 +1,7 @@
 from odoo import models, fields, api
 from odoo.tools import float_compare
 from ...hp_components.models import constants
+from odoo.exceptions import UserError
 
 class SaleOrderLineInherit(models.Model):
     _inherit = 'sale.order.line'
@@ -235,3 +236,31 @@ class SaleOrderLineInherit(models.Model):
             # Chỉ đồng bộ ngược lại nếu giá VND > 0 và cùng loại tiền tệ
             if line.price_unit > 0 and line.currency_id_line == line.order_id.currency_id:
                 line.price_unit_original = line.price_unit
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            order = self.env['sale.order'].browse(vals.get('order_id'))
+            if order.state in constants.SaleOrderState.FORBIDDEN_STATES:
+                raise UserError(
+                    "You cannot add a sale order line when the order is in state %s"
+                    % order.state
+                )
+        return super().create(vals_list)
+    
+    def unlink(self):
+        orders = self.mapped('order_id')
+
+        for line in self:
+            if line.order_id.state in constants.SaleOrderState.FORBIDDEN_STATES:
+                raise UserError(
+                    "You cannot delete a sale order line when the order is in state %s"
+                    % line.order_id.state
+                )
+
+        res = super().unlink()
+        for order in orders:
+            if not order.order_line:
+                order.write({'state': constants.SaleOrderState.DRAFT}) 
+        
+        return res

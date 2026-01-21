@@ -139,6 +139,15 @@ class SaleOrderState:
         (DONE, 'Done'),
         (CANCELLED, 'Cancelled'),
     ]
+    FORBIDDEN_STATES = {
+        REQUEST_TO_APPROVAL,
+        REQUEST_BOOKING,
+        DENIED,
+        READY,
+        SALE,
+        CANCELLED,
+    }
+
 class CsOrderState:
     DRAFT = 'draft'
     OPEN = 'open'
