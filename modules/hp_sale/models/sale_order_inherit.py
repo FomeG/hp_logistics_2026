@@ -335,7 +335,10 @@ class SaleOrderInherit(models.Model):
 
         # Check if user is a sale leader (DOS)
         if user_service.is_salesman_leader():
-            action['context'] = {'search_default_my_department_quotations': 1}
+            action['context'] = {
+                'search_default_my_department_quotations': 1,
+                'search_default_request_to_approval': 1,
+            }
         else:
             action['context'] = {'search_default_my_quotation': 1}
 
