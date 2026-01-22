@@ -919,8 +919,13 @@ class SaleOrderInherit(models.Model):
                     is_cancelling_order = vals.get('state') == 'cancel'
                     # Allow operations on cancelled orders (release booking, etc.)
                     is_operation_on_cancelled = record.state in ['cancel', constants.SaleOrderState.CANCELLED]
+                    # Allow modifying denied orders back to review
+                    is_modifying_denied_order = (
+                        vals.get('state') == constants.SaleOrderState.REVIEW
+                        and record.state == constants.SaleOrderState.DENIED
+                    )
 
-                    if not is_resetting_cancelled_order and not is_cancelling_order and not is_operation_on_cancelled:
+                    if not is_resetting_cancelled_order and not is_cancelling_order and not is_operation_on_cancelled and not is_modifying_denied_order:
                         raise AccessError(
                             "You are not allowed to modify the order when its state is '%s'." % record.state
                         )
@@ -973,6 +978,20 @@ class SaleOrderInherit(models.Model):
                 'default_order_id': self.id,
             },
         }
+
+    def action_modify(self):
+        """Sale member modifies denied quotation - changes state back to review."""
+        self.ensure_one()
+        if self.state != constants.SaleOrderState.DENIED:
+            raise ValidationError(
+                _("Only denied quotations can be modified.")
+            )
+        self.write({
+            'state': constants.SaleOrderState.REVIEW,
+            'deny_reason': False,
+            'denied_by_id': False,
+        })
+        return True
 
     def action_open_freight_price_wizard(self):
         self.ensure_one()
