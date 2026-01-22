@@ -43,6 +43,16 @@ class SaleOrderInherit(models.Model):
         copy=False,
     )
 
+    deny_reason = fields.Text(
+        string='Deny Reason',
+        copy=False,
+    )
+
+    denied_by_id = fields.Many2one(
+        comodel_name='res.users',
+        string='Denied By',
+        copy=False,
+    )
     client_id = fields.Many2one(
         comodel_name='res.partner.client',
         string='Client',
@@ -939,6 +949,24 @@ class SaleOrderInherit(models.Model):
             'name': _('Cancel Quotation'),
             'type': 'ir.actions.act_window',
             'res_model': 'hp_sale.cancel.quotation.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_order_id': self.id,
+            },
+        }
+
+    def action_deny(self):
+        """Show deny wizard with reason input for DOS to deny quotation."""
+        self.ensure_one()
+        if self.state != constants.SaleOrderState.REQUEST_TO_APPROVAL:
+            raise ValidationError(
+                _("Only quotations in 'Request to Approval' state can be denied.")
+            )
+        return {
+            'name': _('Deny Quotation'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'hp_sale.deny.quotation.wizard',
             'view_mode': 'form',
             'target': 'new',
             'context': {

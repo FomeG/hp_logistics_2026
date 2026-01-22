@@ -98,7 +98,8 @@
             <field name="to_location_id" ref="hp_components.location_vn_city_hn"/>
             <field name="user_id" ref="hp_employee.user_sm1_hcm"/>
             <field name="date_order" eval="(datetime.now() - timedelta(days=10)).strftime('%Y-%m-%d %H:%M:%S')"/>
-            <field name="state">sale</field>
+            <!-- <field name="state">sale</field> -->
+            <field name="state">draft</field>
             <field name="pricelist_id" ref="hp_sale.pricelist_import_hp"/>
             <field name="branch_id" ref="hp_employee.branch_hcm"/>
             <field name="validity_date" eval="(datetime.now() + timedelta(days=20)).strftime('%Y-%m-%d')"/>
@@ -194,7 +195,8 @@
             <field name="to_location_id" ref="hp_components.location_vn_city_hn"/>
             <field name="user_id" ref="hp_employee.user_sm1_hcm"/>
             <field name="date_order" eval="(datetime.now() - timedelta(days=15)).strftime('%Y-%m-%d %H:%M:%S')"/>
-            <field name="state">sale</field>
+            <!-- <field name="state">sale</field> -->
+            <field name="state">draft</field>
             <field name="pricelist_id" ref="hp_sale.pricelist_import_hp"/>
             <field name="branch_id" ref="hp_employee.branch_hcm"/>
             <field name="validity_date" eval="(datetime.now() + timedelta(days=15)).strftime('%Y-%m-%d')"/>
@@ -306,7 +308,8 @@
             <field name="to_location_id" ref="hp_components.location_vn_city_hn"/>
             <field name="user_id" ref="hp_employee.user_sm1_hcm"/>
             <field name="date_order" eval="(datetime.now() - timedelta(days=12)).strftime('%Y-%m-%d %H:%M:%S')"/>
-            <field name="state">sale</field>
+            <!-- <field name="state">sale</field> -->
+            <field name="state">draft</field>
             <field name="pricelist_id" ref="hp_sale.pricelist_export_hp"/>
             <field name="branch_id" ref="hp_employee.branch_hcm"/>
             <field name="validity_date" eval="(datetime.now() + timedelta(days=18)).strftime('%Y-%m-%d')"/>

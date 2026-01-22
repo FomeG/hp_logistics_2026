@@ -116,11 +116,10 @@
                     context="{'new_state': 'request_booking'}"
                     invisible="state != 'request_to_approval'"
                     groups="sales_team.group_sale_salesman_all_leads"/>
-                <button name="action_update_state" 
-                    type="object" 
+                <button name="action_deny"
+                    type="object"
                     string="Deny"
                     class="btn-danger"
-                    context="{'new_state': 'denied'}"
                     invisible="state != 'request_to_approval'"
                     groups="sales_team.group_sale_salesman_all_leads"/>
                 <button name="action_confirm_ready"
