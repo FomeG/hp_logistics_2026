@@ -13,31 +13,32 @@ class CancelQuotationWizardInherit(models.TransientModel):
             self._release_booking_and_notify(order, self.env.user.name)
 
     def _release_booking_and_notify(self, order, user_name):
-        """Release booking and notify pricing team and sale leader."""
+        """Release booking and notify booking provider and sale leader."""
         booking_line = order.booking_line_id
+        booking_provider = order.booking_provider_id
         if not booking_line:
             return
 
-        # Release booking (unlink from sale order)
-        order.write({'booking_line_id': False})
+        booking_code = order.booking_code or (booking_line.booking_id.name if booking_line.booking_id else 'N/A')
 
-        # Notify booking creator (pricing member)
-        if booking_line.create_uid:
+        # Notify booking provider (pricing member who assigned the booking)
+        if booking_provider:
             service = ActivityService(
                 env=self.env,
-                model_name='freight.purchase.booking.line',
-                record_id=booking_line.id,
-                user_ids=booking_line.create_uid.id
+                model_name='sale.order',
+                record_id=order.id,
+                user_ids=booking_provider.id
             )
 
-            summary = _("Booking has been released from quotation %s (cancelled by %s)") % (
+            summary = _("Quotation %s has been cancelled by %s. Booking %s has been released.") % (
                 order.name,
-                user_name
+                user_name,
+                booking_code
             )
 
             service._create_activity_by_type(
                 summary=summary,
-                note=self.cancel_reason
+                note=_("Reason: %s") % self.cancel_reason
             )
 
         # Also notify sale leader
@@ -54,12 +55,27 @@ class CancelQuotationWizardInherit(models.TransientModel):
                 user_ids=sale_leader.id
             )
 
-            summary = _("Booking released from quotation %s (cancelled by %s)") % (
+            summary = _("Booking %s released from quotation %s (cancelled by %s)") % (
+                booking_code,
                 order.name,
                 user_name
             )
 
             service._create_activity_by_type(
                 summary=summary,
-                note=self.cancel_reason
+                note=_("Reason: %s") % self.cancel_reason
             )
+
+
+        # Release booking logic
+        if booking_line:
+            # Update status sang cancelled để trigger listener hoàn lại quantity
+            booking_line.write({'status': 'cancelled'})
+    
+
+
+        # Release booking from quotation
+        order.write({
+            'booking_line_id': False,
+            'booking_provider_id': False,
+        })
