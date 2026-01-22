@@ -20,10 +20,13 @@
                     </group>
                     <notebook>
                         <page string="Countries">
-                            <field name="country_ids">
+                            <field name="country_ids"
+                                context="{'form_view_ref': 'hp_freight_purchase.view_country_with_ports_form'}"
+                                widget="many2many">
                                 <list>
-                                    <field name="name" />
-                                    <field name="port_ids" widget="many2many_tags" />
+                                    <field name="code"/>
+                                    <field name="name"/>
+                                    <field name="port_ids" widget="many2many_tags"/>
                                 </list>
                             </field>
                         </page>
