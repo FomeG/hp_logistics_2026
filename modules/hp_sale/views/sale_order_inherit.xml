@@ -469,17 +469,38 @@
         </field>
     </record>
 
-    <!-- Server action for dynamic quotations filter based on user role -->
-    <record id="action_quotations_dynamic" model="ir.actions.server">
-        <field name="name">Quotations (Dynamic Filter)</field>
-        <field name="model_id" ref="sale.model_sale_order"/>
-        <field name="state">code</field>
-        <field name="code">action = model.action_quotations_with_dynamic_filter()</field>
+    <!-- Custom quotations action with dynamic context (injected via ir.actions.act_window override) -->
+    <record id="action_hp_quotations" model="ir.actions.act_window">
+        <field name="name">Quotations</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,kanban,form,calendar,pivot,graph,activity</field>
+        <field name="search_view_id" ref="sale.sale_order_view_search_inherit_quotation"/>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first quotation!
+            </p>
+        </field>
     </record>
 
-    <!-- Override the quotations menu to use dynamic action -->
+    <!-- Link views to our action (same as original) -->
+    <record id="action_hp_quotations_view_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="sale.view_quotation_tree_with_onboarding"/>
+        <field name="act_window_id" ref="action_hp_quotations"/>
+    </record>
+
+    <record id="action_hp_quotations_view_kanban" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">kanban</field>
+        <field name="view_id" ref="sale.view_quotation_kanban_with_onboarding"/>
+        <field name="act_window_id" ref="action_hp_quotations"/>
+    </record>
+
+    <!-- Override the quotations menu to use our action -->
     <record id="sale.menu_sale_quotations" model="ir.ui.menu">
-        <field name="action" ref="hp_sale.action_quotations_dynamic"/>
+        <field name="action" ref="hp_sale.action_hp_quotations"/>
     </record>
 
     <!-- Hide unnecessary action menu items, keep only Duplicate -->

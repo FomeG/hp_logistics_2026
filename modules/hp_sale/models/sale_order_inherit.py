@@ -316,33 +316,33 @@ class SaleOrderInherit(models.Model):
 
         
     
-    @api.model
-    def action_quotations_with_dynamic_filter(self):
-        """
-        Return quotations action with dynamic context based on user group.
-        - Admin (base.group_system): No default filter - show all
-        - DOS (sale leader): Show 'My Department's Quotations' filter by default
-        - Others: Show 'My Quotations' filter by default
-        """
-        action = self.env['ir.actions.act_window']._for_xml_id('sale.action_quotations_with_onboarding')
+    # @api.model
+    # def action_quotations_with_dynamic_filter(self):
+    #     """
+    #     Return quotations action with dynamic context based on user group.
+    #     - Admin (base.group_system): No default filter - show all
+    #     - DOS (sale leader): Show 'My Department's Quotations' filter by default
+    #     - Others: Show 'My Quotations' filter by default
+    #     """
+    #     action = self.env['ir.actions.act_window']._for_xml_id('sale.action_quotations_with_onboarding')
 
-        # Admin users: no default filter
-        if self.env.user.has_group('base.group_system'):
-            action['context'] = {}
-            return action
+    #     # Admin users: no default filter
+    #     if self.env.user.has_group('base.group_system'):
+    #         action['context'] = {}
+    #         return action
 
-        user_service = self.env['hp_components.user.service']
+    #     user_service = self.env['hp_components.user.service']
 
-        # Check if user is a sale leader (DOS)
-        if user_service.is_salesman_leader():
-            action['context'] = {
-                'search_default_my_department_quotations': 1,
-                'search_default_request_to_approval': 1,
-            }
-        else:
-            action['context'] = {'search_default_my_quotation': 1}
+    #     # Check if user is a sale leader (DOS)
+    #     if user_service.is_salesman_leader():
+    #         action['context'] = {
+    #             'search_default_my_department_quotations': 1,
+    #             'search_default_request_to_approval': 1,
+    #         }
+    #     else:
+    #         action['context'] = {'search_default_my_quotation': 1}
 
-        return action
+    #     return action
 
     #endregion
 
