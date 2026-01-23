@@ -7,7 +7,8 @@
             <form string="Deny Quotation">
                 <group>
                     <field name="order_id" readonly="1"/>
-                    <field name="deny_reason" placeholder="Please provide a reason for denial..." widget="text"/>
+                    <field name="deny_reason_type" widget="radio"/>
+                    <field name="deny_reason" placeholder="Please provide a reason for denial..." widget="text" invisible="deny_reason_type != 'other'"/>
                 </group>
                 <footer>
                     <button name="action_confirm_deny" type="object" string="Confirm Deny" class="btn-primary"/>
