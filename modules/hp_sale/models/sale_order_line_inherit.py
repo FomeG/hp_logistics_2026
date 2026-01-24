@@ -76,6 +76,13 @@ class SaleOrderLineInherit(models.Model):
         help="Giá niêm yết gốc của sản phẩm trước khi áp dụng Pricelist"
     )
 
+    is_price_reduced = fields.Boolean(
+        string='Price Reduced',
+        compute='_compute_price_list_price',
+        store=False,
+        help="True if the current price is lower than the original listed price"
+    )
+
     @api.depends('product_id', 'product_uom_qty', 'order_id.pricelist_id')
     def _compute_price_unit_original(self):
         """Tự động tính giá gốc dựa trên Pricelist ngay khi dòng được tạo"""
@@ -108,6 +115,7 @@ class SaleOrderLineInherit(models.Model):
         for line in self:
             if not line.product_id:
                 line.price_list_price = 0.0
+                line.is_price_reduced = False
                 continue
 
             # 1. Lấy giá niêm yết từ sản phẩm (Product Template)
@@ -126,11 +134,16 @@ class SaleOrderLineInherit(models.Model):
 
             # So sánh với giá đã áp dụng (đã qua pricelist)
             prec = line_currency.rounding or 0.01
-            if float_compare(line.price_unit_original, original_price_in_line_currency, precision_rounding=prec) != 0:
+            comparison = float_compare(line.price_unit_original, original_price_in_line_currency, precision_rounding=prec)
+
+            if comparison != 0:
                 line.price_list_price = original_price_in_line_currency
             else:
                 # Nếu bằng nhau -> Ẩn
                 line.price_list_price = 0.0
+
+            # Kiểm tra giá có thấp hơn giá niêm yết không
+            line.is_price_reduced = comparison < 0
 
     @api.depends('product_id', 'order_id.pricelist_id', 'res_model_id', 'res_id')
     def _compute_currency_id_line(self):

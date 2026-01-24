@@ -48,6 +48,12 @@ class SaleOrderInherit(models.Model):
         copy=False,
     )
 
+    has_reduced_price_lines = fields.Boolean(
+        string='Has Reduced Price Lines',
+        compute='_compute_has_reduced_price_lines',
+        store=False,
+    )
+
     denied_by_id = fields.Many2one(
         comodel_name='res.users',
         string='Denied By',
@@ -233,6 +239,12 @@ class SaleOrderInherit(models.Model):
         managed_user_ids = self._get_managed_department_user_ids(current_user)
         for rec in self:
             rec.is_from_managed_department = rec.user_id.id in managed_user_ids
+
+    @api.depends('order_line.is_price_reduced')
+    def _compute_has_reduced_price_lines(self):
+        """Check if any SO line has a price lower than the listed price"""
+        for order in self:
+            order.has_reduced_price_lines = any(line.is_price_reduced for line in order.order_line)
 
     def _search_is_from_managed_department(self, operator, value):
         """Search method for is_from_managed_department field"""

@@ -405,6 +405,18 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 
+            <!-- Alert message for reduced price lines - above order lines -->
+            <xpath expr="//field[@name='order_line']" position="before">
+                <div class="alert alert-danger" role="alert" invisible="not has_reduced_price_lines">
+                    <div class="d-flex align-items-center">
+                        <i class="fa fa-exclamation-triangle fa-2x me-3" title="Price Warning"/>
+                        <div>
+                            <strong class="fs-5">This quotation price was lower than the listed price.</strong>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+
             <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="before">
                 <field name="price_list_price"
                        string="Original Price"
@@ -423,7 +435,6 @@
                        readonly="1"
                        force_save="1"
                        width="0.5"/>
-
             </xpath>
 
             <!-- Changed: String to Price in VND -->
