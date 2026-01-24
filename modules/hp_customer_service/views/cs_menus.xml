@@ -15,11 +15,11 @@
               action="action_cs_order"
               sequence="10"/>
 
-    <!-- <menuitem id="menu_cs_task"
+    <menuitem id="menu_cs_task"
               name="Tasks"
               parent="menu_cs_operations"
               action="action_cs_task"
-              sequence="15"/> -->
+              sequence="15"/>
 
     <menuitem id="menu_cs_batch_order"
               name="Batch Orders"

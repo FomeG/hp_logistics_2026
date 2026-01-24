@@ -35,7 +35,7 @@
                             <field name="vessel_id"/>
                             <field name="pol_id"/>
                             <field name="pod_id"/>
-                            <!-- <field name="cs_task_id"/> -->
+                            <field name="cs_task_id"/>
                         </group>
                     </group>
                 </sheet>

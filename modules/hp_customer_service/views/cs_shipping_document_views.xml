@@ -94,7 +94,7 @@
                             <field name="eta"/>
                             <field name="cs_shipping_instruction_id" invisible="1"/>
                             <field name="cs_bill_lading_id" invisible="1"/>
-                            <!-- <field name="cs_task_id" invisible="1"/> -->
+                            <field name="cs_task_id" invisible="1"/>
                         </group>
                         <group string="Parties &amp; Locations">
                             <field name="consignee_id"

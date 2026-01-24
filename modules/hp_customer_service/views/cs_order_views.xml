@@ -334,14 +334,14 @@
                                 <group>
                                     <field name="gross_weight"/>
                                     <field name="net_weight"/>
-                                    <!-- <field name="cs_task_id"/> -->
+                                    <field name="cs_task_id"/>
                                 </group>
                             </group>
                         </form>
                     </field>
                 </page>
 
-                <!-- <page string="Tasks" name="cs_tasks">
+                <page string="Tasks" name="cs_tasks">
                     <field name="cs_task_ids" context="{'default_cs_order_id': id}">
                         <list>
                             <field name="name"/>
@@ -349,14 +349,14 @@
                             <field name="stage_id"/>
                         </list>
                     </field>
-                </page> -->
+                </page>
 
                 <page string="Debits" name="debits">
                     <field name="cs_debit_id" context="{'default_cs_order_id': id}">
                         <list editable="bottom">
                             <field name="cs_order_id"/>
                             <field name="booking_id"/>
-                            <!-- <field name="cs_task_id"/> -->
+                            <field name="cs_task_id"/>
                         </list>
                     </field>
                 </page>
@@ -385,7 +385,7 @@
                                     <group>
                                         <field name="is_auto_send"/>
                                         <field name="sent_date"/>
-                                        <!-- <field name="cs_task_id"/> -->
+                                        <field name="cs_task_id"/>
                                     </group>
                                 </group>
                             </sheet>

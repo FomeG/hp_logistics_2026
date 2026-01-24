@@ -35,7 +35,7 @@
                 <group name="cs_task_info">
                     <field name="cs_order_id"/>
                     <field name="booking_id"/>
-                    <!-- <field name="cs_task_id" invisible="1"/> -->
+                    <field name="cs_task_id" invisible="1"/>
                 </group>
             </xpath>
         </field>

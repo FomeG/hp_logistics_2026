@@ -3,7 +3,7 @@
 from . import cs_batch_order
 from . import cs_order
 from . import cs_order_detail
-# from . import cs_task
+from . import cs_task
 from . import cs_bill_lading
 from . import cs_booking
 from . import cs_shipping_instruction
