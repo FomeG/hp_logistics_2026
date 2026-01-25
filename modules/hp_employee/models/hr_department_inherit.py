@@ -28,6 +28,7 @@ class HpDepartmentInherit(models.Model):
     branch_id = fields.Many2one(
         comodel_name='hr.branch',
         index=True,
+        default=lambda self: self.env.user.employee_id.department_id.branch_id,
     )
 
     department_type_id = fields.Many2one(
