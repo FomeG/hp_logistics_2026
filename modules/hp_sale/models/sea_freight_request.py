@@ -1,5 +1,4 @@
-from odoo import models, fields
-# from odoo.addons.hp_components.models.constants import PriorityLevel
+from odoo import models, fields, api, _
 from odoo.addons.hp_components.models.constants import PriceRequestState
 from odoo.addons.hp_components.models.constants import VoyageMode
 from odoo.addons.hp_components.models.constants import ServiceType
@@ -88,7 +87,9 @@ class SeaFreightRequest(models.Model):
         PriceRequestState.SELECT_OPTIONS,
         string="Status",
         compute='_compute_state',
-    ),
+        store=True
+    )
+
     sale_order_id = fields.Many2one(
         comodel_name='sale.order',
         string="Sale Order",

@@ -12,7 +12,6 @@
         'security/ir.model.access.csv',
 
 
-        'data/user_data.xml',
         'data/partner_main_type_data.xml',
         'data/department_type_demo.xml',
         'data/container_type_data.xml',
@@ -22,6 +21,7 @@
         'data/country_region_data.xml',
         'data/demo_location_data.xml',
         'data/demo_route_data.xml',
+        'data/user_data.xml',
 
 
 
