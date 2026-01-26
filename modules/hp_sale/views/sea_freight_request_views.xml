@@ -6,18 +6,12 @@
         <field name="model">freight.purchase.sea.freight.request</field>
         <field name="arch" type="xml">
             <list string="Sea Freight Requests" decoration-info="state == 'open'" decoration-success="state == 'done'" decoration-muted="state == 'cancelled'">
-                <field name="name"/>
-                <field name="service_type"/>
                 <field name="from_location_id"/>
                 <field name="to_location_id"/>
-                <field name="shipping_line_id"/>
-                <field name="container_type_id"/>
-                <field name="quantity"/>
-                <field name="etd"/>
-                <field name="client"/>
+                <field name="number_of_response" />
+                <field name="create_uid" string="Creator"/>
+                <field name="assignee_id" string="Assignee"/>
                 <field name="state" widget="badge" decoration-info="state == 'open'" decoration-success="state == 'done'" decoration-muted="state == 'cancelled'"/>
-                <field name="sale_order_id" optional="hide"/>
-                <field name="create_date"/>
             </list>
         </field>
     </record>
@@ -65,7 +59,7 @@
                     </group>
                     <notebook invisible="not id">
                         <page string="Rates" name="rates">
-                            <field name="request_line_ids">
+                            <field name="request_line_ids" readonly="1">
                                 <list editable="bottom">
                                     <field name="shipping_line_id" options="{'no_create': True}"/>
                                     <field name="voyage_mode"/>
@@ -126,7 +120,7 @@
         <field name="res_model">freight.purchase.sea.freight.request</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_sea_freight_request_search"/>
-        <field name="context">{'search_default_filter_open': 1}</field>
+        <field name="context">{'search_default_filter_open': 1, 'search_default_my_requests': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create a new sea freight request

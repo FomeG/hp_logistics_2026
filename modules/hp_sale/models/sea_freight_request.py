@@ -100,11 +100,35 @@ class SeaFreightRequest(models.Model):
         inverse_name='request_id',
         string="Rates",
     )
+
+    assignee_id = fields.Many2one(
+        'res.users',
+        string='Assignee',
+        store=True,
+    )
+    number_of_response = fields.Integer(
+        string="Number of Responses",
+        compute="_compute_number_of_response",
+        store=False
+    )
+
+    @api.depends('request_line_ids')
+    def _compute_number_of_response(self):
+        for record in self:
+            record.number_of_response = len(record.request_line_ids)
+
+    @api.depends('from_location_id', 'to_location_id')    
     def _compute_name(self):
         for record in self:
-            record.name = f"Sea Freight Request: {record.from_location_id.name} to {record.to_location_id.name}"
+            if record.from_location_id and record.to_location_id:
+                record.name = f"Sea Freight Request: {record.from_location_id.name} to {record.to_location_id.name}"
+            else:
+                record.name = False
 
+    @api.depends('request_line_ids')
     def _compute_state(self):
         for record in self:
-            if record.request_line_ids.length > 0:
+            if len(record.request_line_ids) > 0:
                 record.state = PriceRequestState.DONE
+            else:
+                record.state = PriceRequestState.OPEN
