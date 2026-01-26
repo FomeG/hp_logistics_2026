@@ -136,4 +136,21 @@
             </p>
         </field>
     </record>
+
+    <!-- Action for Pricing team (DOPR) -->
+    <record id="action_sea_freight_request_pricing" model="ir.actions.act_window">
+        <field name="name">Price Requests</field>
+        <field name="res_model">freight.purchase.sea.freight.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_sea_freight_request_search"/>
+        <field name="context">{'search_default_filter_open': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No price requests
+            </p>
+            <p>
+                Price requests from the sales team will appear here.
+            </p>
+        </field>
+    </record>
 </odoo>
