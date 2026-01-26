@@ -52,6 +52,8 @@
         'views/quotation_sent_to_lead_views.xml',
         'views/region_views.xml',
         'views/port_views.xml',
+        'views/sea_freight_request_views.xml',
+        'views/surcharge_views.xml',
         'views/sale_menus.xml',
         'report/ir_actions_report.xml',
         'report/report_quotation_template.xml',
