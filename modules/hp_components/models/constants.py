@@ -296,3 +296,28 @@ class ShippingDocumentState:
 class WorkShiftType:
     FIXED = 'fixed'
     FLEXIBLE = 'flexible'
+
+class SurChargeType:
+    SEA_FREIGHT = 'sea_freight'
+    SELECT_OPTIONS = [
+        (SEA_FREIGHT, 'sea_freight')
+    ]
+
+class PriceRequestState:
+    OPEN = 'open'
+    DONE = 'done'
+    CANCELLED = 'cancelled'
+    SELECT_OPTIONS = [
+        (OPEN, 'Open'),
+        (DONE, 'Done'),
+        (CANCELLED, 'Cancelled'),
+    ]
+class VoyageMode:
+    DIRECT='direct'
+    TRANSIT='transit'
+    OTHER='other'
+    SELECT_OPTIONS = [
+        (DIRECT,'Direct'),
+        (TRANSIT,'Transit'),
+        (OTHER,'Other')
+    ]

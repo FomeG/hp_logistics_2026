@@ -14,3 +14,4 @@ from . import cs_order_base
 from . import route_base
 from . import res_currency_inherit
 from . import wizards
+from . import surcharge
