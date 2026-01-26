@@ -77,7 +77,23 @@
         action="action_product_template_selling_week"
         groups="sales_team.group_sale_salesman,sales_team.group_sale_salesman_all_leads,sales_team.group_sale_manager,base.group_system"/>
 
+    <!-- Sea Freight Price Requests Menu -->
+    <menuitem
+        id="menu_sale_sea_freight_request"
+        name="Price Requests"
+        parent="hp_sale.menu_sale_product_selling_week_root"
+        sequence="2"
+        action="action_sea_freight_request"
+        groups="sales_team.group_sale_salesman,sales_team.group_sale_salesman_all_leads,sales_team.group_sale_manager,base.group_system"/>
 
+    <!-- Surcharge Menu -->
+    <menuitem
+        id="menu_sale_surcharge"
+        name="Surcharges"
+        parent="hp_sale.menu_sale_product_selling_week_root"
+        sequence="3"
+        action="action_hp_surcharge"
+        groups="sales_team.group_sale_salesman,sales_team.group_sale_salesman_all_leads,sales_team.group_sale_manager,base.group_system"/>
 
     <menuitem id="menu_selling_week"
         name="Week"

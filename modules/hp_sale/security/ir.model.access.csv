@@ -63,3 +63,19 @@ access_hr_team_sale_department_member,hr.team.department.member,hp_employee.mode
 
 assess_country_member_sale_salesman,res.country.sale.salesman,base.model_res_country,sales_team.group_sale_salesman,1,0,0,0
 assess_country_member_sale_manager,res.country.sale.manager,base.model_res_country,sales_team.group_sale_salesman_all_leads,1,1,0,0
+
+access_sea_freight_request_sale_member,access.sea.freight.request.sale.member,model_freight_purchase_sea_freight_request,sales_team.group_sale_salesman,1,1,1,0
+access_sea_freight_request_sale_lead,access.sea.freight.request.sale.lead,model_freight_purchase_sea_freight_request,sales_team.group_sale_salesman_all_leads,1,1,1,0
+access_sea_freight_request_sale_manager,access.sea.freight.request.sale.manager,model_freight_purchase_sea_freight_request,sales_team.group_sale_manager,1,1,1,1
+
+access_sea_freight_request_line_sale_member,access.sea.freight.request.line.sale.member,model_freight_purchase_sea_freight_request_line,sales_team.group_sale_salesman,1,1,1,0
+access_sea_freight_request_line_sale_lead,access.sea.freight.request.line.sale.lead,model_freight_purchase_sea_freight_request_line,sales_team.group_sale_salesman_all_leads,1,1,1,0
+access_sea_freight_request_line_sale_manager,access.sea.freight.request.line.sale.manager,model_freight_purchase_sea_freight_request_line,sales_team.group_sale_manager,1,1,1,1
+
+
+access_hp_surcharge_sale_member,access.hp.surcharge.sale.member,hp_components.model_hp_surcharge,sales_team.group_sale_salesman,1,0,0,0
+access_hp_surcharge_sale_lead,access.hp.surcharge.sale.lead,hp_components.model_hp_surcharge,sales_team.group_sale_salesman_all_leads,1,0,0,0
+access_hp_surcharge_sale_manager,access.hp.surcharge.sale.manager,hp_components.model_hp_surcharge,sales_team.group_sale_manager,1,1,1,1
+
+
+access_hp_surcharge_system,access.hp.surcharge.system,hp_components.model_hp_surcharge,base.group_system,1,1,1,1
