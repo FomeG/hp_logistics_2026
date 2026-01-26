@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- CEO Category -->
+    <record id="module_category_hp_ceo" model="ir.module.category">
+        <field name="name">HPL CEO</field>
+        <field name="description">CEO access category</field>
+        <field name="sequence">1</field>
+    </record>
+
+    <!-- CEO Group -->
+    <record id="ceo" model="res.groups">
+        <field name="name">CEO</field>
+        <field name="category_id" ref="module_category_hp_ceo"/>
+        <field name="comment">CEO role with full access to view all data</field>
+    </record>
+</odoo>
