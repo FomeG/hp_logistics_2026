@@ -1,8 +1,8 @@
 from odoo import models, fields
-from odoo.addons.hp_components.models.constant import PriorityLevel
-from odoo.addons.hp_components.models.constant import PriceRequestState
-from odoo.addons.hp_components.models.constant import VoyageMode
-from odoo.addons.hp_components.models.constant import ServiceType
+# from odoo.addons.hp_components.models.constants import PriorityLevel
+from odoo.addons.hp_components.models.constants import PriceRequestState
+from odoo.addons.hp_components.models.constants import VoyageMode
+from odoo.addons.hp_components.models.constants import ServiceType
 
 class SeaFreightRequest(models.Model):
     _name = 'freight.purchase.sea.freight.request'

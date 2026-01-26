@@ -26,6 +26,7 @@
         'views/res_currency_inherit_views.xml',
         'views/wizards/import_shipping_line_wizard.xml',
         'views/wizards/import_route_base_wizard.xml',
+        'views/surcharge_views.xml',
         'views/hp_menu.xml'
     ],
     'assets': {

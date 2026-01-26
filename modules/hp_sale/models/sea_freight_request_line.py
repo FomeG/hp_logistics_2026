@@ -1,18 +1,18 @@
 from odoo import models, fields
-from odoo.addons.hp_components.models.constant import VoyageMode
+from odoo.addons.hp_components.models.constants import VoyageMode
 
 class SeaFreightRequestLine(models.Model):
     _name = 'freight.purchase.sea.freight.request.line'
     _description = 'Sea Freight Request Line'
 
-    request_id = models.Many2one(
+    request_id = fields.Many2one(
         comodel_name='freight.purchase.sea.freight.request',
         string="Request",
         required=True,
         ondelete='cascade',
         index=True,
     )
-    shipping_line_id = models.Many2one(
+    shipping_line_id = fields.Many2one(
         comodel_name='res.partner',
         string="Carrier",
         domain="[('partner_main_type_id.code', '=', 'shipping_line')]",
@@ -23,22 +23,22 @@ class SeaFreightRequestLine(models.Model):
         VoyageMode.SELECT_OPTIONS,
         string="Voyage Mode",
     )
-    price = models.Float(
+    price = fields.Float(
         string="Price",
         required=True,
     )
-    currency_id = models.Many2one(
+    currency_id = fields.Many2one(
         comodel_name='res.currency',
         string="Currency",
         required=True,
         default=lambda self: self.env.company.currency_id,
     )
-    container_type_id = models.Many2one(
+    container_type_id = fields.Many2one(
         comodel_name='container.type',
         string="Container Type",
         domain=[('is_active', '=', True)],
     )
-    surcharge_ids = models.Many2many(
+    surcharge_ids = fields.Many2many(
         comodel_name='hp.surcharge',
         string="Surcharge",
     )
@@ -46,6 +46,6 @@ class SeaFreightRequestLine(models.Model):
         string="Free Time",
     )
     etd = fields.Char()
-    note = models.Text(
+    note = fields.Text(
         string="Note",
     )

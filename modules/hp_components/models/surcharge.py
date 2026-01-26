@@ -1,5 +1,5 @@
 from odoo import models, fields
-from odoo.addons.hp_components.models.constant import SurChargeType
+from odoo.addons.hp_components.models.constants import SurChargeType
 
 class SurCharge(models.Model):
     _name = 'hp.surcharge'
