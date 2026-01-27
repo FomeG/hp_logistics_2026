@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Sea Freight Request 1: HP Port to Tokyo - Export -->
+        <record id="sea_freight_request_1" model="freight.purchase.sea.freight.request">
+            <field name="service_type">export</field>
+            <field name="from_location_id" ref="hp_components.location_port_vn_hpp"/>
+            <field name="to_location_id" ref="hp_components.location_port_jp_tokyo"/>
+            <field name="voyage_mode">direct</field>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_cosco"/>
+            <field name="container_type_id" ref="hp_components.container_type_20dc"/>
+            <field name="quantity">2</field>
+            <field name="weight">18000</field>
+            <field name="commodity">Electronic Components</field>
+            <field name="commodity_hs_code">8542.31</field>
+            <field name="free_time">14 days</field>
+            <field name="client" ref="hp_sale.res_partner_client_res_partner_1"/>
+            <field name="assignee_id" ref="user_pricing1_hn"/>
+            <field name="note">Urgent shipment - client needs fast delivery</field>
+        </record>
+
+        <!-- Sea Freight Request 2: HCM Port to Busan - Export -->
+        <record id="sea_freight_request_2" model="freight.purchase.sea.freight.request">
+            <field name="service_type">export</field>
+            <field name="from_location_id" ref="hp_components.location_port_vn_hcm"/>
+            <field name="to_location_id" ref="hp_components.location_port_kr_busan"/>
+            <field name="voyage_mode">transit</field>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_kmtc"/>
+            <field name="container_type_id" ref="hp_components.container_type_40hc"/>
+            <field name="quantity">1</field>
+            <field name="weight">25000</field>
+            <field name="commodity">Garment Products</field>
+            <field name="commodity_hs_code">6203.42</field>
+            <field name="free_time">7 days</field>
+            <field name="client" ref="hp_sale.res_partner_client_res_partner_2"/>
+            <field name="assignee_id" ref="user_pricing1_hcm"/>
+            <field name="note">Regular monthly shipment</field>
+        </record>
+
+        <!-- Sea Freight Request 3: HP Port to LA - Export -->
+        <record id="sea_freight_request_3" model="freight.purchase.sea.freight.request">
+            <field name="service_type">export</field>
+            <field name="from_location_id" ref="hp_components.location_port_vn_hpp"/>
+            <field name="to_location_id" ref="hp_components.location_port_us_la"/>
+            <field name="voyage_mode">transit</field>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_maersk"/>
+            <field name="container_type_id" ref="hp_components.container_type_40hq"/>
+            <field name="quantity">3</field>
+            <field name="weight">22000</field>
+            <field name="commodity">Furniture</field>
+            <field name="commodity_hs_code">9403.60</field>
+            <field name="free_time">21 days</field>
+            <field name="client" ref="hp_sale.res_partner_client_res_partner_3"/>
+            <field name="assignee_id" ref="user_pricing2_hn"/>
+            <field name="note">Large order - need competitive rate</field>
+        </record>
+
+        <!-- Sea Freight Request 4: Incheon to HCM - Import -->
+        <record id="sea_freight_request_4" model="freight.purchase.sea.freight.request">
+            <field name="service_type">import</field>
+            <field name="from_location_id" ref="hp_components.location_port_kr_incheon"/>
+            <field name="to_location_id" ref="hp_components.location_port_vn_hcm"/>
+            <field name="voyage_mode">direct</field>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_hmm"/>
+            <field name="container_type_id" ref="hp_components.container_type_20rf"/>
+            <field name="quantity">1</field>
+            <field name="weight">15000</field>
+            <field name="commodity">Frozen Seafood</field>
+            <field name="commodity_hs_code">0303.89</field>
+            <field name="free_time">5 days</field>
+            <field name="client" ref="hp_sale.res_partner_client_res_partner_1"/>
+            <field name="assignee_id" ref="user_pricing2_hcm"/>
+            <field name="note">Reefer container required - temperature sensitive cargo</field>
+        </record>
+
+        <!-- Sea Freight Request 5: Tokyo to HP Port - Import -->
+        <record id="sea_freight_request_5" model="freight.purchase.sea.freight.request">
+            <field name="service_type">import</field>
+            <field name="from_location_id" ref="hp_components.location_port_jp_tokyo"/>
+            <field name="to_location_id" ref="hp_components.location_port_vn_hpp"/>
+            <field name="voyage_mode">direct</field>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_cosco"/>
+            <field name="container_type_id" ref="hp_components.container_type_40dc"/>
+            <field name="quantity">2</field>
+            <field name="weight">20000</field>
+            <field name="commodity">Machinery Parts</field>
+            <field name="commodity_hs_code">8431.39</field>
+            <field name="free_time">10 days</field>
+            <field name="client" ref="hp_sale.res_partner_client_res_partner_2"/>
+            <field name="assignee_id" ref="user_pricing1_hn"/>
+            <field name="note">Heavy cargo - check vessel schedule</field>
+        </record>
+    </data>
+</odoo>
