@@ -23,6 +23,11 @@
         <field name="arch" type="xml">
             <form string="Sea Freight Request">
                 <header>
+                    <button name="action_assign_pricing_member" 
+                            type="object" 
+                            string="Assign" 
+                            class="btn-secondary"
+                            groups="hp_freight_purchase.group_hp_freight_purchase_lead"/>
                     <field name="state" widget="statusbar" statusbar_visible="open,done"/>
                 </header>
                 <sheet>
