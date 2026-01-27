@@ -132,3 +132,45 @@ class SeaFreightRequest(models.Model):
                 record.state = PriceRequestState.DONE
             else:
                 record.state = PriceRequestState.OPEN
+
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        for record in records:
+            if not record.assignee_id:
+                record.assignee_id = record._get_default_assignee()
+        return records
+
+    def _get_default_assignee(self):
+        """
+        Get default assignee based on POD location.
+        1. Find pricing team that manages the POD
+        2. Get first team member
+        3. If no member found, fallback to pricing department leader
+        """
+        self.ensure_one()
+        pod = self.to_location_id
+        if not pod:
+            return False
+
+        # Find pricing teams that manage this POD
+        teams = self.env['hr.team'].search([
+            ('location_ids', 'in', pod.id),
+            ('department_id.department_type_id.code', '=', 'pricing'),
+        ])
+
+        # Get first team member
+        for team in teams:
+            if team.user_ids:
+                return team.user_ids[0]
+
+        # Fallback to pricing department leader
+        pricing_dept = self.env['hr.department'].search([
+            ('department_type_id.code', '=', 'pricing')
+        ], limit=1)
+
+        if pricing_dept and pricing_dept.manager_id and pricing_dept.manager_id.user_id:
+            return pricing_dept.manager_id.user_id
+
+        return False

@@ -103,6 +103,7 @@
                 <filter string="Cancelled" name="filter_cancelled" domain="[('state', '=', 'cancelled')]"/>
                 <separator/>
                 <filter string="My Requests" name="my_requests" domain="[('create_uid', '=', uid)]"/>
+                <filter string="Assigned to me" name="assigned_to_me" domain="[('assignee_id', '=', uid)]"/>
                 <group expand="0" string="Group By">
                     <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
                     <filter string="Service Type" name="group_by_service_type" context="{'group_by': 'service_type'}"/>

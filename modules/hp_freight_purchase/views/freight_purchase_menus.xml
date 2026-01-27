@@ -100,6 +100,30 @@
               sequence="25"
               action="freight_purchase_assign_booking_action"/>
 
+        <!-- Price Requests Action -->
+        <record id="action_price_request_freight_purchase" model="ir.actions.act_window">
+            <field name="name">Price Requests</field>
+            <field name="res_model">freight.purchase.sea.freight.request</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="hp_sale.view_sea_freight_request_search"/>
+            <field name="context">{'search_default_assigned_to_me': 1, 'search_default_filter_open': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No price requests assigned to you
+                </p>
+                <p>
+                    Price requests from the sales team will appear here when assigned to you.
+                </p>
+            </field>
+        </record>
+
+        <!-- Price Requests Menu -->
+        <menuitem id="menu_price_request"
+              name="Price Requests"
+              parent="menu_freight_purchase_root"
+              sequence="26"
+              action="action_price_request_freight_purchase"/>
+
         <!-- fee -->
         <menuitem id="menu_freight_purchase_fee_menu"
             name="Fee Management"
