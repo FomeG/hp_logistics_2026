@@ -19,6 +19,7 @@
         'data/demo_booking_data.xml',
         'data/demo_pricing_hn_data.xml',
         'data/demo_pricing_hcm_data.xml',
+        'data/demo_sea_freight_request_data.xml',
         'data/partner_main_type_data.xml',
         'data/freight_purchase_booking_sequences.xml',
         'data/freight_purchase_data_config.xml',

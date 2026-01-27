@@ -3,6 +3,7 @@ from odoo import api, models
 # Action XML ID that needs dynamic context
 DYNAMIC_CONTEXT_ACTIONS = [
     'hp_sale.action_hp_quotations',
+    'hp_sale.action_sea_freight_request',
 ]
 
 
@@ -15,24 +16,32 @@ class IrActionsActWindow(models.Model):
         Get dynamic context based on user role for specific actions.
         Returns empty dict if no dynamic context needed.
         """
-        if action_xmlid != 'hp_sale.action_hp_quotations':
-            return {}
-
-        # Admin users: no default filter
+        # Admin users: no default filter for all dynamic context actions
         if self.env.user.has_group('base.group_system'):
             return {}
 
-        user_service = self.env['hp_components.user.service']
+        # Handle quotations action
+        if action_xmlid == 'hp_sale.action_hp_quotations':
+            user_service = self.env['hp_components.user.service']
 
-        # DOS (sale leader): Show both department quotations and request to approval
-        if user_service.is_salesman_leader():
+            # DOS (sale leader): Show both department quotations and request to approval
+            if user_service.is_salesman_leader():
+                return {
+                    'search_default_my_department_quotations': 1,
+                    'search_default_request_to_approval': 1,
+                }
+
+            # Regular salesman: Show my quotations
+            return {'search_default_my_quotation': 1}
+
+        # Handle sea freight request action (Sale module)
+        if action_xmlid == 'hp_sale.action_sea_freight_request':
             return {
-                'search_default_my_department_quotations': 1,
-                'search_default_request_to_approval': 1,
+                'search_default_filter_open': 1,
+                'search_default_my_requests': 1,
             }
 
-        # Regular salesman: Show my quotations
-        return {'search_default_my_quotation': 1}
+        return {}
 
     def read(self, fields=None, load='_classic_read'):
         """Override read to inject dynamic context for specific actions."""
