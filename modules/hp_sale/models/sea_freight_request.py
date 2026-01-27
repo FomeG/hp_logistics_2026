@@ -174,3 +174,22 @@ class SeaFreightRequest(models.Model):
             return pricing_dept.manager_id.user_id
 
         return False
+
+
+    def action_open_response_form(self):
+        """Open popup form to respond to price request"""
+        self.ensure_one()
+        return {
+            'name': _('Response to Price Request'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'freight.purchase.sea.freight.request.line',
+            'view_mode': 'form',
+            'view_id': self.env.ref('hp_sale.view_sea_freight_request_line_response_form').id,
+            'target': 'new',
+            'context': {
+                'default_request_id': self.id,
+                'default_container_type_id': self.container_type_id.id if self.container_type_id else False,
+                'default_shipping_line_id': self.shipping_line_id.id if self.shipping_line_id else False,
+                'default_voyage_mode': self.voyage_mode,
+            },
+        }
