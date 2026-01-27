@@ -58,9 +58,9 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Ports" invisible="department_type_code != 'sale' or not region_id">
+                        <page string="Ports">
                             <field name="location_ids"
-                                   domain="[('type', '=', 'port'), ('country_id.region_id', '=', region_id)]">
+                                   domain="[('type', '=', 'port')]">
                                 <list string="Ports">
                                     <field name="name"/>
                                     <field name="country_id"/>

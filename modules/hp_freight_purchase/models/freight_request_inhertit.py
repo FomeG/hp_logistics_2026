@@ -1,0 +1,46 @@
+from odoo import models, fields, api
+from odoo.exceptions import ValidationError
+from ...hp_components.models.constants import DepartmentTypeCode
+from ...hp_components.services.department_service import DepartmentService
+from ...hp_components.services.activity_service import ActivityService
+
+class FreightRequestInherit(models.Model):
+    _inherit = 'freight.purchase.sea.freight.request'
+
+    def _update_assignee(self):
+        creator_branch_id = self.create_uid.employee_id.department_id.branch_id.id
+        pricing_manager = DepartmentService(self.env).get_department_manager_by_type_and_branch(DepartmentTypeCode.PRICING, creator_branch_id)
+
+        team = self.env['hr.team'].sudo().search([
+            ('location_ids', 'in', self.to_location_id.id),
+            ('department_id.department_type_id.code', '=', DepartmentTypeCode.PRICING),
+        ], limit=1)
+
+        if team and team.user_ids:
+            assignee_id = team.user_ids[:1].id
+            self._handle_notify_for_pricing([assignee_id, pricing_manager.id])
+        else:
+            assignee_id = pricing_manager.id
+            self._handle_notify_for_pricing([pricing_manager.id])
+
+        self.write({
+            'assignee_id': assignee_id,
+        })
+
+    def _handle_notify_for_pricing(self, user_ids):
+        if not self.assignee_id:
+            return False
+
+        service = ActivityService(
+            env=self.env,
+            model_name='freight.purchase.sea.freight.request',
+            record_id=self.id,
+            user_ids=user_ids
+        )
+
+        service._create_activity_by_type(
+            summary=f"New price request for {self.from_location_id.name} - {self.to_location_id.name}",
+            note=''
+        )
+
+        return True

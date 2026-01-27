@@ -6,3 +6,4 @@ from . import res_partner_inherit_listener
 from . import freight_purchase_booking_inventory_listener
 from . import freight_purchase_quotation_line_listener
 from . import sale_order_listener
+from . import sea_freight_request_listener

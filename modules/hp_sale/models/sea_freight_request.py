@@ -2,6 +2,9 @@ from odoo import models, fields, api, _
 from odoo.addons.hp_components.models.constants import PriceRequestState
 from odoo.addons.hp_components.models.constants import VoyageMode
 from odoo.addons.hp_components.models.constants import ServiceType
+from odoo.addons.hp_components.models.constants import DepartmentTypeCode
+from ...hp_components.services.activity_service import ActivityService
+from ...hp_components.services.department_service import DepartmentService
 
 class SeaFreightRequest(models.Model):
     _name = 'freight.purchase.sea.freight.request'
@@ -105,12 +108,21 @@ class SeaFreightRequest(models.Model):
         'res.users',
         string='Assignee',
         store=True,
+        compute="_compute_assignee_id",
     )
     number_of_response = fields.Integer(
         string="Number of Responses",
         compute="_compute_number_of_response",
         store=False
     )
+
+    @api.depends('from_location_id', 'to_location_id')
+    def _compute_assignee_id(self):
+        Department = DepartmentService(self.env)
+        for record in self:
+            creator_branch_id = record.create_uid.employee_id.department_id.branch_id.id
+            sale_manager=  Department.get_department_manager_by_type_and_branch(DepartmentTypeCode.SALE, creator_branch_id)
+            record.assignee_id = sale_manager
 
     @api.depends('request_line_ids')
     def _compute_number_of_response(self):
@@ -208,3 +220,22 @@ class SeaFreightRequest(models.Model):
                 'default_voyage_mode': self.voyage_mode,
             },
         }
+
+    def _handle_notify_on_create(self):
+        Department = DepartmentService(self.env)
+        creator_branch_id = self.create_uid.employee_id.department_id.branch_id.id
+        sale_manager=  Department.get_department_manager_by_type_and_branch(DepartmentTypeCode.SALE, creator_branch_id)
+
+        service = ActivityService(
+            env=self.env,
+            model_name='freight.purchase.sea.freight.request',
+            record_id=self.id,
+            user_ids=sale_manager.id
+        )
+
+        service._create_activity_by_type(
+            summary=f"New price request has been created by {self.create_uid.name}",
+            note=''
+        )
+
+        return True

@@ -1,4 +1,5 @@
 from odoo.addons.hp_employee.models.hr_department_inherit import HpDepartmentInherit
+from ..models.constants import DepartmentTypeCode
 
 class DepartmentService:
     _name = 'custom_component.department.service'
@@ -43,3 +44,11 @@ class DepartmentService:
         
         department = employee.department_id
         return department.manager_id.user_id if department.manager_id else False
+    
+    def get_department_manager_by_type_and_branch(self, type_code, branch_id):
+        deapartment = self.env['hr.department'].sudo().search([
+            ('department_type_id.code', '=', type_code),
+            ('branch_id', '=', branch_id),
+        ], limit=1)
+        
+        return deapartment.manager_id.user_id if deapartment.manager_id else False
