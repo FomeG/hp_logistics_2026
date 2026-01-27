@@ -12,5 +12,6 @@
         <field name="name">CEO</field>
         <field name="category_id" ref="module_category_hp_ceo"/>
         <field name="comment">CEO role with full access to view all data</field>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
     </record>
 </odoo>

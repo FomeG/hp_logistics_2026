@@ -298,5 +298,18 @@
             <field name="perm_unlink" eval="1"/>
         </record>
 
+
+
+
+
+
+
+
+
+
+        <!-- CEO implied Sales All Leads -->
+        <record id="hp_components.ceo" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
+        </record>
     </data>
 </odoo>

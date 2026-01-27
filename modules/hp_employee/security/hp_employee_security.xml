@@ -32,6 +32,11 @@
             <field name="implied_ids" eval="[(4, ref('group_hr_lead'))]"/>
         </record>
 
+        <!-- CEO implied HR Director -->
+        <record id="hp_components.ceo" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('group_hr_director'))]"/>
+        </record>
+
 
         <record id="hr_employee_all_users_read_rule" model="ir.rule">
             <field name="name">All Users: Read All Employees</field>

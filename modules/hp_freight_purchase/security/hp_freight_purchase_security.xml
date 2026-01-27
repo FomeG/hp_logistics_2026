@@ -28,6 +28,11 @@
             <field name="implied_ids" eval="[(4, ref('group_hp_freight_purchase_lead'))]" />
         </record>
 
+        <!-- CEO implied Freight Purchase Director -->
+        <record id="hp_components.ceo" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('group_hp_freight_purchase_director'))]"/>
+        </record>
+
         <!-- Administrator -->
         <record id="group_hp_freight_purchase_administrator" model="res.groups">
             <field name="name">Administrator</field>

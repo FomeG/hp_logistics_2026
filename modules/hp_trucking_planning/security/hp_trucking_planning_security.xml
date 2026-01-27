@@ -36,6 +36,11 @@
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]" />
         </record>
 
+
+        <record id="hp_components.ceo" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('group_hp_trucking_planning_administrator'))]"/>
+        </record>
+
         <!-- RULES -->
 
         <!-- Rule branch cho Member -->
