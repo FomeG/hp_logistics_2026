@@ -95,6 +95,7 @@
                         </field>
                     </page>
 
+                    <!-- comment #561
                     <page string="Quotations"
                           invisible="not quotation_ids"
                           groups="hp_freight_purchase.group_hp_freight_purchase_member,hp_freight_purchase.group_hp_freight_purchase_lead,hp_freight_purchase.group_hp_freight_purchase_director,hp_freight_purchase.group_hp_freight_purchase_administrator">
@@ -103,6 +104,7 @@
                                readonly="1"
                         />
                     </page>
+                    -->
                     <page string="Bookings" invisible="not booking_ids"
                           groups="hp_freight_purchase.group_hp_freight_purchase_member,hp_freight_purchase.group_hp_freight_purchase_lead,hp_freight_purchase.group_hp_freight_purchase_director,hp_freight_purchase.group_hp_freight_purchase_administrator">
                         <field name="booking_ids"
@@ -116,7 +118,7 @@
         </field>
     </record>
 
-    <!-- Quotation List Short View -->
+    <!-- comment #561
     <record id="freight_purchase_quotation_short_list_view" model="ir.ui.view">
         <field name="name">freight.purchase.quotation.list</field>
         <field name="model">freight.purchase.quotation</field>
@@ -126,12 +128,12 @@
                 <field name="to_location_id" />
                 <field name="available_from" string="From"/>
                 <field name="available_to" string="Until" />
-<!--                <field name="str_fees" />-->
                 <field name="is_active" string="Active" />
                 <field name="create_date" options="{'format': 'MM/dd/yyyy HH:mm:ss'}"/>
             </list>
         </field>
     </record>
+    -->
 
     <!-- Booking List Short View -->
     <record id="freight_purchase_booking_short_list_view" model="ir.ui.view">
@@ -140,7 +142,9 @@
         <field name="arch" type="xml">
             <list>
                 <field name="code" string="Code"/>
+                <!-- comment #561
                 <field name="quotation_id" groups="base.group_system"/>
+                -->
                 <field name="from_location_id" />
                 <field name="to_location_id" />
                 <field name="etd" />
@@ -159,8 +163,10 @@
             <field name="create_date" position="before">
                 <field name="total_bookings"
                        groups="hp_freight_purchase.group_hp_freight_purchase_member,hp_freight_purchase.group_hp_freight_purchase_lead,hp_freight_purchase.group_hp_freight_purchase_director,hp_freight_purchase.group_hp_freight_purchase_administrator"/>
+                <!-- comment #561
                 <field name="total_quotations"
                        groups="hp_freight_purchase.group_hp_freight_purchase_member,hp_freight_purchase.group_hp_freight_purchase_lead,hp_freight_purchase.group_hp_freight_purchase_director,hp_freight_purchase.group_hp_freight_purchase_administrator"/>
+                -->
             </field>
         </field>
     </record>
@@ -170,13 +176,15 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="hp_components.hp_components_shipping_line_search_view"/>
         <field name="arch" type="xml">
-            <!-- Thêm Quotation filters -->
+            <!-- Filters -->
             <xpath expr="//search" position="inside">
+                <!-- comment #561
                 <separator string="Quotations"/>
                 <filter string="With Quotations" name="filter_has_quotations"
                         domain="[('quotation_ids', '!=', False)]"/>
                 <filter string="Without Quotations" name="filter_no_quotations"
                         domain="[('quotation_ids', '=', False)]"/>
+                -->
 
                 <separator string="Bookings"/>
                 <filter string="With Bookings" name="filter_has_bookings"

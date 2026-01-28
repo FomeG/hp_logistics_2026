@@ -18,8 +18,11 @@ class FreightPurchaseBookingLineFee(models.Model):
     )
     amount = fields.Float()
 
+    # NOTE: Changed from quotation_id.shipping_line_id to booking_id.shipping_line_id
+    # because quotation model has been removed (issue #561)
     shipping_line_id = fields.Many2one(
-        related="booking_line_id.booking_id.quotation_id.shipping_line_id",
+        # related="booking_line_id.booking_id.quotation_id.shippinng_line.id",
+        related="booking_line_id.booking_id.shipping_line_id",
         store=True,
         readonly=True
     )

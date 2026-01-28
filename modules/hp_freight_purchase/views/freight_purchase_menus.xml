@@ -69,6 +69,7 @@
             parent="menu_freight_purchase_root"
             sequence="20" />
 
+        <!-- NOTE: Commented out quotation menus (quotation removal #561)
         <menuitem id="menu_freight_purchase_quotation"
             name="Quotations"
             action="freight_purchase_quotation_action"
@@ -80,6 +81,7 @@
             action="freight_purchase_quotation_line_action"
             parent="menu_purchase_team"
             sequence="20" />
+        -->
 
         <menuitem id="menu_freight_purchase_booking"
             name="Bookings"

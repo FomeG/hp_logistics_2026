@@ -6,17 +6,19 @@ class ContainerTypeInherit(models.Model):
     _inherit = ['container.type']
     _order = 'create_date desc'
 
-    quotation_line_ids = fields.One2many(
-        comodel_name='freight.purchase.quotation.line',
-        inverse_name='container_type_id',
-        string='Quotation Lines'
-    )
+    # comment #561
+    # quotation_line_ids = fields.One2many(
+    #     comodel_name='freight.purchase.quotation.line',
+    #     inverse_name='container_type_id',
+    #     string='Quotation Lines'
+    # )
 
-    total_quotation_lines = fields.Char(
-        string="Total Quotation Lines",
-        compute='_compute_total_quotation_line',
-        store=False
-    )
+    # comment #561
+    # total_quotation_lines = fields.Char(
+    #     string="Total Quotation Lines",
+    #     compute='_compute_total_quotation_line',
+    #     store=False
+    # )
 
     @api.constrains('name')
     def _check_name(self):
@@ -31,14 +33,15 @@ class ContainerTypeInherit(models.Model):
             if record.teu <= 0:
                 raise ValidationError(f"TEU must be a positive number")
 
-    @api.depends('quotation_line_ids')
-    def _compute_total_quotation_line(self):
-        for record in self:
-            if record.quotation_line_ids:
-                total = len(record.quotation_line_ids)
-                record.total_quotation_lines = f"{total} Quotation Line(s)"
-            else:
-                record.total_quotation_lines = "0 Quotation Line(s)"
+    # comment #561
+    # @api.depends('quotation_line_ids')
+    # def _compute_total_quotation_line(self):
+    #     for record in self:
+    #         if record.quotation_line_ids:
+    #             total = len(record.quotation_line_ids)
+    #             record.total_quotation_lines = f"{total} Quotation Line(s)"
+    #         else:
+    #             record.total_quotation_lines = "0 Quotation Line(s)"
 
     @api.model_create_multi
     def create(self, vals_list):

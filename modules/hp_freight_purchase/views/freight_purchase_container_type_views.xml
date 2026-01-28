@@ -11,6 +11,7 @@
                         <field name="name" required="1" />
                         <field name="teu" required="1"/>
                         <field name="is_active" required="1" />
+                        <!-- comment #561
                         <field name="quotation_line_ids" readonly="1" invisible="not id">
                             <list>
                                 <field name="quotation_id" string="Quotation name" />
@@ -19,6 +20,7 @@
                                 <field name="create_date" string="Created" />
                             </list>
                         </field>
+                        -->
                     </group>
                 </sheet>
                 <chatter />
@@ -36,7 +38,9 @@
                 <field name="name" />
                 <field name="teu" />
                 <field name="is_active" />
+                <!-- comment #561
                 <field name="total_quotation_lines" />
+                -->
                 <field name="create_date" />
             </list>
         </field>

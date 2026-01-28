@@ -13,7 +13,9 @@
                         <field name="booking_ids" readonly="1" invisible="not id">
                             <list>
                                 <field name="name" />
+                                <!-- comment #561
                                 <field name="quotation_id" />
+                                -->
                                 <field name="from_location_id" />
                                 <field name="to_location_id" />
                                 <field name="shipping_line_id" />

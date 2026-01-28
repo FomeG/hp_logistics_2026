@@ -17,8 +17,11 @@
                         <page string="Without Booking Lines" invisible="not id">
                             <field name="without_booking_line_ids">
                                 <list delete="false" create="false">
-                                    <field name="pod_id" />
+                                    <!-- NOTE: Changed from pod_id to to_location_id (quotation removal #561) -->
+                                    <field name="to_location_id" />
+                                    <!-- comment #561
                                     <field name="quotation_line_id" groups="base.group_system" />
+                                    -->
                                     <field name="container_type_id" />
                                     <field name="quantity" />
                                     <field name="price" />
