@@ -187,22 +187,6 @@ class SeaFreightRequest(models.Model):
 
         return False
 
-
-    def action_assign_pricing_member(self):
-        """Open wizard to assign price request to a pricing member"""
-        self.ensure_one()
-        return {
-            'name': _('Assign Price Request'),
-            'type': 'ir.actions.act_window',
-            'res_model': 'assign.price.request.wizard',
-            'view_mode': 'form',
-            'view_id': self.env.ref('hp_sale.view_assign_price_request_wizard_form').id,
-            'target': 'new',
-            'context': {
-                'default_price_request_id': self.id,
-            },
-        }
-
     def action_open_response_form(self):
         """Open popup form to respond to price request"""
         self.ensure_one()

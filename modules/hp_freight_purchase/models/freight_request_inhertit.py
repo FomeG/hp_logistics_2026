@@ -1,4 +1,4 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 from ...hp_components.models.constants import DepartmentTypeCode
 from ...hp_components.services.department_service import DepartmentService
@@ -44,3 +44,21 @@ class FreightRequestInherit(models.Model):
         )
 
         return True
+
+
+
+
+    def action_assign_pricing_member(self):
+        """Open wizard to assign price request to a pricing member"""
+        self.ensure_one()
+        return {
+            'name': _('Assign Price Request'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'assign.price.request.wizard',
+            'view_mode': 'form',
+            'view_id': self.env.ref('hp_sale.view_assign_price_request_wizard_form').id,
+            'target': 'new',
+            'context': {
+                'default_price_request_id': self.id,
+            },
+        }
