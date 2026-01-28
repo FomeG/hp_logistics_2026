@@ -18,12 +18,6 @@ class BookingCreateValidator(FreightValidator):
                 'exists': 'freight.purchase.vessel',
                 'required': True,
             },
-            'quotation_id': {
-                'label': f"Quotation",
-                'type': int,
-                'exists': 'freight.purchase.quotation',
-                'required': True,
-            },
             'etd': {
                 'label': f"ETD",
                 'type': str,
@@ -33,12 +27,6 @@ class BookingCreateValidator(FreightValidator):
                 'label': f"Status",
                 'type': str,
                 'in': {'draft', 'pending', 'confirmed', 'fully_assigned', 'shipped', 'cancelled', 'expired'},
-                'required': True,
-            },
-            'booking_mode': {
-                'label': f"Is Active",
-                'type': str,
-                'in': {'with_quotation', 'without_quotation'},
                 'required': True,
             },
         }
@@ -64,11 +52,6 @@ class BookingUpdateValidator(FreightValidator):
                 'type': int,
                 'exists': 'freight.purchase.vessel',
             },
-            'quotation_id': {
-                'label': f"Quotation",
-                'type': int,
-                'exists': 'freight.purchase.quotation',
-            },
             'etd': {
                 'label': f"ETD",
                 'type': str,
@@ -77,11 +60,6 @@ class BookingUpdateValidator(FreightValidator):
                 'label': f"Status",
                 'type': str,
                 'in': {'draft', 'pending', 'confirmed', 'fully_assigned', 'shipped', 'cancelled', 'expired'},
-            },
-            'booking_mode': {
-                'label': f"Is Active",
-                'type': str,
-                'in': {'with_quotation', 'without_quotation'},
             },
         }
         errors = []

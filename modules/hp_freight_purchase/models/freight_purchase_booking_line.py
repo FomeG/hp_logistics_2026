@@ -20,21 +20,8 @@ class FreightPurchaseBookingLine(models.Model):
         store=True,
         index=True,
     )
-    #filter with perf reason
-    pod_id = fields.Many2one(related='booking_id.quotation_id.to_location_id',store=True,readonly=True,string='Port of Discharge (POD)')
-
-    #keep ref with quotation line in order to track the price of    preorder vs order
-    quotation_line_id = fields.Many2one(
-        comodel_name='freight.purchase.quotation.line',
-        required=False,
-        string='Quotation Line',
-        tracking=True,
-        domain="[('quotation_id', '=', quotation_id)]"
-    )
     container_type_id = fields.Many2one(
-        related='quotation_line_id.container_type_id',
-        store=True,
-        readonly=True,
+        comodel_name='container.type',
         string='Container related'
     )
 
@@ -76,15 +63,9 @@ class FreightPurchaseBookingLine(models.Model):
         index=True,
         store=True,
     )
-    # Temporary fields for quotation line creation
-    quotation_line_container_type_id = fields.Many2one('container.type', store=False, string='Tempo Container Type')
-    quotation_line_cost = fields.Float(string="Booking price",store=False)
-    quotation_line_price = fields.Float(string="Internal price set by sale director", store=False, readonly=False)
-    quotation_id = fields.Many2one('freight.purchase.quotation',related='booking_id.quotation_id',store=False,readonly=True)
+
     from_location_id = fields.Many2one('location.base',related='booking_id.from_location_id',store=False,readonly=True)
     to_location_id = fields.Many2one('location.base',related='booking_id.to_location_id',store=False,readonly=True)
-    # Computed field to check if quotation lines exist
-    has_quotation_lines = fields.Boolean(store=False, string='Has Quotation Lines', default=True)
 
     # Computed invisible btn add sale line
     can_add_sale_line = fields.Boolean(compute='_compute_can_add_sale_line', store=False)
@@ -106,23 +87,6 @@ class FreightPurchaseBookingLine(models.Model):
         store=False,
         default=True
     )
-    name = fields.Char(
-        string="Name",
-        compute='_compute_name',
-        store=False
-    )
-
-    @api.depends('quotation_line_id')
-    def _compute_name(self):
-        for record in self:
-            if record.quotation_line_id:
-                customer = record.customer_id.name or 'N/A'
-                container = record.quotation_line_id.container_type_id.name
-                qty = record.quantity
-                record.name = f"{customer} - {container} x {qty}"
-
-            else:
-                record.name = ''
 
     @api.depends('remind_id.without_booking_line_ids')
     def _compute_remind_enabled(self):
@@ -171,14 +135,12 @@ class FreightPurchaseBookingLine(models.Model):
     #             line.customer_id = order.partner_id.id
     #             line.salesman_id = order.user_id.id
 
-    @api.depends('container_type_id','quotation_line_container_type_id', 'quantity')
+    @api.depends('container_type_id', 'quantity')
     def _compute_teu_volume(self):
         for line in self:
             teu_ratio = 0.0
             if line.container_type_id:
                 teu_ratio = line.container_type_id.teu or 0.0
-            elif line.quotation_line_container_type_id:
-                teu_ratio = line.quotation_line_container_type_id.teu or 0.0
             line.teu_volume = teu_ratio * (line.quantity or 0)
 
     @api.depends('employee_id')
@@ -199,35 +161,6 @@ class FreightPurchaseBookingLine(models.Model):
     def _inverse_employee_id(self):
         for record in self:
             record.reserved_by_id = record.employee_id.user_id if record.employee_id and record.employee_id.user_id else False
-
-    @api.onchange('booking_id')
-    def _onchange_booking_id(self):
-        if self.booking_id:
-            self.quotation_line_id = False
-            self.quotation_line_container_type_id = False
-            self.quotation_line_cost = 0
-            self.quotation_line_price = 0
-            self.has_quotation_lines = len(self.quotation_id.line_ids) > 0
-            return {
-                'domain': {
-                    'quotation_line_id': [('quotation_id', '=', self.quotation_id)]
-                }
-            }
-    #set default internal price based on cost
-    @api.onchange('quotation_line_cost')
-    def _onchange_quotation_line_cost(self):
-        for record in self:
-            if not record.quotation_line_price or record.quotation_line_price == 0.0:
-                record.quotation_line_price = record.quotation_line_cost
-    # unit price based on quotation price
-    @api.onchange('quotation_line_id', 'quotation_line_price')
-    def _onchange_set_price_unit(self):
-        for record in self:
-            record.unit_price = 0.0
-            if record.quotation_line_id:
-                record.unit_price = record.quotation_line_id.price or 0.0
-            elif record.quotation_line_price:
-                record.unit_price = record.quotation_line_price or 0.0
 
     @api.depends('quantity', 'unit_price')
     def _compute_price(self):
@@ -270,16 +203,6 @@ class FreightPurchaseBookingLine(models.Model):
                 validated, errors = BookingLineValidator.validate(vals, self.env)
                 if errors:
                     raise exceptions.ValidationError("\n".join([f"• {e}" for e in errors]))
-                if not vals.get('quotation_line_id'):
-                    try:
-                        quotation_line = self.env['freight.purchase.quotation.line'].create_from_booking_line_form(vals)
-                        vals['quotation_line_id'] = quotation_line.id
-                    except exceptions.ValidationError as e:
-                        # This will show as a nice user error in the UI
-                        raise exceptions.ValidationError(f"Cannot create quotation line:\n{e}")
-                    except Exception as e:
-                        raise exceptions.ValidationError("A system error occurred while creating the quotation line.")
-
             return super().create(vals_list)
         except exceptions.ValidationError:
             raise

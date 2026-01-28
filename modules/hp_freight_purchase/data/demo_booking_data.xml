@@ -4,8 +4,6 @@
         <!-- Booking -->
         <record id="demo_booking_1" model="freight.purchase.booking">
             <field name="code">/</field>
-            <field name="booking_mode">with_quotation</field>
-            <field name="quotation_id" ref="demo_quotation_1"/>
             <field name="vessel_id" ref="hp_freight_purchase.vessel_warnow_chief"/>
             <field name="voyage">V.12345</field>
             <field name="etd" eval="(datetime.now()+timedelta(days=10)).strftime('%Y-%m-%d')"/>
@@ -30,14 +28,12 @@
         <!-- Booking Lines (after inventory is created) -->
         <record id="demo_booking_line_1" model="freight.purchase.booking.line">
             <field name="booking_id" ref="demo_booking_1"/>
-            <field name="quotation_line_id" ref="demo_quotation_line_1"/>
             <field name="quantity">10</field>
             <field name="unit_price">1200.0</field>
         </record>
 
         <record id="demo_booking_line_2" model="freight.purchase.booking.line">
             <field name="booking_id" ref="demo_booking_1"/>
-            <field name="quotation_line_id" ref="demo_quotation_line_2"/>
             <field name="quantity">5</field>
             <field name="unit_price">2000.0</field>
         </record>

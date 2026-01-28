@@ -12,8 +12,6 @@ class TestFreightPurchaseBooking(TransactionCase):
         self.Region = self.env['region']
         self.Port = self.env['location.base']
         self.Route = self.env['route.base']
-        self.Quotation = self.env['freight.purchase.quotation']
-        self.QuotationLine = self.env['freight.purchase.quotation.line']
         self.Booking = self.env['freight.purchase.booking']
         self.BookingLine = self.env['freight.purchase.booking.line']
 
@@ -59,24 +57,11 @@ class TestFreightPurchaseBooking(TransactionCase):
             'pod_id': pod.id,
             'is_active': True
         })
-        quotation = self.Quotation.create({
-            'name': 'QTN-001',
-            'shipping_line_id': self.shippingLine.id,
-            'route_id': route.id,
-            'available_from': today,
-            'available_to': in_15_days
-        })
-
         container_type = self.env['container.type'].create({
             'name': '20GP',
             'teu': 20.0
         })
 
-        self.QuotationLineRec = self.QuotationLine.create({
-            'quotation_id': quotation.id,
-            'container_type_id': container_type.id,
-            'cost': 1500.0
-        })
         self.product = self.env['product.product'].create({
             'name': 'Freight Product',
         })
@@ -86,13 +71,11 @@ class TestFreightPurchaseBooking(TransactionCase):
 
         self.booking = self.Booking.create({
                 'name': 'Test Booking',
-                'quotation_id': self.QuotationLineRec.quotation_id.id,
                 'vessel_id': self.vesselRec.id,
                 'etd': fields.Date.today(),
             })
         self.bookingLine = self.BookingLine.create({
             'booking_id': self.booking.id,
-            'quotation_line_id': self.QuotationLineRec.id,
             'quantity': 3,
         })
     def test_create_booking_line(self):

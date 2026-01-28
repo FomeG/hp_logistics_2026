@@ -27,12 +27,6 @@ class FreightPurchaseBookingInventory(models.Model):
         default='in',
     )
 
-    allow_container_type_ids = fields.Many2many(
-        comodel_name='container.type',
-        compute='_compute_allow_container_type_ids',
-        store=False,ondelete = "cascade",
-    )
-
     str_inventory_booking_line = fields.Char(
         string='Str Inventory Booking Line',
         compute='_compute_inventory_booking_line',
@@ -43,11 +37,6 @@ class FreightPurchaseBookingInventory(models.Model):
         string='price',
         store=False,
     )
-    #todo: invisibility should depends on booking mode, quotation line and container
-    can_create_quotation_line = fields.Boolean(
-        store=False,
-        compute='_compute_can_create_quotation_line',
-    )
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -57,20 +46,6 @@ class FreightPurchaseBookingInventory(models.Model):
         records = super().create(vals_list)
         records._notify_booking_inventory_created(vals_list)
         return records
-    
-    @api.depends('booking_id.quotation_id.line_ids.container_type_id', 'booking_id.booking_mode')
-    def _compute_allow_container_type_ids(self):
-        for rec in self:
-            if not rec.booking_id or not rec.booking_id.quotation_id:
-                rec.allow_container_type_ids = False
-            elif rec.booking_id.quotation_id.line_ids:
-                # Original logic: Only allow container types from quotation lines
-                rec.allow_container_type_ids = rec.booking_id.quotation_id.line_ids.mapped('container_type_id')
-            elif rec.booking_id.booking_mode == 'without_quotation':
-                # New logic: Allow all container types (no restriction)
-                rec.allow_container_type_ids = self.env['container.type'].search([])
-            else:
-                rec.allow_container_type_ids = False
 
     def _compute_inventory_booking_line(self):
         for rec in self:
@@ -81,39 +56,9 @@ class FreightPurchaseBookingInventory(models.Model):
             else:
                 rec.str_inventory_booking_line = False
 
-    @api.depends('booking_id.quotation_id.line_ids')
-    def _compute_can_create_quotation_line(self):
-        for rec in self:
-            rec.can_create_quotation_line = rec.booking_id.quotation_id and not rec.booking_id.quotation_id.line_ids
-
     def _notify_booking_inventory_created(self, booking_inventory_form):
         for i, record in enumerate(self):
             self._event('on_booking_inventory_create').notify(
                 record=record,
                 booking_inventory_form=booking_inventory_form[i],
             )
-
-    def create_quotation_line(self, booking_inventory_form):
-        if 'tempo_container_price' not in booking_inventory_form:
-            return False
-        QuotationLineModel = self.env['freight.purchase.quotation.line']
-        for record in self:
-            try:
-                quotation_id = record.booking_id.quotation_id.id
-                container_id = record.container_type_id.id
-                price = booking_inventory_form['tempo_container_price']
-                quotation_line = QuotationLineModel.search([
-                    ('quotation_id', '=', quotation_id),
-                    ('container_type_id', '=', container_id),
-                ])
-                if quotation_line:
-                    _logger.info('ALREADY HAVING QUOTATION LINES')
-                    continue
-                QuotationLineModel.create({
-                    'quotation_id': quotation_id,
-                    'container_type_id': container_id,
-                    'cost': price,
-                    'price': price
-                })
-            except Exception as e:
-                _logger.error("Error in create_quotation_line: %s", str(e))
