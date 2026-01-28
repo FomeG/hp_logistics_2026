@@ -5,6 +5,8 @@ from odoo.addons.hp_components.models.constants import ServiceType
 from odoo.addons.hp_components.models.constants import DepartmentTypeCode
 from ...hp_components.services.activity_service import ActivityService
 from ...hp_components.services.department_service import DepartmentService
+import json
+from datetime import datetime, date
 
 class SeaFreightRequest(models.Model):
     _name = 'freight.purchase.sea.freight.request'
@@ -115,6 +117,7 @@ class SeaFreightRequest(models.Model):
         compute="_compute_number_of_response",
         store=False
     )
+    active = fields.Boolean(string="Active", default=True)
 
     allow_from_location_ids = fields.Many2many('location.base', compute='_compute_allow_from_location_ids', store=False)
     allow_to_location_ids = fields.Many2many('location.base', compute='_compute_allow_to_location_ids', store=False)
@@ -238,3 +241,23 @@ class SeaFreightRequest(models.Model):
         )
 
         return True
+    
+    def _cron_inactive_by_etd(self):
+        today = fields.Date.today()
+        requests = self.sudo().search([
+            ('active', '=', True),
+            ('state', '=',  PriceRequestState.DONE),
+        ])
+        for request in requests:
+            if request.etd and request.etd < today:
+                request.active = False
+            else:
+                expired_lines = request.request_line_ids.filtered(
+                    lambda l: l.etd and any(
+                        datetime.strptime(etd_str, "%Y-%m-%d").date() < today
+                        for etd_str in json.loads(l.etd)
+                    )
+                )
+                if expired_lines:
+                    request.active = False
+        return 
