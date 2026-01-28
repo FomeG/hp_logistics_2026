@@ -115,52 +115,52 @@ class SeaFreightRequestLine(models.Model):
         self.etd = json.dumps(dates)
         self.etd_to_add = False
 
-    @api.model
-    def _get_etd_dates_selection(self):
-        """Return current ETD dates as selection options"""
-        # This is called for selection field - return empty for new records
-        return []
+    # @api.model
+    # def _get_etd_dates_selection(self):
+    #     """Return current ETD dates as selection options"""
+    #     # This is called for selection field - return empty for new records
+    #     return []
 
-    @api.onchange('etd')
-    def _onchange_etd_update_remove_selection(self):
-        """Update the remove selection options when etd changes"""
-        if self.etd:
-            try:
-                dates = json.loads(self.etd)
-                return {'domain': {}, 'value': {'etd_to_remove': False}}
-            except (json.JSONDecodeError, TypeError):
-                pass
-        return {}
+    # @api.onchange('etd')
+    # def _onchange_etd_update_remove_selection(self):
+    #     """Update the remove selection options when etd changes"""
+    #     if self.etd:
+    #         try:
+    #             dates = json.loads(self.etd)
+    #             return {'domain': {}, 'value': {'etd_to_remove': False}}
+    #         except (json.JSONDecodeError, TypeError):
+    #             pass
+    #     return {}
 
-    @api.onchange('etd_to_remove')
-    def _onchange_etd_to_remove(self):
-        """Remove selected date from ETD JSON array"""
-        if not self.etd_to_remove:
-            return
+    # @api.onchange('etd_to_remove')
+    # def _onchange_etd_to_remove(self):
+    #     """Remove selected date from ETD JSON array"""
+    #     if not self.etd_to_remove:
+    #         return
 
-        date_str = self.etd_to_remove
+    #     date_str = self.etd_to_remove
 
-        if self.etd:
-            try:
-                dates = json.loads(self.etd)
-                if date_str in dates:
-                    dates.remove(date_str)
-                self.etd = json.dumps(dates) if dates else False
-            except (json.JSONDecodeError, TypeError):
-                pass
+    #     if self.etd:
+    #         try:
+    #             dates = json.loads(self.etd)
+    #             if date_str in dates:
+    #                 dates.remove(date_str)
+    #             self.etd = json.dumps(dates) if dates else False
+    #         except (json.JSONDecodeError, TypeError):
+    #             pass
 
-        self.etd_to_remove = False
+    #     self.etd_to_remove = False
 
-    def action_remove_etd(self, date_str):
-        """Remove a date from ETD JSON array"""
-        self.ensure_one()
-        if not self.etd:
-            return
+    # def action_remove_etd(self, date_str):
+    #     """Remove a date from ETD JSON array"""
+    #     self.ensure_one()
+    #     if not self.etd:
+    #         return
 
-        try:
-            dates = json.loads(self.etd)
-            if date_str in dates:
-                dates.remove(date_str)
-            self.etd = json.dumps(dates) if dates else False
-        except (json.JSONDecodeError, TypeError):
-            pass
+    #     try:
+    #         dates = json.loads(self.etd)
+    #         if date_str in dates:
+    #             dates.remove(date_str)
+    #         self.etd = json.dumps(dates) if dates else False
+    #     except (json.JSONDecodeError, TypeError):
+    #         pass

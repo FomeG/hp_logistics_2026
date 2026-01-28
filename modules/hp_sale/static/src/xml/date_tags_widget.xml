@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="hp_sale.DateTagsField">
+        <div class="o_field_date_tags d-flex flex-wrap gap-1 align-items-center">
+            <t t-foreach="dates" t-as="date" t-key="date">
+                <span class="badge rounded-pill text-bg-info d-inline-flex align-items-center gap-1">
+                    <span t-esc="formatDate(date)"/>
+                    <t t-if="!isReadonly">
+                        <button type="button"
+                                class="btn-close btn-close-white ms-1"
+                                style="font-size: 0.6em;"
+                                t-on-click="() => this.removeDate(date)"
+                                aria-label="Remove"/>
+                    </t>
+                </span>
+            </t>
+            <t t-if="dates.length === 0">
+                <span class="text-muted fst-italic">No dates selected</span>
+            </t>
+        </div>
+    </t>
+</templates>

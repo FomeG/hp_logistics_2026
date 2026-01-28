@@ -183,9 +183,8 @@
                 <group string="ETD Dates">
                     <label for="etd_to_add" string="Select date to add"/>
                     <field name="etd_to_add" widget="date" nolabel="1"/>
-                    <label for="etd_display" string="Selected dates"/>
-                    <field name="etd_display" nolabel="1"/>
-                    <field name="etd" invisible="1"/>
+                    <label for="etd" string="Selected dates"/>
+                    <field name="etd" widget="date_tags" nolabel="1"/>
                 </group>
                 <group string="Notes">
                     <field name="note" nolabel="1" placeholder="Additional notes..."/>
