@@ -116,6 +116,9 @@ class SeaFreightRequest(models.Model):
         store=False
     )
 
+    allow_from_location_ids = fields.Many2many('location.base', compute='_compute_allow_from_location_ids', store=False)
+    allow_to_location_ids = fields.Many2many('location.base', compute='_compute_allow_to_location_ids', store=False)
+
     @api.depends('from_location_id', 'to_location_id')
     def _compute_assignee_id(self):
         Department = DepartmentService(self.env)
@@ -144,6 +147,18 @@ class SeaFreightRequest(models.Model):
                 record.state = PriceRequestState.DONE
             else:
                 record.state = PriceRequestState.OPEN
+
+    @api.depends('service_type')
+    def _compute_allow_from_location_ids(self):
+        for rec in self:
+            is_local = True if rec.service_type == ServiceType.EXPORT else False
+            rec.allow_from_location_ids = self.env['location.base'].search([('is_local', '=', is_local)])
+
+    @api.depends('service_type',)
+    def _compute_allow_to_location_ids(self):
+        for rec in self:
+            is_local = False if rec.service_type == ServiceType.EXPORT else True
+            rec.allow_to_location_ids = self.env['location.base'].search([('is_local', '=', is_local)])
 
 
     @api.model_create_multi

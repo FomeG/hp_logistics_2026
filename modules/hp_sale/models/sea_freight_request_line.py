@@ -1,5 +1,5 @@
 import json
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.addons.hp_components.models.constants import VoyageMode
 
 class SeaFreightRequestLine(models.Model):
@@ -114,6 +114,22 @@ class SeaFreightRequestLine(models.Model):
 
         self.etd = json.dumps(dates)
         self.etd_to_add = False
+    
+    def view_content(self):
+        self.ensure_one()
+        return {
+            'name': _('Response to Price Request'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'freight.purchase.sea.freight.request.line',
+            'view_mode': 'form',
+            'view_id': self.env.ref('hp_sale.view_sea_freight_request_line_response_form_readonly').id,
+            'target': 'new',
+            'res_id': self.id,
+            'context': {
+                'form_view_initial_mode': 'readonly'
+            },
+        }
+
 
     # @api.model
     # def _get_etd_dates_selection(self):
