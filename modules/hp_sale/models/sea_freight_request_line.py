@@ -27,6 +27,7 @@ class SeaFreightRequestLine(models.Model):
     price = fields.Float(
         string="Price",
         required=True,
+        default=0, # temporarily set it to 0 , to aavoid error when creating new record
     )
     selling_price = fields.Float(
         string="Selling Price",

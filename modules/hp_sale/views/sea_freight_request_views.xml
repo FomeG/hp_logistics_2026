@@ -23,6 +23,10 @@
         <field name="arch" type="xml">
             <form string="Sea Freight Request">
                 <header>
+                    <button name="action_open_response_form" type="object"
+                            string="Response" class="btn-primary"
+                            invisible="state != 'open' or not context.get('from_sale_menu')"
+                            groups="sales_team.group_sale_salesman_all_leads"/>
                     <button name="action_generate_sea_freight"
                             string="Generate Sea Freight"
                             type="object"
@@ -131,7 +135,7 @@
         <field name="res_model">freight.purchase.sea.freight.request</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_sea_freight_request_search"/>
-        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="context">{'search_default_filter_active': 1, 'from_sale_menu': True}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">
                 Create a new sea freight request
@@ -173,8 +177,8 @@
                         <field name="voyage_mode"/>
                     </group>
                     <group string="Pricing">
-                        <field name="price"/>
-                        <field name="selling_price" invisible="1"/>
+                        <field name="price" readonly="context.get('from_sale_menu')"/>
+                        <field name="selling_price" invisible="not context.get('from_sale_menu')"/>
                         <field name="currency_id" options="{'no_create': True}"/>
                     </group>
                 </group>

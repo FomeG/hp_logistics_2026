@@ -240,6 +240,7 @@ class SeaFreightRequest(models.Model):
                 'default_container_type_id': self.container_type_id.id if self.container_type_id else False,
                 'default_shipping_line_id': self.shipping_line_id.id if self.shipping_line_id else False,
                 'default_voyage_mode': self.voyage_mode,
+                'from_sale_menu': self.env.context.get('from_sale_menu', False),
             },
         }
 

@@ -22,12 +22,10 @@ class FreightRequestInherit(models.Model):
             if pricing_manager:
                 notify_ids.append(pricing_manager.id)
             self._handle_notify_for_pricing(notify_ids)
-            # self._handle_notify_for_pricing([assignee_id, pricing_manager.id])
         elif pricing_manager:
             assignee_id = pricing_manager.id
             self._handle_notify_for_pricing([pricing_manager.id])
         else:
-            # No team users and no pricing manager found, skip update
             return
 
         self.write({
