@@ -1,6 +1,6 @@
 from email.policy import default
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 import logging
 from odoo.addons.hp_components.models.constants import TransportMode
@@ -126,5 +126,38 @@ class GetFreightPriceWizard(models.TransientModel):
             }))
 
     def action_request_price(self):
+        """Create a new price request from the current sale order"""
         self.ensure_one()
-        _logger.info(f"Request price for {self.id}")
+        so = self.sale_order_id
+        if not so:
+            raise ValidationError(_("Sale Order is required to create a price request"))
+
+        # Create new SeaFreightRequest
+        price_request = self.env['freight.purchase.sea.freight.request'].create({
+            'service_type': so.service_type,
+            'from_location_id': so.from_location_id.id if so.from_location_id else False,
+            'to_location_id': so.to_location_id.id if so.to_location_id else False,
+            'commodity': so.commodity,
+            'commodity_hs_code': so.commodity_hs_code if hasattr(so, 'commodity_hs_code') else False,
+            'shipping_line_id': so.shipping_line_id.id if so.shipping_line_id else False,
+            'container_type_id': so.container_type_id.id if so.container_type_id else False,
+            'client': so.client_id.id if so.client_id else False,
+            'sale_order_id': so.id,
+            'note': f"Price request created from SO: {so.name}",
+        })
+
+        # Trigger notification
+        price_request._handle_notify_on_create()
+
+        # Close wizard and show success notification
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Price Request Created'),
+                'message': _('Price request %s has been created successfully.') % price_request.name,
+                'type': 'success',
+                'sticky': False,
+                'next': {'type': 'ir.actions.act_window_close'},
+            }
+        }

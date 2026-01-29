@@ -225,8 +225,15 @@ class SeaFreightRequest(models.Model):
 
     def _handle_notify_on_create(self):
         Department = DepartmentService(self.env)
-        creator_branch_id = self.create_uid.employee_id.department_id.branch_id.id
-        sale_manager=  Department.get_department_manager_by_type_and_branch(DepartmentTypeCode.SALE, creator_branch_id)
+        creator_branch_id = self.create_uid.employee_id.department_id.branch_id.id if self.create_uid.employee_id.department_id.branch_id else False
+        
+        if not creator_branch_id:
+            return True
+            
+        sale_manager = Department.get_department_manager_by_type_and_branch(DepartmentTypeCode.SALE, creator_branch_id)
+
+        if not sale_manager:
+            return True
 
         service = ActivityService(
             env=self.env,

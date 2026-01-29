@@ -11,10 +11,10 @@
                         type="object"
                         string="Assign"
                         class="btn-secondary"
-                        groups="hp_freight_purchase.group_hp_freight_purchase_director"
+                        groups="hp_freight_purchase.group_hp_freight_purchase_lead"
                         invisible="state != 'open'"
                         />
             </xpath>
-        </field>
+        </field>    
     </record>
 </odoo>

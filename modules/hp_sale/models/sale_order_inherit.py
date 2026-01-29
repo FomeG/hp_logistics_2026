@@ -431,6 +431,43 @@ class SaleOrderInherit(models.Model):
         store=False
     )
 
+    # Price Request fields
+    price_request_ids = fields.One2many(
+        comodel_name='freight.purchase.sea.freight.request',
+        inverse_name='sale_order_id',
+        string='Price Requests',
+    )
+    price_request_count = fields.Integer(
+        string='Price Request Count',
+        compute='_compute_price_request_count',
+        store=False
+    )
+
+    @api.depends('price_request_ids')
+    def _compute_price_request_count(self):
+        for record in self:
+            record.price_request_count = len(record.price_request_ids)
+
+    def action_view_price_requests(self):
+        """Open price requests related to this SO"""
+        self.ensure_one()
+        if self.price_request_count == 1:
+            return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'freight.purchase.sea.freight.request',
+                'view_mode': 'form',
+                'res_id': self.price_request_ids[0].id,
+                'target': 'current',
+            }
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Price Requests'),
+            'res_model': 'freight.purchase.sea.freight.request',
+            'view_mode': 'list,form',
+            'domain': [('sale_order_id', '=', self.id)],
+            'target': 'current',
+        }
+
     @api.onchange('service_type')
     def _onchange_service_type_set_pricelist(self):
         if not self.service_type:

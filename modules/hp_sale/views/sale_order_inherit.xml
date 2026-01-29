@@ -15,6 +15,13 @@
                         invisible="state not in ('sale', 'done') or task_count == 0">
                     <field name="task_count" widget="statinfo" string="Tasks"/>
                 </button>
+                <button class="oe_stat_button"
+                        type="object"
+                        name="action_view_price_requests"
+                        icon="fa-money"
+                        invisible="price_request_count == 0">
+                    <field name="price_request_count" widget="statinfo" string="Price Requests"/>
+                </button>
             </xpath>
         </field>
     </record>
@@ -58,6 +65,23 @@
                                 <strong>Reason:</strong>
                                 <field name="deny_reason" readonly="1" nolabel="1" widget="text"/>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alert message for pending price requests -->
+                <div class="alert alert-warning" role="alert" invisible="price_request_count == 0">
+                    <div class="d-flex align-items-center">
+                        <i class="fa fa-info-circle fa-2x me-3" title="Price Request Info"/>
+                        <div>
+                            <span style="color: #dc3545; font-weight: bold;">
+                                This SO has a pending price request:
+                                <button type="object" name="action_view_price_requests"
+                                        class="btn btn-link p-0 text-danger"
+                                        style="text-decoration: underline; font-weight: bold;">
+                                    <field name="price_request_count"/> request(s)
+                                </button>
+                            </span>
                         </div>
                     </div>
                 </div>
