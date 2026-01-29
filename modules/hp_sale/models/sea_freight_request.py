@@ -274,21 +274,23 @@ class SeaFreightRequest(models.Model):
         today = fields.Date.today()
         requests = self.sudo().search([
             ('active', '=', True),
-            ('state', '=',  PriceRequestState.DONE),
+            ('state', '=', PriceRequestState.DONE),
         ])
         for request in requests:
             if request.etd and request.etd < today:
                 request.active = False
             else:
                 expired_lines = request.request_line_ids.filtered(
-                    lambda l: l.etd and any(
-                        datetime.strptime(etd_str, "%Y-%m-%d").date() < today
-                        for etd_str in json.loads(l.etd)
+                    lambda l: l.etd and (
+                        max(
+                            datetime.strptime(etd_str, "%Y-%m-%d").date()
+                            for etd_str in json.loads(l.etd)
+                        ) < today
                     )
                 )
                 if expired_lines:
                     request.active = False
-        return 
+        return
 
     def copy(self, default=None):
         """Override copy to set parent_id and reset etd to today"""

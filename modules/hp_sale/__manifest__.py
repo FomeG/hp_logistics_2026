@@ -55,6 +55,7 @@
         'views/region_views.xml',
         'views/port_views.xml',
         'views/sea_freight_request_views.xml',
+        'views/sea_freight_request_line_views.xml',
         'views/surcharge_views.xml',
         'views/sale_menus.xml',
         'report/ir_actions_report.xml',

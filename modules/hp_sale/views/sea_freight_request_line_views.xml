@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_sea_freight_request_line_tree" model="ir.ui.view">
+        <field name="name">sea.freight.request.line.tree</field>
+        <field name="model">freight.purchase.sea.freight.request.line</field>
+        <field name="arch" type="xml">
+            <list string="Quotation">
+                <field name="from_location_id"/>
+                <field name="to_location_id"/>
+                <field name="shipping_line_id" />
+                <field name="selling_price"/>
+                <field name="etd_display"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_sea_freight_request_line_form" model="ir.ui.view">
+        <field name="name">sea.freight.request.line.form</field>
+        <field name="model">freight.purchase.sea.freight.request.line</field>
+        <field name="arch" type="xml">
+            <form string="Quotation">
+                <group>
+                    <group string="Carrier Information">
+                        <field name="request_id"/>
+                        <field name="shipping_line_id" options="{'no_create': True}"/>
+                        <field name="container_type_id" options="{'no_create': True}"/>
+                        <field name="voyage_mode"/>
+                    </group>
+                    <group string="Pricing">
+                        <field name="price" invisible="context.get('from_sale_menu')"/>
+                        <field name="selling_price"/>
+                        <field name="currency_id" options="{'no_create': True}"/>
+                    </group>
+                </group>
+                <group>
+                    <group string="Additional Info">
+                        <field name="surcharge_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        <field name="free_time"/>
+                    </group>
+                </group>
+                <group string="ETD Dates">
+                    <label for="etd_to_add" string="Select date to add"  invisible="context.get('from_sale_menu')"/>
+                    <field name="etd_to_add" widget="date" nolabel="1"  invisible="context.get('from_sale_menu')"/>
+                    <label for="etd" string="Selected dates"/>
+                    <field name="etd" widget="date_tags" nolabel="1"/>
+                </group>
+                <group string="Notes">
+                    <field name="note" nolabel="1" placeholder="Additional notes..."/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_sea_freight_request_line_search" model="ir.ui.view">
+        <field name="name">sea.freight.request.line.search</field>
+        <field name="model">freight.purchase.sea.freight.request.line</field>
+        <field name="arch" type="xml">
+            <search string="Quotation">
+                <field name="to_location_id"/>
+                <field name="shipping_line_id"/>
+                <field name="etd"/>
+                <filter string="Active" name="filter_active" domain="[('active', '=', True)]"/>
+                <filter string="Inactive" name="filter_inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="My Quotation" name="filter_my_quotation" domain="[('create_uid', '=', uid)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_sea_freight_request_line" model="ir.actions.act_window">
+        <field name="name">Quotation</field>
+        <field name="res_model">freight.purchase.sea.freight.request.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_sea_freight_request_line_search"/>
+        <field name="context">{'search_default_filter_active': 1, 'search_default_filter_my_quotation': 1, 'active_test': False}</field>
+    </record>
+</odoo>

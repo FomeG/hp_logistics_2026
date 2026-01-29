@@ -69,6 +69,19 @@ class SeaFreightRequestLine(models.Model):
     note = fields.Text(
         string="Note",
     )
+    from_location_id = fields.Many2one(
+        'location.base',
+        string="From",
+        related='request_id.from_location_id',
+        store=False
+    )
+    to_location_id = fields.Many2one(
+        'location.base',
+        string="From",
+        related='request_id.to_location_id',
+        store=False
+    )
+    active = fields.Boolean(related="request_id.active", store=True)
 
     @api.depends('etd')
     def _compute_etd_display(self):
@@ -123,11 +136,13 @@ class SeaFreightRequestLine(models.Model):
             'type': 'ir.actions.act_window',
             'res_model': 'freight.purchase.sea.freight.request.line',
             'view_mode': 'form',
-            'view_id': self.env.ref('hp_sale.view_sea_freight_request_line_response_form_readonly').id,
+            'view_id': self.env.ref('hp_sale.view_sea_freight_request_line_form').id,
             'target': 'new',
             'res_id': self.id,
             'context': {
-                'form_view_initial_mode': 'readonly'
+                'create': False,
+                'edit': False,
+                'from_sale_menu': True,
             },
         }
 

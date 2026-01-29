@@ -82,7 +82,11 @@
             parent="menu_purchase_team"
             sequence="20" />
         -->
-
+        <menuitem id="menu_freight_purchase_quotation"
+            name="Quotations"
+            action="hp_sale.action_sea_freight_request_line"
+            parent="menu_purchase_team"
+            sequence="10" />
         <menuitem id="menu_freight_purchase_booking"
             name="Bookings"
             action="freight_purchase_booking_action"
