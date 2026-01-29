@@ -1,4 +1,5 @@
 from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
 from odoo.addons.hp_components.models.constants import PriceRequestState
 from odoo.addons.hp_components.models.constants import VoyageMode
 from odoo.addons.hp_components.models.constants import ServiceType
@@ -155,6 +156,15 @@ class SeaFreightRequest(models.Model):
                 record.state = PriceRequestState.DONE
             else:
                 record.state = PriceRequestState.OPEN
+
+
+    @api.constrains('etd')
+    def _check_etd_future_date(self):
+        """Validate that ETD must be greater than current date if provided"""
+        today = fields.Date.today()
+        for record in self:
+            if record.etd and record.etd <= today:
+                raise ValidationError(_("ETD must be greater than current date."))
 
     @api.depends('service_type')
     def _compute_allow_from_location_ids(self):
