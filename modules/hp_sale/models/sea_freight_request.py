@@ -7,7 +7,7 @@ from odoo.addons.hp_components.models.constants import DepartmentTypeCode
 from ...hp_components.services.activity_service import ActivityService
 from ...hp_components.services.department_service import DepartmentService
 import json
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 class SeaFreightRequest(models.Model):
     _name = 'freight.purchase.sea.freight.request'
@@ -106,6 +106,11 @@ class SeaFreightRequest(models.Model):
         string="Parent Request",
         help="Original price request this was duplicated from"
     )
+    sea_freight_id = fields.Many2one(
+        comodel_name='product.template.selling.week',
+        string="Sea Freight",
+        help="Generated sea freight from this price request"
+    )
     request_line_ids = fields.One2many(
         comodel_name='freight.purchase.sea.freight.request.line',
         inverse_name='request_id',
@@ -163,7 +168,7 @@ class SeaFreightRequest(models.Model):
         """Validate that ETD must be greater than current date if provided"""
         today = fields.Date.today()
         for record in self:
-            if record.etd and record.etd <= today:
+            if record.etd and record.etd <today:
                 raise ValidationError(_("ETD must be greater than current date."))
 
     @api.depends('service_type')
@@ -292,3 +297,150 @@ class SeaFreightRequest(models.Model):
             'etd': fields.Date.today(),
         })
         return super().copy(default)
+
+    def action_generate_sea_freight(self):
+        """Generate sea freight from done price request"""
+        self.ensure_one()
+        
+        if self.state != PriceRequestState.DONE:
+            raise ValidationError(_("Only 'Done' price requests can generate sea freight."))
+        
+        if not self.request_line_ids:
+            raise ValidationError(_("No response lines found to generate sea freight."))
+        
+        if self.sea_freight_id:
+            raise ValidationError(_("Sea freight has already been generated for this price request."))
+        
+        # 1. Find or create selling week based on ETD
+        selling_week = self._get_or_create_selling_week()
+        
+        # 2. Get sale team by POD and branch
+        team = self._get_sale_team()
+        
+        # 3. Find or create sea freight (ProductTemplateSellingWeek)
+        sea_freight = self._get_or_create_sea_freight(selling_week, team)
+        
+        # 4. Create sea freight lines from response lines
+        self._create_sea_freight_lines(sea_freight)
+        
+        # 5. Set sea freight id into price request
+        self.sea_freight_id = sea_freight.id
+        
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _('Sea Freight Generated'),
+                'message': _('Sea freight has been generated successfully.'),
+                'type': 'success',
+                'sticky': False,
+            }
+        }
+    
+    def _get_or_create_selling_week(self):
+        """Find or create selling week based on ETD"""
+        SellingWeek = self.env['selling.week']
+        
+        # Use ETD from price request, or today if not set
+        etd = self.etd or fields.Date.today()
+        
+        # Find week where ETD falls between start_date and end_date
+        selling_week = SellingWeek.search([
+            ('start_date', '<=', etd),
+            ('end_date', '>=', etd),
+        ], limit=1)
+        
+        if not selling_week:
+            # Calculate week start (Monday) and end (Sunday)
+            # ETD's week
+            week_start = etd - timedelta(days=etd.weekday())
+            week_end = week_start + timedelta(days=6)
+            
+            # Get ISO week number
+            week_number = etd.isocalendar()[1]
+            year = etd.year
+            
+            selling_week = SellingWeek.create({
+                'name': f"Tuần {week_number} - {year}",
+                'start_date': week_start,
+                'end_date': week_end,
+                'is_active': True,
+            })
+        
+        return selling_week
+    
+    def _get_sale_team(self):
+        """Get sale team by POD and branch"""
+        HrTeam = self.env['hr.team']
+        
+        pod = self.to_location_id
+        user_branch = self.env.user.employee_id.department_id.branch_id
+        
+        # Find team where location_ids contains POD and belongs to user's branch
+        team = HrTeam.search([
+            ('location_ids', 'in', pod.id),
+            ('department_id.branch_id', '=', user_branch.id),
+        ], limit=1)
+        
+        if not team:
+            # Try to find any team with the POD
+            team = HrTeam.search([
+                ('location_ids', 'in', pod.id),
+            ], limit=1)
+        
+        return team
+    
+    def _get_or_create_sea_freight(self, selling_week, team):
+        """Find or create ProductTemplateSellingWeek"""
+        SeaFreight = self.env['product.template.selling.week']
+        
+        # Try to find existing sea freight with same week, POL, POD, team
+        sea_freight = SeaFreight.search([
+            ('selling_week_id', '=', selling_week.id),
+            ('from_location_id', '=', self.from_location_id.id),
+            ('to_location_id', '=', self.to_location_id.id),
+            ('team_id', '=', team.id if team else False),
+        ], limit=1)
+        
+        if not sea_freight:
+            sea_freight = SeaFreight.create({
+                'goods_info': self.commodity or 'General Cargo',
+                'selling_week_id': selling_week.id,
+                'from_location_id': self.from_location_id.id,
+                'to_location_id': self.to_location_id.id,
+                'team_id': team.id if team else False,
+            })
+        
+        return sea_freight
+    
+    def _create_sea_freight_lines(self, sea_freight):
+        """Create sea freight lines from price request response lines"""
+        SeaFreightLine = self.env['product.template.selling.week.line']
+        
+        # Batch search: get all existing lines for this sea freight
+        existing_lines = SeaFreightLine.search([
+            ('product_template_selling_week_id', '=', sea_freight.id),
+        ])
+        
+        # Build set of existing (shipping_line_id, container_type_id) combinations
+        existing_combos = {
+            (line.shipping_line_id.id, line.container_type_id.id if line.container_type_id else False)
+            for line in existing_lines
+        }
+        
+        # Collect new lines to create
+        vals_list = []
+        for line in self.request_line_ids:
+            combo = (line.shipping_line_id.id, line.container_type_id.id if line.container_type_id else False)
+            if combo not in existing_combos:
+                vals_list.append({
+                    'product_template_selling_week_id': sea_freight.id,
+                    'shipping_line_id': line.shipping_line_id.id,
+                    'container_type_id': line.container_type_id.id if line.container_type_id else False,
+                    'price': line.selling_price or line.price,
+                    'currency_id': line.currency_id.id,
+                })
+        
+        # Batch create: insert multi
+        if vals_list:
+            SeaFreightLine.create(vals_list)

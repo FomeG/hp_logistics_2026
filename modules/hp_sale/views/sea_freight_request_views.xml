@@ -23,6 +23,12 @@
         <field name="arch" type="xml">
             <form string="Sea Freight Request">
                 <header>
+                    <button name="action_generate_sea_freight"
+                            string="Generate Sea Freight"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'done' or sea_freight_id"
+                            groups="sales_team.group_sale_salesman"/>
                     <field name="state" widget="statusbar" statusbar_visible="open,done"/>
                 </header>
                 <sheet>
@@ -55,6 +61,8 @@
                         <group string="References">
                             <field name="client" options="{'no_create': True}"/>
                             <field name="sale_order_id" readonly="1"/>
+                            <field name="sea_freight_id" readonly="1"/>
+                            <field name="parent_id" readonly="1"/>
                         </group>
                     </group>
                     <notebook invisible="not id">
