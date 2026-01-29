@@ -100,6 +100,11 @@ class SeaFreightRequest(models.Model):
         string="Sale Order",
         tracking=True
     )
+    parent_id = fields.Many2one(
+        comodel_name='freight.purchase.sea.freight.request',
+        string="Parent Request",
+        help="Original price request this was duplicated from"
+    )
     request_line_ids = fields.One2many(
         comodel_name='freight.purchase.sea.freight.request.line',
         inverse_name='request_id',
@@ -268,3 +273,12 @@ class SeaFreightRequest(models.Model):
                 if expired_lines:
                     request.active = False
         return 
+
+    def copy(self, default=None):
+        """Override copy to set parent_id and reset etd to today"""
+        default = dict(default or {})
+        default.update({
+            'parent_id': self.id,
+            'etd': fields.Date.today(),
+        })
+        return super().copy(default)
