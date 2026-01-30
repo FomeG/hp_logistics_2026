@@ -30,10 +30,10 @@ class FreightPurchaseQuotationService:
         }
         
         quotation = self.env['freight.purchase.quotation'].create(quotation_vals)
-        
-        # Copy common fees from booking to quotation
+
+        # Batch create: collect all quotation fee vals
+        quotation_fee_vals_list = []
         for booking_fee in booking.fee_ids:
-            # Filter out None and empty values for optional fields
             fee_vals = {
                 'quotation_id': quotation.id,
                 'fee_type_id': booking_fee.fee_type_id.id,
@@ -41,32 +41,48 @@ class FreightPurchaseQuotationService:
             }
             if booking_fee.note and booking_fee.note.strip():
                 fee_vals['note'] = booking_fee.note
-            self.env['freight.purchase.quotation.fee'].create(fee_vals)
-        
-        # Create quotation lines for each booking line and copy fees
+            quotation_fee_vals_list.append(fee_vals)
+
+        if quotation_fee_vals_list:
+            self.env['freight.purchase.quotation.fee'].create(quotation_fee_vals_list)
+
+        # Batch create quotation lines: collect vals and track booking_line mapping
+        quotation_line_vals_list = []
+        booking_lines_with_container = []
         for booking_line in booking.line_ids:
             if booking_line.container_type_id:
-                # Create quotation line
-                quotation_line_vals = {
+                quotation_line_vals_list.append({
                     'quotation_id': quotation.id,
                     'container_type_id': booking_line.container_type_id.id,
                     'cost': booking_line.unit_price,
                     'price': booking_line.unit_price,
-                }
-                
-                quotation_line = self.env['freight.purchase.quotation.line'].create(quotation_line_vals)
-                
-                # Copy fees from booking line to quotation line
+                })
+                booking_lines_with_container.append(booking_line)
+
+        if quotation_line_vals_list:
+            # Batch create quotation lines
+            quotation_lines = self.env['freight.purchase.quotation.line'].create(quotation_line_vals_list)
+
+            # Batch create quotation line fees and update booking line references
+            quotation_line_fee_vals_list = []
+            for idx, quotation_line in enumerate(quotation_lines):
+                booking_line = booking_lines_with_container[idx]
+
+                # Collect line fee vals
                 for booking_line_fee in booking_line.fee_line_ids:
-                    self.env['freight.purchase.quotation.line.fee'].create({
+                    quotation_line_fee_vals_list.append({
                         'quotation_line_id': quotation_line.id,
                         'fee_line_id': booking_line_fee.fee_line_id.id,
                         'amount': booking_line_fee.amount,
                     })
-                
-                # Update booking line to reference the new quotation line
+
+                # Update booking line reference
                 booking_line.quotation_line_id = quotation_line.id
-        
+
+            # Batch create all line fees
+            if quotation_line_fee_vals_list:
+                self.env['freight.purchase.quotation.line.fee'].create(quotation_line_fee_vals_list)
+
         # Update booking to reference the new quotation
         booking.quotation_id = quotation.id
         
@@ -148,15 +164,20 @@ class FreightPurchaseQuotationService:
         }
         
         quotation_line = self.env['freight.purchase.quotation.line'].create(quotation_line_vals)
-        
-        # Copy fees from booking line to quotation line
-        for booking_line_fee in booking_line.fee_line_ids:
-            self.env['freight.purchase.quotation.line.fee'].create({
+
+        # Batch create: collect all fee vals
+        quotation_line_fee_vals_list = [
+            {
                 'quotation_line_id': quotation_line.id,
                 'fee_line_id': booking_line_fee.fee_line_id.id,
                 'amount': booking_line_fee.amount,
-            })
-        
+            }
+            for booking_line_fee in booking_line.fee_line_ids
+        ]
+
+        if quotation_line_fee_vals_list:
+            self.env['freight.purchase.quotation.line.fee'].create(quotation_line_fee_vals_list)
+
         # Update booking line to reference the new quotation line
         booking_line.quotation_line_id = quotation_line.id
         
@@ -188,11 +209,10 @@ class FreightPurchaseQuotationService:
         for booking_line in booking.line_ids:
             booking_line.fee_line_ids.unlink()
         
-        # Copy common fees from quotation to booking (always)
-        common_fees_count = 0
+        # Batch create: collect all common fee vals
         _logger.info(f"for quotation_fee in booking.quotation_id.fee_ids...")
+        booking_fee_vals_list = []
         for quotation_fee in booking.quotation_id.fee_ids:
-            # Filter out None and empty values for optional fields
             fee_vals = {
                 'booking_id': booking.id,
                 'fee_type_id': quotation_fee.fee_id.fee_type_id.id,
@@ -200,13 +220,19 @@ class FreightPurchaseQuotationService:
             }
             if quotation_fee.note and quotation_fee.note.strip():
                 fee_vals['note'] = quotation_fee.note
-            self.env['freight.purchase.booking.fee'].create(fee_vals)
-            common_fees_count += 1
-        
+            booking_fee_vals_list.append(fee_vals)
+
+        common_fees_count = len(booking_fee_vals_list)
+        if booking_fee_vals_list:
+            self.env['freight.purchase.booking.fee'].create(booking_fee_vals_list)
+
         # Copy container-specific fees from quotation lines to booking lines (only if booking lines exist)
         container_fees_count = 0
         if has_booking_lines_with_containers:
             _logger.info(f"Processing {len(booking.line_ids)} booking lines for container fees...")
+
+            # Batch create: collect all booking line fee vals
+            booking_line_fee_vals_list = []
             for booking_line in booking.line_ids:
                 if booking_line.container_type_id:
                     _logger.info(f"Processing booking line {booking_line.id} with container type {booking_line.container_type_id.name}")
@@ -220,16 +246,18 @@ class FreightPurchaseQuotationService:
                     for quotation_line in matching_quotation_lines:
                         _logger.info(f"Processing quotation line {quotation_line.id} with {len(quotation_line.fee_line_ids)} fees")
                         for quotation_line_fee in quotation_line.fee_line_ids:
-                            _logger.info(f"Creating booking line fee from quotation line fee {quotation_line_fee.id}")
-                            self.env['freight.purchase.booking.line.fee'].create({
+                            booking_line_fee_vals_list.append({
                                 'booking_line_id': booking_line.id,
                                 'fee_line_id': quotation_line_fee.fee_line_id.id,
                                 'amount': quotation_line_fee.amount,
                             })
-                            container_fees_count += 1
-                            _logger.info(f"Successfully created booking line fee #{container_fees_count}")
                 else:
                     _logger.info(f"Booking line {booking_line.id} has no container type, skipping")
+
+            container_fees_count = len(booking_line_fee_vals_list)
+            if booking_line_fee_vals_list:
+                self.env['freight.purchase.booking.line.fee'].create(booking_line_fee_vals_list)
+                _logger.info(f"Successfully created {container_fees_count} booking line fees")
         else:
             _logger.info("No booking lines with containers found")
         
