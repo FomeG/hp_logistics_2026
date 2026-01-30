@@ -68,12 +68,17 @@ class IrActionsActWindow(models.Model):
 
     def _get_external_id(self):
         """Get external IDs (XML IDs) for current recordset."""
+        if not self:
+            return {}
+
+        # Batch search: get all external_ids at once
+        external_ids = self.env['ir.model.data'].sudo().search([
+            ('model', '=', self._name),
+            ('res_id', 'in', self.ids),
+        ])
+
+        # Build result dict
         result = {}
-        for record in self:
-            external_ids = self.env['ir.model.data'].sudo().search([
-                ('model', '=', self._name),
-                ('res_id', '=', record.id),
-            ], limit=1)
-            if external_ids:
-                result[record.id] = f"{external_ids.module}.{external_ids.name}"
+        for ext_id in external_ids:
+            result[ext_id.res_id] = f"{ext_id.module}.{ext_id.name}"
         return result

@@ -164,20 +164,29 @@ class FreightPurchaseFee(models.Model):
         ])
         FeeLine = self.env["freight.purchase.fee.line"]
 
+        # Batch search: get all existing fee lines for this fee at once
+        existing_fee_lines = FeeLine.search([
+            ("fee_id", "=", self.id),
+            ("port_id", "in", ports.ids),
+        ])
+        existing_port_ids = set(existing_fee_lines.mapped('port_id').ids)
+
+        # Collect vals for batch create
+        vals_list = []
         for port in ports:
-            exists = FeeLine.search([
-                ("fee_id", "=", self.id),
-                ("port_id", "=", port.id),
-            ], limit=1)
-            if exists:
+            if port.id in existing_port_ids:
                 continue
 
-            FeeLine.create({
+            vals_list.append({
                 "fee_id": self.id,
                 "port_id": port.id,
                 "country_id": self.country_id.id,
                 "container_type_id": False if self.fee_type_id.apply_on != "container" else None,
             })
+
+        # Batch create
+        if vals_list:
+            FeeLine.create(vals_list)
     @api.depends('country_id')
     def _onchange_country_id(self):
         if self.country_id and self.fee_type_id and self.fee_type_id.apply_on == 'port':

@@ -244,11 +244,15 @@ class CsOrder(models.Model):
         1. Nếu client có cs_member_id -> gán cho member đó
         2. Nếu không -> gán cho CS leader (department manager)
         """
+        # Pre-fetch CS leader (single query, cached for all records)
+        cs_leader = False
         cs_dept_type = self.env['department.type'].search([('code', '=', 'cs')], limit=1)
-        cs_department = self.env['hr.department'].search([
-            ('department_type_id', '=', cs_dept_type.id)
-        ], limit=1) if cs_dept_type else False
-        cs_leader = cs_department.manager_id.user_id if cs_department and cs_department.manager_id else False
+        if cs_dept_type:
+            cs_department = self.env['hr.department'].search([
+                ('department_type_id', '=', cs_dept_type.id)
+            ], limit=1)
+            if cs_department and cs_department.manager_id:
+                cs_leader = cs_department.manager_id.user_id
 
         for record in self:
             client = record.sale_order_id.client_id if record.sale_order_id else False

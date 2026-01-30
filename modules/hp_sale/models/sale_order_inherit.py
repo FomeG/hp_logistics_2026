@@ -192,18 +192,24 @@ class SaleOrderInherit(models.Model):
 
     def _get_related_task_ids(self):
         self.ensure_one()
-        task_ids = []
 
-        if 'cs.order' in self.env:
-            cs_orders = self.env['cs.order'].search([('sale_order_id', '=', self.id)])
-            for cs_order in cs_orders:
-                if cs_order.project_id:
-                    tasks = self.env['project.task'].search([
-                        ('project_id', '=', cs_order.project_id.id)
-                    ])
-                    task_ids.extend(tasks.ids)
+        if 'cs.order' not in self.env:
+            return []
 
-        return task_ids
+        cs_orders = self.env['cs.order'].search([('sale_order_id', '=', self.id)])
+        
+        # Get all project_ids at once
+        project_ids = cs_orders.filtered(lambda o: o.project_id).mapped('project_id').ids
+        
+        if not project_ids:
+            return []
+
+        # Single search for all tasks
+        tasks = self.env['project.task'].search([
+            ('project_id', 'in', project_ids)
+        ])
+        
+        return tasks.ids
 
     def _compute_task_count(self):
         for order in self:
