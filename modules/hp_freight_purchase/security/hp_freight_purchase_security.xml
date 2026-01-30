@@ -547,4 +547,48 @@
         <field name="perm_create" eval="0"/>
         <field name="perm_unlink" eval="0"/>
     </record>
+
+    <!--
+        Sea Freight Request Line (Response) Rules for Pricing
+        - Pricing Member can READ all responses
+        - Pricing Member can only WRITE/CREATE responses where:
+          * Response is active (active = True)
+          * Price request is NOT linked to sea freight (request_id.sea_freight_id = False)
+    -->
+
+    <!-- Sea Freight Request Line (Response) - Pricing Member READ ALL -->
+    <record id="rule_sea_freight_request_line_pricing_member_read" model="ir.rule">
+        <field name="name">Sea Freight Request Line: Pricing Member Read All</field>
+        <field name="model_id" ref="hp_sale.model_freight_purchase_sea_freight_request_line"/>
+        <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="0"/>
+        <field name="perm_create" eval="0"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <!-- Sea Freight Request Line (Response) - Pricing Member WRITE only active responses with no sea freight -->
+    <record id="rule_sea_freight_request_line_pricing_member_write" model="ir.rule">
+        <field name="name">Sea Freight Request Line: Pricing Member Write Active Without Sea Freight</field>
+        <field name="model_id" ref="hp_sale.model_freight_purchase_sea_freight_request_line"/>
+        <field name="groups" eval="[(4, ref('group_hp_freight_purchase_member'))]"/>
+        <field name="domain_force">[('active', '=', True), ('request_id.sea_freight_id', '=', False)]</field>
+        <field name="perm_read" eval="0"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+    </record>
+
+    <!-- Sea Freight Request Line (Response) - Pricing Leader+ Full Access -->
+    <record id="rule_sea_freight_request_line_pricing_leader_plus" model="ir.rule">
+        <field name="name">Sea Freight Request Line: Leader+ Full Access</field>
+        <field name="model_id" ref="hp_sale.model_freight_purchase_sea_freight_request_line"/>
+        <field name="groups" eval="[(4, ref('group_hp_freight_purchase_lead')), (4, ref('group_hp_freight_purchase_director')), (4, ref('group_hp_freight_purchase_administrator'))]"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+    </record>
 </odoo>
