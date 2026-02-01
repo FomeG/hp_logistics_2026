@@ -77,10 +77,10 @@ class ProductTemplateSellingWeek(models.Model):
             for line in record.line_ids:
                 container = line.container_type_id.name or ''
                 price = str(line.price or '')
-                fees =  line.product_tag_ids.mapped('name')
-                fee_string = ', '.join(fees) if fees else ''
+                surcharges =  line.surcharge_ids.mapped('name')
+                surcharges_string = ', '.join(surcharges) if surcharges else ''
                 ship = line.shipping_line_id.name or ''
-                line_parts.append(f"{container}/{price} {fee_string} ({ship})")
+                line_parts.append(f"{container}/{price} {surcharges_string} ({ship})")
 
             lines_text = ', '.join(line_parts) if line_parts else ''
 

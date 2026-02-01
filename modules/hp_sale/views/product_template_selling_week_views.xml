@@ -40,7 +40,7 @@
                                         context="{'default_partner_main_type_id': %(hp_components.partner_main_type_shipping_line)d}" />
                                     <field name="container_type_id"/>
                                     <field name="price"/>
-                                    <field name="product_tag_ids" widget="many2many_tags"/>
+                                    <field name="surcharge_ids" widget="many2many_tags"/>
                                 </list>
                             </field>
                         </page>
