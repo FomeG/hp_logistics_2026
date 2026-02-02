@@ -16,6 +16,20 @@
         'data/partner_main_type_data.xml',
         'data/vehicle_tag_data.xml',
 
+        'data/demo_location.xml',
+        'data/demo_route.xml',
+        'data/demo_branch.xml',
+        'data/demo_shipping_line.xml',
+        'data/demo_driver.xml',
+        'data/demo_client.xml',
+        'data/demo_vehicle.xml',
+        'data/demo_plan.xml',
+        'data/demo_plan_line.xml',
+        'data/demo_trip.xml',
+
+
+
+
         #wizards
         'views/wizards/import_vehicle_driver_wizard.xml',
         'views/wizards/import_route_wizard.xml',
@@ -50,11 +64,7 @@
        'data/cron_job.xml',
     ],
     'demo': [
-        # 'demo/demo_location.xml',
-        'demo/demo_route.xml',
-        'demo/demo_branch.xml',
-        'demo/demo_driver.xml',
-        'demo/demo_vehicle.xml',
+
     ],
     'installable': True,
     'application': True,

@@ -48,7 +48,7 @@
             <field name="trailer_id" ref="vehicle_trailer_29r11111"/>
         </record>
 
-        <record id="vehicle_trailer_29r11111" model="fleet.vehicle.hpl">
+        <record id="vehicle_truck_306646" model="fleet.vehicle.hpl">
             <field name="trailer_id" ref="vehicle_trailer_30r22222"/>
         </record>
 

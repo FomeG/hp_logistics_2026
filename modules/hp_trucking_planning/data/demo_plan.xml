@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Plan 1: Export from Hà Nội to Hải Phòng Port -->
+        <record id="plan_export_hanoi_haiphong" model="trucking_planning.plan">
+            <field name="name">Export Plan HN-HP-2026-001</field>
+            <field name="plan_type">export</field>
+            <field name="booking_bill_no">MAEU2026012345</field>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_maersk"/>
+            <field name="container_type">dry</field>
+            <field name="goods_cut_off" eval="(DateTime.now() + timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="estimate_time_departure" eval="(DateTime.now() + timedelta(days=10)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="estimate_time_arrival" eval="(DateTime.now() + timedelta(days=25)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="trucking_branch_id" ref="branch_hanoi"/>
+            <field name="status">confirmed</field>
+        </record>
+
+        <!-- Plan 2: Import from Hải Phòng to TP.HCM -->
+        <record id="plan_import_haiphong_hcm" model="trucking_planning.plan">
+            <field name="name">Import Plan HP-HCM-2026-002</field>
+            <field name="plan_type">import</field>
+            <field name="booking_bill_no">MSCU2026067890</field>
+            <field name="shipping_line_id" ref="shipping_line_msc"/>
+            <field name="container_type">dry</field>
+            <field name="goods_cut_off" eval="(DateTime.now() + timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="estimate_time_departure" eval="(DateTime.now() + timedelta(days=8)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="estimate_time_arrival" eval="(DateTime.now() + timedelta(days=20)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="trucking_branch_id" ref="branch_haiphong"/>
+            <field name="status">confirmed</field>
+        </record>
+
+        <!-- Plan 3: Export from Hà Nội to TP.HCM -->
+        <record id="plan_export_hanoi_hcm" model="trucking_planning.plan">
+            <field name="name">Export Plan HN-HCM-2026-003</field>
+            <field name="plan_type">export</field>
+            <field name="booking_bill_no">COSU2026054321</field>
+            <field name="shipping_line_id" ref="hp_components.shipping_line_cosco"/>
+            <field name="container_type">cool</field>
+            <field name="goods_cut_off" eval="(DateTime.now() + timedelta(days=12)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="estimate_time_departure" eval="(DateTime.now() + timedelta(days=15)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="estimate_time_arrival" eval="(DateTime.now() + timedelta(days=35)).strftime('%Y-%m-%d %H:%M:%S')"/>
+            <field name="trucking_branch_id" ref="branch_hanoi"/>
+            <field name="status">draft</field>
+        </record>
+    </data>
+</odoo>

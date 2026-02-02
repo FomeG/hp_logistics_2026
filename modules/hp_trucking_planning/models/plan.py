@@ -43,6 +43,12 @@ class Plan(models.Model):
         required=True,
         domain=[('partner_main_type_id.code', '=', ResPartnerService.SHIPPING_LINE)]
     )
+    trucking_branch_id = fields.Many2one(
+        comodel_name='trucking_planning.branch',
+        string="Branch",
+        required=True,
+        tracking=True
+    )
     # date = fields.Datetime(
     #     string='Load / Return Date',
     #     index=True,

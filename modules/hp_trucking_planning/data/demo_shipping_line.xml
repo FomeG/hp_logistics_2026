@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Major Shipping Lines as res.partner with shipping_line type -->
+        <!-- Maersk and COSCO are available in hp_components -->
+
+        <record id="shipping_line_msc" model="res.partner">
+            <field name="name">MSC (Mediterranean Shipping Company)</field>
+            <field name="partner_main_type_id" ref="hp_components.partner_main_type_shipping_line"/>
+            <field name="phone">+84 28 3930 5999</field>
+            <field name="email">info@msc.com</field>
+            <field name="website">www.msc.com</field>
+            <field name="company_type">company</field>
+        </record>
+
+        <record id="shipping_line_evergreen" model="res.partner">
+            <field name="name">Evergreen Marine</field>
+            <field name="partner_main_type_id" ref="hp_components.partner_main_type_shipping_line"/>
+            <field name="phone">+84 28 3910 6666</field>
+            <field name="email">info@evergreen.com</field>
+            <field name="website">www.evergreen-marine.com</field>
+            <field name="company_type">company</field>
+        </record>
+
+        <record id="shipping_line_one" model="res.partner">
+            <field name="name">Ocean Network Express (ONE)</field>
+            <field name="partner_main_type_id" ref="hp_components.partner_main_type_shipping_line"/>
+            <field name="phone">+84 28 3823 7777</field>
+            <field name="email">info@one-line.com</field>
+            <field name="website">www.one-line.com</field>
+            <field name="company_type">company</field>
+        </record>
+    </data>
+</odoo>

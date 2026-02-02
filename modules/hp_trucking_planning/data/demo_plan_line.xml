@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Plan Lines for Plan 1: Export HN-HP -->
+        <record id="plan_line_plan1_1" model="trucking_planning.plan.line">
+            <field name="plan_id" ref="plan_export_hanoi_haiphong"/>
+            <field name="code">JOB-HN-HP-001</field>
+            <field name="client_id" ref="client_vinacontainer"/>
+            <field name="status">checking</field>
+            <field name="goods_name">Electronics</field>
+            <field name="goods_weight">15000</field>
+        </record>
+
+        <record id="plan_line_plan1_2" model="trucking_planning.plan.line">
+            <field name="plan_id" ref="plan_export_hanoi_haiphong"/>
+            <field name="code">JOB-HN-HP-002</field>
+            <field name="client_id" ref="client_vietnam_express"/>
+            <field name="status">checking</field>
+            <field name="goods_name">Garments</field>
+            <field name="goods_weight">12000</field>
+        </record>
+
+        <!-- Plan Lines for Plan 2: Import HP-HCM -->
+        <record id="plan_line_plan2_1" model="trucking_planning.plan.line">
+            <field name="plan_id" ref="plan_import_haiphong_hcm"/>
+            <field name="code">JOB-HP-HCM-001</field>
+            <field name="client_id" ref="client_saigon_logistics"/>
+            <field name="status">checking</field>
+            <field name="goods_name">Machinery Parts</field>
+            <field name="goods_weight">18000</field>
+        </record>
+
+        <record id="plan_line_plan2_2" model="trucking_planning.plan.line">
+            <field name="plan_id" ref="plan_import_haiphong_hcm"/>
+            <field name="code">JOB-HP-HCM-002</field>
+            <field name="client_id" ref="client_haiphong_trade"/>
+            <field name="status">checking</field>
+            <field name="goods_name">Raw Materials</field>
+            <field name="goods_weight">20000</field>
+        </record>
+
+        <!-- Plan Lines for Plan 3: Export HN-HCM -->
+        <record id="plan_line_plan3_1" model="trucking_planning.plan.line">
+            <field name="plan_id" ref="plan_export_hanoi_hcm"/>
+            <field name="code">JOB-HN-HCM-001</field>
+            <field name="client_id" ref="client_global_freight"/>
+            <field name="status">checking</field>
+            <field name="goods_name">Frozen Food</field>
+            <field name="goods_weight">16000</field>
+        </record>
+
+        <record id="plan_line_plan3_2" model="trucking_planning.plan.line">
+            <field name="plan_id" ref="plan_export_hanoi_hcm"/>
+            <field name="code">JOB-HN-HCM-002</field>
+            <field name="client_id" ref="client_vinacontainer"/>
+            <field name="status">checking</field>
+            <field name="goods_name">Chemicals</field>
+            <field name="goods_weight">14000</field>
+        </record>
+
+        <record id="plan_line_plan3_3" model="trucking_planning.plan.line">
+            <field name="plan_id" ref="plan_export_hanoi_hcm"/>
+            <field name="code">JOB-HN-HCM-003</field>
+            <field name="client_id" ref="client_global_freight"/>
+            <field name="status">checking</field>
+            <field name="goods_name">Textiles</field>
+            <field name="goods_weight">11000</field>
+        </record>
+    </data>
+</odoo>

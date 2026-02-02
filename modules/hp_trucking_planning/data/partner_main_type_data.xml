@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+    <!-- NOTE: shipping_line partner_main_type already exists in hp_components module -->
     <record id="partner_main_type_driver" model="partner.main.type">
         <field name="code">driver</field>
         <field name="name">Driver</field>

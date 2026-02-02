@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="1">
+        <!-- Route: Hà Nội → Hải Phòng -->
         <record id="route_hanoi_haiphong" model="route.base">
             <field name="from_location_id" ref="hp_components.location_vn_city_hn"/>
             <field name="to_location_id" ref="hp_components.location_vn_city_hp"/>
@@ -11,16 +12,18 @@
             <field name="direction">export</field>
         </record>
 
-        <record id="route_hanoi_danang" model="route.base">
+        <!-- Route: Hải Phòng → TP.HCM -->
+        <record id="route_haiphong_hochiminh" model="route.base">
             <field name="from_location_id" ref="hp_components.location_vn_city_hp"/>
             <field name="to_location_id" ref="hp_components.location_vn_city_hcm"/>
-            <field name="distance_km">764</field>
-            <field name="road_fee">1500000</field>
-            <field name="trip_salary">3500000</field>
-            <field name="ticket_fee">200000</field>
+            <field name="distance_km">1600</field>
+            <field name="road_fee">2800000</field>
+            <field name="trip_salary">6500000</field>
+            <field name="ticket_fee">350000</field>
             <field name="direction">export</field>
         </record>
 
+        <!-- Route: Hà Nội → TP.HCM -->
         <record id="route_hanoi_hochiminh" model="route.base">
             <field name="from_location_id" ref="hp_components.location_vn_city_hn"/>
             <field name="to_location_id" ref="hp_components.location_vn_city_hcm"/>

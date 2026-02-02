@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Trips for Plan 1: Export HN-HP -->
+        <record id="trip_plan1_trip1" model="trucking_planning.trip">
+            <field name="plan_line_id" ref="plan_line_plan1_1"/>
+            <field name="container_number">MAEU1234567</field>
+            <field name="seal_number">SL123456</field>
+            <field name="container_size">40</field>
+            <field name="weight_class">inferior_20</field>
+            <field name="status">draft</field>
+        </record>
+
+        <record id="trip_plan1_trip2" model="trucking_planning.trip">
+            <field name="plan_line_id" ref="plan_line_plan1_2"/>
+            <field name="container_number">MAEU1234568</field>
+            <field name="seal_number">SL123457</field>
+            <field name="container_size">40</field>
+            <field name="weight_class">inferior_20</field>
+            <field name="status">on_route</field>
+        </record>
+
+        <!-- Trips for Plan 2: Import HP-HCM -->
+        <record id="trip_plan2_trip1" model="trucking_planning.trip">
+            <field name="plan_line_id" ref="plan_line_plan2_1"/>
+            <field name="container_number">MSCU9876543</field>
+            <field name="seal_number">SL678901</field>
+            <field name="container_size">20</field>
+            <field name="weight_class">superior_20</field>
+            <field name="status">draft</field>
+        </record>
+
+        <record id="trip_plan2_trip2" model="trucking_planning.trip">
+            <field name="plan_line_id" ref="plan_line_plan2_2"/>
+            <field name="container_number">MSCU9876544</field>
+            <field name="seal_number">SL678902</field>
+            <field name="container_size">20</field>
+            <field name="weight_class">superior_20</field>
+            <field name="status">done</field>
+        </record>
+
+        <!-- Trips for Plan 3: Export HN-HCM -->
+        <record id="trip_plan3_trip1" model="trucking_planning.trip">
+            <field name="plan_line_id" ref="plan_line_plan3_1"/>
+            <field name="container_number">COSU5432109</field>
+            <field name="seal_number">SL234567</field>
+            <field name="container_size">40</field>
+            <field name="weight_class">inferior_20</field>
+            <field name="status">draft</field>
+        </record>
+
+        <record id="trip_plan3_trip2" model="trucking_planning.trip">
+            <field name="plan_line_id" ref="plan_line_plan3_2"/>
+            <field name="container_number">COSU5432110</field>
+            <field name="seal_number">SL234568</field>
+            <field name="container_size">40</field>
+            <field name="weight_class">mix</field>
+            <field name="status">draft</field>
+        </record>
+
+        <record id="trip_plan3_trip3" model="trucking_planning.trip">
+            <field name="plan_line_id" ref="plan_line_plan3_3"/>
+            <field name="container_number">COSU5432111</field>
+            <field name="seal_number">SL234569</field>
+            <field name="container_size">40</field>
+            <field name="weight_class">inferior_20</field>
+            <field name="status">cancelled</field>
+        </record>
+    </data>
+</odoo>
