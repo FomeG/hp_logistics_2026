@@ -63,7 +63,7 @@
     <record id="action_route" model="ir.actions.act_window">
         <field name="name">Routes</field>
         <field name="res_model">route.base</field>
-        <field name="domain">[('transport_mode', '=', 'truck')]</field>
+        <!-- <field name="domain">[('transport_mode', '=', 'truck')]</field> -->
         <field name="context"
             eval="{
                 'form_view_ref': 'hp_trucking_planning.view_route_form',
