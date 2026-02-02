@@ -12,7 +12,8 @@ class FleetVehicleInherit(models.Model):
     _inherit = ['fleet.vehicle']
 
     driver_id = fields.Many2one(
-        domain=lambda self:self._get_driver_domain()
+        # domain=lambda self:self._get_driver_domain()
+        domain="[('partner_main_type_id.code', '=', 'driver')]"
     )
 
     # will be replaced by "fleet.vehicle.assignation.log"
@@ -33,8 +34,8 @@ class FleetVehicleInherit(models.Model):
     def _get_default_branch(self):
         return self.env['trucking_planning.branch'].sudo().search([('user_ids', 'in', [self.env.uid])], limit=1)
 
-    @api.model
-    def _get_driver_domain(self):
-        return [(
-            'partner_main_type_id','=',self.env['hp_components.partner.service'].get_partner_main_type_driver().id
-        )]
+    # @api.model
+    # def _get_driver_domain(self):
+    #     return [(
+    #         'partner_main_type_id','=',self.env['hp_components.partner.service'].get_partner_main_type_driver().id
+    #     )]

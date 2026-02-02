@@ -1,4 +1,6 @@
 from odoo import models, fields, api
+from odoo.addons.hp_components.models.constants import PartnerMainTypeCode
+
 
 class ResPartnerDriver(models.Model):
     _name = 'res.partner.driver'
@@ -12,6 +14,29 @@ class ResPartnerDriver(models.Model):
         required=True,
         ondelete='cascade',
     )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """Auto-set partner_main_type_id to 'driver' for all created drivers."""
+        partner_main_type_driver = self.env['hp_components.partner.service'].get_partner_main_type_driver()
+        existing_partner_ids = []
+        for vals in vals_list:
+            if vals.get('partner_id'):
+                # Existing partner - need to update it after creation
+                existing_partner_ids.append(vals['partner_id'])
+            else:
+                # New partner will be created via _inherits - set type in vals
+                vals['partner_main_type_id'] = partner_main_type_driver.id
+
+        records = super().create(vals_list)
+
+        # Update existing partners' partner_main_type_id
+        if existing_partner_ids:
+            self.env['res.partner'].browse(existing_partner_ids).write({
+                'partner_main_type_id': partner_main_type_driver.id
+            })
+
+        return records
 
     # Computed field để lấy vehicle assignation history thông qua partner_id
     vehicle_assignation_history_ids = fields.One2many(

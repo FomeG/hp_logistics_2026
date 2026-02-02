@@ -179,11 +179,11 @@ class Trip(models.Model):
         compute='_compute_driver_id',
         store=True,
         readonly=True,
-        domain=lambda self: self._get_driver_domain()
+        # domain=lambda self: self._get_driver_domain()
     )
 
-    def _get_driver_domain(self):
-        return [('partner_main_type_id', '=',self.env['hp_components.partner.service'].get_partner_main_type_driver().id)]
+    # def _get_driver_domain(self):
+    #     return [('partner_main_type_id', '=',self.env['hp_components.partner.service'].get_partner_main_type_driver().id)]
 
     # truck_id = fields.Many2one(
     #     comodel_name='fleet.vehicle',

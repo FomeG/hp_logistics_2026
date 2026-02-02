@@ -17,6 +17,27 @@ class FleetVehicleHpl(models.Model):
         ondelete='cascade',
         index=True,
     )
+    # driver_id = fields.Many2one(
+    #     comodel_name='res.partner',
+    #     related='vehicle_id.driver_id',
+    #     string='Driver',
+    #     domain="[('partner_main_type_id.code', '=', 'driver')]",
+    #     readonly=False,
+    # )
+
+
+
+
+    # Override driver_id to use res.partner.driver model for proper quick-create
+    driver_id = fields.Many2one(
+        comodel_name='res.partner.driver',
+        string='Driver',
+        compute='_compute_driver_id',
+        inverse='_inverse_driver_id',
+        store=True,
+    )
+
+    
     trailer_id = fields.Many2one(
         comodel_name='fleet.vehicle',
         string='Trailer',
@@ -71,6 +92,26 @@ class FleetVehicleHpl(models.Model):
     _sql_constraints = [
         ('unique_trailer_assignment', 'unique(trailer_id)', 'This trailer is already assigned to another vehicle.'),
     ]
+
+    @api.depends('vehicle_id.driver_id')
+    def _compute_driver_id(self):
+        """Compute driver_id from fleet.vehicle's driver_id (res.partner) to res.partner.driver."""
+        for record in self:
+            if record.vehicle_id and record.vehicle_id.driver_id:
+                # Find res.partner.driver record that links to this res.partner
+                driver = self.env['res.partner.driver'].search([
+                    ('partner_id', '=', record.vehicle_id.driver_id.id)
+                ], limit=1)
+                record.driver_id = driver
+            else:
+                record.driver_id = False
+
+    def _inverse_driver_id(self):
+        """Sync driver_id back to fleet.vehicle's driver_id (res.partner)."""
+        for record in self:
+            if record.vehicle_id:
+                # Set fleet.vehicle.driver_id to the partner_id of res.partner.driver
+                record.vehicle_id.driver_id = record.driver_id.partner_id if record.driver_id else False
 
     @api.depends('model_id', 'tag_ids')
     def _compute_fuel_rates(self):

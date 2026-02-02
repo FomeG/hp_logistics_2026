@@ -41,6 +41,10 @@
             <field name="implied_ids" eval="[(4, ref('group_hp_trucking_planning_administrator'))]"/>
         </record>
 
+
+      <record id="base.group_system" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('group_hp_trucking_planning_administrator'))]"/>
+        </record>
         <!-- RULES -->
 
         <!-- Rule branch cho Member -->
