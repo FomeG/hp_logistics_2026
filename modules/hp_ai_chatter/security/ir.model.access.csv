@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_ai_conversation_user,ai.conversation.user,model_ai_conversation,hp_ai_base.group_ai_user,1,1,1,0
+access_ai_conversation_manager,ai.conversation.manager,model_ai_conversation,hp_ai_base.group_ai_manager,1,1,1,1
+access_ai_conversation_message_user,ai.conversation.message.user,model_ai_conversation_message,hp_ai_base.group_ai_user,1,1,1,0
+access_ai_conversation_message_manager,ai.conversation.message.manager,model_ai_conversation_message,hp_ai_base.group_ai_manager,1,1,1,1
+access_ai_ask_wizard_user,ai.ask.wizard.user,model_ai_ask_wizard,hp_ai_base.group_ai_user,1,1,1,1

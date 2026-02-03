@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- AI Manager Group -->
+    <record id="group_ai_manager" model="res.groups">
+        <field name="name">AI Manager</field>
+        <field name="category_id" ref="base.module_category_technical_settings"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Can manage AI providers, templates, and view usage logs</field>
+    </record>
+
+    <!-- AI User Group -->
+    <record id="group_ai_user" model="res.groups">
+        <field name="name">AI User</field>
+        <field name="category_id" ref="base.module_category_technical_settings"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">Can use AI features in the system</field>
+    </record>
+
+    <!-- Record Rules -->
+    <!-- Users can only see their own usage logs -->
+    <record id="ai_usage_log_user_rule" model="ir.rule">
+        <field name="name">AI Usage Log: User can see own logs</field>
+        <field name="model_id" ref="model_ai_usage_log"/>
+        <field name="domain_force">[('user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_ai_user'))]"/>
+    </record>
+
+    <!-- Managers can see all usage logs -->
+    <record id="ai_usage_log_manager_rule" model="ir.rule">
+        <field name="name">AI Usage Log: Manager can see all</field>
+        <field name="model_id" ref="model_ai_usage_log"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('group_ai_manager'))]"/>
+    </record>
+</odoo>

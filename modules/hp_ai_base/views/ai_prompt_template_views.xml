@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- AI Prompt Template Form View -->
+    <record id="ai_prompt_template_view_form" model="ir.ui.view">
+        <field name="name">ai.prompt.template.view.form</field>
+        <field name="model">ai.prompt.template</field>
+        <field name="arch" type="xml">
+            <form string="AI Prompt Template">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Template Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Identification">
+                            <field name="code"/>
+                            <field name="category"/>
+                            <field name="sequence"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                        <group string="AI Settings">
+                            <field name="provider_id"/>
+                            <field name="model_override" placeholder="Leave empty to use provider default"/>
+                            <field name="max_tokens"/>
+                            <field name="temperature"/>
+                        </group>
+                    </group>
+                    <group string="Model Targeting">
+                        <field name="target_model" placeholder="e.g., sale.order"/>
+                        <field name="context_fields" placeholder="e.g., name,partner_id.name,state"/>
+                    </group>
+                    <notebook>
+                        <page string="System Prompt" name="system_prompt">
+                            <field name="system_prompt" placeholder="Enter the system prompt that defines AI behavior..."/>
+                        </page>
+                        <page string="User Prompt Template" name="user_prompt">
+                            <field name="user_prompt_template" placeholder="Optional template with {placeholders}..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- AI Prompt Template Tree View -->
+    <record id="ai_prompt_template_view_tree" model="ir.ui.view">
+        <field name="name">ai.prompt.template.view.tree</field>
+        <field name="model">ai.prompt.template</field>
+        <field name="arch" type="xml">
+            <list string="AI Prompt Templates">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="category"/>
+                <field name="provider_id"/>
+                <field name="target_model"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- AI Prompt Template Search View -->
+    <record id="ai_prompt_template_view_search" model="ir.ui.view">
+        <field name="name">ai.prompt.template.view.search</field>
+        <field name="model">ai.prompt.template</field>
+        <field name="arch" type="xml">
+            <search string="Search Templates">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="target_model"/>
+                <filter name="filter_active" string="Active" domain="[('active', '=', True)]"/>
+                <separator/>
+                <filter name="filter_general" string="General" domain="[('category', '=', 'general')]"/>
+                <filter name="filter_logistics" string="Logistics" domain="[('category', '=', 'logistics')]"/>
+                <filter name="filter_sales" string="Sales" domain="[('category', '=', 'sales')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_category" string="Category" context="{'group_by': 'category'}"/>
+                    <filter name="group_provider" string="Provider" context="{'group_by': 'provider_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- AI Prompt Template Action -->
+    <record id="action_ai_prompt_template" model="ir.actions.act_window">
+        <field name="name">Prompt Templates</field>
+        <field name="res_model">ai.prompt.template</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first AI prompt template
+            </p>
+            <p>
+                Templates define how the AI responds in different contexts.
+            </p>
+        </field>
+    </record>
+</odoo>

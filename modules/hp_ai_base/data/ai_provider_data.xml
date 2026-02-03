@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Default OpenAI Provider (inactive - needs API key) -->
+    <record id="ai_provider_openai" model="ai.provider">
+        <field name="name">OpenAI</field>
+        <field name="code">openai</field>
+        <field name="sequence">10</field>
+        <field name="active">False</field>
+        <field name="api_key">YOUR_OPENAI_API_KEY</field>
+        <field name="model_name">gpt-4o-mini</field>
+        <field name="default_max_tokens">2048</field>
+        <field name="default_temperature">0.7</field>
+        <field name="requests_per_minute">60</field>
+        <field name="tokens_per_minute">100000</field>
+        <field name="input_cost_per_1k">0.00015</field>
+        <field name="output_cost_per_1k">0.0006</field>
+    </record>
+
+    <!-- Default Anthropic Provider (inactive - needs API key) -->
+    <record id="ai_provider_anthropic" model="ai.provider">
+        <field name="name">Anthropic</field>
+        <field name="code">anthropic</field>
+        <field name="sequence">20</field>
+        <field name="active">False</field>
+        <field name="api_key">YOUR_ANTHROPIC_API_KEY</field>
+        <field name="model_name">claude-3-5-sonnet-20241022</field>
+        <field name="default_max_tokens">2048</field>
+        <field name="default_temperature">0.7</field>
+        <field name="requests_per_minute">60</field>
+        <field name="tokens_per_minute">100000</field>
+        <field name="input_cost_per_1k">0.003</field>
+        <field name="output_cost_per_1k">0.015</field>
+    </record>
+
+    <!-- Default Prompt Templates -->
+    <record id="prompt_template_general_assistant" model="ai.prompt.template">
+        <field name="name">General Assistant</field>
+        <field name="code">general_assistant</field>
+        <field name="sequence">10</field>
+        <field name="category">general</field>
+        <field name="system_prompt">You are a helpful AI assistant integrated into an Odoo ERP system.
+You help users with their business tasks, answer questions about their data, and provide suggestions.
+Be concise, professional, and helpful. If you're unsure about something, say so.
+Always respond in the same language the user uses.</field>
+        <field name="max_tokens">2048</field>
+        <field name="temperature">0.7</field>
+    </record>
+
+    <record id="prompt_template_logistics_assistant" model="ai.prompt.template">
+        <field name="name">Logistics Assistant</field>
+        <field name="code">logistics_assistant</field>
+        <field name="sequence">20</field>
+        <field name="category">logistics</field>
+        <field name="system_prompt">You are an AI assistant specialized in logistics and freight forwarding operations.
+You help with:
+- Trip planning and route optimization
+- Driver and vehicle assignment suggestions
+- Freight booking analysis
+- Customer service inquiries
+- Document processing
+
+Be concise and practical. Focus on actionable insights.
+Always respond in the same language the user uses.</field>
+        <field name="max_tokens">2048</field>
+        <field name="temperature">0.5</field>
+    </record>
+
+    <!-- Enable logging by default -->
+    <record id="config_enable_logging" model="ir.config_parameter">
+        <field name="key">hp_ai_base.enable_logging</field>
+        <field name="value">True</field>
+    </record>
+
+    <record id="config_enable_cost_tracking" model="ir.config_parameter">
+        <field name="key">hp_ai_base.enable_cost_tracking</field>
+        <field name="value">True</field>
+    </record>
+</odoo>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Chatter-specific prompt template -->
+    <record id="prompt_template_chatter_assistant" model="ai.prompt.template">
+        <field name="name">Chatter Assistant</field>
+        <field name="code">chatter_assistant</field>
+        <field name="sequence">5</field>
+        <field name="category">general</field>
+        <field name="system_prompt">You are an AI assistant integrated into Odoo's chatter system.
+You help users by answering questions about the current record they are viewing.
+
+Guidelines:
+- Be concise and helpful
+- Reference specific data from the record context when relevant
+- If you don't have enough information, ask for clarification
+- Use bullet points for lists
+- Always respond in the same language as the user's message
+- Be professional but friendly</field>
+        <field name="max_tokens">1024</field>
+        <field name="temperature">0.7</field>
+    </record>
+
+    <!-- Server Action to open AI Ask Wizard - available in Action menu for Partners -->
+    <record id="action_ask_ai_partner" model="ir.actions.server">
+        <field name="name">🤖 Ask AI Assistant</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="binding_model_id" ref="base.model_res_partner"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Ask AI Assistant',
+    'res_model': 'ai.ask.wizard',
+    'view_mode': 'form',
+    'target': 'new',
+    'context': {
+        'default_res_model': model._name,
+        'default_res_id': record.id if record else False,
+    }
+}
+        </field>
+    </record>
+</odoo>

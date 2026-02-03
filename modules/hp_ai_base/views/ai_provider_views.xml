@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- AI Provider Form View -->
+    <record id="ai_provider_view_form" model="ir.ui.view">
+        <field name="name">ai.provider.view.form</field>
+        <field name="model">ai.provider</field>
+        <field name="arch" type="xml">
+            <form string="AI Provider">
+                <header>
+                    <button name="test_connection" type="object" string="Test Connection" class="btn-primary"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(hp_ai_base.action_ai_usage_log)d" type="action"
+                                class="oe_stat_button" icon="fa-bar-chart"
+                                context="{'search_default_provider_id': id}">
+                            <field name="total_requests" widget="statinfo" string="Requests"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Provider Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Configuration">
+                            <field name="code"/>
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group string="API Settings">
+                            <field name="api_key" password="True"/>
+                            <field name="api_base_url" placeholder="Leave empty for default"/>
+                            <field name="model_name"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Default Parameters">
+                            <field name="default_max_tokens"/>
+                            <field name="default_temperature"/>
+                        </group>
+                        <group string="Rate Limiting">
+                            <field name="requests_per_minute"/>
+                            <field name="tokens_per_minute"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Cost Tracking">
+                            <field name="currency_id"/>
+                            <field name="input_cost_per_1k"/>
+                            <field name="output_cost_per_1k"/>
+                        </group>
+                        <group string="Statistics">
+                            <field name="total_tokens"/>
+                            <field name="total_cost"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- AI Provider Tree View -->
+    <record id="ai_provider_view_tree" model="ir.ui.view">
+        <field name="name">ai.provider.view.tree</field>
+        <field name="model">ai.provider</field>
+        <field name="arch" type="xml">
+            <list string="AI Providers">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="model_name"/>
+                <field name="total_requests"/>
+                <field name="total_tokens"/>
+                <field name="total_cost" widget="monetary"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- AI Provider Action -->
+    <record id="action_ai_provider" model="ir.actions.act_window">
+        <field name="name">AI Providers</field>
+        <field name="res_model">ai.provider</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure your AI providers
+            </p>
+            <p>
+                Add your OpenAI or Anthropic API keys to enable AI features.
+            </p>
+        </field>
+    </record>
+</odoo>

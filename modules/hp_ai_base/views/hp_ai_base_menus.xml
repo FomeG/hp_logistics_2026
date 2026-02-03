@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Main AI Menu (under Settings) -->
+    <menuitem id="menu_ai_root"
+              name="AI"
+              parent="base.menu_administration"
+              sequence="100"
+              groups="hp_ai_base.group_ai_manager"/>
+
+    <!-- AI Configuration Submenu -->
+    <menuitem id="menu_ai_configuration"
+              name="Configuration"
+              parent="menu_ai_root"
+              sequence="10"/>
+
+    <menuitem id="menu_ai_provider"
+              name="Providers"
+              parent="menu_ai_configuration"
+              action="action_ai_provider"
+              sequence="10"/>
+
+    <menuitem id="menu_ai_prompt_template"
+              name="Prompt Templates"
+              parent="menu_ai_configuration"
+              action="action_ai_prompt_template"
+              sequence="20"/>
+
+    <!-- AI Analytics Submenu -->
+    <menuitem id="menu_ai_analytics"
+              name="Analytics"
+              parent="menu_ai_root"
+              sequence="20"/>
+
+    <menuitem id="menu_ai_usage_log"
+              name="Usage Logs"
+              parent="menu_ai_analytics"
+              action="action_ai_usage_log"
+              sequence="10"/>
+</odoo>

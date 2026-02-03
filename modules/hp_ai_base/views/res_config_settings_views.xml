@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_ai" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.ai</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="AI" string="AI" name="hp_ai_base" groups="hp_ai_base.group_ai_manager">
+                    <block title="AI Configuration" name="ai_config">
+                        <setting string="Default AI Provider" help="Select the default provider for AI requests">
+                            <field name="ai_default_provider_id"/>
+                        </setting>
+                        <setting string="AI Bot Partner" help="The partner used for AI messages in chatter">
+                            <field name="ai_bot_partner_id"/>
+                        </setting>
+                    </block>
+                    <block title="Features" name="ai_features">
+                        <setting string="Usage Logging" help="Log all AI requests for analysis">
+                            <field name="ai_enable_logging"/>
+                        </setting>
+                        <setting string="Cost Tracking" help="Track costs based on token usage">
+                            <field name="ai_enable_cost_tracking"/>
+                        </setting>
+                    </block>
+                    <block title="Rate Limiting" name="ai_rate_limiting">
+                        <setting string="Global Rate Limit" help="Maximum requests per minute across all users">
+                            <field name="ai_global_rate_limit"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

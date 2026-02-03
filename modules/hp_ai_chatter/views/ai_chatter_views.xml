@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- AI Ask Wizard Form View -->
+    <record id="ai_ask_wizard_view_form" model="ir.ui.view">
+        <field name="name">ai.ask.wizard.view.form</field>
+        <field name="model">ai.ask.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Ask AI Assistant">
+                <sheet>
+                    <group>
+                        <field name="record_name" readonly="1" string="About"/>
+                        <field name="res_model" invisible="1"/>
+                        <field name="res_id" invisible="1"/>
+                    </group>
+                    <group invisible="has_answer">
+                        <field name="question" placeholder="Type your question here..." widget="text"/>
+                        <field name="template_id" groups="hp_ai_base.group_ai_manager"/>
+                        <field name="post_to_chatter"/>
+                    </group>
+                    <group invisible="not has_answer">
+                        <field name="has_answer" invisible="1"/>
+                        <div class="alert alert-info" role="alert">
+                            <strong>Your Question:</strong>
+                            <field name="question" readonly="1" nolabel="1"/>
+                        </div>
+                        <separator string="AI Response"/>
+                        <field name="answer" nolabel="1" readonly="1"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Ask AI" name="action_ask" type="object" class="btn-primary"
+                            invisible="has_answer"/>
+                    <button string="Ask Another Question" name="action_new_question" type="object"
+                            class="btn-primary" invisible="not has_answer"/>
+                    <button string="Clear History" name="action_clear_history" type="object"
+                            class="btn-secondary" groups="hp_ai_base.group_ai_manager"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- AI Ask Wizard Action -->
+    <record id="action_ai_ask_wizard" model="ir.actions.act_window">
+        <field name="name">Ask AI Assistant</field>
+        <field name="res_model">ai.ask.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- AI Conversation Tree View -->
+    <record id="ai_conversation_view_tree" model="ir.ui.view">
+        <field name="name">ai.conversation.view.tree</field>
+        <field name="model">ai.conversation</field>
+        <field name="arch" type="xml">
+            <list string="AI Conversations" create="false">
+                <field name="name"/>
+                <field name="res_model"/>
+                <field name="res_id"/>
+                <field name="message_count"/>
+                <field name="last_activity"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- AI Conversation Form View -->
+    <record id="ai_conversation_view_form" model="ir.ui.view">
+        <field name="name">ai.conversation.view.form</field>
+        <field name="model">ai.conversation</field>
+        <field name="arch" type="xml">
+            <form string="AI Conversation" create="false">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="res_model"/>
+                            <field name="res_id"/>
+                        </group>
+                        <group>
+                            <field name="template_id"/>
+                            <field name="max_context_messages"/>
+                            <field name="last_activity"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Messages" name="messages">
+                            <field name="message_ids">
+                                <list create="false" edit="false">
+                                    <field name="create_date"/>
+                                    <field name="role"/>
+                                    <field name="user_id"/>
+                                    <field name="content" widget="text"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- AI Conversation Action -->
+    <record id="action_ai_conversation" model="ir.actions.act_window">
+        <field name="name">AI Conversations</field>
+        <field name="res_model">ai.conversation</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No AI conversations yet
+            </p>
+            <p>
+                Conversations are created when users interact with the AI in chatter.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Items (under AI menu from hp_ai_base) -->
+    <menuitem id="menu_ai_conversation"
+              name="Conversations"
+              parent="hp_ai_base.menu_ai_analytics"
+              action="action_ai_conversation"
+              sequence="20"/>
+</odoo>

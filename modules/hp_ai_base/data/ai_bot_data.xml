@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- AI Bot Partner -->
+    <record id="partner_ai_bot" model="res.partner">
+        <field name="name">AI Assistant</field>
+        <field name="email">ai-assistant@localhost</field>
+        <field name="is_company">False</field>
+        <field name="type">contact</field>
+        <field name="active">True</field>
+    </record>
+
+    <!-- Set AI Bot Partner in config -->
+    <record id="config_ai_bot_partner" model="ir.config_parameter">
+        <field name="key">hp_ai_base.ai_bot_partner_id</field>
+        <field name="value" ref="partner_ai_bot"/>
+    </record>
+</odoo>

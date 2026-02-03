@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- AI Usage Log Form View -->
+    <record id="ai_usage_log_view_form" model="ir.ui.view">
+        <field name="name">ai.usage.log.view.form</field>
+        <field name="model">ai.usage.log</field>
+        <field name="arch" type="xml">
+            <form string="AI Usage Log" create="false" edit="false">
+                <sheet>
+                    <group>
+                        <group string="Request Info">
+                            <field name="name"/>
+                            <field name="provider_id"/>
+                            <field name="template_id"/>
+                            <field name="model_used"/>
+                            <field name="user_id"/>
+                            <field name="create_date"/>
+                        </group>
+                        <group string="Token Usage">
+                            <field name="input_tokens"/>
+                            <field name="output_tokens"/>
+                            <field name="total_tokens"/>
+                            <field name="cost" widget="monetary"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="response_time_ms"/>
+                        </group>
+                    </group>
+                    <group string="Context">
+                        <field name="res_model"/>
+                        <field name="res_id"/>
+                        <field name="status"/>
+                        <field name="error_message" invisible="status != 'error'"/>
+                    </group>
+                    <notebook>
+                        <page string="Prompt Preview">
+                            <field name="prompt_preview" readonly="1"/>
+                        </page>
+                        <page string="Response Preview">
+                            <field name="response_preview" readonly="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- AI Usage Log Tree View -->
+    <record id="ai_usage_log_view_tree" model="ir.ui.view">
+        <field name="name">ai.usage.log.view.tree</field>
+        <field name="model">ai.usage.log</field>
+        <field name="arch" type="xml">
+            <list string="AI Usage Logs" create="false" edit="false" decoration-danger="status == 'error'">
+                <field name="create_date"/>
+                <field name="provider_id"/>
+                <field name="model_used"/>
+                <field name="user_id"/>
+                <field name="total_tokens"/>
+                <field name="cost" widget="monetary"/>
+                <field name="response_time_ms"/>
+                <field name="status"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- AI Usage Log Search View -->
+    <record id="ai_usage_log_view_search" model="ir.ui.view">
+        <field name="name">ai.usage.log.view.search</field>
+        <field name="model">ai.usage.log</field>
+        <field name="arch" type="xml">
+            <search string="Search Usage Logs">
+                <field name="provider_id"/>
+                <field name="template_id"/>
+                <field name="user_id"/>
+                <field name="model_used"/>
+                <field name="res_model"/>
+                <separator/>
+                <filter name="filter_success" string="Success" domain="[('status', '=', 'success')]"/>
+                <filter name="filter_error" string="Errors" domain="[('status', '=', 'error')]"/>
+                <separator/>
+                <filter name="filter_today" string="Today" domain="[('create_date', '>=', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="filter_week" string="This Week" domain="[('create_date', '>=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_provider" string="Provider" context="{'group_by': 'provider_id'}"/>
+                    <filter name="group_user" string="User" context="{'group_by': 'user_id'}"/>
+                    <filter name="group_template" string="Template" context="{'group_by': 'template_id'}"/>
+                    <filter name="group_date" string="Date" context="{'group_by': 'create_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- AI Usage Log Pivot View -->
+    <record id="ai_usage_log_view_pivot" model="ir.ui.view">
+        <field name="name">ai.usage.log.view.pivot</field>
+        <field name="model">ai.usage.log</field>
+        <field name="arch" type="xml">
+            <pivot string="AI Usage Analysis">
+                <field name="provider_id" type="row"/>
+                <field name="create_date" type="col" interval="day"/>
+                <field name="total_tokens" type="measure"/>
+                <field name="cost" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- AI Usage Log Graph View -->
+    <record id="ai_usage_log_view_graph" model="ir.ui.view">
+        <field name="name">ai.usage.log.view.graph</field>
+        <field name="model">ai.usage.log</field>
+        <field name="arch" type="xml">
+            <graph string="AI Usage" type="line">
+                <field name="create_date" type="row" interval="day"/>
+                <field name="total_tokens" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- AI Usage Log Action -->
+    <record id="action_ai_usage_log" model="ir.actions.act_window">
+        <field name="name">Usage Logs</field>
+        <field name="res_model">ai.usage.log</field>
+        <field name="view_mode">tree,pivot,graph,form</field>
+        <field name="context">{'search_default_filter_today': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No AI usage logs yet
+            </p>
+            <p>
+                Usage logs will appear here when AI features are used.
+            </p>
+        </field>
+    </record>
+</odoo>
