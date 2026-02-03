@@ -72,14 +72,15 @@ class ImportRouteWizard(models.TransientModel):
         # check to location
         location_name = re.sub(r'\s+', ' ', match.group(1).strip())
         to_location = model_location.search([
-            ('type', '=', 'route_point'),
+            # ('type', '=', 'route_point'),
             ('name', 'ilike', location_name)
         ], limit=1)
 
         if not to_location:
             to_location = model_location.create({
                 'name': location_name,
-                'type': 'route_point',
+                # 'type': 'route_point',
+                'type': 'truck_road',
                 'state_id': self.to_state_id.id,
                 'address': f"{location_name}, {self.to_state_id.name}",
             })
@@ -117,7 +118,8 @@ class ImportRouteWizard(models.TransientModel):
                 data.append({
                     'from_location': {
                         'name': address,
-                        'type': 'route_point',
+                        # 'type': 'route_point',
+                        'type': 'truck_road',
                         'state_id': state.id,
                         'address': address,
                     },
