@@ -14,6 +14,7 @@
         <field name="tokens_per_minute">100000</field>
         <field name="input_cost_per_1k">0.00015</field>
         <field name="output_cost_per_1k">0.0006</field>
+        <field name="auth_type">bearer</field>
     </record>
 
     <!-- Default Anthropic Provider (inactive - needs API key) -->
@@ -30,6 +31,27 @@
         <field name="tokens_per_minute">100000</field>
         <field name="input_cost_per_1k">0.003</field>
         <field name="output_cost_per_1k">0.015</field>
+        <field name="auth_type">api_key_header</field>
+        <field name="auth_header_name">x-api-key</field>
+    </record>
+
+    <!-- Default Google Gemini Provider (inactive - needs API key) -->
+    <record id="ai_provider_gemini" model="ai.provider">
+        <field name="name">Google Gemini</field>
+        <field name="code">gemini</field>
+        <field name="sequence">30</field>
+        <field name="active">False</field>
+        <field name="api_key">YOUR_GEMINI_API_KEY</field>
+        <field name="api_base_url">https://generativelanguage.googleapis.com/v1beta</field>
+        <field name="model_name">gemini-1.5-flash</field>
+        <field name="default_max_tokens">2048</field>
+        <field name="default_temperature">0.7</field>
+        <field name="requests_per_minute">60</field>
+        <field name="tokens_per_minute">100000</field>
+        <field name="input_cost_per_1k">0.000075</field>
+        <field name="output_cost_per_1k">0.0003</field>
+        <field name="auth_type">api_key_query</field>
+        <field name="auth_key_name">key</field>
     </record>
 
     <!-- Default Prompt Templates -->

@@ -11,7 +11,7 @@
         - Mention @AI Assistant to get AI responses
         - Context-aware AI that understands the current record
         - Conversation history within chatter thread
-        - "Ask AI" button in chatter for quick questions
+        - "Ask AI" in Action menu for form views
     """,
     'author': 'HP Logistics',
     'website': 'https://hplogistics.vn',
@@ -19,6 +19,7 @@
     'data': [
         'security/ir.model.access.csv',
         'data/ai_chatter_data.xml',
+        'data/ai_server_actions.xml',
         'views/ai_chatter_views.xml',
     ],
     'assets': {

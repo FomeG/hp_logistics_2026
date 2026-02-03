@@ -185,6 +185,9 @@ Example for OpenAI-compatible:
                     'sticky': False,
                 }
             }
+
+
+            
         except Exception as e:
             _logger.exception("AI Provider connection test failed")
             return {

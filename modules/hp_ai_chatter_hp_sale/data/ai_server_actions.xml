@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        AI Server Actions for HP Sale Models
+        =====================================
+        Adds "Ask AI" to Action menu for:
+        - Sale Orders / Quotations
+        - Sea Freight Requests
+    -->
+
+    <!-- sale.order (Quotations / Sale Orders) -->
+    <record id="action_ask_ai_sale_order" model="ir.actions.server">
+        <field name="name">Ask AI Assistant</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Ask AI Assistant',
+    'res_model': 'ai.ask.wizard',
+    'view_mode': 'form',
+    'target': 'new',
+    'context': {
+        'default_res_model': model._name,
+        'default_res_id': record.id if record else False,
+    }
+}
+        </field>
+    </record>
+
+    <!-- freight.purchase.sea.freight.request (Sea Freight Requests) -->
+    <record id="action_ask_ai_sea_freight_request" model="ir.actions.server">
+        <field name="name">Ask AI Assistant</field>
+        <field name="model_id" ref="hp_sale.model_freight_purchase_sea_freight_request"/>
+        <field name="binding_model_id" ref="hp_sale.model_freight_purchase_sea_freight_request"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Ask AI Assistant',
+    'res_model': 'ai.ask.wizard',
+    'view_mode': 'form',
+    'target': 'new',
+    'context': {
+        'default_res_model': model._name,
+        'default_res_id': record.id if record else False,
+    }
+}
+        </field>
+    </record>
+
+</odoo>

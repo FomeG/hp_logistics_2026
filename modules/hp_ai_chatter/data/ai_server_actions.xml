@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        ╔═══════════════════════════════════════════════════════════════════════╗
+        ║     AI SERVER ACTIONS - Add "Ask AI" to Action menu                   ║
+        ╠═══════════════════════════════════════════════════════════════════════╣
+        ║                                                                       ║
+        ║  To add AI action for YOUR custom model, copy this template           ║
+        ║  and put it in YOUR module's data folder:                             ║
+        ║                                                                       ║
+        ║  <record id="action_ask_ai_YOUR_MODEL" model="ir.actions.server">     ║
+        ║      <field name="name">🤖 Ask AI Assistant</field>                   ║
+        ║      <field name="model_id" ref="YOUR_MODULE.model_your_model"/>      ║
+        ║      <field name="binding_model_id" ref="YOUR_MODULE.model_your_model"/>║
+        ║      <field name="binding_view_types">form</field>                    ║
+        ║      <field name="state">code</field>                                 ║
+        ║      <field name="code">                                              ║
+        ║  action = {                                                           ║
+        ║      'type': 'ir.actions.act_window',                                 ║
+        ║      'name': 'Ask AI Assistant',                                      ║
+        ║      'res_model': 'ai.ask.wizard',                                    ║
+        ║      'view_mode': 'form',                                             ║
+        ║      'target': 'new',                                                 ║
+        ║      'context': {                                                     ║
+        ║          'default_res_model': model._name,                            ║
+        ║          'default_res_id': record.id if record else False,            ║
+        ║      }                                                                ║
+        ║  }                                                                    ║
+        ║      </field>                                                         ║
+        ║  </record>                                                            ║
+        ║                                                                       ║
+        ║  EXAMPLES:                                                            ║
+        ║  - sale.order:      ref="sale.model_sale_order"                       ║
+        ║  - purchase.order:  ref="purchase.model_purchase_order"               ║
+        ║  - account.move:    ref="account.model_account_move"                  ║
+        ║  - trucking.planning.trip: ref="hp_trucking_planning.model_trucking_planning_trip" ║
+        ║                                                                       ║
+        ╚═══════════════════════════════════════════════════════════════════════╝
+    -->
+
+    <!-- res.partner (Contacts) - Base module -->
+    <record id="action_ask_ai_partner" model="ir.actions.server">
+        <field name="name">Ask AI Assistant</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="binding_model_id" ref="base.model_res_partner"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Ask AI Assistant',
+    'res_model': 'ai.ask.wizard',
+    'view_mode': 'form',
+    'target': 'new',
+    'context': {
+        'default_res_model': model._name,
+        'default_res_id': record.id if record else False,
+    }
+}
+        </field>
+    </record>
+
+    <!-- res.users (Users) - Base module -->
+    <record id="action_ask_ai_users" model="ir.actions.server">
+        <field name="name">Ask AI Assistant</field>
+        <field name="model_id" ref="base.model_res_users"/>
+        <field name="binding_model_id" ref="base.model_res_users"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Ask AI Assistant',
+    'res_model': 'ai.ask.wizard',
+    'view_mode': 'form',
+    'target': 'new',
+    'context': {
+        'default_res_model': model._name,
+        'default_res_id': record.id if record else False,
+    }
+}
+        </field>
+    </record>
+</odoo>

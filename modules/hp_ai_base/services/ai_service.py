@@ -19,6 +19,13 @@ except ImportError:
     ANTHROPIC_AVAILABLE = False
     _logger.warning("Anthropic library not installed. Anthropic provider will not be available.")
 
+try:
+    import google.generativeai as genai
+    GEMINI_AVAILABLE = True
+except ImportError:
+    GEMINI_AVAILABLE = False
+    _logger.warning("Google Generative AI library not installed. Gemini provider will not be available.")
+
 
 class AIService(models.AbstractModel):
     _name = 'ai.service'
@@ -80,6 +87,12 @@ class AIService(models.AbstractModel):
             elif provider.code == 'anthropic':
                 result = self._call_anthropic(provider, final_messages, effective_model,
                                               effective_max_tokens, effective_temperature)
+            elif provider.code == 'gemini':
+                result = self._call_gemini(provider, final_messages, effective_model,
+                                           effective_max_tokens, effective_temperature)
+            elif provider.code == 'custom':
+                result = self._call_custom(provider, final_messages, effective_model,
+                                           effective_max_tokens, effective_temperature)
             else:
                 raise UserError(_("Unknown provider: %s") % provider.code)
 
@@ -199,6 +212,84 @@ class AIService(models.AbstractModel):
             'output_tokens': response.usage.output_tokens,
             'model': response.model,
         }
+
+    @api.model
+    def _call_gemini(self, provider, messages, model, max_tokens, temperature):
+        """Call Google Gemini API"""
+        if not GEMINI_AVAILABLE:
+            raise UserError(_("Google Generative AI library is not installed. Please install it with: pip install google-generativeai"))
+
+        # Configure API key
+        genai.configure(api_key=provider.api_key)
+
+        # Create the model
+        generation_config = {
+            "temperature": temperature,
+            "max_output_tokens": max_tokens,
+        }
+
+        gemini_model = genai.GenerativeModel(
+            model_name=model,
+            generation_config=generation_config,
+        )
+
+        # Convert messages to Gemini format
+        # Gemini uses 'user' and 'model' roles, and system instruction is separate
+        system_instruction = None
+        gemini_history = []
+        current_message = None
+
+        for msg in messages:
+            role = msg['role']
+            content = msg['content']
+
+            if role == 'system':
+                system_instruction = content
+            elif role == 'user':
+                gemini_history.append({
+                    'role': 'user',
+                    'parts': [content]
+                })
+                current_message = content
+            elif role == 'assistant':
+                gemini_history.append({
+                    'role': 'model',
+                    'parts': [content]
+                })
+
+        # If there's a system instruction, create a new model with it
+        if system_instruction:
+            gemini_model = genai.GenerativeModel(
+                model_name=model,
+                generation_config=generation_config,
+                system_instruction=system_instruction,
+            )
+
+        # Start chat with history (excluding the last user message)
+        chat_history = gemini_history[:-1] if len(gemini_history) > 1 else []
+        chat = gemini_model.start_chat(history=chat_history)
+
+        # Send the last user message
+        response = chat.send_message(current_message or messages[-1]['content'])
+
+        # Get token counts
+        input_tokens = 0
+        output_tokens = 0
+        if hasattr(response, 'usage_metadata'):
+            input_tokens = getattr(response.usage_metadata, 'prompt_token_count', 0)
+            output_tokens = getattr(response.usage_metadata, 'candidates_token_count', 0)
+
+        return {
+            'content': response.text,
+            'input_tokens': input_tokens,
+            'output_tokens': output_tokens,
+            'model': model,
+        }
+
+    @api.model
+    def _call_custom(self, provider, messages, model, max_tokens, temperature):
+        """Call Custom API - placeholder for future implementation"""
+        raise UserError(_("Custom provider is not yet implemented. Please use OpenAI, Anthropic, or Gemini."))
 
     @api.model
     def _log_usage(self, provider, template, result, response_time, messages,

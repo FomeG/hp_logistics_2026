@@ -31,7 +31,8 @@
                         </group>
                         <group string="API Settings">
                             <field name="api_key" password="True"/>
-                            <field name="api_base_url" placeholder="Leave empty for default"/>
+                            <field name="api_base_url" placeholder="Leave empty for default"
+                                   required="code == 'custom'"/>
                             <field name="model_name"/>
                         </group>
                     </group>
@@ -55,6 +56,33 @@
                             <field name="total_tokens"/>
                             <field name="total_cost"/>
                         </group>
+                    </group>
+
+                    <!-- Custom Configuration Section -->
+                    <separator string="Custom Configuration" invisible="code != 'custom'"/>
+                    <group invisible="code != 'custom'">
+                        <group string="Authentication">
+                            <field name="auth_type"/>
+                            <field name="auth_header_name"
+                                   invisible="auth_type == 'api_key_query'"
+                                   required="code == 'custom' and auth_type != 'api_key_query'"/>
+                            <field name="auth_key_name"
+                                   invisible="auth_type != 'api_key_query'"
+                                   required="code == 'custom' and auth_type == 'api_key_query'"/>
+                        </group>
+                        <group string="Advanced">
+                            <field name="is_custom_config" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+
+                    <group invisible="not is_custom_config or code != 'custom'" string="Custom Request/Response Configuration">
+                        <field name="custom_headers" placeholder='{"X-Custom-Header": "value"}'/>
+                        <field name="custom_request_template" placeholder='{"model": "{model}", "messages": {messages}}'/>
+                    </group>
+                    <group invisible="not is_custom_config or code != 'custom'" string="Response Parsing Paths">
+                        <field name="custom_response_content_path"/>
+                        <field name="custom_response_input_tokens_path"/>
+                        <field name="custom_response_output_tokens_path"/>
                     </group>
                 </sheet>
             </form>
@@ -89,7 +117,7 @@
                 Configure your AI providers
             </p>
             <p>
-                Add your OpenAI or Anthropic API keys to enable AI features.
+                Add your OpenAI, Anthropic, Gemini, or custom API keys to enable AI features.
             </p>
         </field>
     </record>

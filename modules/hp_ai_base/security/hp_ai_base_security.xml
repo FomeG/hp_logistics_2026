@@ -16,6 +16,22 @@
         <field name="comment">Can use AI features in the system</field>
     </record>
 
+
+    <record id="base.group_user" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_ai_user'))]"/>
+    </record>
+
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_ai_manager'))]"/>
+    </record>
+    
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[(4, ref('group_ai_user'))]"/>
+    </record>
+
+
+
+
     <!-- Record Rules -->
     <!-- Users can only see their own usage logs -->
     <record id="ai_usage_log_user_rule" model="ir.rule">
