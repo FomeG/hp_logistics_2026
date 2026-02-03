@@ -28,6 +28,9 @@ class TruckingDashboardController(http.Controller):
         action_new_plans_from_cs_id = request.env.ref('hp_trucking_planning.action_new_plans_from_cs',raise_if_not_found=False)
         action_pending_plans_id = request.env.ref('hp_trucking_planning.action_pending_plans', raise_if_not_found=False)
 
+        # Lấy menu_id để giữ menu context khi navigate
+        menu_trucking_root = request.env.ref('hp_trucking_planning.menu_trucking_root', raise_if_not_found=False)
+
         # Render template QWeb với dữ liệu
         return request.render('hp_trucking_planning.trucking_dashboard_template', {
             'dashboard_data': dashboard_data,
@@ -36,7 +39,8 @@ class TruckingDashboardController(http.Controller):
             'action_trip_analysis_id': action_trip_analysis_id.id if action_trip_analysis_id else False,
             'action_trip_on_route_id': action_trip_on_route_id.id if action_trip_on_route_id else False,
             'action_new_plans_from_cs_id': action_new_plans_from_cs_id.id if action_new_plans_from_cs_id else False,
-            'action_pending_plans_id': action_pending_plans_id.id if action_pending_plans_id else False
+            'action_pending_plans_id': action_pending_plans_id.id if action_pending_plans_id else False,
+            'menu_trucking_root_id': menu_trucking_root.id if menu_trucking_root else False,
         })
 
     @http.route('/trucking/dashboard/filter', type='json', auth='user', website=True, methods=['POST'])

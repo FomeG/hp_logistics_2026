@@ -101,28 +101,28 @@
                     <div class="row mt-4">
                         <div class="col-md-6 mb-2">
                             <t t-if="action_trip_analysis_id">
-                                <a t-att-href="'/web#action=' + str(action_trip_analysis_id)" class="btn btn-info btn-lg btn-block">
+                                <a t-att-href="'/web#action=' + str(action_trip_analysis_id) + '&amp;menu_id=' + str(menu_trucking_root_id)" class="btn btn-info btn-lg btn-block">
                                     <i class="fa fa-line-chart"/> Phân Tích Chi Tiết Chuyến Đi (<t t-esc="dashboard_data.get('total_trip_month', 0)"/>)
                                 </a>
                             </t>
                         </div>
                         <div class="col-md-6 mb-2">
                             <t t-if="action_trip_on_route_id">
-                                <a t-att-href="'/web#action=' + str(action_trip_on_route_id)" class="btn btn-warning btn-lg btn-block">
+                                <a t-att-href="'/web#action=' + str(action_trip_on_route_id) + '&amp;menu_id=' + str(menu_trucking_root_id)" class="btn btn-warning btn-lg btn-block">
                                     <i class="fa fa-truck"/> Chuyến Đang Trên Đường (<t t-esc="dashboard_data.get('total_trip_on_route', 0)"/>)
                                 </a>
                             </t>
                         </div>
                         <div class="col-md-6 mb-2">
                             <t t-if="action_new_plans_from_cs_id">
-                                <a t-att-href="'/web#action=' + str(action_new_plans_from_cs_id)" class="btn btn-primary btn-lg btn-block">
+                                <a t-att-href="'/web#action=' + str(action_new_plans_from_cs_id) + '&amp;menu_id=' + str(menu_trucking_root_id)" class="btn btn-primary btn-lg btn-block">
                                     <i class="fa fa-file-text-o"/> Kế Hoạch Mới Từ CS (<t t-esc="dashboard_data.get('new_plans_from_cs', 0)"/>)
                                 </a>
                             </t>
                         </div>
                         <div class="col-md-6 mb-2">
                             <t t-if="action_pending_plans_id">
-                                <a t-att-href="'/web#action=' + str(action_pending_plans_id)" class="btn btn-secondary btn-lg btn-block">
+                                <a t-att-href="'/web#action=' + str(action_pending_plans_id) + '&amp;menu_id=' + str(menu_trucking_root_id)" class="btn btn-secondary btn-lg btn-block">
                                     <i class="fa fa-clock-o"/> Kế Hoạch Đang Chờ (<t t-esc="dashboard_data.get('pending_plans', 0)"/>)
                                 </a>
                             </t>
