@@ -70,7 +70,7 @@ class AIAskWizard(models.TransientModel):
         if not record.exists():
             raise UserError(_("The related record no longer exists."))
 
-        # Build context from record
+        # Build context from record (basic context for system prompt)
         record_context = self._get_record_context(record)
 
         # Get or create conversation
@@ -79,7 +79,7 @@ class AIAskWizard(models.TransientModel):
             res_id=self.res_id
         )
 
-        # Build system prompt
+        # Build system prompt with tools awareness
         system_prompt = self._build_system_prompt(record_context)
 
         # Get conversation history
@@ -89,18 +89,24 @@ class AIAskWizard(models.TransientModel):
         conversation.add_message('user', self.question)
 
         try:
-            # Call AI service
+            # Call AI service with tools support
             ai_service = self.env['ai.service']
-            result = ai_service.completion(
+            result = ai_service.completion_with_tools(
                 messages=[{'role': 'system', 'content': system_prompt}] + history + [
                     {'role': 'user', 'content': self.question}
                 ],
+                record=record,
                 template_id=self.template_id.id if self.template_id else None,
                 res_model=self.res_model,
                 res_id=self.res_id,
             )
 
             ai_response = result.get('content', '')
+
+            # Log tool calls if any were made
+            tool_calls = result.get('tool_calls_made', [])
+            if tool_calls:
+                _logger.info(f"AI made {len(tool_calls)} tool calls: {[tc['name'] for tc in tool_calls]}")
 
             # Save to conversation
             conversation.add_message('assistant', ai_response)
@@ -128,16 +134,22 @@ class AIAskWizard(models.TransientModel):
             raise UserError(_("AI request failed: %s") % str(e))
 
     def _get_record_context(self, record):
-        """Extract context from the record"""
+        """Extract context from the record with dynamic field discovery"""
         context_parts = []
 
         # Try to get context from the record if it has the method
         if hasattr(record, '_get_ai_context'):
             return record._get_ai_context()
 
-        # Fallback: basic context
-        if hasattr(record, 'name'):
+        # Basic record info
+        context_parts.append(f"Model: {record._name}")
+        context_parts.append(f"Record ID: {record.id}")
+
+        # Basic field values
+        if hasattr(record, 'name') and record.name:
             context_parts.append(f"Name: {record.name}")
+        if hasattr(record, 'display_name') and record.display_name:
+            context_parts.append(f"Display Name: {record.display_name}")
         if hasattr(record, 'state'):
             context_parts.append(f"State: {record.state}")
         if hasattr(record, 'partner_id') and record.partner_id:
@@ -149,13 +161,44 @@ class AIAskWizard(models.TransientModel):
         if hasattr(record, 'amount_total'):
             context_parts.append(f"Total Amount: {record.amount_total}")
 
+        # Add available field types for AI to know what it can query
+        context_parts.append("\n--- Available Fields (use tools to query) ---")
+
+        many2one_fields = []
+        one2many_fields = []
+
+        for field_name, field_obj in record._fields.items():
+            if field_name.startswith('_') or field_name in ['id', 'create_uid', 'write_uid', 'create_date', 'write_date', '__last_update']:
+                continue
+            if field_obj.type == 'many2one':
+                many2one_fields.append(f"{field_name} ({field_obj.string})")
+            elif field_obj.type == 'one2many':
+                one2many_fields.append(f"{field_name} ({field_obj.string})")
+
+        if many2one_fields:
+            context_parts.append(f"Related Records (Many2one): {', '.join(many2one_fields[:10])}")
+        if one2many_fields:
+            context_parts.append(f"Line Items (One2many): {', '.join(one2many_fields[:10])}")
+
         return "\n".join(context_parts) if context_parts else "No context available."
 
     def _build_system_prompt(self, record_context):
-        """Build the system prompt"""
+        """Build the system prompt with tools awareness"""
         base_prompt = """You are an AI assistant integrated into an Odoo ERP system.
 You help users by answering questions about their business records.
-Be concise, helpful, and accurate. If you don't know something, say so.
+
+IMPORTANT: You have access to tools that can query the database for more information.
+When you need specific data that is not in the context, USE THE TOOLS to fetch it.
+Available tools:
+- get_field_value: Get any field value from the current record
+- get_related_record: Get details of related records (Many2one fields like partner_id, currency_id)
+- get_line_items: Get One2many line items (like order_line, invoice_line_ids)
+- get_record_summary: Get comprehensive summary of all fields
+- search_records: Search any Odoo model for related data
+- get_model_fields: Discover available fields on any model
+
+ALWAYS use tools to get accurate data rather than guessing or saying you don't have information.
+Be concise, helpful, and accurate.
 Always respond in the same language as the user's question."""
 
         if self.template_id:
@@ -163,10 +206,10 @@ Always respond in the same language as the user's question."""
 
         return f"""{base_prompt}
 
-Current Record Context:
+Current Record Context (basic info):
 {record_context}
 
-Answer the user's question based on this context."""
+Use tools to get more detailed information when needed."""
 
     def _format_response(self, text):
         """Format AI response as HTML"""
