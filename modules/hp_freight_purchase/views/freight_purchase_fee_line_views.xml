@@ -34,7 +34,7 @@
     <record id="freight_purchase_fee_line_list_view" model="ir.ui.view">
         <field name="name">freight.purchase.fee.line.list</field>
         <field name="model">freight.purchase.fee.line</field>
-        <field name="priority">1</field>na
+        <field name="priority">1</field>
         <field name="arch" type="xml">
             <list string="Fee Line List">
                 <field name="shipping_line_id"/>
