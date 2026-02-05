@@ -2,53 +2,55 @@
 <odoo>
 
     <record id="freight_purchase_fee_form_view" model="ir.ui.view">
-        <field name="name"> freight.purchase.fee.form</field>
+        <field name="name">freight.purchase.fee.form</field>
         <field name="model">freight.purchase.fee</field>
         <field name="arch" type="xml">
-            <form string="Fee">
+            <form string="Fee/Tariff">
                 <sheet>
                     <group>
-                        <field name="shipping_line_id" required="1" />
-                        <field name="fee_type_id" required="1"/>
-                        <field name="from_location_id" />
-                        <field name="to_location_id" />
-                        <field name="date_from" />
-                        <field name="date_to" />
-                        <field name="note" />
-                        <field name="country_id"/>
-                        <field name="notification" widget="toggle"/>
-
-                   <field name="container_line_ids" invisible="show_container_lines != 'container'" context="{'default_fee_id': id, 'default_fee_type_id': fee_type_id}">
-                                <list>
-                                    <field name="container_type_id"/>
-                                    <field name="amount"/>
-                                </list>
-                                <form>
-                                    <group>
-                                        <field name="container_type_id" required="1"/>
-                                        <field name="amount" required="1"/>
-                                    </group>
-                                </form>
-                            </field>
-                            <!-- Port lines -->
-                            <field name="port_line_ids" invisible="show_port_lines != 'port'" context="{'default_fee_id': id, 'default_fee_type_id': fee_type_id, 'default_country_id': country_id}">
-                                <list>
-                                    <field name="country_id"/>
-                                    <field name="port_id"/>
-                                    <field name="amount"/>
-                                </list>
-                                <form>
-                                    <group>
-                                        <field name="country_id" readonly="1"/>
-                                        <field name="port_id" required="1"/>
-                                        <field name="amount" required="1"/>
-                                    </group>
-                                </form>
-                            </field>
-
+                        <group string="General Information">
+                            <field name="shipping_line_id" required="1"/>
+                            <field name="from_location_id"/>
+                            <field name="to_location_id"/>
+                        </group>
+                        <group string="Validity Period">
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="notification" widget="boolean_toggle"/>
+                        </group>
                     </group>
+
+                    <notebook>
+                        <page string="Fee Lines" name="fee_lines">
+                            <field name="line_ids" context="{'default_fee_id': id}">
+                                <list editable="bottom">
+                                    <field name="fee_type_id" required="1"/>
+                                    <field name="charge_at" required="1"/>
+                                    <field name="container_type_id" column_invisible="parent.id == False" invisible="hide_container"/>
+                                    <field name="amount" required="1"/>
+                                    <field name="currency_id" required="1"/>
+                                    <!-- <field name="port_id" optional="hide"/> -->
+                                    <field name="hide_container" column_invisible="1"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <field name="fee_type_id" required="1"/>
+                                        <field name="charge_at" required="1"/>
+                                        <field name="container_type_id" invisible="hide_container"/>
+                                        <field name="amount" required="1"/>
+                                        <field name="currency_id" required="1"/>
+                                        <!-- <field name="port_id"/> -->
+                                        <field name="hide_container" invisible="1"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="note" placeholder="Additional notes..."/>
+                        </page>
+                    </notebook>
                 </sheet>
-                <chatter />
+                <chatter/>
             </form>
         </field>
     </record>
@@ -58,15 +60,14 @@
         <field name="model">freight.purchase.fee</field>
         <field name="priority">1</field>
         <field name="arch" type="xml">
-            <list string="List Fee">
-                <field name="shipping_line_id" />
-                <field name="fee_type_id" />
-                <field name="from_location_id" />
-                <field name="to_location_id" />
-                <field name="date_from" />
-                <field name="date_to" />
-                <field name="total_container_fees" />
-                <field name="create_date" />
+            <list string="Fee/Tariff List">
+                <field name="shipping_line_id"/>
+                <field name="from_location_id"/>
+                <field name="to_location_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="total_fee_lines"/>
+                <field name="create_date"/>
             </list>
         </field>
     </record>
@@ -75,18 +76,24 @@
         <field name="name">freight.purchase.fee.search</field>
         <field name="model">freight.purchase.fee</field>
         <field name="arch" type="xml">
-            <search string="List Fee">
-                <field name="shipping_line_id" />
-                <field name="fee_type_id" />
-                <field name="from_location_id" />
-                <field name="to_location_id" />
-                <field name="date_from" />
-                <field name="date_to" />
-                <!-- Group By -->
+            <search string="Search Fee/Tariff">
+                <field name="shipping_line_id"/>
+                <field name="from_location_id"/>
+                <field name="to_location_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+
+                <separator/>
+                <filter string="Valid Now" name="filter_valid_now"
+                        domain="[('date_from', '&lt;=', context_today().strftime('%%Y-%%m-%%d')), '|', ('date_to', '=', False), ('date_to', '&gt;=', context_today().strftime('%%Y-%%m-%%d'))]"/>
+                <filter string="Expiring Soon (7 days)" name="filter_expiring_soon"
+                        domain="[('date_to', '&lt;=', (context_today() + relativedelta(days=7)).strftime('%%Y-%%m-%%d')), ('date_to', '&gt;=', context_today().strftime('%%Y-%%m-%%d'))]"/>
+
                 <separator string="Group By"/>
                 <group expand="1" string="Group By">
                     <filter string="Shipping Line" name="group_by_shipping_line" context="{'group_by': 'shipping_line_id'}"/>
-                    <filter string="Fee Type" name="group_by_fee_type" context="{'group_by': 'fee_type_id'}"/>
+                    <filter string="POL" name="group_by_pol" context="{'group_by': 'from_location_id'}"/>
+                    <filter string="POD" name="group_by_pod" context="{'group_by': 'to_location_id'}"/>
                 </group>
             </search>
         </field>
@@ -95,8 +102,8 @@
     <record id="freight_purchase_fee_action" model="ir.actions.act_window">
         <field name="name">Freight Purchase Fee</field>
         <field name="res_model">freight.purchase.fee</field>
-        <field name="search_view_id" ref="freight_purchase_fee_search_view" />
-        <field name="view_id" ref="freight_purchase_fee_list_view" />
+        <field name="search_view_id" ref="freight_purchase_fee_search_view"/>
+        <field name="view_id" ref="freight_purchase_fee_list_view"/>
         <field name="view_mode">list,form</field>
     </record>
 

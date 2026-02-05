@@ -47,12 +47,6 @@ class FeeValidator(FreightValidator):
                 'domain': [('partner_main_type_id.code', '=', 'shipping_line')],
                 'required': True,
             },
-            'fee_type_id': {
-                'label': 'Fee Type',
-                'type': int,
-                'exists': 'freight.purchase.fee.type',
-                'required': True,
-            },
             'date_from': {
                 'label': 'Date From',
                 'required': False,
@@ -133,7 +127,7 @@ class FeeTypeUpdateValidator(FreightValidator):
 
 class FeeCreateValidator(FreightValidator):
     """Validates freight purchase fee creation"""
-    
+
     @classmethod
     def validate(cls, data, env):
         field_rules = {
@@ -142,12 +136,6 @@ class FeeCreateValidator(FreightValidator):
                 'type': int,
                 'exists': 'res.partner',
                 'domain': [('partner_main_type_id.code', '=', 'shipping_line')],
-                'required': True,
-            },
-            'fee_type_id': {
-                'label': 'Fee Type',
-                'type': int,
-                'exists': 'freight.purchase.fee.type',
                 'required': True,
             },
             'date_from': {
@@ -160,15 +148,10 @@ class FeeCreateValidator(FreightValidator):
                 'type': str,
                 'required': False,
             },
-            # 'note': {
-            #     'label': 'Note',
-            #     'type': str,
-            #     'required': False,
-            # },
         }
         errors = []
         validated = cls._validate(field_rules, data, env, errors)
-        
+
         # Custom validation: date_to should be after date_from
         if validated.get('date_from') and validated.get('date_to'):
             try:
@@ -179,12 +162,12 @@ class FeeCreateValidator(FreightValidator):
                     errors.append("Date To must be after Date From")
             except ValueError:
                 errors.append("Invalid date format. Use YYYY-MM-DD format")
-        
+
         return (validated, errors) if not errors else ({}, errors)
 
 class FeeUpdateValidator(FreightValidator):
     """Validates freight purchase fee updates"""
-    
+
     @classmethod
     def validate(cls, data, env, current_id=None):
         field_rules = {
@@ -193,11 +176,6 @@ class FeeUpdateValidator(FreightValidator):
                 'type': int,
                 'exists': 'res.partner',
                 'domain': [('partner_main_type_id.code', '=', 'shipping_line')],
-            },
-            'fee_type_id': {
-                'label': 'Fee Type',
-                'type': int,
-                'exists': 'freight.purchase.fee.type',
             },
             'date_from': {
                 'label': 'Date From',
@@ -214,7 +192,7 @@ class FeeUpdateValidator(FreightValidator):
         }
         errors = []
         validated = cls._validate(field_rules, data, env, errors)
-        
+
         # Custom validation: date_to should be after date_from
         if validated.get('date_from') and validated.get('date_to'):
             try:
@@ -225,14 +203,14 @@ class FeeUpdateValidator(FreightValidator):
                     errors.append("Date To must be after Date From")
             except ValueError:
                 errors.append("Invalid date format. Use YYYY-MM-DD format")
-        
+
         return (validated, errors) if not errors else ({}, errors)
 
 # ==================== FEE LINE VALIDATORS ====================
 
 class FeeLineCreateValidator(FreightValidator):
     """Validates freight purchase fee line creation"""
-    
+
     @classmethod
     def validate(cls, data, env):
         field_rules = {
@@ -242,11 +220,17 @@ class FeeLineCreateValidator(FreightValidator):
                 'exists': 'freight.purchase.fee',
                 'required': True,
             },
+            'fee_type_id': {
+                'label': 'Fee Type',
+                'type': int,
+                'exists': 'freight.purchase.fee.type',
+                'required': True,
+            },
             'container_type_id': {
                 'label': 'Container Type',
                 'type': int,
                 'exists': 'container.type',
-                'required': True,
+                'required': False,  # Not required for non-container fee types
             },
             'amount': {
                 'label': 'Amount',
@@ -254,31 +238,55 @@ class FeeLineCreateValidator(FreightValidator):
                 'min_value': 0,
                 'required': True,
             },
+            'currency_id': {
+                'label': 'Currency',
+                'type': int,
+                'exists': 'res.currency',
+                'required': True,
+            },
+            'charge_at': {
+                'label': 'Charge At',
+                'type': str,
+                'in': {'pol', 'pod', 'both'},
+                'required': True,
+            },
         }
         errors = []
         validated = cls._validate(field_rules, data, env, errors)
-        
-        # Custom validation: Check for duplicate container type within same fee
-        if validated.get('fee_id') and validated.get('container_type_id'):
-            existing = env['freight.purchase.fee.line'].sudo().search([
+
+        # Custom validation: Check for duplicate (fee_id, fee_type_id, container_type_id, charge_at)
+        if validated.get('fee_id') and validated.get('fee_type_id'):
+            domain = [
                 ('fee_id', '=', validated['fee_id']),
-                ('container_type_id', '=', validated['container_type_id'])
-            ], limit=1)
+                ('fee_type_id', '=', validated['fee_type_id']),
+                ('charge_at', '=', validated.get('charge_at', 'pol')),
+            ]
+            if validated.get('container_type_id'):
+                domain.append(('container_type_id', '=', validated['container_type_id']))
+            else:
+                domain.append(('container_type_id', '=', False))
+
+            existing = env['freight.purchase.fee.line'].sudo().search(domain, limit=1)
             if existing:
-                errors.append("Fee line already exists for this container type in the selected fee")
-        
+                errors.append("Fee line already exists for this fee type, container type and charge location combination")
+
         return (validated, errors) if not errors else ({}, errors)
 
 class FeeLineUpdateValidator(FreightValidator):
     """Validates freight purchase fee line updates"""
-    
+
     @classmethod
     def validate(cls, data, env, current_id=None):
         field_rules = {
             'fee_id': {
-                'label': 'Fee',
+                'label': 'Fee/Tariff',
                 'type': int,
                 'exists': 'freight.purchase.fee',
+            },
+            'fee_type_id': {
+                'label': 'Fee Type',
+                'type': int,
+                'exists': 'freight.purchase.fee.type',
             },
             'container_type_id': {
                 'label': 'Container Type',
@@ -290,21 +298,37 @@ class FeeLineUpdateValidator(FreightValidator):
                 'type': (int, float),
                 'min_value': 0,
             },
+            'currency_id': {
+                'label': 'Currency',
+                'type': int,
+                'exists': 'res.currency',
+            },
+            'charge_at': {
+                'label': 'Charge At',
+                'type': str,
+                'in': {'pol', 'pod', 'both'},
+            },
         }
         errors = []
         validated = cls._validate(field_rules, data, env, errors)
-        
-        # Custom validation: Check for duplicate container type within same fee (excluding current record)
-        if validated.get('fee_id') and validated.get('container_type_id'):
+
+        # Custom validation: Check for duplicate (fee_id, fee_type_id, container_type_id, charge_at) excluding current record
+        if validated.get('fee_id') and validated.get('fee_type_id') and validated.get('charge_at'):
             domain = [
                 ('fee_id', '=', validated['fee_id']),
-                ('container_type_id', '=', validated['container_type_id'])
+                ('fee_type_id', '=', validated['fee_type_id']),
+                ('charge_at', '=', validated['charge_at']),
             ]
+            if validated.get('container_type_id'):
+                domain.append(('container_type_id', '=', validated['container_type_id']))
+            else:
+                domain.append(('container_type_id', '=', False))
+
             if current_id:
                 domain.append(('id', '!=', current_id))
-            
+
             existing = env['freight.purchase.fee.line'].sudo().search(domain, limit=1)
             if existing:
-                errors.append("Fee line already exists for this container type in the selected fee")
-        
+                errors.append("Fee line already exists for this fee type, container type and charge location combination")
+
         return (validated, errors) if not errors else ({}, errors)

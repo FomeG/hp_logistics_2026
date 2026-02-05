@@ -5,7 +5,7 @@ from ..validators.fee_validator import FeeLineCreateValidator, FeeLineUpdateVali
 
 class FreightChargeFeeLine(models.Model):
     _name = 'freight.purchase.fee.line'
-    _description = 'Container Type Charges'
+    _description = 'Fee Line (Charge Detail)'
 
     name = fields.Char(
         string="Name",
@@ -15,121 +15,132 @@ class FreightChargeFeeLine(models.Model):
     )
     fee_id = fields.Many2one(
         'freight.purchase.fee',
+        string='Fee/Tariff',
         ondelete='cascade',
-        # required=True
+        required=True,
+        index=True,
+    )
+    fee_type_id = fields.Many2one(
+        'freight.purchase.fee.type',
+        string='Fee Type',
+        required=True,
+        index=True,
+        ondelete='restrict',
     )
     container_type_id = fields.Many2one(
         'container.type',
-        # required=True,
-        ondelete='cascade'
+        string='Container Type',
+        ondelete='restrict',
     )
     amount = fields.Float(
-        # required=True
+        string='Amount',
+        required=True,
     )
+    currency_id = fields.Many2one(
+        'res.currency',
+        string='Currency',
+        required=True,
+        default=lambda self: self.env.company.currency_id,
+    )
+    charge_at = fields.Selection([
+        ('pol', 'POL (Origin)'),
+        ('pod', 'POD (Destination)'),
+        ('both', 'Both'),
+    ],
+        string='Charge At',
+        default='pol',
+        required=True,
+        help="Where the fee is charged: POL (Port of Loading), POD (Port of Discharge), or Both"
+    )
+    # port_id = fields.Many2one(
+    #     'location.base',
+    #     string="Port",
+    # )
 
-    # New Related Fields
+    # Related fields for convenience (read-only, for filtering/display)
     shipping_line_id = fields.Many2one(
         'res.partner',
         related='fee_id.shipping_line_id',
         store=True,
-        readonly=True
+        readonly=True,
     )
-
-    fee_type_id = fields.Many2one(
-        'freight.purchase.fee.type',
-        related='fee_id.fee_type_id',
-        store=True,
-        readonly=True
-    )
-    port_id = fields.Many2one("location.base", string="Port")
-
     date_from = fields.Date(
         related='fee_id.date_from',
         store=True,
-        readonly=True
+        readonly=True,
     )
-
     date_to = fields.Date(
         related='fee_id.date_to',
         store=True,
-        readonly=True
-    )
-    country_id = fields.Many2one(
-        'res.country',
-        string='Country',
-        # related='port_id.country_id',
-        store=True,
+        readonly=True,
     )
 
-    # _sql_constraints = [
-    #     ('unique_container_fee', 'unique(fee_id, container_type_id)', 'Fee already exists for this container.')
-    # ]
+    # Computed field for UI logic - hide container when fee_type doesn't apply to container
+    hide_container = fields.Boolean(
+        compute='_compute_hide_container',
+        store=False,
+    )
+
+    _sql_constraints = [
+        ('unique_fee_line',
+         'unique(fee_id, fee_type_id, container_type_id, charge_at)',
+         'Fee line already exists for this fee type, container type and charge location combination.')
+    ]
+
+    @api.depends('fee_type_id')
+    def _compute_hide_container(self):
+        for record in self:
+            # Hide container field if fee_type doesn't apply to container
+            record.hide_container = record.fee_type_id.apply_on != 'container' if record.fee_type_id else False
+
+    @api.depends('fee_id', 'fee_type_id', 'container_type_id', 'amount', 'currency_id', 'charge_at')
+    def _compute_name(self):
+        charge_at_map = {'pol': 'POL', 'pod': 'POD', 'both': 'Both'}
+        for record in self:
+            parts = []
+            if record.fee_type_id:
+                parts.append(record.fee_type_id.name)
+            if record.charge_at:
+                parts.append(f"@{charge_at_map.get(record.charge_at, '')}")
+            if record.container_type_id:
+                parts.append(record.container_type_id.name)
+            if record.amount and record.currency_id:
+                parts.append(f"{record.amount:,.0f} {record.currency_id.name}")
+            record.name = ' - '.join(parts) if parts else 'New Fee Line'
 
     @api.model_create_multi
     def create(self, vals_list):
-        new_lines = []
         for vals in vals_list:
-            fee = self.env['freight.purchase.fee'].browse(vals.get('fee_id'))
             # Set default amount from fee_type_id.amount if not provided
-            if fee.fee_type_id and not vals.get('amount'):
-                vals['amount'] = fee.fee_type_id.amount
-            # Validate port_id against country_id
-            if vals.get('port_id') and vals.get('country_id'):
-                port = self.env['location.base'].browse(vals['port_id'])
-                if port.country_id.id != vals['country_id']:
-                    raise ValidationError(
-                        f"Port {port.name} does not belong to country {self.env['res.country'].browse(vals['country_id']).name}.")
-            # If user selects country and no port
-            if fee.country_id and not vals.get('port_id'):
-                ports = self.env['location.base'].search([('country_id', '=', fee.country_id.id)])
-                for port in ports:
-                    line_vals = vals.copy()
-                    line_vals['port_id'] = port.id
-                    line_vals['country_id'] = fee.country_id.id
-                    line_vals['amount'] = fee.fee_type_id.amount if fee.fee_type_id else 0.0
-                    if fee.fee_type_id.apply_on != 'container':
-                        line_vals['container_type_id'] = False
-                    new_lines.append(line_vals)
-            else:
-                new_lines.append(vals)
-        return super().create(new_lines)
+            if vals.get('fee_type_id') and not vals.get('amount'):
+                fee_type = self.env['freight.purchase.fee.type'].browse(vals['fee_type_id'])
+                if fee_type.amount:
+                    vals['amount'] = fee_type.amount
+
+            # Clear container_type_id if fee_type doesn't apply to container
+            if vals.get('fee_type_id'):
+                fee_type = self.env['freight.purchase.fee.type'].browse(vals['fee_type_id'])
+                if fee_type.apply_on != 'container':
+                    vals['container_type_id'] = False
+
+        return super().create(vals_list)
 
     def write(self, vals):
-        for record in self:
-            validated, errors = FeeLineUpdateValidator.validate(vals, self.env, record.id)
-            if errors:
-                raise ValidationError("\n".join([f"• {e}" for e in errors]))
-        return super().write(validated if validated else vals)
+        # If fee_type changes and doesn't apply to container, clear container_type_id
+        if vals.get('fee_type_id'):
+            fee_type = self.env['freight.purchase.fee.type'].browse(vals['fee_type_id'])
+            if fee_type.apply_on != 'container':
+                vals['container_type_id'] = False
 
-    @api.depends('fee_id','container_type_id')
-    def _compute_name(self):
-        for record in self:
-            record.name = f"{record.fee_id.name or ''} - {record.container_type_id.name or ''}"
-
-    @api.onchange('fee_id')
-    def _onchange_fee_id(self):
-        if self.fee_id and self.fee_id.fee_type_id:
-            self.amount = self.fee_id.fee_type_id.amount  # Set amount from fee_type_id
-            if self.fee_id.country_id:
-                self.country_id = self.fee_id.country_id
-                return {
-                    'domain': {
-                        'port_id': [('country_id', '=', self.fee_id.country_id.id)]
-                    }
-                }
-        return {'domain': {'port_id': []}}
-
-    @api.onchange('country_id')
-    def _onchange_country_id(self):
-        if self.country_id:
-            return {
-                'domain': {
-                    'port_id': [('country_id', '=', self.country_id.id)]
-                }
-            }
-        return {'domain': {'port_id': []}}
+        return super().write(vals)
 
     @api.onchange('fee_type_id')
     def _onchange_fee_type_id(self):
         if self.fee_type_id:
-            self.amount = self.fee_type_id.amount
+            # Set default amount from fee_type
+            if self.fee_type_id.amount and not self.amount:
+                self.amount = self.fee_type_id.amount
+            
+            # Clear container if fee_type doesn't apply to container
+            if self.fee_type_id.apply_on != 'container':
+                self.container_type_id = False

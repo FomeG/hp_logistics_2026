@@ -30,6 +30,7 @@
             <list string="Fee Type List">
                 <field name="name" />
                 <field name="direction" />
+                <field name="apply_on" />
                 <field name="amount" />
                 <field name="active" />
                 <field name="description"/>

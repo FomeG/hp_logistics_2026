@@ -1,105 +1,124 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <odoo>
  <data noupdate="1">
     <!-- Parent Fee Types -->
     <record id="fee_type_faf" model="freight.purchase.fee.type">
         <field name="name">FAF</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Fuel Adjustment Factor - Phụ phí xăng dầu, tính thêm khi giá nhiên liệu biến động.</field>
     </record>
     <record id="fee_type_bk" model="freight.purchase.fee.type">
         <field name="name">BK</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Bunker Adjustment Factor - Phụ phí xăng dầu tàu, tương tự FAF nhưng áp dụng riêng từng tuyến.</field>
     </record>
     <record id="fee_type_lsa" model="freight.purchase.fee.type">
         <field name="name">LSA</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Low Sulphur Surcharge - Phụ phí nhiên liệu ít lưu huỳnh theo quy định IMO.</field>
     </record>
     <record id="fee_type_lss" model="freight.purchase.fee.type">
         <field name="name">LSS</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Low Sulphur Surcharge (tương tự LSA) - phụ phí môi trường khi tàu đi qua khu vực kiểm soát khí thải.</field>
     </record>
     <record id="fee_type_emc" model="freight.purchase.fee.type">
         <field name="name">EMC</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Emergency Surcharge - Phụ phí khẩn cấp do biến động thị trường hoặc chi phí phát sinh bất thường.</field>
     </record>
     <record id="fee_type_ets" model="freight.purchase.fee.type">
         <field name="name">ETS</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Emission Trading System - Phí phát thải khí CO2 theo chính sách môi trường EU ETS.</field>
     </record>
     <record id="fee_type_wrs" model="freight.purchase.fee.type">
         <field name="name">WRS</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">War Risk Surcharge - Phụ phí rủi ro chiến tranh áp dụng khi tàu đi qua khu vực nguy hiểm.</field>
     </record>
     <record id="fee_type_hws" model="freight.purchase.fee.type">
         <field name="name">HWS</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Heavy Weather Surcharge - Phụ phí thời tiết xấu, áp dụng trên tuyến có bão, biển động mạnh.</field>
     </record>
     <record id="fee_type_ows" model="freight.purchase.fee.type">
         <field name="name">OWS</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Offshore Surcharge - Phụ phí vận chuyển đến các cảng xa bờ hoặc vùng khó tiếp cận.</field>
     </record>
     <record id="fee_type_cic" model="freight.purchase.fee.type">
         <field name="name">CIC (demo)</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Container Imbalance Charge - Phụ phí mất cân bằng container, do thiếu container rỗng ở một số khu vực.</field>
     </record>
     <record id="fee_type_isps" model="freight.purchase.fee.type">
         <field name="name">ISPS</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">International Ship and Port Facility Security - Phụ phí an ninh cảng và tàu biển.</field>
     </record>
     <record id="fee_type_cfs" model="freight.purchase.fee.type">
         <field name="name">CFS</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Container Freight Station - Phí gom hàng tại kho CFS.</field>
     </record>
     <record id="fee_type_isp" model="freight.purchase.fee.type">
         <field name="name">ISP</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Inspection Fee - Phí kiểm tra container hoặc hàng hóa tại cảng.</field>
     </record>
     <record id="fee_type_pss" model="freight.purchase.fee.type">
         <field name="name">PSS</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Peak Season Surcharge - Phụ phí mùa cao điểm khi nhu cầu vận chuyển tăng cao.</field>
     </record>
     <record id="fee_type_pnc" model="freight.purchase.fee.type">
         <field name="name">PNC</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Port Congestion Surcharge - Phụ phí tắc nghẽn cảng, do cảng quá tải.</field>
     </record>
     <record id="fee_type_waf" model="freight.purchase.fee.type">
         <field name="name">WAF</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">West Africa Surcharge - Phụ phí riêng áp dụng cho tuyến Tây Phi.</field>
     </record>
     <record id="fee_type_lws" model="freight.purchase.fee.type">
         <field name="name">LWS</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Low Water Surcharge - Phụ phí khi mực nước thấp, tàu không thể chở đủ tải.</field>
     </record>
     <record id="fee_type_ihl" model="freight.purchase.fee.type">
         <field name="name">IHL</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Inland Haulage (Local) - Phí vận chuyển nội địa đường bộ.</field>
     </record>
     <record id="fee_type_ihc" model="freight.purchase.fee.type">
         <field name="name">IHC</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Inland Haulage (Containerized) - Phí vận chuyển container nội địa.</field>
     </record>
     <record id="fee_type_dgs" model="freight.purchase.fee.type">
         <field name="name">DGS</field>
+        <field name="apply_on">container</field>
         <field name="direction">n/a</field>
         <field name="description">Dangerous Goods Surcharge - Phụ phí hàng nguy hiểm.</field>
     </record>
@@ -107,6 +126,7 @@
     <!-- Local Charges as child fees -->
     <record id="fee_type_local_charges" model="freight.purchase.fee.type">
         <field name="name">Local Charges (demo)</field>
+        <!-- <field name="apply_on">container</field>  -->
         <field name="direction">n/a</field>
         <field name="description">Nhóm phụ phí địa phương, phát sinh tại cảng xếp/dỡ.</field>
     </record>
@@ -114,44 +134,51 @@
     <record id="fee_type_thc" model="freight.purchase.fee.type">
         <field name="name">THC (demo)</field>
         <field name="parent_id" ref="fee_type_local_charges"/>
+        <field name="apply_on">container</field> <!-- THC tính theo cont -->
         <field name="direction">n/a</field>
         <field name="description">Terminal Handling Charge - Phí xếp dỡ container tại cảng.</field>
     </record>
     <record id="fee_type_doc" model="freight.purchase.fee.type">
         <field name="name">DOC (demo)</field>
         <field name="parent_id" ref="fee_type_local_charges"/>
+        <!-- Doc tính theo bill -->
+        <!-- <field name="apply_on">port</field> -->
         <field name="direction">n/a</field>
         <field name="description">Documentation Fee - Phí chứng từ, phát hành vận đơn.</field>
     </record>
     <record id="fee_type_seal" model="freight.purchase.fee.type">
         <field name="name">SEAL (demo)</field>
         <field name="parent_id" ref="fee_type_local_charges"/>
+        <field name="apply_on">container</field> <!-- Seal tính theo cont -->
         <field name="direction">n/a</field>
         <field name="description">Seal Fee - Phí niêm phong container.</field>
     </record>
     <record id="fee_type_tlx" model="freight.purchase.fee.type">
         <field name="name">TLX (demo)</field>
         <field name="parent_id" ref="fee_type_local_charges"/>
+        <field name="apply_on">port</field> <!-- Telex tính theo bill -->
         <field name="direction">n/a</field>
         <field name="description">Telex Release Fee - Phí điện giao hàng, dùng để giải phóng hàng mà không cần vận đơn gốc.</field>
     </record>
     <record id="fee_type_ams" model="freight.purchase.fee.type">
         <field name="name">AMS (demo)</field>
         <field name="parent_id" ref="fee_type_local_charges"/>
+        <field name="apply_on">port</field> <!-- AMS tính theo bill -->
         <field name="direction">n/a</field>
         <field name="description">Automated Manifest System Fee - Phí khai báo manifest điện tử cho Mỹ.</field>
     </record>
     <record id="fee_type_ens" model="freight.purchase.fee.type">
         <field name="name">ENS (demo)</field>
         <field name="parent_id" ref="fee_type_local_charges"/>
+        <field name="apply_on">port</field> <!-- ENS tính theo bill -->
         <field name="direction">n/a</field>
         <field name="description">Entry Summary Declaration Fee - Phí khai báo hải quan trước cho EU.</field>
     </record>
 
-
     <record id="fee_type_cleaning_fee" model="freight.purchase.fee.type">
         <field name="name">Cleaning Fee (demo)</field>
         <field name="parent_id" ref="fee_type_local_charges"/>
+        <field name="apply_on">container</field> <!-- Vệ sinh tính theo cont -->
         <field name="direction">n/a</field>
         <field name="description">Cleaning Fee - Phí vệ sinh container sau khi sử dụng.</field>
     </record>

@@ -14,76 +14,75 @@ class FreightPurchaseBookingLineFee(models.Model):
 
     booking_line_id = fields.Many2one(
         comodel_name="freight.purchase.booking.line",
-        required=True
+        required=True,
+        ondelete='cascade',
     )
-    amount = fields.Float()
+    fee_line_id = fields.Many2one(
+        comodel_name="freight.purchase.fee.line",
+        string='Fee Line',
+        required=True,
+        domain="[('shipping_line_id', '=', shipping_line_id), '|', ('container_type_id', '=', container_type_id), ('container_type_id', '=', False)]"
+    )
+    amount = fields.Float(
+        string='Amount',
+    )
+    currency_id = fields.Many2one(
+        'res.currency',
+        string='Currency',
+        related='fee_line_id.currency_id',
+        store=True,
+        readonly=True,
+    )
 
-    # NOTE: Changed from quotation_id.shipping_line_id to booking_id.shipping_line_id
-    # because quotation model has been removed (issue #561)
+    # Related fields for domain filtering
     shipping_line_id = fields.Many2one(
-        # related="booking_line_id.booking_id.quotation_id.shippinng_line.id",
         related="booking_line_id.booking_id.shipping_line_id",
         store=True,
-        readonly=True
+        readonly=True,
     )
     container_type_id = fields.Many2one(
         related="booking_line_id.container_type_id",
         store=True,
-        readonly=True
+        readonly=True,
     )
-    fee_line_id = fields.Many2one(
-        comodel_name="freight.purchase.fee.line",
-        required=True,
-        domain="["
-               "('shipping_line_id', '=', shipping_line_id),"
-               "('container_type_id', '=', container_type_id),"
-               "]"
+
+    # Related field for display
+    fee_type_id = fields.Many2one(
+        related='fee_line_id.fee_type_id',
+        store=True,
+        readonly=True,
     )
+
     _sql_constraints = [
-        ('unique_booking_line_fee', 'unique(booking_line_id, fee_line_id)', 'Fee already exists for this container.')
+        ('unique_booking_line_fee', 
+         'unique(booking_line_id, fee_line_id)', 
+         'This fee has already been added to this booking line.')
     ]
 
     @api.onchange('fee_line_id')
     def _onchange_fee_line_id(self):
-        self.amount = self.fee_line_id.amount
+        if self.fee_line_id:
+            self.amount = self.fee_line_id.amount
 
-    @api.depends('fee_line_id')
+    @api.depends('fee_line_id', 'amount')
     def _compute_name(self):
         for record in self:
             if record.fee_line_id:
-                record.name = f"{record.fee_line_id.fee_type_id.name or 'Fee'}: {record.amount}"
+                fee_type_name = record.fee_line_id.fee_type_id.name or 'Fee'
+                currency_name = record.fee_line_id.currency_id.name or ''
+                record.name = f"{fee_type_name}: {record.amount:,.0f} {currency_name}"
             else:
                 record.name = "Fee"
 
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            # Filter out None values for optional fields to avoid type validation errors
-            filtered_vals = {}
-            for k, v in vals.items():
-                if k in ['booking_line_id', 'fee_line_id', 'amount']:
-                    # Always include required fields
-                    filtered_vals[k] = v
-                elif v is not None:
-                    # Only include optional fields if they have a value
-                    filtered_vals[k] = v
-            validated, errors = BookingLineFeeValidator.validate(filtered_vals, self.env, mode='create')
-            if errors:
-                raise ValidationError("\n".join([f"• {e}" for e in errors]))
+            # Set amount from fee_line if not provided
+            if vals.get('fee_line_id') and not vals.get('amount'):
+                fee_line = self.env['freight.purchase.fee.line'].browse(vals['fee_line_id'])
+                vals['amount'] = fee_line.amount
+
         return super().create(vals_list)
 
     def write(self, vals):
-        for record in self:
-            # Filter out None values for optional fields to avoid type validation errors
-            filtered_vals = {}
-            for k, v in vals.items():
-                if k in ['booking_line_id', 'fee_line_id', 'amount']:
-                    # Always include required fields
-                    filtered_vals[k] = v
-                elif v is not None:
-                    # Only include optional fields if they have a value
-                    filtered_vals[k] = v
-            validated, errors = BookingLineFeeValidator.validate(filtered_vals, self.env, mode='write', record=record)
-            if errors:
-                raise ValidationError("\n".join([f"• {e}" for e in errors]))
         return super().write(vals) 

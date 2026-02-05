@@ -31,10 +31,7 @@ class FreightPurchaseQuotationLineFee(models.Model):
     fee_line_id = fields.Many2one(
         comodel_name="freight.purchase.fee.line",
         required=True,
-        domain="["
-               "('shipping_line_id', '=', shipping_line_id),"
-               "('container_type_id', '=', container_type_id),"
-               "]"
+        domain="[('shipping_line_id', '=', shipping_line_id), '|', ('container_type_id', '=', container_type_id), ('container_type_id', '=', False)]"
     )
     _sql_constraints = [
         ('unique_quotation_line_fee', 'unique(quotation_line_id, fee_line_id)', 'Fee already exists for this container.')

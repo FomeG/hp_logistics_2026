@@ -8,17 +8,23 @@
             <form string="Fee Line">
                 <sheet>
                     <group>
-                        <group>
-                            <field name="fee_id" required="1" />
-                            <field name="container_type_id" required="1" />
-                            <field name="amount" required="1" />
+                        <group string="Fee Details">
+                            <field name="fee_id" required="1"/>
+                            <field name="fee_type_id" required="1"/>
+                            <field name="charge_at" required="1"/>
+                            <field name="container_type_id" invisible="hide_container"/>
+                            <field name="hide_container" invisible="1"/>
                         </group>
-                        <group>
-                            <field name="shipping_line_id" readonly="1" />
-                            <field name="fee_type_id" readonly="1" />
-                            <field name="date_from" readonly="1" />
-                            <field name="date_to" readonly="1" />
+                        <group string="Amount">
+                            <field name="amount" required="1"/>
+                            <field name="currency_id" required="1"/>
+                            <!-- <field name="port_id"/> -->
                         </group>
+                    </group>
+                    <group string="Related Information" col="4">
+                        <field name="shipping_line_id" readonly="1"/>
+                        <field name="date_from" readonly="1"/>
+                        <field name="date_to" readonly="1"/>
                     </group>
                 </sheet>
             </form>
@@ -28,14 +34,17 @@
     <record id="freight_purchase_fee_line_list_view" model="ir.ui.view">
         <field name="name">freight.purchase.fee.line.list</field>
         <field name="model">freight.purchase.fee.line</field>
-        <field name="priority">1</field>
+        <field name="priority">1</field>na
         <field name="arch" type="xml">
             <list string="Fee Line List">
-<!--                <field name="fee_id" />-->
-                <field name="shipping_line_id" />
-                <field name="fee_type_id" />
-                <field name="container_type_id" />
-                <field name="amount" />
+                <field name="shipping_line_id"/>
+                <field name="fee_type_id"/>
+                <field name="charge_at"/>
+                <field name="container_type_id"/>
+                <field name="amount"/>
+                <field name="currency_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
             </list>
         </field>
     </record>
@@ -45,48 +54,53 @@
         <field name="model">freight.purchase.fee.line</field>
         <field name="arch" type="xml">
             <search string="Fee Line Search">
-                <field name="fee_id" />
-                <field name="shipping_line_id" />
-                <field name="fee_type_id" />
-                <field name="container_type_id" />
-<!--                <field name="amount" />-->
-<!--                <field name="date_from" />-->
-<!--                <field name="date_to" />-->
+                <field name="fee_id"/>
+                <field name="shipping_line_id"/>
+                <field name="fee_type_id"/>
+                <field name="container_type_id"/>
+                <field name="charge_at"/>
 
-                <separator string="Availability Filters"/>
-                <!-- Date to within 1 week -->
-                <filter string="Ending Within 1 Week" name="filter_date_to_week"
-                        domain="[('date_to', '&lt;=', (context_today() + relativedelta(days=7)).strftime('%%Y-%%m-%%d'))]"/>
+                <separator string="Validity Filters"/>
+                <filter string="Valid Now" name="filter_valid_now"
+                        domain="[('date_from', '&lt;=', context_today().strftime('%%Y-%%m-%%d')), '|', ('date_to', '=', False), ('date_to', '&gt;=', context_today().strftime('%%Y-%%m-%%d'))]"/>
+                <filter string="Expiring Within 1 Week" name="filter_date_to_week"
+                        domain="[('date_to', '&lt;=', (context_today() + relativedelta(days=7)).strftime('%%Y-%%m-%%d')), ('date_to', '&gt;=', context_today().strftime('%%Y-%%m-%%d'))]"/>
 
-                <!-- Fee direction Filter -->
-                <separator string="Direction Filters"/>
-                <filter string="D Fees" name="filter_fee_direction_import"
+                <separator string="Charge Location"/>
+                <filter string="POL (Origin)" name="filter_charge_pol"
+                        domain="[('charge_at', '=', 'pol')]"/>
+                <filter string="POD (Destination)" name="filter_charge_pod"
+                        domain="[('charge_at', '=', 'pod')]"/>
+                <filter string="Both" name="filter_charge_both"
+                        domain="[('charge_at', '=', 'both')]"/>
+
+                <separator string="Fee Type Filters"/>
+                <filter string="Import Fees" name="filter_fee_direction_import"
                         domain="[('fee_type_id.direction', '=', 'import')]"/>
-                <filter string="L Fees" name="filter_fee_direction_export"
+                <filter string="Export Fees" name="filter_fee_direction_export"
                         domain="[('fee_type_id.direction', '=', 'export')]"/>
-
 
                 <separator string="Amount"/>
                 <filter string="Amount > 500" name="filter_amount_high" domain="[('amount', '&gt;', 500)]"/>
 
                 <separator string="Group By"/>
                 <group expand="1" string="Group By">
-<!--                    <filter string="Fee" name="group_by_fee" context="{'group_by': 'fee_id'}"/>-->
+                    <filter string="Fee/Tariff" name="group_by_fee" context="{'group_by': 'fee_id'}"/>
                     <filter string="Shipping Line" name="group_by_shipping_line" context="{'group_by': 'shipping_line_id'}"/>
                     <filter string="Fee Type" name="group_by_fee_type" context="{'group_by': 'fee_type_id'}"/>
+                    <filter string="Charge At" name="group_by_charge_at" context="{'group_by': 'charge_at'}"/>
                     <filter string="Container Type" name="group_by_container_type" context="{'group_by': 'container_type_id'}"/>
-<!--                    <filter string="Date From" name="group_by_date_from" context="{'group_by': 'date_from'}"/>-->
-                    <filter string="Date To" name="group_by_date_to" context="{'group_by': 'date_to'}"/>
+                    <filter string="Currency" name="group_by_currency" context="{'group_by': 'currency_id'}"/>
                 </group>
             </search>
         </field>
     </record>
 
     <record id="freight_purchase_fee_line_action" model="ir.actions.act_window">
-        <field name="name">Freight Purchase Fee Line</field>
+        <field name="name">Fee Lines</field>
         <field name="res_model">freight.purchase.fee.line</field>
-        <field name="search_view_id" ref="freight_purchase_fee_line_search_view" />
-        <field name="view_id" ref="freight_purchase_fee_line_list_view" />
+        <field name="search_view_id" ref="freight_purchase_fee_line_search_view"/>
+        <field name="view_id" ref="freight_purchase_fee_line_list_view"/>
         <field name="view_mode">list,form</field>
     </record>
 
